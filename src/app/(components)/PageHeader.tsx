@@ -1,33 +1,41 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { MdBookmarks } from 'react-icons/md'
 import Button from './Button'
 import SearchBarButton from './SearchBarButton'
 import NavigationMenu from './NavigationMenu'
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useRef, useEffect } from 'react'
 import { SearchDialog } from './SearchDialog'
+import { ClientButton } from './ClientButton'
+import { useHover } from 'usehooks-ts'
 
 type HeaderParams = {
-    showDialog: () => void
+    showDialog: () => void,
+    setIsBookmarksButtonHovered: (value: boolean) => void
 }
 
 export default function PageHeader() {
-    const [searchViewAnimation, setSearchViewAnimation] = useState('');
-    const router = useRouter();
+    const [searchDialogAnimation, setSearchDialogAnimation] = useState('');
+    const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+    const [isBookmarksButtonHovered, setIsBookmarksButtonHovered] = useState(false);
     const searchDialog = useRef<HTMLDialogElement>(null);
 
+    useEffect(() => {
+        console.log(isBookmarksButtonHovered);
+    }, [isBookmarksButtonHovered]);
+
     function showSearchView() {
-        setSearchViewAnimation('backdrop:animate-fadeIn animate-fadeIn');
+        setSearchDialogAnimation('backdrop:animate-fadeIn animate-slideUpIn');
         searchDialog.current?.showModal();
+        setIsSearchDialogOpen(true);
     }
 
     function hideSearchView() {
-        setSearchViewAnimation('backdrop:animate-fadeOut animate-fadeOut');
+        setSearchDialogAnimation('backdrop:animate-fadeOut animate-slideDownOut');
         let timeout = setTimeout(() => {
             searchDialog.current?.close();
+            setIsSearchDialogOpen(false);
             clearTimeout(timeout);
         }, 150);
     }
@@ -35,21 +43,26 @@ export default function PageHeader() {
     return (
         <>
             <Header
-                showDialog={() => showSearchView()} />
+                showDialog={() => showSearchView()}
+                setIsBookmarksButtonHovered={setIsBookmarksButtonHovered} />
 
             <SearchDialog
                 onHide={hideSearchView}
-                onTestButtonClick={() => {
-                    router.push('/search/author');
-                    hideSearchView();
-                }}
-                animation={searchViewAnimation}
+                animation={searchDialogAnimation}
+                isOpen={isSearchDialogOpen}
                 ref={searchDialog} />
         </>
     )
 }
 
-function Header({ showDialog }: HeaderParams) {
+function Header({ showDialog, setIsBookmarksButtonHovered }: HeaderParams) {
+    const bookmarksButtonRef = useRef(null);
+    const isBookmarksButtonHovered = useHover(bookmarksButtonRef);
+
+    useEffect(() => {
+        setIsBookmarksButtonHovered(isBookmarksButtonHovered);
+    }, [isBookmarksButtonHovered]);
+
     return (
         <header
             className='sticky top-0 z-10 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800'>
@@ -74,11 +87,12 @@ function Header({ showDialog }: HeaderParams) {
                     <SearchBarButton
                         onClick={() => showDialog()} />
 
-                    <Button
+                    <ClientButton
+                        ref={bookmarksButtonRef}
                         size='sm' variant='outline' className='aspect-square'>
                         <MdBookmarks
                             className='w-full' />
-                    </Button>
+                    </ClientButton>
                 </div>
             </div>
 

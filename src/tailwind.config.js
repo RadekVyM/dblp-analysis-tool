@@ -20,11 +20,21 @@ module.exports = {
         fadeOut: {
           '0%': { opacity: 1 },
           '100%': { opacity: 0 },
+        },
+        slideUpIn: {
+          '0%': { transform: 'translateY(100%)', opacity: 0 },
+          '100%': { transform: 'translateY(0)', opacity: 1 },
+        },
+        slideDownOut: {
+          '0%': { transform: 'translateY(0)', opacity: 1 },
+          '100%': { transform: 'translateY(100%)', opacity: 0 },
         }
       },
       animation: {
         fadeIn: 'fadeIn 150ms ease-in-out forwards',
         fadeOut: 'fadeOut 150ms ease-in-out forwards',
+        slideUpIn: 'slideUpIn 150ms ease-in-out forwards',
+        slideDownOut: 'slideDownOut 150ms ease-in-out forwards',
       }
     },
   },
