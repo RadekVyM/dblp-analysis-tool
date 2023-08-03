@@ -47,7 +47,7 @@ export default function PageHeader() {
                 setIsBookmarksButtonHovered={setIsBookmarksButtonHovered} />
 
             <SearchDialog
-                onHide={hideSearchView}
+                hide={hideSearchView}
                 animation={searchDialogAnimation}
                 isOpen={isSearchDialogOpen}
                 ref={searchDialog} />

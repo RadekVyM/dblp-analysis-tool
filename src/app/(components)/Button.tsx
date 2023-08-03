@@ -1,6 +1,32 @@
 import Link from 'next/link'
 import { VariantProps } from 'class-variance-authority'
-import { buttonVariants, cn } from '@/styling/buttonVariants'
+import { cn } from '@/utils/cssClassUtils'
+import { cva } from 'class-variance-authority'
+
+const buttonVariants = cva(
+    'btn',
+    {
+        variants: {
+            variant: {
+                default:
+                    'btn-default',
+                destructive:
+                    'btn-destructive',
+                outline:
+                    'btn-outline'
+            },
+            size: {
+                default: 'btn-md',
+                sm: 'btn-sm',
+                lg: 'btn-lg',
+            },
+        },
+        defaultVariants: {
+            variant: 'default',
+            size: 'default',
+        },
+    }
+)
 
 export interface ButtonParams extends
     React.ButtonHTMLAttributes<HTMLButtonElement>,

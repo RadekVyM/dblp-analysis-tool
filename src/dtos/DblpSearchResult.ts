@@ -1,18 +1,5 @@
-export interface RawDblpCompletion {
-    "@sc": string,
-    "@dc": string,
-    "@oc": string,
-    "@id": string,
-    text: string
-}
-
-export interface DblpCompletion {
-    score: number,
-    dc: number,
-    oc: number,
-    id: number,
-    text: string
-}
+import { createLocalUrl, createSearchUrl, extractNormalizedId } from "@/utils/urls"
+import { DbplSearchType } from "./DbplSearchType"
 
 export interface RawDblpBaseSearchResult {
     result: {
@@ -70,37 +57,51 @@ export interface RawDblpSearchResult<HitT> extends RawDblpBaseSearchResult {
     }
 }
 
-export class DblpSearchResult<HitT> {
+export interface RawDblpCompletion {
+    "@sc": string,
+    "@dc": string,
+    "@oc": string,
+    "@id": string,
+    text: string
+}
+
+export interface RawBaseHit {
+    url: string
+}
+
+export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
+    public readonly type: DbplSearchType;
     public readonly query: string;
     public readonly status: {
-        code: number,
-        text: string
+        readonly code: number,
+        readonly text: string
     };
     public readonly time: {
-        unit: string,
-        value: number
+        readonly unit: string,
+        readonly value: number
     };
     public readonly completions: {
-        total: number,
-        computed: number,
-        sent: number,
-        items: Array<DblpCompletion>
+        readonly total: number,
+        readonly computed: number,
+        readonly sent: number,
+        readonly items: Array<DblpCompletion>
     };
     public readonly hits: {
-        total: number,
-        computed: number,
-        sent: number,
-        first: number,
-        items: Array<{
-            score: number,
-            id: number,
-            info: HitT
+        readonly total: number,
+        readonly computed: number,
+        readonly sent: number,
+        readonly first: number,
+        readonly items: Array<{
+            readonly score: number,
+            readonly id: number,
+            readonly info: HitT
         }>
     };
 
-    constructor(rawResult: RawDblpBaseSearchResult) {
+    constructor(rawResult: RawDblpBaseSearchResult, type: DbplSearchType) {
         const result = rawResult.result;
 
+        this.type = type;
         this.query = result.query;
         this.status = {
             code: parseInt(result.status["@code"]),
@@ -114,60 +115,82 @@ export class DblpSearchResult<HitT> {
             total: parseInt(result.completions["@total"]),
             computed: parseInt(result.completions["@computed"]),
             sent: parseInt(result.completions["@sent"]),
-            items: getCompletions(rawResult)
+            items: getCompletions(rawResult, type)
         };
         this.hits = {
             total: parseInt(result.hits["@total"]),
             computed: parseInt(result.hits["@computed"]),
             sent: parseInt(result.hits["@sent"]),
             first: parseInt(result.hits["@first"]),
-            items: 'hit' in result.hits ? (rawResult as RawDblpSearchResult<HitT>).result.hits.hit.map(h => {
+            items: 'hit' in result.hits ? (rawResult as RawDblpSearchResult<RawBaseHit>).result.hits.hit.map(h => {
                 return {
                     score: parseInt(h["@score"]),
                     id: parseInt(h["@id"]),
-                    info: h.info
+                    info: {
+                        ...h.info,
+                        url: h.info.url,
+                        localUrl: createLocalUrl(h.info.url, type)
+                    } as HitT
                 }
             }) : []
         };
     }
 }
 
-export interface AuthorHit {
-    author: string,
-    url: string
+export interface DblpCompletion {
+    readonly localUrl: string,
+    readonly type: DbplSearchType,
+    readonly score: number,
+    readonly dc: number,
+    readonly oc: number,
+    readonly id: number,
+    readonly text: string
 }
 
-export interface VenueHit {
-    venue: string,
-    acronym: string,
-    type: string,
-    url: string
+export interface BaseDblpSearchHit {
+    readonly url: string,
+    readonly localUrl: string
 }
 
-function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult): Array<DblpCompletion> {
+export interface DblpAuthorSearchHit extends BaseDblpSearchHit {
+    readonly author: string
+}
+
+export interface DblpVenueSearchHit extends BaseDblpSearchHit {
+    readonly venue: string,
+    readonly acronym: string,
+    readonly type: string
+}
+
+
+function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: DbplSearchType): Array<DblpCompletion> {
     const result = rawResult.result;
 
     if ('c' in result.completions) {
         const resultWithHits = rawResult as RawDblpSearchResult<HitT>;
 
-        if (typeof resultWithHits.result.completions.c == typeof Array<RawDblpCompletion>) {
-            const completions = resultWithHits.result.completions.c as Array<RawDblpCompletion>;
+        if ('text' in resultWithHits.result.completions.c) {
+            const completion = resultWithHits.result.completions.c as RawDblpCompletion;
 
-            return completions.map(c => toCompletion(c));
+            return [toCompletion(completion, type)];
         }
 
-        return [toCompletion(resultWithHits.result.completions.c as RawDblpCompletion)];
+        const completions = resultWithHits.result.completions.c as Array<RawDblpCompletion>;
+
+        return completions.map(c => toCompletion(c, type));
     }
 
     return [];
 }
 
-function toCompletion(rawCompletion: RawDblpCompletion): DblpCompletion {
+function toCompletion(rawCompletion: RawDblpCompletion, type: DbplSearchType): DblpCompletion {
     return {
         score: parseInt(rawCompletion["@sc"]),
         dc: parseInt(rawCompletion["@dc"]),
         oc: parseInt(rawCompletion["@oc"]),
         id: parseInt(rawCompletion["@id"]),
-        text: rawCompletion.text
+        text: rawCompletion.text,
+        type: type,
+        localUrl: createSearchUrl(rawCompletion.text, type)
     }
 }
