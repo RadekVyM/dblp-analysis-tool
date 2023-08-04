@@ -2,28 +2,34 @@
 
 import Link from 'next/link'
 import { MdBookmarks } from 'react-icons/md'
-import Button from './Button'
 import SearchBarButton from './SearchBarButton'
 import NavigationMenu from './NavigationMenu'
 import { useState, useRef, useEffect } from 'react'
 import { SearchDialog } from './SearchDialog'
 import { ClientButton } from './ClientButton'
 import { useHover } from 'usehooks-ts'
+import { cn } from '@/shared/utils/tailwindUtils'
+import { BookmarksMenuState } from './BookmarksMenu'
 
-type HeaderParams = {
-    showDialog: () => void,
-    setIsBookmarksButtonHovered: (value: boolean) => void
+type PageHeaderParams = {
+    className: string,
+    bookmarksMenuState: BookmarksMenuState,
+    bookmarksButtonClick: () => void,
+    bookmarksButtonHoverChanged: (value: boolean) => void
 }
 
-export default function PageHeader() {
+type HeaderParams = {
+    className: string,
+    bookmarksMenuState: BookmarksMenuState,
+    showDialog: () => void,
+    bookmarksButtonClick: () => void,
+    bookmarksButtonHoverChanged: (value: boolean) => void
+}
+
+export default function PageHeader({ className, bookmarksMenuState, bookmarksButtonHoverChanged, bookmarksButtonClick }: PageHeaderParams) {
     const [searchDialogAnimation, setSearchDialogAnimation] = useState('');
     const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
-    const [isBookmarksButtonHovered, setIsBookmarksButtonHovered] = useState(false);
     const searchDialog = useRef<HTMLDialogElement>(null);
-
-    useEffect(() => {
-        console.log(isBookmarksButtonHovered);
-    }, [isBookmarksButtonHovered]);
 
     function showSearchView() {
         setSearchDialogAnimation('backdrop:animate-fadeIn animate-slideUpIn');
@@ -43,8 +49,11 @@ export default function PageHeader() {
     return (
         <>
             <Header
+                className={className}
+                bookmarksMenuState={bookmarksMenuState}
                 showDialog={() => showSearchView()}
-                setIsBookmarksButtonHovered={setIsBookmarksButtonHovered} />
+                bookmarksButtonHoverChanged={bookmarksButtonHoverChanged}
+                bookmarksButtonClick={bookmarksButtonClick} />
 
             <SearchDialog
                 hide={hideSearchView}
@@ -55,57 +64,69 @@ export default function PageHeader() {
     )
 }
 
-function Header({ showDialog, setIsBookmarksButtonHovered }: HeaderParams) {
+function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick, className, bookmarksMenuState }: HeaderParams) {
     const bookmarksButtonRef = useRef(null);
+    const hoverAreaRef = useRef(null);
     const isBookmarksButtonHovered = useHover(bookmarksButtonRef);
+    const isHoverAreaHovered = useHover(hoverAreaRef);
+    const bookmarkButtonVariant = bookmarksMenuState == BookmarksMenuState.Docked ? 'default' : 'outline';
 
     useEffect(() => {
-        setIsBookmarksButtonHovered(isBookmarksButtonHovered);
-    }, [isBookmarksButtonHovered]);
+        bookmarksButtonHoverChanged(isBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != BookmarksMenuState.Collapsed));
+    }, [isBookmarksButtonHovered, isHoverAreaHovered]);
 
     return (
         <header
-            className='sticky top-0 z-10 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800'>
+            className={cn('sticky top-0 z-20 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800', className)}>
             <div
-                className='flex place-items-center gap-10 max-w-screen-xl w-full h-16 mx-auto px-4'>
-                <Link
-                    href='/'
-                    className='flex place-items-center gap-5 with-logo'>
-                    <h1>
-                        <span className='block text-lg/6 font-bold'>dblp</span>
-                        <span className='block text-xs/3 text-gray-800 dark:text-gray-400'>analysis tool</span>
-                    </h1>
-                </Link>
-
+                className='grid grid-rows-[auto auto] grid-cols-[1fr] max-w-screen-xl w-full mx-auto px-4'>
                 <div
-                    className='flex-1 flex flex-col place-items-end'>
-                    <NavigationMenu />
+                    className='row-start-1 row-end-2 col-start-1 col-end-2 flex place-items-center gap-10 h-16'>
+                    <Link
+                        href='/'
+                        className='flex place-items-center gap-5 with-logo'>
+                        <h1>
+                            <span className='block text-lg/6 font-bold'>dblp</span>
+                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400'>analysis tool</span>
+                        </h1>
+                    </Link>
+
+                    <div
+                        className='flex-1 flex flex-col place-items-end'>
+                        <NavigationMenu />
+                    </div>
+
+                    <div
+                        className='hidden md:flex gap-5'>
+                        <SearchBarButton
+                            onClick={() => showDialog()} />
+
+                        <ClientButton
+                            ref={bookmarksButtonRef}
+                            size='sm' variant={bookmarkButtonVariant} className='aspect-square'
+                            onClick={bookmarksButtonClick}>
+                            <MdBookmarks
+                                className='w-full' />
+                        </ClientButton>
+                    </div>
                 </div>
 
                 <div
-                    className='hidden md:flex gap-5'>
+                    className='row-start-2 row-end-3 col-start-1 col-end-2 flex md:hidden gap-5 place-items-center h-16'>
                     <SearchBarButton
                         onClick={() => showDialog()} />
 
                     <ClientButton
-                        ref={bookmarksButtonRef}
-                        size='sm' variant='outline' className='aspect-square'>
+                        size='sm' variant={bookmarkButtonVariant} className='aspect-square'
+                        onClick={bookmarksButtonClick}>
                         <MdBookmarks
                             className='w-full' />
                     </ClientButton>
                 </div>
-            </div>
 
-            <div
-                className='flex md:hidden gap-5 place-items-center max-w-screen-xl w-full h-16 mx-auto px-4'>
-                <SearchBarButton
-                    onClick={() => showDialog()} />
-
-                <Button
-                    size='sm' variant='outline' className='aspect-square'>
-                    <MdBookmarks
-                        className='w-full' />
-                </Button>
+                <div
+                    ref={hoverAreaRef}
+                    className={`row-start-1 row-end-2 col-start-1 col-end-2 place-self-end w-12 h-5 mb-[-2px] bg-transparent ${isBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}></div>
             </div>
         </header>
     )

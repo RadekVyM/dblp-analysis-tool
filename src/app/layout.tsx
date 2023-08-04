@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import PageHeader from './(components)/PageHeader'
+import HeaderBookmarks from './(components)/HeaderBookmarks'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <body className={inter.className + ' min-h-screen flex flex-col'}>
+      <body className={inter.className + ' min-h-screen grid grid-rows-[auto_1fr_auto] grid-cols-[1fr]'}>
         <Scaffold>{children}</Scaffold>
       </body>
     </html>
@@ -31,15 +32,18 @@ function Scaffold({
 }) {
   return (
     <>
-      <PageHeader />
+      <HeaderBookmarks />
 
       <div
-        className='flex-1 max-w-screen-xl px-4 mx-auto w-full'>
-        {children}
+        className='row-start-2 row-end-3 col-start-1 col-end-2 max-w-screen-xl px-4 mx-auto w-full grid grid-cols-[1fr_17rem]'>
+        <div
+          className='col-start-1 col-end-3'>
+          {children}
+        </div>
       </div>
 
       <footer
-        className='border-t border-gray-200 dark:border-gray-800'>
+        className='row-start-3 row-end-4 col-start-1 col-end-2 border-t border-gray-200 dark:border-gray-800'>
         <div
           className='max-w-screen-xl px-4 py-5 mx-auto w-full'>
           <span className='text-sm'>© 2023 Radek Vymětalík</span>

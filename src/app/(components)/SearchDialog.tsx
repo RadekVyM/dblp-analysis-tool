@@ -96,7 +96,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             <div
                 className='dialog flex flex-col h-auto min-h-[20rem] isolate' onClick={(event) => event.stopPropagation()}>
                 <div
-                    className='flex gap-2 z-10 top-0 px-6 pt-6 pb-2 justify-self-stretch bg-gray-50 dark:bg-gray-900'>
+                    className='flex gap-2 z-10 top-0 px-6 pt-6 pb-2 justify-self-stretch bg-inherit dark:bg-gray-900'>
                     <form
                         className='relative flex-1'
                         onSubmit={onSubmit}>
@@ -107,7 +107,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                             onKeyDown={(event) => onKeyDown(event)}
                             onBlur={() => setSelectedUrl(undefined)}
                             placeholder='Search dblp...'
-                            className='w-full h-11 px-3 pl-10 bg-gray-50 hover:bg-gray-100 text-lg border border-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 rounded-lg transition-colors' />
+                            className='w-full h-11 px-3 pl-10 bg-white hover:bg-gray-100 text-lg border border-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 rounded-lg transition-colors' />
                         <div
                             className='absolute top-0 grid place-items-center w-10 h-full pointer-events-none'>
                             <MdSearch
@@ -184,7 +184,7 @@ function ResultsList({ query, selectedUrl, setUrls, hide }: ResultsListParams) {
                             </li>
                         }
                         {
-                            !authorsResult.isLoading && !authorsResult.isError && anyItems(authorsResult.authors?.hits.items) &&
+                            !authorsResult.isLoading && !authorsResult.isError && anyItems(...(authorsResult.authors?.hits.items || [])) &&
                             <HitsList
                                 title='Authors'>
                                 <ul>
@@ -200,7 +200,7 @@ function ResultsList({ query, selectedUrl, setUrls, hide }: ResultsListParams) {
                             </HitsList>
                         }
                         {
-                            !venuesResult.isLoading && !venuesResult.isError && anyItems(venuesResult.venues?.hits.items) &&
+                            !venuesResult.isLoading && !venuesResult.isError && anyItems(...(venuesResult.venues?.hits.items || [])) &&
                             <HitsList
                                 title='Venues'>
                                 <ul>
