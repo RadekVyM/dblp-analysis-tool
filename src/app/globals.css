@@ -19,16 +19,32 @@ body {
   background: var(--background);
 }
 
+.dialog {
+  color: var(--foreground);
+  @apply bg-gray-50 border border-gray-200 rounded-lg backdrop:backdrop-blur-md
+}
+
+@media (prefers-color-scheme: dark) {
+  .dialog {
+    @apply bg-gray-900 border-gray-800
+  }
+}
+
+.search-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 .with-logo::before {
   content: '';
   display: block;
+  align-self: stretch;
+  width: 2rem;
+  height: 2.5rem;
   background-image: url('/logo.svg');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  width: 2rem;
-  height: 2.5rem;
-  align-self: stretch;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,9 +53,20 @@ body {
   }
 }
 
+.hidden-a11y {
+  position: absolute;
+  width: 1px; 
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: polygon(0 0, 1px 0, 1px 1px, 0 1px);
+  border: 0;
+}
+
 @layer components {
   .btn {
-    @apply grid place-content-center rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
+    @apply grid place-content-center grid-flow-col rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-default {
@@ -63,6 +90,6 @@ body {
   }
 
   .btn-lg {
-    @apply h-11 px-8;
+    @apply h-11 px-6;
   }
 }

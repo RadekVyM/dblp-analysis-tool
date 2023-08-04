@@ -1,7 +1,7 @@
 'use client'
 
-import { DblpAuthorSearchHit, BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult, DblpVenueSearchHit } from '@/dtos/DblpSearchResult'
-import { DbplSearchType } from '@/dtos/DbplSearchType';
+import { DblpAuthorSearchHit, BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult, DblpVenueSearchHit } from '@/shared/dtos/DblpSearchResult'
+import { DbplSearchType } from '@/shared/dtos/DbplSearchType';
 import useSWR, { Fetcher } from 'swr'
 
 const DBLP_URL = 'https://dblp.org';
@@ -13,6 +13,7 @@ function createSearchFetcher<HitT extends BaseDblpSearchHit>(type: DbplSearchTyp
         if (!input.includes('q='))
             return null;
 
+        // TODO: Handler error codes
         return fetch(input).then(res =>
             res.json().then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, type)))
     };

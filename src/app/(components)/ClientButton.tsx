@@ -2,7 +2,7 @@
 
 import { forwardRef } from 'react'
 import { VariantProps } from 'class-variance-authority'
-import { cn } from '@/utils/cssClassUtils'
+import { cn } from '@/shared/utils/tailwindUtils'
 import { cva } from 'class-variance-authority'
 
 const buttonVariants = cva(

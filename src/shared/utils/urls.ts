@@ -1,4 +1,4 @@
-import { DbplSearchType } from "@/dtos/DbplSearchType";
+import { DbplSearchType } from "@/shared/dtos/DbplSearchType";
 import { normalizeQuery } from "./searchQuery";
 
 export const ID_LOCAL_SEPARATOR = '_';

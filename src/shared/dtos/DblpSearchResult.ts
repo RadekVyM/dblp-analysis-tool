@@ -1,4 +1,4 @@
-import { createLocalUrl, createSearchUrl, extractNormalizedId } from "@/utils/urls"
+import { createLocalUrl, createSearchUrl, extractNormalizedId } from "@/shared/utils/urls"
 import { DbplSearchType } from "./DbplSearchType"
 
 export interface RawDblpBaseSearchResult {
