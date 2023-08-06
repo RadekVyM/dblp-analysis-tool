@@ -65,15 +65,17 @@ export default function PageHeader({ className, bookmarksMenuState, bookmarksBut
 }
 
 function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick, className, bookmarksMenuState }: HeaderParams) {
-    const bookmarksButtonRef = useRef(null);
+    const topBookmarksButtonRef = useRef(null);
+    const bottomBookmarksButtonRef = useRef(null);
     const hoverAreaRef = useRef(null);
-    const isBookmarksButtonHovered = useHover(bookmarksButtonRef);
+    const isTopBookmarksButtonHovered = useHover(topBookmarksButtonRef);
+    const isBottomBookmarksButtonHovered = useHover(bottomBookmarksButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const bookmarkButtonVariant = bookmarksMenuState == BookmarksMenuState.Docked ? 'default' : 'outline';
 
     useEffect(() => {
-        bookmarksButtonHoverChanged(isBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != BookmarksMenuState.Collapsed));
-    }, [isBookmarksButtonHovered, isHoverAreaHovered]);
+        bookmarksButtonHoverChanged(isTopBookmarksButtonHovered || isBottomBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != BookmarksMenuState.Collapsed));
+    }, [isTopBookmarksButtonHovered, isBottomBookmarksButtonHovered, isHoverAreaHovered]);
 
     return (
         <header
@@ -102,7 +104,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
                             onClick={() => showDialog()} />
 
                         <ClientButton
-                            ref={bookmarksButtonRef}
+                            ref={topBookmarksButtonRef}
                             size='sm' variant={bookmarkButtonVariant} className='aspect-square'
                             onClick={bookmarksButtonClick}>
                             <MdBookmarks
@@ -117,6 +119,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
                         onClick={() => showDialog()} />
 
                     <ClientButton
+                        ref={bottomBookmarksButtonRef}
                         size='sm' variant={bookmarkButtonVariant} className='aspect-square'
                         onClick={bookmarksButtonClick}>
                         <MdBookmarks
@@ -126,7 +129,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
 
                 <div
                     ref={hoverAreaRef}
-                    className={`row-start-1 row-end-2 col-start-1 col-end-2 place-self-end w-12 h-5 mb-[-2px] bg-transparent ${isBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}></div>
+                    className={`row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 place-self-end w-12 h-4 mb-[-2px] bg-transparent ${isTopBookmarksButtonHovered || isBottomBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}></div>
             </div>
         </header>
     )

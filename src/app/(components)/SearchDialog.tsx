@@ -95,6 +95,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             */ }
             <div
                 className='dialog flex flex-col h-auto min-h-[20rem] isolate' onClick={(event) => event.stopPropagation()}>
+                <h2 className='sr-only'>Search dblp</h2>
                 <div
                     className='flex gap-2 z-10 top-0 px-6 pt-6 pb-2 justify-self-stretch bg-inherit dark:bg-gray-900'>
                     <form
@@ -168,7 +169,7 @@ function ResultsList({ query, selectedUrl, setUrls, hide }: ResultsListParams) {
                             anyItems(completions) &&
                             <li
                                 className='p-2'>
-                                <h3 className='hidden-a11y'>Suggestions</h3>
+                                <h3 className='sr-only'>Suggestions</h3>
                                 <ul>
                                     {
                                         completions.map(completion => (

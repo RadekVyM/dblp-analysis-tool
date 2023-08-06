@@ -32,11 +32,14 @@ export default function BookmarksMenu({ className, state, bookmarksHoverChanged 
             <div
                 ref={containerRef}
                 className='sticky z-10 grid top-[calc(8rem_+_2px)] md:top-[calc(4rem_+_1px)] col-start-2 col-span-3 max-h-[calc(100vh_-_8rem_-_2px)] md:max-h-[calc(100vh_-_4rem_-_1px)]'>
-                <div
-                    className='grid place-self-stretch my-4 p-5 bg-white rounded-lg shadow-sm'>
-                    <h2>Bookmarks</h2>
+                <article
+                    className='place-self-stretch my-4 p-5 bg-white dark:bg-gray-900 rounded-lg shadow-sm'>
+                    <h2 className='sr-only'>Saved Aurhor Groups</h2>
 
-                </div>
+                    <h3 className='font-semibold'>My Aurhor Groups</h3>
+
+                    <h3 className='font-semibold'>Saved Venues</h3>
+                </article>
             </div>
         </div>
     )

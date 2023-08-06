@@ -35,9 +35,10 @@ function Scaffold({
       <HeaderBookmarks />
 
       <div
-        className='row-start-2 row-end-3 col-start-1 col-end-2 max-w-screen-xl px-4 mx-auto w-full grid grid-cols-[1fr_17rem]'>
+        id='main-content-container'
+        className='row-start-2 row-end-3 col-start-1 col-end-2 max-w-screen-xl px-4 mx-auto w-full grid transition-all'>
         <div
-          className='col-start-1 col-end-3'>
+          className='col-start-1 col-end-2'>
           {children}
         </div>
       </div>
