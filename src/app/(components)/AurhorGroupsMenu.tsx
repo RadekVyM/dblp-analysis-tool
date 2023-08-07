@@ -8,13 +8,12 @@ import Button from './Button'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
 import { AurhorGroupsMenuState } from '@/shared/enums/AurhorGroupsMenuState'
 
-// TODO: Find a better name. "Bookmarks" is not the right one at all
 // TODO: Do I want the hover feature?
 
 type AurhorGroupsMenuParams = {
     className: string,
     state: AurhorGroupsMenuState,
-    bookmarksHoverChanged: (value: boolean) => void,
+    authorGroupsMenuHoverChanged: (value: boolean) => void,
     hide: () => void,
 }
 
@@ -22,7 +21,7 @@ type MenuParams = {
     hide: () => void,
 }
 
-export const AurhorGroupsMenu = forwardRef<HTMLElement, AurhorGroupsMenuParams>(({ className, state, bookmarksHoverChanged, hide }, ref) => {
+export const AurhorGroupsMenu = forwardRef<HTMLElement, AurhorGroupsMenuParams>(({ className, state, authorGroupsMenuHoverChanged: authorGroupsMenuHoverChanged, hide }, ref) => {
     const containerRef = useRef(null);
     const isContainerHovered = useHover(containerRef);
     const isNotMobile = useIsNotMobileSize();
@@ -30,7 +29,7 @@ export const AurhorGroupsMenu = forwardRef<HTMLElement, AurhorGroupsMenuParams>(
 
     useEffect(() => {
         if (isNotMobile)
-            bookmarksHoverChanged(isContainerHovered);
+            authorGroupsMenuHoverChanged(isContainerHovered);
     }, [isContainerHovered]);
 
     return (

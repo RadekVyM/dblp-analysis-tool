@@ -14,20 +14,20 @@ import { AurhorGroupsMenuState } from '@/shared/enums/AurhorGroupsMenuState'
 
 type PageHeaderParams = {
     className: string,
-    bookmarksMenuState: AurhorGroupsMenuState,
-    bookmarksButtonClick: () => void,
-    bookmarksButtonHoverChanged: (value: boolean) => void
+    authorGroupsMenuState: AurhorGroupsMenuState,
+    authorGroupsMenuButtonClick: () => void,
+    authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
 type HeaderParams = {
     className: string,
-    bookmarksMenuState: AurhorGroupsMenuState,
+    authorGroupsMenuState: AurhorGroupsMenuState,
     showDialog: () => void,
-    bookmarksButtonClick: () => void,
-    bookmarksButtonHoverChanged: (value: boolean) => void
+    authorGroupsMenuButtonClick: () => void,
+    authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
-export default function PageHeader({ className, bookmarksMenuState, bookmarksButtonHoverChanged, bookmarksButtonClick }: PageHeaderParams) {
+export default function PageHeader({ className, authorGroupsMenuState, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick }: PageHeaderParams) {
     const [searchDialogAnimation, setSearchDialogAnimation] = useState('');
     const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
     const searchDialog = useRef<HTMLDialogElement>(null);
@@ -51,10 +51,10 @@ export default function PageHeader({ className, bookmarksMenuState, bookmarksBut
         <>
             <Header
                 className={className}
-                bookmarksMenuState={bookmarksMenuState}
+                authorGroupsMenuState={authorGroupsMenuState}
                 showDialog={() => showSearchView()}
-                bookmarksButtonHoverChanged={bookmarksButtonHoverChanged}
-                bookmarksButtonClick={bookmarksButtonClick} />
+                authorGroupsMenuButtonHoverChanged={authorGroupsMenuButtonHoverChanged}
+                authorGroupsMenuButtonClick={authorGroupsMenuButtonClick} />
 
             <SearchDialog
                 hide={hideSearchView}
@@ -65,18 +65,17 @@ export default function PageHeader({ className, bookmarksMenuState, bookmarksBut
     )
 }
 
-function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick, className, bookmarksMenuState }: HeaderParams) {
-    const topBookmarksButtonRef = useRef(null);
-    const bottomBookmarksButtonRef = useRef(null);
+function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick, className, authorGroupsMenuState }: HeaderParams) {
+    const topAuthorGroupsMenuButtonRef = useRef(null);
     const hoverAreaRef = useRef(null);
-    const isTopBookmarksButtonHovered = useHover(topBookmarksButtonRef);
+    const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
-    const bookmarkButtonVariant = bookmarksMenuState == AurhorGroupsMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
+    const bookmarkButtonVariant = authorGroupsMenuState == AurhorGroupsMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
 
     useEffect(() => {
-        bookmarksButtonHoverChanged(isTopBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != AurhorGroupsMenuState.Collapsed));
-    }, [isTopBookmarksButtonHovered, isHoverAreaHovered]);
+        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != AurhorGroupsMenuState.Collapsed));
+    }, [isTopAuthorGroupsMenuButtonHovered, isHoverAreaHovered]);
 
     return (
         <header
@@ -105,9 +104,9 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
                             onClick={() => showDialog()} />
 
                         <ClientButton
-                            ref={topBookmarksButtonRef}
+                            ref={topAuthorGroupsMenuButtonRef}
                             size='sm' variant={bookmarkButtonVariant}
-                            onClick={bookmarksButtonClick}>
+                            onClick={authorGroupsMenuButtonClick}>
                             <MdBookmarks
                                 className='w-full' />
                         </ClientButton>
@@ -120,9 +119,8 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
                         onClick={() => showDialog()} />
 
                     <ClientButton
-                        ref={bottomBookmarksButtonRef}
                         size='sm' variant={bookmarkButtonVariant}
-                        onClick={bookmarksButtonClick}>
+                        onClick={authorGroupsMenuButtonClick}>
                         <MdBookmarks
                             className='w-full' />
                     </ClientButton>
@@ -132,7 +130,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
                     ref={hoverAreaRef}
                     className={
                         `row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 place-self-end w-16 h-4 mb-[-2px] bg-transparent
-                        ${isTopBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}>
+                        ${isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}>
                 </div>
             </div>
         </header>
