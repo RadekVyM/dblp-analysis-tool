@@ -2,7 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import PageHeader from './(components)/PageHeader'
-import HeaderBookmarks from './(components)/HeaderBookmarks'
+import HeaderAurhorGroupsMenu from './(components)/HeaderAurhorGroupsMenu'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,7 +32,7 @@ function Scaffold({
 }) {
   return (
     <>
-      <HeaderBookmarks />
+      <HeaderAurhorGroupsMenu />
 
       <div
         id='main-content-container'

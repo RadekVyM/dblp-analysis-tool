@@ -1,11 +1,12 @@
 'use client'
 
-import { forwardRef, useState, useEffect, FormEvent, KeyboardEvent, useRef } from 'react'
-import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching'
+import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent } from 'react'
+import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching/searchFetching'
 import { useDebounce } from 'usehooks-ts'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdAutorenew } from 'react-icons/md'
 import { DblpCompletion } from '@/shared/dtos/DblpSearchResult'
+import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
 import { createSearchUrl } from '@/shared/utils/urls'
 import Button from './Button'
@@ -18,11 +19,32 @@ const MAX_DISPLAYED_COMPLETIONS_COUNT = 4;
 type SearchDialogParams = {
     hide: () => void,
     animation: string,
-    isOpen: boolean,
+    isOpen: boolean
+}
+
+type SearchInputParams = {
+    searchQuery: string,
+    onSearchQueryChange: (value: string) => void,
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void,
+    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void,
+    onBlur: (event: FocusEvent<HTMLInputElement, Element>) => void
+}
+
+type SearchTypeSelectionParams = {
+    selectedSearchType: SearchType,
+    setSelectedSearchType: (searchType: SearchType) => void
+}
+
+type SearchTypeSelectionButtonParams = {
+    title: string,
+    searchType: SearchType,
+    selectedSearchType: SearchType,
+    onChange: (searchType: SearchType) => void
 }
 
 type ResultsListParams = {
     query: string,
+    selectedSearchType: SearchType,
     selectedUrl: string | undefined,
     hide: () => void,
     setUrls: (urls: Array<string>) => void
@@ -40,16 +62,23 @@ type ResultsListItemParams = {
     onClick: (url: string) => void,
 }
 
-export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({ hide: hide, animation, isOpen }, ref) => {
+export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({ hide, animation, isOpen }, ref) => {
+    const inputRef = useRef<HTMLInputElement>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
     const [searchQuery, setSearchQuery] = useState('');
     const [urls, setUrls] = useState<Array<string>>([]);
+    const [selectedSearchType, setSelectedSearchType] = useState<SearchType>(SearchType.Author);
     const [selectedUrl, setSelectedUrl] = useState<string | undefined>(undefined);
     const debouncedSearchQuery = useDebounce(searchQuery, 750);
 
     useEffect(() => {
         setSearchQuery(isOpen ? searchParams.get('q') || '' : '');
+        if (isOpen) {
+            setSelectedSearchType(pathname.startsWith('/search/venue') ? SearchType.Venue : SearchType.Author);
+            inputRef.current?.focus();
+        }
     }, [isOpen]);
 
     useEffect(() => {
@@ -72,7 +101,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        const url = selectedUrl || createSearchUrl(searchQuery);
+        const url = selectedUrl || createSearchUrl(searchQuery, selectedSearchType);
 
         router.push(url);
         hide();
@@ -91,39 +120,36 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             }}>
             { /*
             The <dialog> element is just an invisible contaier stretched accross the entire height of the page
-            This allows to align the main dialog content (the inner <div> element) to the top edge of the page
+            This allows to align the main dialog content (the inner <article> element) to the top edge of the page
             */ }
-            <div
+            <article
                 className='dialog flex flex-col h-auto min-h-[20rem] isolate' onClick={(event) => event.stopPropagation()}>
                 <h2 className='sr-only'>Search dblp</h2>
-                <div
-                    className='flex gap-2 z-10 top-0 px-6 pt-6 pb-2 justify-self-stretch bg-inherit dark:bg-gray-900'>
-                    <form
-                        className='relative flex-1'
-                        onSubmit={onSubmit}>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(event) => setSearchQuery(event.target.value)}
-                            onKeyDown={(event) => onKeyDown(event)}
-                            onBlur={() => setSelectedUrl(undefined)}
-                            placeholder='Search dblp...'
-                            className='w-full h-11 px-3 pl-10 bg-white hover:bg-gray-100 text-lg border border-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 rounded-lg transition-colors' />
-                        <div
-                            className='absolute top-0 grid place-items-center w-10 h-full pointer-events-none'>
-                            <MdSearch
+                <header
+                    className='z-10 top-0 flex flex-col gap-4 px-6 pt-6 pb-2 bg-inherit'>
+                    <div
+                        className='flex gap-2 justify-between'>
+                        <SearchTypeSelection
+                            selectedSearchType={selectedSearchType}
+                            setSelectedSearchType={setSelectedSearchType} />
+
+                        <Button
+                            title='Close'
+                            size='sm' variant='icon-outline'
+                            onClick={() => hide()}>
+                            <MdClose
                                 className='w-5 h-5' />
-                        </div>
-                    </form>
-                    <Button
-                        title='Close'
-                        size='lg' variant='outline'
-                        className='px-3'
-                        onClick={() => hide()}>
-                        <MdClose
-                            className='w-5 h-5' />
-                    </Button>
-                </div>
+                        </Button>
+                    </div>
+
+                    <SearchInput
+                        ref={inputRef}
+                        searchQuery={searchQuery}
+                        onSearchQueryChange={(value) => setSearchQuery(value)}
+                        onSubmit={onSubmit}
+                        onKeyDown={onKeyDown}
+                        onBlur={() => setSelectedUrl(undefined)} />
+                </header>
 
                 <div
                     className='grid flex-1 overflow-y-auto scroll-smooth px-6 pb-3'>
@@ -131,17 +157,87 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                         <ResultsList
                             query={debouncedSearchQuery}
                             selectedUrl={selectedUrl}
+                            selectedSearchType={selectedSearchType}
                             hide={hide}
                             setUrls={setUrls} />}
                 </div>
-            </div>
+            </article>
         </dialog>
     );
 });
 
-function ResultsList({ query, selectedUrl, setUrls, hide }: ResultsListParams) {
-    const authorsResult = useAuthorsSearch(query, MAX_HITS_COUNT);
-    const venuesResult = useVenuesSearch(query, MAX_HITS_COUNT);
+export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur }, ref) => {
+    return (
+        <form
+            className='relative'
+            onSubmit={onSubmit}>
+            <input
+                autoFocus
+                type="text"
+                ref={ref}
+                value={searchQuery}
+                onChange={(event) => onSearchQueryChange(event.target.value)}
+                onKeyDown={onKeyDown}
+                onBlur={onBlur}
+                placeholder='Search dblp...'
+                className='w-full h-11 px-3 pl-10 bg-white hover:bg-gray-100 text-lg border border-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 rounded-lg transition-colors' />
+            <div
+                className='absolute top-0 grid place-items-center w-10 h-full pointer-events-none'>
+                <MdSearch
+                    className='w-5 h-5' />
+            </div>
+        </form>
+    )
+});
+
+function SearchTypeSelection({ selectedSearchType, setSelectedSearchType }: SearchTypeSelectionParams) {
+    return (
+        <fieldset
+            className='flex gap-2 has-focus-visible-outline rounded-sm'>
+            <legend className='sr-only'>Select the search area:</legend>
+
+            <SearchTypeSelectionInput
+                title='Authors'
+                searchType={SearchType.Author}
+                selectedSearchType={selectedSearchType}
+                onChange={setSelectedSearchType} />
+
+            <SearchTypeSelectionInput
+                title='Venues'
+                searchType={SearchType.Venue}
+                selectedSearchType={selectedSearchType}
+                onChange={setSelectedSearchType} />
+        </fieldset>
+    )
+}
+
+function SearchTypeSelectionInput({ title, searchType, selectedSearchType, onChange }: SearchTypeSelectionButtonParams) {
+    const id = `${SearchType[searchType]}-search-selection-radio`;
+    const isSelected = selectedSearchType == searchType;
+
+    return (
+        <div
+            className={`btn ${isSelected ? 'btn-default' : 'btn-outline'} place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2`}>
+            <input
+                className='sr-only'
+                type="radio" id={id}
+                onChange={(event) => onChange(SearchType[event.currentTarget.value as keyof typeof SearchType])}
+                value={SearchType[searchType]} checked={isSelected} />
+            <label
+                className='cursor-pointer grid place-content-center px-3' htmlFor={id}><span>{title}</span></label>
+        </div>
+    )
+}
+
+function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: ResultsListParams) {
+    const authorsResult = useAuthorsSearch(
+        query,
+        selectedSearchType == SearchType.Author ? MAX_HITS_COUNT : 0,
+        selectedSearchType == SearchType.Author ? MAX_DISPLAYED_COMPLETIONS_COUNT : 0);
+    const venuesResult = useVenuesSearch(
+        query,
+        selectedSearchType == SearchType.Venue ? MAX_HITS_COUNT : 0,
+        selectedSearchType == SearchType.Venue ? MAX_DISPLAYED_COMPLETIONS_COUNT : 0);
 
     const completions = mergeCompletions(
         authorsResult.authors?.completions.items || [],
@@ -253,7 +349,11 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
 
     return (<li ref={liRef}>
         <Link
-            className={`relative flex px-3 py-2 my-1 rounded-md hover:bg-gray-100 hover:dark:bg-gray-800 transition-colors ${url == selectedUrl ? selectedStyling : ''}`}
+            tabIndex={-1}
+            className={
+                `relative flex px-3 py-2 my-1 rounded-md hover:bg-gray-100 hover:dark:bg-gray-800 transition-colors
+                ${url == selectedUrl ? selectedStyling : ''}`
+            }
             href={url}
             onClick={() => onClick(url)}
             dangerouslySetInnerHTML={{ __html: text }}>

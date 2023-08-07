@@ -3,32 +3,7 @@
 import { forwardRef } from 'react'
 import { VariantProps } from 'class-variance-authority'
 import { cn } from '@/shared/utils/tailwindUtils'
-import { cva } from 'class-variance-authority'
-
-const buttonVariants = cva(
-    'btn',
-    {
-        variants: {
-            variant: {
-                default:
-                    'btn-default',
-                destructive:
-                    'btn-destructive',
-                outline:
-                    'btn-outline'
-            },
-            size: {
-                default: 'btn-md',
-                sm: 'btn-sm',
-                lg: 'btn-lg',
-            },
-        },
-        defaultVariants: {
-            variant: 'default',
-            size: 'default',
-        },
-    }
-)
+import { buttonVariants } from '@/shared/styling/buttonVariants';
 
 export interface ClientButtonParams extends
     React.ButtonHTMLAttributes<HTMLButtonElement>,

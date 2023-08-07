@@ -5,12 +5,14 @@
 :root {
   --side-bar-width: 17rem;
 
+  --accent: #16775c;
   --foreground: #000;
   --background: #f3f4f5;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --accent: #2ed7a7;
     --foreground: #f3f4f5;
     --background: #000;
   }
@@ -49,6 +51,10 @@ body {
   background-position: center;
 }
 
+.has-focus-visible-outline:has(:focus-visible) {
+  @apply outline outline-2 outline-offset-4
+}
+
 @media (prefers-color-scheme: dark) {
   .with-logo::before {
     background-image: url('/logo_dark.svg');
@@ -73,7 +79,7 @@ body {
   }
 
   .btn-sm {
-    @apply h-9 px-2;
+    @apply h-9 px-3;
   }
 
   .btn-md {

@@ -1,4 +1,4 @@
-import { DbplSearchType } from "@/shared/dtos/DbplSearchType";
+import { SearchType } from "@/shared/enums/SearchType";
 import { normalizeQuery } from "./searchQuery";
 
 export const ID_LOCAL_SEPARATOR = '_';
@@ -15,24 +15,22 @@ export function extractNormalizedId(url: string) {
         .replace(ID_DBLP_SEPARATOR, ID_LOCAL_SEPARATOR);
 }
 
-export function createSearchUrl(query: string, type: DbplSearchType | undefined = undefined) {
+export function createSearchUrl(query: string, type: SearchType) {
     const normalized = normalizeQuery(query);
 
     switch (type) {
-        case DbplSearchType.Author:
+        case SearchType.Author:
             return `/search/author?q=${normalized}`;
-        case DbplSearchType.Venue:
+        case SearchType.Venue:
             return `/search/venue?q=${normalized}`;
-        case undefined:
-            return `/search?q=${normalized}`;
     }
 }
 
-export function createLocalUrl(dblpUrl: string, type: DbplSearchType) {
+export function createLocalUrl(dblpUrl: string, type: SearchType) {
     switch (type) {
-        case DbplSearchType.Author:
+        case SearchType.Author:
             return `/author/${extractNormalizedId(dblpUrl)}`;
-        case DbplSearchType.Venue:
+        case SearchType.Venue:
             return `/venue/${extractNormalizedId(dblpUrl)}`;
     }
 }

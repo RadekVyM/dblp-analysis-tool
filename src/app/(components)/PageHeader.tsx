@@ -9,18 +9,19 @@ import { SearchDialog } from './SearchDialog'
 import { ClientButton } from './ClientButton'
 import { useHover } from 'usehooks-ts'
 import { cn } from '@/shared/utils/tailwindUtils'
-import { BookmarksMenuState } from './BookmarksMenu'
+import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
+import { AurhorGroupsMenuState } from '@/shared/enums/AurhorGroupsMenuState'
 
 type PageHeaderParams = {
     className: string,
-    bookmarksMenuState: BookmarksMenuState,
+    bookmarksMenuState: AurhorGroupsMenuState,
     bookmarksButtonClick: () => void,
     bookmarksButtonHoverChanged: (value: boolean) => void
 }
 
 type HeaderParams = {
     className: string,
-    bookmarksMenuState: BookmarksMenuState,
+    bookmarksMenuState: AurhorGroupsMenuState,
     showDialog: () => void,
     bookmarksButtonClick: () => void,
     bookmarksButtonHoverChanged: (value: boolean) => void
@@ -69,17 +70,17 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
     const bottomBookmarksButtonRef = useRef(null);
     const hoverAreaRef = useRef(null);
     const isTopBookmarksButtonHovered = useHover(topBookmarksButtonRef);
-    const isBottomBookmarksButtonHovered = useHover(bottomBookmarksButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
-    const bookmarkButtonVariant = bookmarksMenuState == BookmarksMenuState.Docked ? 'default' : 'outline';
+    const isNotMobile = useIsNotMobileSize();
+    const bookmarkButtonVariant = bookmarksMenuState == AurhorGroupsMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
 
     useEffect(() => {
-        bookmarksButtonHoverChanged(isTopBookmarksButtonHovered || isBottomBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != BookmarksMenuState.Collapsed));
-    }, [isTopBookmarksButtonHovered, isBottomBookmarksButtonHovered, isHoverAreaHovered]);
+        bookmarksButtonHoverChanged(isTopBookmarksButtonHovered || (isHoverAreaHovered && bookmarksMenuState != AurhorGroupsMenuState.Collapsed));
+    }, [isTopBookmarksButtonHovered, isHoverAreaHovered]);
 
     return (
         <header
-            className={cn('sticky top-0 z-20 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800', className)}>
+            className={cn('sticky top-0 z-40 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800', className)}>
             <div
                 className='grid grid-rows-[auto auto] grid-cols-[1fr] max-w-screen-xl w-full mx-auto px-4'>
                 <div
@@ -105,7 +106,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
 
                         <ClientButton
                             ref={topBookmarksButtonRef}
-                            size='sm' variant={bookmarkButtonVariant} className='aspect-square'
+                            size='sm' variant={bookmarkButtonVariant}
                             onClick={bookmarksButtonClick}>
                             <MdBookmarks
                                 className='w-full' />
@@ -120,7 +121,7 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
 
                     <ClientButton
                         ref={bottomBookmarksButtonRef}
-                        size='sm' variant={bookmarkButtonVariant} className='aspect-square'
+                        size='sm' variant={bookmarkButtonVariant}
                         onClick={bookmarksButtonClick}>
                         <MdBookmarks
                             className='w-full' />
@@ -129,7 +130,10 @@ function Header({ showDialog, bookmarksButtonHoverChanged, bookmarksButtonClick,
 
                 <div
                     ref={hoverAreaRef}
-                    className={`row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 place-self-end w-12 h-4 mb-[-2px] bg-transparent ${isTopBookmarksButtonHovered || isBottomBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}></div>
+                    className={
+                        `row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 place-self-end w-16 h-4 mb-[-2px] bg-transparent
+                        ${isTopBookmarksButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}>
+                </div>
             </div>
         </header>
     )

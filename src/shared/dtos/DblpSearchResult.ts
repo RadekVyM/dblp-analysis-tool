@@ -1,5 +1,5 @@
-import { createLocalUrl, createSearchUrl, extractNormalizedId } from "@/shared/utils/urls"
-import { DbplSearchType } from "./DbplSearchType"
+import { createLocalUrl, createSearchUrl } from "@/shared/utils/urls"
+import { SearchType } from "../enums/SearchType"
 
 export interface RawDblpBaseSearchResult {
     result: {
@@ -70,7 +70,7 @@ export interface RawBaseHit {
 }
 
 export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
-    public readonly type: DbplSearchType;
+    public readonly type: SearchType;
     public readonly query: string;
     public readonly status: {
         readonly code: number,
@@ -98,7 +98,7 @@ export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
         }>
     };
 
-    constructor(rawResult: RawDblpBaseSearchResult, type: DbplSearchType) {
+    constructor(rawResult: RawDblpBaseSearchResult, type: SearchType) {
         const result = rawResult.result;
 
         this.type = type;
@@ -139,7 +139,7 @@ export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
 
 export interface DblpCompletion {
     readonly localUrl: string,
-    readonly type: DbplSearchType,
+    readonly type: SearchType,
     readonly score: number,
     readonly dc: number,
     readonly oc: number,
@@ -163,7 +163,7 @@ export interface DblpVenueSearchHit extends BaseDblpSearchHit {
 }
 
 
-function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: DbplSearchType): Array<DblpCompletion> {
+function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: SearchType): Array<DblpCompletion> {
     const result = rawResult.result;
 
     if ('c' in result.completions) {
@@ -183,7 +183,7 @@ function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: DbplSear
     return [];
 }
 
-function toCompletion(rawCompletion: RawDblpCompletion, type: DbplSearchType): DblpCompletion {
+function toCompletion(rawCompletion: RawDblpCompletion, type: SearchType): DblpCompletion {
     return {
         score: parseInt(rawCompletion["@sc"]),
         dc: parseInt(rawCompletion["@dc"]),
