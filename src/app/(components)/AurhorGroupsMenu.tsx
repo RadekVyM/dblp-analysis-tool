@@ -28,21 +28,29 @@ export const AurhorGroupsMenu = forwardRef<HTMLElement, AurhorGroupsMenuParams>(
     const isExpanded = state != AurhorGroupsMenuState.Collapsed;
 
     useEffect(() => {
-        if (isNotMobile)
+        if (isNotMobile) {
             authorGroupsMenuHoverChanged(isContainerHovered);
+        }
     }, [isContainerHovered]);
 
     return (
         <>
             <div
-                className={cn(`fixed inset-0 z-50 md:relative md:inset-auto md:z-20 w-full h-full isolate pointer-events-none ${isExpanded ? 'grid' : 'hidden'}`, className)}>
+                className={cn(
+                    `fixed inset-0 z-50 md:relative md:inset-auto md:z-20 w-full h-full isolate pointer-events-none ${isExpanded ? 'grid' : 'hidden'}`,
+                    className)}>
                 <div
                     onClick={() => hide()}
-                    className={`md:hidden row-start-1 row-end-2 col-start-1 col-end-3 backdrop-blur-md ${isExpanded ? 'pointer-events-auto' : 'pointer-events-none'}`}></div>
+                    className={`
+                        md:hidden row-start-1 row-end-2 col-start-1 col-end-3 bg-[var(--backdrop)] backdrop-blur-md
+                        ${isExpanded ? 'pointer-events-auto animate-fadeIn' : 'pointer-events-none'}`}>
+                </div>
 
                 <div
                     ref={containerRef}
-                    className='row-start-1 row-end-2 col-start-2 col-end-3 md:sticky z-20 grid md:top-[calc(4rem_+_1px)] md:max-h-[calc(100vh_-_4rem_-_1px)]'>
+                    className='
+                        row-start-1 row-end-2 col-start-2 col-end-3 md:sticky z-20 md:top-[calc(4rem_+_1px)]
+                        grid md:max-h-[calc(100vh_-_4rem_-_1px)] pointer-events-auto'>
                     <Menu
                         ref={ref}
                         hide={hide} />
@@ -56,7 +64,10 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
     return (
         <article
             ref={ref}
-            className='place-self-stretch flex flex-col md:my-4 p-5 pr-3 bg-white dark:bg-gray-900 rounded-l-lg md:rounded-lg shadow-sm pointer-events-auto'>
+            className='
+                place-self-stretch flex flex-col md:my-4 p-5 pr-3
+                bg-white dark:bg-gray-900 rounded-l-lg md:rounded-lg shadow-sm
+                pointer-events-auto animate-slideLeftIn md:animate-none'>
             <Button
                 title='Close'
                 size='sm' variant='icon-outline'

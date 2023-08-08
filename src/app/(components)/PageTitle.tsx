@@ -11,7 +11,7 @@ export default function PageTitle({ subtitle, title }: PageTitleParams) {
                 subtitle &&
                 <small className='uppercase text-accent font-bold'>{subtitle}</small>
             }
-            <h2 className='font-semibold text-3xl'>{title}</h2>
+            <h2 className='font-extrabold text-3xl'>{title}</h2>
         </div>
     )
 }

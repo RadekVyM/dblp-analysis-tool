@@ -88,8 +88,8 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         href='/'
                         className='flex place-items-center gap-5 with-logo'>
                         <h1>
-                            <span className='block text-lg/6 font-bold'>dblp</span>
-                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400'>analysis tool</span>
+                            <span className='block text-lg/6 font-extrabold'>dblp</span>
+                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400 font-semibold'>analysis tool</span>
                         </h1>
                     </Link>
 
