@@ -153,7 +153,14 @@ export interface BaseDblpSearchHit {
 }
 
 export interface DblpAuthorSearchHit extends BaseDblpSearchHit {
-    readonly author: string
+    readonly author: string,
+    readonly aliases?: { allias: string }
+    readonly notes?: { note: Array<DblpAuthorSearchHitNote> | DblpAuthorSearchHitNote }
+}
+
+export type DblpAuthorSearchHitNote = {
+    '@type': string,
+    text: string
 }
 
 export interface DblpVenueSearchHit extends BaseDblpSearchHit {

@@ -1,6 +1,10 @@
 export const DBLP_URL = 'https://dblp.org';
 export const DBLP_SEARCH_AUTHOR_API = '/search/author/api';
 export const DBLP_SEARCH_VENUE_API = '/search/venue/api';
+export const DBLP_AUTHORS_INDEX_HTML = '/pers';
+export const DBLP_JOURNALS_INDEX_HTML = '/db/journals';
+export const DBLP_CONF_INDEX_HTML = '/db/conf';
+export const DBLP_SERIES_INDEX_HTML = '/db/series';
 
 interface FetchErrorOptions extends ErrorOptions {
     status?: number,
@@ -21,29 +25,37 @@ export class FetchError extends Error {
     }
 }
 
-export interface ItemsParams {
-    query?: string,
+export interface BaseItemsParams {
     first?: number,
-    count?: number,
+    count?: number
+}
+
+export interface ItemsParams extends BaseItemsParams {
+    query?: string,
     completionsCount?: number
 }
 
 export async function handleErrors(response: Response, conentType: string) {
-    if (!response.ok) {
-        const retryAfter = response.headers.get('Retry-After') || '60';
-        const cause = await response.text();
+    await throwIfNotOk(response);
+    throwIfWrongContentType(response, conentType);
+}
 
-        throw new FetchError(
-            'An error occurred while fetching the data.',
-            {
-                cause: cause,
-                status: response.status,
-                statusText: response.statusText,
-                retryAfter: response.status == 429 ? parseInt(retryAfter) : undefined
-            });
+async function throwIfNotOk(response: Response) {
+    if (response.ok) {
+        return;
     }
 
-    throwIfWrongContentType(response, conentType);
+    const retryAfter = response.headers.get('Retry-After') || '60';
+    const cause = await response.text();
+
+    throw new FetchError(
+        'An error occurred while fetching the data.',
+        {
+            cause: cause,
+            status: response.status,
+            statusText: response.statusText,
+            retryAfter: response.status == 429 ? parseInt(retryAfter) : undefined
+        });
 }
 
 function throwIfWrongContentType(response: Response, type: string) {

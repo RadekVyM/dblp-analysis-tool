@@ -10,7 +10,7 @@ type SearchParams = {
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 
-export const ID_LOCAL_SEPARATOR = '_'; // Do not used single '-'. PIDs can contain '-'
+export const ID_LOCAL_SEPARATOR = '___'; // Do not used single '-'. PIDs can contain '-'
 export const ID_DBLP_SEPARATOR = '/';
 
 export function dblpUrlContainsItemId(stringUrl: string) {
@@ -38,10 +38,10 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
     const reducedPath = path.substring(path.indexOf(typeSegment) + typeSegment.length);
     const id = removeWords(['index.html'], reducedPath);
 
-    return id
+    return `${typeSegment}${ID_LOCAL_SEPARATOR}${id
         .split(ID_DBLP_SEPARATOR)
         .filter((w) => w.length > 0)
-        .join(ID_LOCAL_SEPARATOR);
+        .join(ID_LOCAL_SEPARATOR)}`;
 }
 
 export function createSearchPath(searchType: SearchType, searchParams: SearchParams) {
@@ -94,7 +94,7 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
 
     const paramsString = Object
         .keys(params)
-        .map((key) => params[key] == undefined ? undefined : `${key}=${params[key]}`)
+        .map((key) => params[key] == undefined ? key : `${key}=${params[key]}`)
         .filter((p) => p)
         .join('&');
 

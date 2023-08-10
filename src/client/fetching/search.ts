@@ -2,9 +2,9 @@
 
 import { DblpAuthorSearchHit, BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult, DblpVenueSearchHit } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType';
-import { fetchAuthors } from '@/shared/fetching/authors';
+import { queryAuthors } from '@/shared/fetching/authors';
 import { ItemsParams } from '@/shared/fetching/fetching';
-import { fetchVenues } from '@/shared/fetching/venues';
+import { queryVenues } from '@/shared/fetching/venues';
 import useSWR, { Fetcher } from 'swr'
 
 type SearchItemsArgs = { searchType: SearchType, params: ItemsParams }
@@ -48,10 +48,10 @@ function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: SearchT
 
     switch (searchType) {
         case SearchType.Author:
-            fetchItems = fetchAuthors;
+            fetchItems = queryAuthors;
             break;
         case SearchType.Venue:
-            fetchItems = fetchVenues;
+            fetchItems = queryVenues;
             break;
     }
 

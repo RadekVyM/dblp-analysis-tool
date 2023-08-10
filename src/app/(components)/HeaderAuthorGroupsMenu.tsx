@@ -6,8 +6,8 @@ import { AuthorGroupsMenu } from './AurhorGroupsMenu';
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize';
 import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState';
 
-const DOCKED_SIDE_MENU_CLASS = 'md:grid-cols-[1fr_var(--side-bar-width)]';
-const UNDOCKED_SIDE_MENU_CLASS = 'md:grid-cols-[1fr_0]';
+const DOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_var(--side-bar-width)]', 'md:gap-x-5'];
+const UNDOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_0]'];
 
 export default function HeaderAuthorGroupsMenu() {
     const isNotMobile = useIsNotMobileSize();
@@ -18,8 +18,8 @@ export default function HeaderAuthorGroupsMenu() {
         // but I want to avoid having the pages inside of a client component
         const container = getMainContentContainer();
 
-        container?.classList.remove(DOCKED_SIDE_MENU_CLASS, UNDOCKED_SIDE_MENU_CLASS);
-        container?.classList.add(authorGroupsMenuState == AuthorGroupsMenuState.Docked ? DOCKED_SIDE_MENU_CLASS : UNDOCKED_SIDE_MENU_CLASS);
+        container?.classList.remove(...DOCKED_SIDE_MENU_CLASSES, ...UNDOCKED_SIDE_MENU_CLASSES);
+        container?.classList.add(...(authorGroupsMenuState == AuthorGroupsMenuState.Docked ? DOCKED_SIDE_MENU_CLASSES : UNDOCKED_SIDE_MENU_CLASSES));
     }, [authorGroupsMenuState]);
 
     useEffect(() => {

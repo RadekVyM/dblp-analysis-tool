@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent } from 'react'
-import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching/searchFetching'
+import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching/search'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdAutorenew } from 'react-icons/md'
