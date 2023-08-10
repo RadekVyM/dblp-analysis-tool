@@ -5,7 +5,7 @@ type PageContainerParams = {
 export default function PageContainer({ children }: PageContainerParams) {
     return (
         <main
-            className='pt-2'>
+            className='flex flex-col pt-2 w-full h-full'>
             {children}
         </main>
     )

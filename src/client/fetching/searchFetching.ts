@@ -9,29 +9,6 @@ import useSWR, { Fetcher } from 'swr'
 
 type SearchItemsArgs = { searchType: SearchType, params: ItemsParams }
 
-function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: SearchType) {
-    let fetchItems: (params: ItemsParams) => Promise<Response>;
-
-    switch (searchType) {
-        case SearchType.Author:
-            fetchItems = fetchAuthors;
-            break;
-        case SearchType.Venue:
-            fetchItems = fetchVenues;
-            break;
-    }
-
-    return (args: SearchItemsArgs) => {
-        if (!args.params.query || args.params.count == 0 || args.params.completionsCount == 0) {
-            return null;
-        }
-
-        // TODO: Handle error codes
-        return fetchItems(args.params).then(res =>
-            res.json().then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, args.searchType)))
-    };
-}
-
 const authorsSearchFetcher: Fetcher<DblpSearchResult<DblpAuthorSearchHit> | null, SearchItemsArgs> = createSearchFetcher<DblpAuthorSearchHit>(SearchType.Author);
 const venuesSearchFetcher: Fetcher<DblpSearchResult<DblpVenueSearchHit> | null, SearchItemsArgs> = createSearchFetcher<DblpVenueSearchHit>(SearchType.Venue);
 
@@ -64,4 +41,27 @@ function createArgs(searchType: SearchType, query: string, hitsCount: number, co
     };
 
     return { searchType: searchType, params: params };
+}
+
+function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: SearchType) {
+    let fetchItems: (params: ItemsParams) => Promise<any>;
+
+    switch (searchType) {
+        case SearchType.Author:
+            fetchItems = fetchAuthors;
+            break;
+        case SearchType.Venue:
+            fetchItems = fetchVenues;
+            break;
+    }
+
+    return (args: SearchItemsArgs) => {
+        if (!args.params.query || args.params.count == 0 || args.params.completionsCount == 0) {
+            return null;
+        }
+
+        // TODO: Handle error codes
+        return fetchItems(args.params)
+            .then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, args.searchType));
+    }
 }

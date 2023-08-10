@@ -1,5 +1,5 @@
 import { urlWithParams } from "../utils/urls";
-import { ItemsParams } from "./fetching";
+import { ItemsParams, handleErrors } from "./fetching";
 
 export async function fetchItems(url: string, params: ItemsParams) {
     params.first ??= 0;
@@ -14,5 +14,8 @@ export async function fetchItems(url: string, params: ItemsParams) {
         format: 'json'
     });
 
-    return await fetch(completeUrl);
+    const response = await fetch(completeUrl);
+    await handleErrors(response, 'json');
+
+    return response.json();
 }
