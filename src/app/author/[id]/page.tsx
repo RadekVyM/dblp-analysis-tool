@@ -8,7 +8,7 @@ type AuthorPageParams = {
 export default function AuthorPage({ params: { id }, searchParams }: AuthorPageParams) {
     return (
         <main className="min-h-screen grid">
-            <p className='w-[fit-content] relative place-self-center'>Hello Aurhor {id} page!</p>
+            <p className='w-[fit-content] relative place-self-center'>Hello Author {id} page!</p>
             <ul className='w-[fit-content] relative place-self-center'>
                 {Object.entries(searchParams)
                     .map(([key, value]) => {

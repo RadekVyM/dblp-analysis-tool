@@ -2,8 +2,14 @@ import { SearchType } from "@/shared/enums/SearchType";
 import { normalizeQuery } from "./searchQuery";
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY, VenueType } from "../enums/VenueType";
 
+type SearchParams = {
+    q: string,
+    type?: string
+}
+
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
+
 export const ID_LOCAL_SEPARATOR = '_'; // Do not used single '-'. PIDs can contain '-'
 export const ID_DBLP_SEPARATOR = '/';
 
@@ -38,19 +44,15 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
         .join(ID_LOCAL_SEPARATOR);
 }
 
-export function createSearchPath(query: string, searchType: SearchType, type: string | undefined = undefined) {
-    const normalized = normalizeQuery(query);
-    const basic = createBasicPath();
+export function createSearchPath(searchType: SearchType, searchParams: SearchParams) {
+    searchParams.q = normalizeQuery(searchParams.q);
+    const params: { [key: string]: any } = searchParams;
 
-    return `${basic}${type ? `&type=${type}` : ''}`;
-
-    function createBasicPath() {
-        switch (searchType) {
-            case SearchType.Author:
-                return `/search/author?q=${normalized}`;
-            case SearchType.Venue:
-                return `/search/venue?q=${normalized}`;
-        }
+    switch (searchType) {
+        case SearchType.Author:
+            return urlWithParams('/search/author', params);
+        case SearchType.Venue:
+            return urlWithParams('/search/venue', params);
     }
 }
 
@@ -68,6 +70,35 @@ export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchTyp
             const venueType = getVenueTypeFromDdlpUrl(dblpUrl);
             return `/venue/${venueType}/${id}`;
     }
+}
+
+export function extractParamsFromUrl(inputUrl: string) {
+    const [url, inputStringParams] = inputUrl.split('?');
+    const params: { [key: string]: any } = {};
+
+    if (inputStringParams) {
+        inputStringParams.split('&').map((w) => {
+            const [key, value] = w.split('=');
+            params[key] = value
+        })
+    }
+
+    return params;
+}
+
+export function urlWithParams(inputUrl: string, inputParams: { [key: string]: any }, ignoreExistingUrlParams: boolean = false) {
+    const [url] = inputUrl.split('?');
+    const params: { [key: string]: any } = ignoreExistingUrlParams ? {} : extractParamsFromUrl(inputUrl);
+
+    Object.keys(inputParams).map((key) => params[key] = inputParams[key]);
+
+    const paramsString = Object
+        .keys(params)
+        .map((key) => params[key] == undefined ? undefined : `${key}=${params[key]}`)
+        .filter((p) => p)
+        .join('&');
+
+    return `${url}?${paramsString}`
 }
 
 function getPath(stringUrl: string) {

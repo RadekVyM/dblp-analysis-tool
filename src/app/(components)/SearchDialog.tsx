@@ -101,7 +101,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        const url = selectedUrl || createSearchPath(searchQuery, selectedSearchType);
+        const url = selectedUrl || createSearchPath(selectedSearchType, { q: searchQuery });
 
         router.push(url);
         hide();

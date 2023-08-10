@@ -2,29 +2,41 @@
 
 import { DblpAuthorSearchHit, BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult, DblpVenueSearchHit } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType';
+import { fetchAuthors } from '@/shared/fetching/authors';
+import { ItemsParams } from '@/shared/fetching/fetching';
+import { fetchVenues } from '@/shared/fetching/venues';
 import useSWR, { Fetcher } from 'swr'
 
-const DBLP_URL = 'https://dblp.org';
-const DBLP_SEARCH_AUTHOR_API = '/search/author/api';
-const DBLP_SEARCH_VENUE_API = '/search/venue/api';
+type SearchItemsArgs = { searchType: SearchType, params: ItemsParams }
 
-function createSearchFetcher<HitT extends BaseDblpSearchHit>(type: SearchType) {
-    return (input: string) => {
-        if (!input.includes('q=') || (input.includes('h=0') && input.includes('c=0')))
+function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: SearchType) {
+    let fetchItems: (params: ItemsParams) => Promise<Response>;
+
+    switch (searchType) {
+        case SearchType.Author:
+            fetchItems = fetchAuthors;
+            break;
+        case SearchType.Venue:
+            fetchItems = fetchVenues;
+            break;
+    }
+
+    return (args: SearchItemsArgs) => {
+        if (!args.params.query || args.params.count == 0 || args.params.completionsCount == 0) {
             return null;
+        }
 
-        // TODO: Handler error codes
-        return fetch(input).then(res =>
-            res.json().then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, type)))
+        // TODO: Handle error codes
+        return fetchItems(args.params).then(res =>
+            res.json().then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, args.searchType)))
     };
 }
 
-const authorsSearchFetcher: Fetcher<DblpSearchResult<DblpAuthorSearchHit> | null, string> = createSearchFetcher<DblpAuthorSearchHit>(SearchType.Author);
-const venuesSearchFetcher: Fetcher<DblpSearchResult<DblpVenueSearchHit> | null, string> = createSearchFetcher<DblpVenueSearchHit>(SearchType.Venue);
+const authorsSearchFetcher: Fetcher<DblpSearchResult<DblpAuthorSearchHit> | null, SearchItemsArgs> = createSearchFetcher<DblpAuthorSearchHit>(SearchType.Author);
+const venuesSearchFetcher: Fetcher<DblpSearchResult<DblpVenueSearchHit> | null, SearchItemsArgs> = createSearchFetcher<DblpVenueSearchHit>(SearchType.Venue);
 
 export function useAuthorsSearch(query: string, hitsCount: number = 5, completionsCount: number = 5) {
-    const queryString = createSearchQueryString(DBLP_SEARCH_AUTHOR_API, query, hitsCount, completionsCount);
-    const { data, error, isLoading } = useSWR(queryString, authorsSearchFetcher);
+    const { data, error, isLoading } = useSWR(createArgs(SearchType.Author, query, hitsCount, completionsCount), authorsSearchFetcher);
 
     return {
         authors: data,
@@ -34,8 +46,7 @@ export function useAuthorsSearch(query: string, hitsCount: number = 5, completio
 }
 
 export function useVenuesSearch(query: string, hitsCount: number = 5, completionsCount: number = 5) {
-    const queryString = createSearchQueryString(DBLP_SEARCH_VENUE_API, query, hitsCount, completionsCount);
-    const { data, error, isLoading } = useSWR(queryString, venuesSearchFetcher);
+    const { data, error, isLoading } = useSWR(createArgs(SearchType.Venue, query, hitsCount, completionsCount), venuesSearchFetcher);
 
     return {
         venues: data,
@@ -44,6 +55,13 @@ export function useVenuesSearch(query: string, hitsCount: number = 5, completion
     }
 }
 
-function createSearchQueryString(path: string, query: string, hitsCount: number, completionsCount: number) {
-    return `${DBLP_URL}${path}?${query.length > 0 ? `q=${query}&` : ''}&h=${hitsCount}&f=0&c=${completionsCount}&format=json`;
+function createArgs(searchType: SearchType, query: string, hitsCount: number, completionsCount: number): SearchItemsArgs {
+    const params: ItemsParams = {
+        query: query.length > 0 ? query : undefined,
+        first: 0,
+        count: hitsCount,
+        completionsCount: completionsCount
+    };
+
+    return { searchType: searchType, params: params };
 }

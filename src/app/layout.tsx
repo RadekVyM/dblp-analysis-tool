@@ -1,8 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import PageHeader from './(components)/PageHeader'
-import HeaderAurhorGroupsMenu from './(components)/HeaderAurhorGroupsMenu'
+import HeaderAuthorGroupsMenu from './(components)/HeaderAuthorGroupsMenu'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,7 +31,7 @@ function Scaffold({
 }) {
   return (
     <>
-      <HeaderAurhorGroupsMenu />
+      <HeaderAuthorGroupsMenu />
 
       <div
         id='main-content-container'

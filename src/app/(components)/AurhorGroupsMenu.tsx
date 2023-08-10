@@ -6,13 +6,13 @@ import { useRef, useEffect, forwardRef } from 'react'
 import { MdClose } from 'react-icons/md'
 import Button from './Button'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
-import { AurhorGroupsMenuState } from '@/shared/enums/AurhorGroupsMenuState'
+import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
 
 // TODO: Do I want the hover feature?
 
-type AurhorGroupsMenuParams = {
+type AuthorGroupsMenuParams = {
     className: string,
-    state: AurhorGroupsMenuState,
+    state: AuthorGroupsMenuState,
     authorGroupsMenuHoverChanged: (value: boolean) => void,
     hide: () => void,
 }
@@ -21,11 +21,11 @@ type MenuParams = {
     hide: () => void,
 }
 
-export const AurhorGroupsMenu = forwardRef<HTMLElement, AurhorGroupsMenuParams>(({ className, state, authorGroupsMenuHoverChanged: authorGroupsMenuHoverChanged, hide }, ref) => {
+export const AuthorGroupsMenu = forwardRef<HTMLElement, AuthorGroupsMenuParams>(({ className, state, authorGroupsMenuHoverChanged: authorGroupsMenuHoverChanged, hide }, ref) => {
     const containerRef = useRef(null);
     const isContainerHovered = useHover(containerRef);
     const isNotMobile = useIsNotMobileSize();
-    const isExpanded = state != AurhorGroupsMenuState.Collapsed;
+    const isExpanded = state != AuthorGroupsMenuState.Collapsed;
 
     useEffect(() => {
         if (isNotMobile) {
@@ -77,7 +77,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
                     className='w-5 h-5' />
             </Button>
 
-            <h2 className='sr-only'>Saved Aurhor Groups</h2>
+            <h2 className='sr-only'>Saved Author Groups</h2>
 
             <h3 className='font-semibold'>My Author Groups</h3>
 

@@ -10,18 +10,18 @@ import { ClientButton } from './ClientButton'
 import { useHover } from 'usehooks-ts'
 import { cn } from '@/shared/utils/tailwindUtils'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
-import { AurhorGroupsMenuState } from '@/shared/enums/AurhorGroupsMenuState'
+import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
 
 type PageHeaderParams = {
     className: string,
-    authorGroupsMenuState: AurhorGroupsMenuState,
+    authorGroupsMenuState: AuthorGroupsMenuState,
     authorGroupsMenuButtonClick: () => void,
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
 type HeaderParams = {
     className: string,
-    authorGroupsMenuState: AurhorGroupsMenuState,
+    authorGroupsMenuState: AuthorGroupsMenuState,
     showDialog: () => void,
     authorGroupsMenuButtonClick: () => void,
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
@@ -71,10 +71,10 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
     const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
-    const bookmarkButtonVariant = authorGroupsMenuState == AurhorGroupsMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
+    const bookmarkButtonVariant = authorGroupsMenuState == AuthorGroupsMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
 
     useEffect(() => {
-        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != AurhorGroupsMenuState.Collapsed));
+        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != AuthorGroupsMenuState.Collapsed));
     }, [isTopAuthorGroupsMenuButtonHovered, isHoverAreaHovered]);
 
     return (
