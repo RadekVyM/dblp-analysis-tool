@@ -8,7 +8,7 @@ import { MdSearch, MdClose, MdAutorenew } from 'react-icons/md'
 import { DblpCompletion } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
-import { createSearchUrl } from '@/shared/utils/urls'
+import { createSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
@@ -101,7 +101,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        const url = selectedUrl || createSearchUrl(searchQuery, selectedSearchType);
+        const url = selectedUrl || createSearchPath(searchQuery, selectedSearchType);
 
         router.push(url);
         hide();

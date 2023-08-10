@@ -1,4 +1,4 @@
-import { createLocalUrl, createSearchUrl } from "@/shared/utils/urls"
+import { convertDblpUrlToLocalPath, createSearchPath } from "@/shared/utils/urls"
 import { SearchType } from "../enums/SearchType"
 
 export interface RawDblpBaseSearchResult {
@@ -129,7 +129,7 @@ export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
                     info: {
                         ...h.info,
                         url: h.info.url,
-                        localUrl: createLocalUrl(h.info.url, type)
+                        localUrl: convertDblpUrlToLocalPath(h.info.url, type)
                     } as HitT
                 }
             }) : []
@@ -191,6 +191,6 @@ function toCompletion(rawCompletion: RawDblpCompletion, type: SearchType): DblpC
         id: parseInt(rawCompletion["@id"]),
         text: rawCompletion.text,
         type: type,
-        localUrl: createSearchUrl(rawCompletion.text, type)
+        localUrl: createSearchPath(rawCompletion.text, type)
     }
 }
