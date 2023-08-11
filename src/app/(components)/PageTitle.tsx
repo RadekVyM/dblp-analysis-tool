@@ -1,12 +1,15 @@
+import { cn } from '@/shared/utils/tailwindUtils'
+
 type PageTitleParams = {
     subtitle?: string,
+    className?: string,
     title: string
 }
 
-export default function PageTitle({ subtitle, title }: PageTitleParams) {
+export default function PageTitle({ subtitle, title, className }: PageTitleParams) {
     return (
         <div
-            className='flex flex-col gap-1 py-8'>
+            className={cn('flex flex-col gap-1 pt-8 pb-6', className)}>
             {
                 subtitle &&
                 <small className='uppercase text-accent font-bold'>{subtitle}</small>

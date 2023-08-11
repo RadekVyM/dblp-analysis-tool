@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import PageHeader from './PageHeader'
+import SiteHeader from './SiteHeader'
 import { AuthorGroupsMenu } from './AurhorGroupsMenu';
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize';
 import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState';
@@ -40,7 +40,7 @@ export default function HeaderAuthorGroupsMenu() {
 
     return (
         <>
-            <PageHeader
+            <SiteHeader
                 className='row-start-1 row-end-2 col-start-1 col-end-3'
                 authorGroupsMenuState={authorGroupsMenuState}
                 authorGroupsMenuButtonHoverChanged={authorGroupsMenuHoverChanged}

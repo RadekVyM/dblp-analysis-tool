@@ -3,7 +3,7 @@ import { normalizeQuery } from "./searchQuery";
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY, VenueType } from "../enums/VenueType";
 
 type SearchParams = {
-    q: string,
+    q?: string,
     type?: string
 }
 
@@ -44,8 +44,8 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
         .join(ID_LOCAL_SEPARATOR)}`;
 }
 
-export function createSearchPath(searchType: SearchType, searchParams: SearchParams) {
-    searchParams.q = normalizeQuery(searchParams.q);
+export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
+    searchParams.q = searchParams.q ? normalizeQuery(searchParams.q) : undefined;
     const params: { [key: string]: any } = searchParams;
 
     switch (searchType) {
@@ -94,7 +94,7 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
 
     const paramsString = Object
         .keys(params)
-        .map((key) => params[key] == undefined ? key : `${key}=${params[key]}`)
+        .map((key) => params[key] == undefined ? undefined : `${key}=${params[key]}`)
         .filter((p) => p)
         .join('&');
 

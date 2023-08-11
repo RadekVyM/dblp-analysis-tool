@@ -1,4 +1,4 @@
-import { convertDblpUrlToLocalPath, createSearchPath } from "@/shared/utils/urls"
+import { convertDblpUrlToLocalPath, createLocalSearchPath } from "@/shared/utils/urls"
 import { SearchType } from "../enums/SearchType"
 
 export interface RawDblpBaseSearchResult {
@@ -198,6 +198,6 @@ function toCompletion(rawCompletion: RawDblpCompletion, type: SearchType): DblpC
         id: parseInt(rawCompletion["@id"]),
         text: rawCompletion.text,
         type: type,
-        localUrl: createSearchPath(type, { q: rawCompletion.text })
+        localUrl: createLocalSearchPath(type, { q: rawCompletion.text })
     }
 }

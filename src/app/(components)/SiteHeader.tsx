@@ -27,7 +27,7 @@ type HeaderParams = {
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
-export default function PageHeader({ className, authorGroupsMenuState, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick }: PageHeaderParams) {
+export default function SiteHeader({ className, authorGroupsMenuState, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick }: PageHeaderParams) {
     const [searchDialogAnimation, setSearchDialogAnimation] = useState('');
     const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
     const searchDialog = useRef<HTMLDialogElement>(null);

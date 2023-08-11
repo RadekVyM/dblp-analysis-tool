@@ -8,6 +8,6 @@ export class SimpleSearchResult {
 
 export type SimpleSearchResultItem = {
     title: string,
-    url: string,
+    localUrl: string,
     additionalInfo?: string
 }

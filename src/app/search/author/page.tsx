@@ -1,11 +1,12 @@
-import { DblpAuthorSearchHit, DblpAuthorSearchHitNote, DblpSearchResult } from '@/shared/dtos/DblpSearchResult'
+import { BaseDblpSearchHit, DblpAuthorSearchHit, DblpAuthorSearchHitNote, DblpSearchResult } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
-import { getPageFromParams, searchToItemsParams } from '../(components)/params'
+import { ITEMS_COUNT_PER_PAGE, getPageFromParams, searchToItemsParams } from '../(components)/params'
 import Pagination from '../(components)/Pagination'
 import { ItemsParams } from '@/shared/fetching/fetching'
 import { SimpleSearchResult } from '@/shared/dtos/SimpleSearchResult'
 import AuthorSearchResultLink from './(components)/AuthorSearchResultLink'
+import { fetchAuthorsIndex, fetchAuthorsIndexLength } from '@/server/fetching/authors'
 
 type SearchAuthorPageParams = {
     searchParams: any
@@ -17,37 +18,57 @@ export default async function SearchAuthorPage({ searchParams }: SearchAuthorPag
 
     return (
         <>
+            {
+                result &&
+                <div
+                    className='flex items-center'>
+                    <p className='text-sm'>Total count: <span className='font-semibold'>{result.totalCount}</span></p>
+                    <div className='mx-3 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
+                    <p className='text-sm'>Displayed count: <span className='font-semibold'>{result.items.length}</span></p>
+                </div>
+            }
+
             <ul
-                className='mb-6'>
+                className='flex-1 my-6'>
                 {result.items.map((author) =>
                     <li
-                        key={author.url}>
+                        key={author.localUrl}>
                         <AuthorSearchResultLink
                             author={author} />
                     </li>)}
             </ul>
-            <Pagination
-                total={result.totalCount}
-                currentPage={getPageFromParams(searchParams)}
-                url='/search/author'
-                searchParams={searchParams} />
+            {
+                result.totalCount > ITEMS_COUNT_PER_PAGE &&
+                <Pagination
+                    className='self-center mb-8'
+                    total={result.totalCount}
+                    currentPage={getPageFromParams(searchParams)}
+                    url='/search/author'
+                    searchParams={searchParams} />
+            }
         </>
     )
 }
 
 async function getSearchResult(params: ItemsParams) {
-    return await getSearchResultWithQuery(params);
+    if (params.query && params.query.length > 0) {
+        return await getSearchResultWithQuery(params);
+    }
+    else {
+        return await getSearchResultWithoutQuery(params);
+    }
 }
 
 async function getSearchResultWithQuery(params: ItemsParams) {
     const response = await queryAuthors(params);
     const authors = new DblpSearchResult<DblpAuthorSearchHit>(response, SearchType.Author);
+    const count = Math.min(authors.hits.total, 10000);
     const result = new SimpleSearchResult(
-        Math.min(authors.hits.total, 10000),
+        count,
         authors.hits.items.map((item) => {
             return {
                 title: item.info.author,
-                url: item.info.localUrl,
+                localUrl: item.info.localUrl,
                 additionalInfo: getAdditionalInfo(item.info)
             }
         }));
@@ -56,7 +77,15 @@ async function getSearchResultWithQuery(params: ItemsParams) {
 }
 
 async function getSearchResultWithoutQuery(params: ItemsParams) {
-    // TODO: this will return an array of items that will conatain their original urls fetched from dblp 
+    // TODO: this will return an array of items that will conatain their original urls fetched from dblp
+
+    const authors = await fetchAuthorsIndex({ first: params.first, count: ITEMS_COUNT_PER_PAGE });
+    const count = await fetchAuthorsIndexLength();
+    const result = new SimpleSearchResult(
+        count,
+        authors);
+
+    return result;
 }
 
 function getAdditionalInfo(author: DblpAuthorSearchHit) {

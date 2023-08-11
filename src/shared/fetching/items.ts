@@ -1,5 +1,6 @@
+import { normalizeQuery } from "../utils/searchQuery";
 import { urlWithParams } from "../utils/urls";
-import { BaseItemsParams, ItemsParams, handleErrors } from "./fetching";
+import { ItemsIndexParams, ItemsParams, handleErrors } from "./fetching";
 
 export async function queryItemsJson(url: string, params: ItemsParams) {
     params.first ??= 0;
@@ -7,7 +8,7 @@ export async function queryItemsJson(url: string, params: ItemsParams) {
     params.completionsCount ??= 0;
 
     const completeUrl = urlWithParams(url, {
-        q: params.query,
+        q: params.query ? normalizeQuery(params.query, params.queryOptions) : params.query,
         f: params.first,
         h: params.count,
         c: params.completionsCount,
@@ -15,20 +16,19 @@ export async function queryItemsJson(url: string, params: ItemsParams) {
     });
 
     const response = await fetch(completeUrl);
-    await handleErrors(response, 'json');
+    await handleErrors(response, 'application/json');
 
     return response.json();
 }
 
-export async function fetchItemsHtml(url: string, params: BaseItemsParams) {
-    params.first ??= 1;
-
+export async function fetchItemsIndexHtml(url: string, params: ItemsIndexParams) {
     const completeUrl = urlWithParams(url, {
-        pos: params.first
+        pos: params.first,
+        prefix: params.prefix
     });
 
     const response = await fetch(completeUrl);
-    await handleErrors(response, 'html');
+    await handleErrors(response, 'text/html');
 
     return response.text();
 }

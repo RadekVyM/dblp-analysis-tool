@@ -1,9 +1,10 @@
 import { urlWithParams } from '@/shared/utils/urls'
 import { ITEMS_COUNT_PER_PAGE } from './params'
-import Link from 'next/link'
 import { clamp } from '@/shared/utils/numbers'
+import Button from '@/app/(components)/Button'
 
 type PaginationParams = {
+    className?: string,
     total: number,
     currentPage: number,
     url: string,
@@ -13,19 +14,22 @@ type PaginationParams = {
 type PaginationLinkParams = {
     url: string,
     children: React.ReactNode,
+    before?: React.ReactNode,
+    after?: React.ReactNode,
     isSelected?: boolean
 }
 
-export default async function Pagination({ total, currentPage, url, searchParams }: PaginationParams) {
+export default async function Pagination({ total, currentPage, url, searchParams, className }: PaginationParams) {
     const pageCount = Math.ceil(total / ITEMS_COUNT_PER_PAGE);
     const pages: Array<number> = [];
 
-    for (let i = currentPage; (i < currentPage + 10) && (i <= pageCount); i++) {
+    for (let i = currentPage; (i < currentPage + 5) && (i <= pageCount); i++) {
         pages.push(i);
     }
 
     return (
-        <nav>
+        <nav
+            className={className}>
             <ul
                 className='flex'>
                 <PaginationLink
@@ -36,7 +40,8 @@ export default async function Pagination({ total, currentPage, url, searchParams
                 {
                     pages[0] != 1 &&
                     <PaginationLink
-                        url={urlWithParams(url, withPage(searchParams, 1))}>
+                        url={urlWithParams(url, withPage(searchParams, 1))}
+                        after={<span>...</span>}>
                         {1}
                     </PaginationLink>
                 }
@@ -66,14 +71,17 @@ export default async function Pagination({ total, currentPage, url, searchParams
     )
 }
 
-function PaginationLink({ url, children, isSelected }: PaginationLinkParams) {
+function PaginationLink({ url, children, isSelected, after, before }: PaginationLinkParams) {
     return (
-        <li>
-            <Link
-                className={`p-2 block ${isSelected ? 'bg-accent-secondary text-white' : ''}`}
+        <li
+            className='flex'>
+            {before}
+            <Button
+                variant={isSelected ? 'default' : 'outline'} size='sm'
                 href={url}>
                 {children}
-            </Link>
+            </Button>
+            {after}
         </li>
     )
 }

@@ -1,3 +1,5 @@
+import { QueryOptions } from "../utils/searchQuery";
+
 export const DBLP_URL = 'https://dblp.org';
 export const DBLP_SEARCH_AUTHOR_API = '/search/author/api';
 export const DBLP_SEARCH_VENUE_API = '/search/venue/api';
@@ -32,7 +34,12 @@ export interface BaseItemsParams {
 
 export interface ItemsParams extends BaseItemsParams {
     query?: string,
+    queryOptions?: QueryOptions,
     completionsCount?: number
+}
+
+export interface ItemsIndexParams extends BaseItemsParams {
+    prefix?: string
 }
 
 export async function handleErrors(response: Response, conentType: string) {
@@ -61,7 +68,7 @@ async function throwIfNotOk(response: Response) {
 function throwIfWrongContentType(response: Response, type: string) {
     const contentType = response.headers.get('content-type');
 
-    if (!contentType || !contentType.includes(`application/${type}`)) {
+    if (!contentType || !contentType.includes(type)) {
         throw new TypeError('Response contains content of an incorrect type.');
     }
 }

@@ -8,7 +8,7 @@ import { MdSearch, MdClose, MdAutorenew } from 'react-icons/md'
 import { DblpCompletion } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
-import { createSearchPath } from '@/shared/utils/urls'
+import { createLocalSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
@@ -101,7 +101,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        const url = selectedUrl || createSearchPath(selectedSearchType, { q: searchQuery });
+        const url = selectedUrl || createLocalSearchPath(selectedSearchType, { q: searchQuery });
 
         router.push(url);
         hide();
@@ -322,7 +322,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
                             No results found
                         </span>
             }
-            { /* Find better loading icon than MdAutorenew */}
+            { /* TODO: Find better loading icon than MdAutorenew */}
         </>
     )
 }

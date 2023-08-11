@@ -1,5 +1,16 @@
-export function normalizeQuery(query: string) {
-    const words = query.split(' ').filter(s => s.length > 0);
+export type QueryOptions = {
+    exactWords?: boolean,
+    userOr?: boolean
+}
 
-    return words.join('+');
+export function normalizeQuery(query: string, options?: QueryOptions) {
+    const separator = options?.userOr ? '|' : ' ';
+
+    const words = query
+        .split(' ')
+        .filter(s => s.length > 0)
+        .map(s => options?.exactWords ? `${s}$` : s)
+        .join(separator);
+
+    return words;
 }
