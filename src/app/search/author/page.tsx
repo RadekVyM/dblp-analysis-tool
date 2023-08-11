@@ -31,7 +31,7 @@ export default async function SearchAuthorPage({ searchParams }: SearchAuthorPag
             }
 
             <ul
-                className='flex-1 my-6'>
+                className='flex-1 my-8'>
                 {result.items.map((author) =>
                     <li
                         key={author.localUrl}>

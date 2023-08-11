@@ -9,10 +9,11 @@ export interface ButtonParams extends
     href?: string
 }
 
-export default function Button({ className, children, href, variant, size, ...props }: ButtonParams) {
+export default function Button({ className, children, href, variant, size, title, ...props }: ButtonParams) {
     if (href) {
         return (
             <Link
+                title={title}
                 href={href}
                 className={cn(buttonVariants({ variant, size, className }))}>
                 {children}

@@ -1,5 +1,3 @@
-'use client'
-
 import { SimpleSearchResultItem } from '@/shared/dtos/SimpleSearchResult'
 import Link from 'next/link'
 

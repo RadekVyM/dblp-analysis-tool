@@ -22,6 +22,7 @@ type PaginationLinkParams = {
     children: React.ReactNode,
     before?: React.ReactNode,
     after?: React.ReactNode,
+    title?: string,
     isSelected?: boolean
 }
 
@@ -52,7 +53,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
     return (
         <div
             ref={outerContainerRef}
-            className='grid place-content-center'>
+            className='grid place-content-center w-full'>
             <nav
                 className={cn('grid gap-y-5 max-w-full overflow-clip', className, gridCols)}>
                 <div
@@ -63,6 +64,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                         {left.map((page, index) =>
                             <PaginationLink
                                 key={page}
+                                title={`Go to page ${page}`}
                                 url={urlWithParams(url, withPage(searchParams, page))}>
                                 {
                                     page == 1 ?
@@ -88,6 +90,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                     {pages.map((page) =>
                         <PaginationLink
                             key={page}
+                            title={`Go to page ${page}`}
                             url={urlWithParams(url, withPage(searchParams, page))}
                             isSelected={page == currentPage}>
                             {page}
@@ -103,6 +106,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                         {right.map((page, index) =>
                             <PaginationLink
                                 key={page}
+                                title={`Go to page ${page}`}
                                 url={urlWithParams(url, withPage(searchParams, page))}>
                                 {
                                     page == pageCount ?
@@ -126,13 +130,14 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
     )
 }
 
-function PaginationLink({ url, children, isSelected, after, before }: PaginationLinkParams) {
+function PaginationLink({ url, children, isSelected, after, before, title }: PaginationLinkParams) {
     return (
         <li
             key={url}
             className='flex'>
             {before}
             <Button
+                title={title}
                 variant={isSelected ? 'default' : 'outline'} size='xs'
                 href={url}>
                 {children}
