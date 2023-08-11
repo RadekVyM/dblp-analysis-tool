@@ -79,6 +79,10 @@ body {
     @apply border bg-white text-black border-gray-300 hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:hover:bg-gray-800;
   }
 
+  .btn-xs {
+    @apply h-7 px-2 text-xs;
+  }
+
   .btn-sm {
     @apply h-9 px-3;
   }

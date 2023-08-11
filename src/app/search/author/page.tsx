@@ -20,12 +20,14 @@ export default async function SearchAuthorPage({ searchParams }: SearchAuthorPag
         <>
             {
                 result &&
-                <div
-                    className='flex items-center'>
-                    <p className='text-sm'>Total count: <span className='font-semibold'>{result.totalCount}</span></p>
-                    <div className='mx-3 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
-                    <p className='text-sm'>Displayed count: <span className='font-semibold'>{result.items.length}</span></p>
-                </div>
+                <dl
+                    className='flex items-center text-sm gap-1'>
+                    <dt>Total count:</dt>
+                    <dd className='font-semibold'>{result.totalCount.toLocaleString(undefined, { useGrouping: true })}</dd>
+                    <div className='mx-2 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
+                    <dt>Displayed count:</dt>
+                    <dd className='font-semibold'>{result.items.length}</dd>
+                </dl>
             }
 
             <ul

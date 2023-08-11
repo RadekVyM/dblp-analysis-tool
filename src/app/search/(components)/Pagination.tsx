@@ -1,7 +1,13 @@
+'use client'
+
 import { urlWithParams } from '@/shared/utils/urls'
 import { ITEMS_COUNT_PER_PAGE } from './params'
-import { clamp } from '@/shared/utils/numbers'
 import Button from '@/app/(components)/Button'
+import { cn } from '@/shared/utils/tailwindUtils'
+import { MdChevronLeft, MdChevronRight, MdSkipNext, MdSkipPrevious } from 'react-icons/md'
+import { repeat } from '@/shared/utils/numbers'
+import { useElementSize } from 'usehooks-ts'
+import { useEffect, useState } from 'react'
 
 type PaginationParams = {
     className?: string,
@@ -19,65 +25,115 @@ type PaginationLinkParams = {
     isSelected?: boolean
 }
 
-export default async function Pagination({ total, currentPage, url, searchParams, className }: PaginationParams) {
-    const pageCount = Math.ceil(total / ITEMS_COUNT_PER_PAGE);
-    const pages: Array<number> = [];
+const COLS_GRID = 'grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]';
 
-    for (let i = currentPage; (i < currentPage + 5) && (i <= pageCount); i++) {
-        pages.push(i);
-    }
+export default function Pagination({ total, currentPage, url, searchParams, className }: PaginationParams) {
+    const pageCount = Math.ceil(total / ITEMS_COUNT_PER_PAGE);
+    const pages = getAroundCurrentPages(currentPage, pageCount);
+    const left = getLeftSkipPages(currentPage);
+    const right = getRightSkipPages(currentPage, pageCount);
+
+    const [gridCols, setGridCols] = useState(COLS_GRID);
+
+    const [outerContainerRef, outerContainerSize] = useElementSize();
+    const [leftListRef, leftListSize] = useElementSize<HTMLUListElement>();
+    const [centerListRef, centerListSize] = useElementSize<HTMLUListElement>();
+    const [rightListRef, rightListSize] = useElementSize<HTMLUListElement>();
+
+    useEffect(() => {
+        if (Math.max(leftListSize.width, rightListSize.width) * 2 + centerListSize.width > outerContainerSize.width) {
+            setGridCols('');
+        }
+        else {
+            setGridCols(COLS_GRID);
+        }
+    }, [outerContainerSize.width, leftListSize.width, centerListSize.width, rightListSize.width]);
 
     return (
-        <nav
-            className={className}>
-            <ul
-                className='flex'>
-                <PaginationLink
-                    url={urlWithParams(url, withPage(searchParams, clamp(currentPage - 1, 1, pageCount)))}>
-                    {'<'}
-                </PaginationLink>
+        <div
+            ref={outerContainerRef}
+            className='grid place-content-center'>
+            <nav
+                className={cn('grid gap-y-5 max-w-full overflow-clip', className, gridCols)}>
+                <div
+                    className='grid'>
+                    <ul
+                        ref={leftListRef}
+                        className='flex gap-1 justify-self-start w-fit pr-2'>
+                        {left.map((page, index) =>
+                            <PaginationLink
+                                key={page}
+                                url={urlWithParams(url, withPage(searchParams, page))}>
+                                {
+                                    page == 1 ?
+                                        <MdSkipPrevious /> :
+                                        <div
+                                            className='flex -mx-0.5'>
+                                            {
+                                                repeat(left.length - index, (i) =>
+                                                    <MdChevronLeft
+                                                        key={`${url}--${i}`}
+                                                        className={i != 0 ? '-ml-2' : ''} />)
+                                            }
+                                        </div>
+                                }
+                            </PaginationLink>
+                        )}
+                    </ul>
+                </div>
 
-                {
-                    pages[0] != 1 &&
-                    <PaginationLink
-                        url={urlWithParams(url, withPage(searchParams, 1))}
-                        after={<span>...</span>}>
-                        {1}
-                    </PaginationLink>
-                }
+                <ul
+                    ref={centerListRef}
+                    className='flex gap-1 px-2 justify-self-center w-fit'>
+                    {pages.map((page) =>
+                        <PaginationLink
+                            key={page}
+                            url={urlWithParams(url, withPage(searchParams, page))}
+                            isSelected={page == currentPage}>
+                            {page}
+                        </PaginationLink>
+                    )}
+                </ul>
 
-                {pages.map((page) =>
-                    <PaginationLink
-                        url={urlWithParams(url, withPage(searchParams, page))}
-                        isSelected={page == currentPage}>
-                        {page}
-                    </PaginationLink>
-                )}
-
-                {
-                    pages[pages.length - 1] != pageCount &&
-                    <PaginationLink
-                        url={urlWithParams(url, withPage(searchParams, pageCount))}>
-                        {pageCount}
-                    </PaginationLink>
-                }
-
-                <PaginationLink
-                    url={urlWithParams(url, withPage(searchParams, clamp(currentPage + 1, 1, pageCount)))}>
-                    {'>'}
-                </PaginationLink>
-            </ul>
-        </nav>
+                <div
+                    className='grid'>
+                    <ul
+                        ref={rightListRef}
+                        className='flex gap-1 justify-self-end w-fit pl-2'>
+                        {right.map((page, index) =>
+                            <PaginationLink
+                                key={page}
+                                url={urlWithParams(url, withPage(searchParams, page))}>
+                                {
+                                    page == pageCount ?
+                                        <MdSkipNext /> :
+                                        <div
+                                            className='flex -mx-0.5'>
+                                            {
+                                                repeat(index + 1, (i) =>
+                                                    <MdChevronRight
+                                                        key={`${url}--${i}`}
+                                                        className={i != 0 ? '-ml-2' : ''} />)
+                                            }
+                                        </div>
+                                }
+                            </PaginationLink>
+                        )}
+                    </ul>
+                </div>
+            </nav>
+        </div>
     )
 }
 
 function PaginationLink({ url, children, isSelected, after, before }: PaginationLinkParams) {
     return (
         <li
+            key={url}
             className='flex'>
             {before}
             <Button
-                variant={isSelected ? 'default' : 'outline'} size='sm'
+                variant={isSelected ? 'default' : 'outline'} size='xs'
                 href={url}>
                 {children}
             </Button>
@@ -91,4 +147,43 @@ function withPage(params: { [key: string]: any }, page: number) {
     copy['page'] = page;
 
     return copy;
+}
+
+function getAroundCurrentPages(currentPage: number, totalCount: number) {
+    const numbers: Array<number> = [];
+    const first = Math.max(currentPage + 2 > totalCount ? totalCount - 4 : currentPage - 2, 1);
+
+    for (let i = 0; i < Math.min(totalCount, 5); i++) {
+        numbers.push(first + i);
+    }
+
+    return numbers;
+}
+
+function getLeftSkipPages(currentPage: number) {
+    const numbers: Array<number> = [];
+
+    for (let i = 10; currentPage - i > 1 && i <= 10000; i *= 10) {
+        numbers.push(currentPage - i);
+    }
+
+    if (currentPage != 1) {
+        numbers.push(1);
+    }
+
+    return numbers.reverse();
+}
+
+function getRightSkipPages(currentPage: number, totalCount: number) {
+    const numbers: Array<number> = [];
+
+    for (let i = 10; currentPage + i < totalCount && i <= 10000; i *= 10) {
+        numbers.push(currentPage + i);
+    }
+
+    if (currentPage != totalCount) {
+        numbers.push(totalCount);
+    }
+
+    return numbers;
 }

@@ -20,6 +20,7 @@ export const buttonVariants = cva(
             },
             size: {
                 default: 'btn-md',
+                xs: 'btn-xs',
                 sm: 'btn-sm',
                 lg: 'btn-lg',
             },

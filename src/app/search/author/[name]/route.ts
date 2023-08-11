@@ -1,7 +1,7 @@
-import { BaseDblpSearchHit, DblpSearchResult } from '@/shared/dtos/DblpSearchResult';
-import { SearchType } from '@/shared/enums/SearchType';
-import { queryAuthors } from '@/shared/fetching/authors';
-import { createLocalSearchPath } from '@/shared/utils/urls';
+import { BaseDblpSearchHit, DblpSearchResult } from '@/shared/dtos/DblpSearchResult'
+import { SearchType } from '@/shared/enums/SearchType'
+import { queryAuthors } from '@/shared/fetching/authors'
+import { createLocalSearchPath } from '@/shared/utils/urls'
 import { redirect } from 'next/navigation'
 
 export async function GET(request: Request, { params }: { params: { name: string } }) {
