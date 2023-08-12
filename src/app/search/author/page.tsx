@@ -1,4 +1,4 @@
-import { BaseDblpSearchHit, DblpAuthorSearchHit, DblpAuthorSearchHitNote, DblpSearchResult, getAuthorsNotes } from '@/shared/dtos/DblpSearchResult'
+import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
 import { ITEMS_COUNT_PER_PAGE, getPageFromParams, searchToItemsParams } from '../(components)/params'
@@ -79,13 +79,9 @@ async function getSearchResultWithQuery(params: ItemsParams) {
 }
 
 async function getSearchResultWithoutQuery(params: ItemsParams) {
-    // TODO: this will return an array of items that will conatain their original urls fetched from dblp
-
     const authors = await fetchAuthorsIndex({ first: params.first, count: ITEMS_COUNT_PER_PAGE });
     const count = await fetchAuthorsIndexLength();
-    const result = new SimpleSearchResult(
-        count,
-        authors);
+    const result = new SimpleSearchResult(count, authors);
 
     return result;
 }

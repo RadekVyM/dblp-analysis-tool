@@ -1,5 +1,5 @@
 import { ItemsParams } from '@/shared/fetching/shared'
-import { isNumber } from '@/shared/utils/numbers';
+import { isNumber } from '@/shared/utils/strings'
 
 export const ITEMS_COUNT_PER_PAGE = 50;
 

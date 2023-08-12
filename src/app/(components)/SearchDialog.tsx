@@ -4,13 +4,14 @@ import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, Focu
 import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching/search'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { MdSearch, MdClose, MdAutorenew } from 'react-icons/md'
+import { MdSearch, MdClose, MdAutorenew, MdCancel } from 'react-icons/md'
 import { DblpCompletion } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
 import { createLocalSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
 import { cn } from '@/shared/utils/tailwindUtils'
+import { isNullOrWhiteSpace } from '@/shared/utils/strings'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -26,6 +27,7 @@ type SearchDialogParams = {
 type SearchInputParams = {
     searchQuery: string,
     onSearchQueryChange: (value: string) => void,
+    onClear: () => void,
     onSubmit: (event: FormEvent<HTMLFormElement>) => void,
     onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void,
     onBlur: (event: FocusEvent<HTMLInputElement, Element>) => void
@@ -153,7 +155,11 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                         onSearchQueryChange={(value) => setSearchQuery(value)}
                         onSubmit={onSubmit}
                         onKeyDown={onKeyDown}
-                        onBlur={() => setSelectedUrl(undefined)} />
+                        onBlur={() => setSelectedUrl(undefined)}
+                        onClear={() => {
+                            setSearchQuery('');
+                            inputRef.current?.focus();
+                        }} />
                 </header>
 
                 <div
@@ -171,26 +177,35 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
     );
 });
 
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur }, ref) => {
+export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur, onClear }, ref) => {
     return (
         <form
-            className='relative'
+            className='relative rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
             onSubmit={onSubmit}>
             <input
                 autoFocus
-                type="text"
+                type='text'
                 ref={ref}
                 value={searchQuery}
                 onChange={(event) => onSearchQueryChange(event.target.value)}
                 onKeyDown={onKeyDown}
                 onBlur={onBlur}
                 placeholder='Search dblp...'
-                className='w-full h-11 px-3 pl-10 bg-white hover:bg-gray-100 text-lg border border-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800 dark:border-gray-700 rounded-lg transition-colors' />
+                className='w-full h-11 px-10 bg-transparent text-lg rounded-lg' />
             <div
-                className='absolute top-0 grid place-items-center w-10 h-full pointer-events-none'>
+                className='absolute top-0 grid place-items-center w-10 h-full pointer-events-none rounded-lg'>
                 <MdSearch
                     className='w-5 h-5' />
             </div>
+            {
+                !isNullOrWhiteSpace(searchQuery) &&
+                <button
+                    type='button'
+                    className='absolute top-0 right-0 grid place-items-center w-10 h-full rounded-lg'
+                    onClick={() => onClear()}>
+                    <MdCancel />
+                </button>
+            }
         </form>
     )
 });

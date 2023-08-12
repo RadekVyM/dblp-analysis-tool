@@ -89,7 +89,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         className='flex place-items-center gap-5 with-logo'>
                         <h1>
                             <span className='block text-lg/6 font-extrabold'>dblp</span>
-                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400 font-semibold'>analysis tool</span>
+                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400 font-semibold whitespace-nowrap'>analysis tool</span>
                         </h1>
                     </Link>
 
@@ -101,6 +101,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                     <div
                         className='hidden md:flex gap-5'>
                         <SearchBarButton
+                            className='min-w-[18rem] w-full'
                             onClick={() => showDialog()} />
 
                         <ClientButton
@@ -116,6 +117,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                 <div
                     className='row-start-2 row-end-3 col-start-1 col-end-2 flex md:hidden gap-5 place-items-center h-16'>
                     <SearchBarButton
+                        className='w-full'
                         onClick={() => showDialog()} />
 
                     <ClientButton

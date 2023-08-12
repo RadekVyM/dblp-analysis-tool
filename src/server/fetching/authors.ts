@@ -1,7 +1,7 @@
 import { SimpleSearchResultItem } from '@/shared/dtos/SimpleSearchResult'
 import { BaseItemsParams, DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
-import { isNumber } from '@/shared/utils/numbers'
+import { isNumber } from '@/shared/utils/strings'
 import * as cheerio from 'cheerio'
 
 export async function fetchAuthorsIndex(params: BaseItemsParams) {
