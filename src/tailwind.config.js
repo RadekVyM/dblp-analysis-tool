@@ -9,8 +9,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: 'var(--accent)',
-        'accent-secondary': '#16775c',
+        accent: 'var(--accent)'
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -159,8 +159,8 @@ export interface DblpAuthorSearchHit extends BaseDblpSearchHit {
 }
 
 export type DblpAuthorSearchHitNote = {
-    '@type': string,
-    text: string
+    readonly '@type': string,
+    readonly text: string
 }
 
 export interface DblpVenueSearchHit extends BaseDblpSearchHit {
@@ -169,6 +169,25 @@ export interface DblpVenueSearchHit extends BaseDblpSearchHit {
     readonly type: string
 }
 
+
+export function getAuthorsNotes(author: DblpAuthorSearchHit) {
+    if (!author.notes || !author.notes?.note) {
+        return [];
+    }
+
+    if ('text' in author.notes.note) {
+        const note = author.notes?.note as DblpAuthorSearchHitNote;
+        if (note) {
+            return [note];
+        }
+    }
+    else {
+        const notes = author.notes?.note as Array<DblpAuthorSearchHitNote>;
+        return notes;
+    }
+
+    return [];
+}
 
 function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: SearchType): Array<DblpCompletion> {
     const result = rawResult.result;

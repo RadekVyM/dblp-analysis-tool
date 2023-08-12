@@ -5,7 +5,10 @@
 :root {
   --side-bar-width: 17rem;
 
-  --accent: #16775c;
+  --accent-dark: #16775c;
+  --accent-light: #2ed7a7;
+
+  --accent: var(--accent-dark);
   --foreground: #000;
   --background: #f3f4f5;
   --backdrop: rgba(0, 0, 0, 0.1);
@@ -13,7 +16,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --accent: #2ed7a7;
+    --accent: var(--accent-light);
     --foreground: #f3f4f5;
     --background: #000;
   }
@@ -24,9 +27,23 @@ body {
   background: var(--background);
 }
 
+::selection {
+  color: white;
+  background-color: var(--accent-dark);
+}
+
+input::selection {
+  @apply text-white bg-gray-800;
+}
+
+@media (prefers-color-scheme: dark) {
+  input::selection {
+    @apply text-gray-900 bg-gray-100;
+  }
+}
+
 .dialog {
-  color: var(--foreground);
-  @apply bg-gray-50 border border-gray-200 rounded-lg backdrop:backdrop-blur-md
+  @apply bg-gray-50 border text-[var(--foreground)] border-gray-200 rounded-lg backdrop:backdrop-blur-md
 }
 
 @media (prefers-color-scheme: dark) {

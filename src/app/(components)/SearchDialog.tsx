@@ -10,6 +10,7 @@ import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
 import { createLocalSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
+import { cn } from '@/shared/utils/tailwindUtils'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -112,7 +113,11 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             id='search-view-dialog'
             ref={ref}
             open={false}
-            className={`search-dialog z-20 md:max-w-3xl w-full h-full overflow-y-hidden bg-transparent rounded-lg backdrop:backdrop-blur-md ${animation}`}
+            className={cn(
+                `search-dialog z-20 md:max-w-3xl w-full h-full overflow-y-hidden
+                bg-transparent rounded-lg backdrop:backdrop-blur-md
+                focus:outline-none`,
+                animation)}
             onClick={() => hide()}
             onCancel={(event) => {
                 event.preventDefault();
@@ -258,7 +263,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
     return (
         <>
             {
-                (!authorsResult.isLoading && !venuesResult.isLoading && !authorsResult.isError && !venuesResult.isError &&
+                (!authorsResult.isLoading && !venuesResult.isLoading && !authorsResult.error && !venuesResult.error &&
                     anyItems(...completions, ...(authorsResult.authors?.hits.items || []), ...(venuesResult.venues?.hits.items || []))) ?
                     <ul>
                         {
@@ -281,7 +286,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
                             </li>
                         }
                         {
-                            !authorsResult.isLoading && !authorsResult.isError && anyItems(...(authorsResult.authors?.hits.items || [])) &&
+                            !authorsResult.isLoading && !authorsResult.error && anyItems(...(authorsResult.authors?.hits.items || [])) &&
                             <HitsList
                                 title='Authors'>
                                 <ul>
@@ -297,7 +302,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
                             </HitsList>
                         }
                         {
-                            !venuesResult.isLoading && !venuesResult.isError && anyItems(...(venuesResult.venues?.hits.items || [])) &&
+                            !venuesResult.isLoading && !venuesResult.error && anyItems(...(venuesResult.venues?.hits.items || [])) &&
                             <HitsList
                                 title='Venues'>
                                 <ul>

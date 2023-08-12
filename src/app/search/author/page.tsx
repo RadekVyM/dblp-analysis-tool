@@ -1,9 +1,9 @@
-import { BaseDblpSearchHit, DblpAuthorSearchHit, DblpAuthorSearchHitNote, DblpSearchResult } from '@/shared/dtos/DblpSearchResult'
+import { BaseDblpSearchHit, DblpAuthorSearchHit, DblpAuthorSearchHitNote, DblpSearchResult, getAuthorsNotes } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
 import { ITEMS_COUNT_PER_PAGE, getPageFromParams, searchToItemsParams } from '../(components)/params'
 import Pagination from '../(components)/Pagination'
-import { ItemsParams } from '@/shared/fetching/fetching'
+import { ItemsParams } from '@/shared/fetching/shared'
 import { SimpleSearchResult } from '@/shared/dtos/SimpleSearchResult'
 import AuthorSearchResultLink from './(components)/AuthorSearchResultLink'
 import { fetchAuthorsIndex, fetchAuthorsIndexLength } from '@/server/fetching/authors'
@@ -91,19 +91,10 @@ async function getSearchResultWithoutQuery(params: ItemsParams) {
 }
 
 function getAdditionalInfo(author: DblpAuthorSearchHit) {
-    if (!author.notes || !author.notes?.note) {
-        return undefined;
-    }
+    const notes = getAuthorsNotes(author);
 
-    if ('text' in author.notes.note) {
-        const note = author.notes?.note as DblpAuthorSearchHitNote;
-        return note?.text || undefined;
-    }
-    else {
-        const notes = author.notes?.note as Array<DblpAuthorSearchHitNote>;
-        return notes
-            .map((n) => n['@type'] == 'award' ? undefined : n.text)
-            .filter((t) => t)
-            .join('<br/>');
-    }
+    return notes
+        .map((n) => n['@type'] == 'award' ? undefined : n.text)
+        .filter((t) => t)
+        .join('<br/>');
 }

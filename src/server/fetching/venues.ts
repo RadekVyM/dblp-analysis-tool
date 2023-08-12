@@ -1,7 +1,7 @@
 'use server'
 
 import { VenueType } from '@/shared/enums/VenueType'
-import { BaseItemsParams, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/shared/fetching/fetching'
+import { BaseItemsParams, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
 
 export async function fetchVenuesIndex(params: BaseItemsParams, type: VenueType) {

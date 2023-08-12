@@ -15,7 +15,7 @@ export default function SearchBarButton({ ...props }: SearchBarButton) {
                 <MdSearch
                     className='w-4 h-4' />
             </div>
-            <span className='block px-3 text-gray-500 w-full text-start'>Search dblp...</span>
+            <span className='block px-3 text-gray-500 w-full text-start select-none'>Search dblp...</span>
         </Button>
     )
 }
