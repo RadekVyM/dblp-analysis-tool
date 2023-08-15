@@ -1,6 +1,6 @@
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import Pagination from './Pagination'
-import { SearchParams } from '@/shared/dtos/SearchParams'
+import { SearchParams } from '@/shared/models/SearchParams'
 import Link from 'next/link'
 import { getPageFromSearchParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
@@ -53,10 +53,10 @@ export default function SearchResultList({ result, searchParams, paginationUrl }
 function ResultStats({ result }: ResultStatsParams) {
     return (
         <dl
-            className='flex items-center text-sm gap-1'>
+            className='flex flex-col xs:flex-row xs:items-center text-sm gap-1'>
             <dt>Total count:</dt>
             <dd className='font-semibold'>{result.totalCount.toLocaleString(undefined, { useGrouping: true })}</dd>
-            <div className='mx-2 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
+            <div className='hidden xs:block mx-2 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
             <dt>Displayed count:</dt>
             <dd className='font-semibold'>{result.items.length}</dd>
         </dl>

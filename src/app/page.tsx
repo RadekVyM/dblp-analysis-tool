@@ -8,9 +8,9 @@ export default function HomePage() {
       <div
         className='place-self-center flex flex-col items-center gap-9'>
         <h2
-          className='font-bold flex flex-col items-center text-center text-[min(8vw,3rem)] gap-[min(1vw,0.5rem)]'>
+          className='font-black flex flex-col items-center text-center text-[min(8vw,3rem)]'>
           Explore and Analyse <br />
-          <span className='text-accent font-extrabold'>dblp</span>
+          <span className='text-accent font-black'>dblp</span>
         </h2>
         <p className='text-center max-w-xl'>
           Computer science bibliography that provides open bibliographic information on major computer science journals and proceedings.

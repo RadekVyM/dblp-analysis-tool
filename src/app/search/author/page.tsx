@@ -1,10 +1,10 @@
-import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/shared/dtos/DblpSearchResult'
+import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/shared/models/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
 import { ItemsParams } from '@/shared/fetching/shared'
-import { SimpleSearchResult } from '@/shared/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import { fetchAuthorsIndex, fetchAuthorsIndexLength } from '@/server/fetching/authors'
-import { SearchParams } from '@/shared/dtos/SearchParams'
+import { SearchParams } from '@/shared/models/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
@@ -52,9 +52,25 @@ async function getSearchResultWithQuery(params: ItemsParams) {
 }
 
 async function getSearchResultWithoutQuery(params: ItemsParams) {
-    // TODO: Use Promise.allSettled() - https://www.youtube.com/watch?v=f2Z1v3cqgDI
-    const authors = await fetchAuthorsIndex({ first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE });
-    const count = await fetchAuthorsIndexLength();
+    const promises = [
+        fetchAuthorsIndex({ first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE }),
+        fetchAuthorsIndexLength()
+    ]
+
+    const results = await Promise.allSettled(promises);
+    const authors = results
+        .filter((p): p is PromiseFulfilledResult<Array<SimpleSearchResultItem>> => p.status == 'fulfilled')
+        .map((p) => p.value)
+        .at(0);
+    const count = results
+        .filter((p): p is PromiseFulfilledResult<number> => p.status == 'fulfilled')
+        .map((p) => p.value)
+        .at(1);
+
+    if ((!count && count != 0) || !authors) {
+        throw new Error('Items could not be loaded');
+    }
+
     const result = new SimpleSearchResult(count, authors);
 
     return result;

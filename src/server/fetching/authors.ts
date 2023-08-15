@@ -1,4 +1,4 @@
-import { SimpleSearchResultItem } from '@/shared/dtos/SimpleSearchResult'
+import { SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import { BaseItemsParams } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
 import { isNumber } from '@/shared/utils/strings'

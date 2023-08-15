@@ -1,4 +1,4 @@
-import { RawDblpBaseSearchResult } from '../dtos/DblpSearchResult'
+import { RawDblpBaseSearchResult } from '../models/DblpSearchResult'
 import { ItemsParams } from './shared'
 import { queryItemsJson } from './items'
 import { VenueType } from '../enums/VenueType'

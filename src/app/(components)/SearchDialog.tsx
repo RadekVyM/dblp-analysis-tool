@@ -5,7 +5,7 @@ import { useAuthorsSearch, useVenuesSearch } from '@/client/fetching/search'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdAutorenew, MdCancel } from 'react-icons/md'
-import { DblpCompletion } from '@/shared/dtos/DblpSearchResult'
+import { DblpCompletion } from '@/shared/models/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import Link from 'next/link'
 import { createLocalSearchPath } from '@/shared/utils/urls'
@@ -142,7 +142,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
                         <Button
                             title='Close'
-                            size='sm' variant='icon-outline'
+                            variant='icon-outline'
                             onClick={() => hide()}>
                             <MdClose
                                 className='w-5 h-5' />
@@ -237,7 +237,7 @@ function SearchTypeSelectionInput({ title, searchType, selectedSearchType, onCha
 
     return (
         <div
-            className={`btn ${isSelected ? 'btn-default' : 'btn-outline'} place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2`}>
+            className={`btn ${isSelected ? 'btn-default' : 'btn-outline'} btn-md px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2`}>
             <input
                 className='sr-only'
                 type="radio" id={id}

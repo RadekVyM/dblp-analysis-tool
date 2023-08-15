@@ -1,7 +1,7 @@
 'use client'
 
 import Button from '@/app/(components)/Button'
-import { SearchParams } from '@/shared/dtos/SearchParams'
+import { SearchParams } from '@/shared/models/SearchParams'
 import { SearchType } from '@/shared/enums/SearchType'
 import { VenueType, getVenueTypeByKey } from '@/shared/enums/VenueType'
 import { cn } from '@/shared/utils/tailwindUtils'

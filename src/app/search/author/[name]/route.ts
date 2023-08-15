@@ -1,4 +1,4 @@
-import { BaseDblpSearchHit, DblpSearchResult } from '@/shared/dtos/DblpSearchResult'
+import { BaseDblpSearchHit, DblpSearchResult } from '@/shared/models/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
 import { createLocalSearchPath } from '@/shared/utils/urls'

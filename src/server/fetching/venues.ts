@@ -1,7 +1,7 @@
 import { VenueType } from '@/shared/enums/VenueType'
 import { BaseItemsParams } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
-import { SimpleSearchResultItem } from '@/shared/dtos/SimpleSearchResult'
+import { SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import * as cheerio from 'cheerio'
 import { convertDblpUrlToLocalPath } from '@/shared/utils/urls'
 import { SearchType } from '@/shared/enums/SearchType'

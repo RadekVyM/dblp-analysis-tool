@@ -1,4 +1,4 @@
-import { SearchParams } from '../dtos/SearchParams'
+import { SearchParams } from '../models/SearchParams'
 import { ItemsParams } from '../fetching/shared'
 import { isNumber } from './strings'
 

@@ -86,7 +86,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                     className='row-start-1 row-end-2 col-start-1 col-end-2 flex place-items-center gap-6 sm:gap-10 h-16'>
                     <Link
                         href='/'
-                        className='flex place-items-center gap-3 sm:gap-5 with-logo'>
+                        className='flex place-items-center gap-3 xs:gap-5 with-logo'>
                         <h1>
                             <span className='block text-lg/6 font-extrabold'>dblp</span>
                             <span className='block text-xs/3 text-gray-800 dark:text-gray-400 font-semibold whitespace-nowrap'>analysis tool</span>
@@ -106,7 +106,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
 
                         <ClientButton
                             ref={topAuthorGroupsMenuButtonRef}
-                            size='sm' variant={bookmarkButtonVariant}
+                            variant={bookmarkButtonVariant}
                             onClick={authorGroupsMenuButtonClick}>
                             <MdBookmarks
                                 className='w-full' />
@@ -121,7 +121,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         onClick={() => showDialog()} />
 
                     <ClientButton
-                        size='sm' variant={bookmarkButtonVariant}
+                        variant={bookmarkButtonVariant}
                         onClick={authorGroupsMenuButtonClick}>
                         <MdBookmarks
                             className='w-full' />

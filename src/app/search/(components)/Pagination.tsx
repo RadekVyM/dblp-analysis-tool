@@ -86,7 +86,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
 
                 <ul
                     ref={centerListRef}
-                    className='flex gap-1 px-2 justify-self-center w-fit'>
+                    className='justify-self-center flex flex-wrap justify-center gap-1 px-2 w-fit'>
                     {pages.map((page) =>
                         <PaginationLink
                             key={page}

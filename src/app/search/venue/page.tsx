@@ -1,14 +1,15 @@
 import { ItemsParams } from '@/shared/fetching/shared'
-import { DblpSearchResult, DblpVenueSearchHit } from '@/shared/dtos/DblpSearchResult'
+import { DblpSearchResult, DblpVenueSearchHit } from '@/shared/models/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
-import { SimpleSearchResult } from '@/shared/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import { queryVenues } from '@/shared/fetching/venues'
 import { fetchVenuesIndex, fetchVenuesIndexLength } from '@/server/fetching/venues'
 import { VenueType, getVenueTypeByKey } from '@/shared/enums/VenueType'
-import { SearchParams } from '@/shared/dtos/SearchParams'
+import { SearchParams } from '@/shared/models/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
+import { isNumber } from '@/shared/utils/strings'
 
 type SearchVenuePageParams = {
     searchParams: SearchParams
@@ -53,9 +54,25 @@ async function getSearchResultWithQuery(type: VenueType, params: ItemsParams) {
 }
 
 async function getSearchResultWithoutQuery(type: VenueType, params: ItemsParams) {
-    // TODO: Use Promise.allSettled() - https://www.youtube.com/watch?v=f2Z1v3cqgDI
-    const venues = await fetchVenuesIndex(type, { first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE });
-    const count = await fetchVenuesIndexLength(type);
+    const promises = [
+        fetchVenuesIndex(type, { first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE }),
+        fetchVenuesIndexLength(type)
+    ]
+
+    const results = await Promise.allSettled(promises);
+    const venues = results
+        .filter((p): p is PromiseFulfilledResult<Array<SimpleSearchResultItem>> => p.status == 'fulfilled')
+        .map((p) => p.value)
+        .at(0);
+    const count = results
+        .filter((p): p is PromiseFulfilledResult<number> => p.status == 'fulfilled')
+        .map((p) => p.value)
+        .at(1);
+
+    if ((!count && count != 0) || !venues) {
+        throw new Error('Items could not be loaded');
+    }
+
     const result = new SimpleSearchResult(count, venues);
 
     return result;

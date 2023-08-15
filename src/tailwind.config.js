@@ -11,6 +11,9 @@ module.exports = {
       colors: {
         accent: 'var(--accent)'
       },
+      screens: {
+        'xs': '400px'
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':

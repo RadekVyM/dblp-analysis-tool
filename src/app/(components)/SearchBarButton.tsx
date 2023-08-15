@@ -21,7 +21,7 @@ export default function SearchBarButton({ className, ...props }: SearchBarButton
 
     return (
         <Button
-            variant='outline' size='sm'
+            variant='outline'
             className={cn('justify-start cursor-text', className)}
             {...props}>
             <div
