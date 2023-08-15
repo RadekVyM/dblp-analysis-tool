@@ -1,54 +1,27 @@
 import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/shared/dtos/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
 import { queryAuthors } from '@/shared/fetching/authors'
-import { ITEMS_COUNT_PER_PAGE, getPageFromParams, searchToItemsParams } from '../(components)/params'
-import Pagination from '../(components)/Pagination'
 import { ItemsParams } from '@/shared/fetching/shared'
 import { SimpleSearchResult } from '@/shared/dtos/SimpleSearchResult'
-import AuthorSearchResultLink from './(components)/AuthorSearchResultLink'
 import { fetchAuthorsIndex, fetchAuthorsIndexLength } from '@/server/fetching/authors'
+import { SearchParams } from '@/shared/dtos/SearchParams'
+import SearchResultList from '../(components)/SearchResultList'
+import { searchToItemsParams } from '@/shared/utils/searchParams'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
 
 type SearchAuthorPageParams = {
-    searchParams: any
+    searchParams: SearchParams
 }
 
 export default async function SearchAuthorPage({ searchParams }: SearchAuthorPageParams) {
-    const params = searchToItemsParams(searchParams);
+    const params = searchToItemsParams(searchParams, DEFAULT_ITEMS_COUNT_PER_PAGE);
     const result = await getSearchResult(params);
 
     return (
-        <>
-            {
-                result &&
-                <dl
-                    className='flex items-center text-sm gap-1'>
-                    <dt>Total count:</dt>
-                    <dd className='font-semibold'>{result.totalCount.toLocaleString(undefined, { useGrouping: true })}</dd>
-                    <div className='mx-2 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
-                    <dt>Displayed count:</dt>
-                    <dd className='font-semibold'>{result.items.length}</dd>
-                </dl>
-            }
-
-            <ul
-                className='flex-1 my-8'>
-                {result.items.map((author) =>
-                    <li
-                        key={author.localUrl}>
-                        <AuthorSearchResultLink
-                            author={author} />
-                    </li>)}
-            </ul>
-            {
-                result.totalCount > ITEMS_COUNT_PER_PAGE &&
-                <Pagination
-                    className='self-center mb-8'
-                    total={result.totalCount}
-                    currentPage={getPageFromParams(searchParams)}
-                    url='/search/author'
-                    searchParams={searchParams} />
-            }
-        </>
+        <SearchResultList
+            result={result}
+            searchParams={searchParams}
+            paginationUrl='/search/author' />
     )
 }
 
@@ -64,7 +37,7 @@ async function getSearchResult(params: ItemsParams) {
 async function getSearchResultWithQuery(params: ItemsParams) {
     const response = await queryAuthors(params);
     const authors = new DblpSearchResult<DblpAuthorSearchHit>(response, SearchType.Author);
-    const count = Math.min(authors.hits.total, 10000);
+    const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
     const result = new SimpleSearchResult(
         count,
         authors.hits.items.map((item) => {
@@ -79,7 +52,8 @@ async function getSearchResultWithQuery(params: ItemsParams) {
 }
 
 async function getSearchResultWithoutQuery(params: ItemsParams) {
-    const authors = await fetchAuthorsIndex({ first: params.first, count: ITEMS_COUNT_PER_PAGE });
+    // TODO: Use Promise.allSettled() - https://www.youtube.com/watch?v=f2Z1v3cqgDI
+    const authors = await fetchAuthorsIndex({ first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE });
     const count = await fetchAuthorsIndexLength();
     const result = new SimpleSearchResult(count, authors);
 

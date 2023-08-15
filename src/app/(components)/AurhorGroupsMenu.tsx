@@ -66,7 +66,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
             ref={ref}
             className='
                 place-self-stretch flex flex-col md:my-4 p-5 pr-3
-                bg-gray-50 dark:bg-gray-900 rounded-l-lg md:rounded-lg shadow-sm
+                bg-white dark:bg-gray-900 rounded-l-lg md:rounded-lg md:border border-gray-300 dark:border-gray-700
                 pointer-events-auto animate-slideLeftIn md:animate-none'>
             <Button
                 title='Close'

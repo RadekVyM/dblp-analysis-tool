@@ -15,7 +15,7 @@ export async function queryItemsJson(url: string, params: ItemsParams) {
         format: 'json'
     });
 
-    const response = await fetch(completeUrl);
+    const response = await fetch(completeUrl, { next: { revalidate: 3600 } });
     await handleErrors(response, 'application/json');
 
     return response.json();
@@ -23,11 +23,11 @@ export async function queryItemsJson(url: string, params: ItemsParams) {
 
 export async function fetchItemsIndexHtml(url: string, params: ItemsIndexParams) {
     const completeUrl = urlWithParams(url, {
-        pos: params.first,
+        pos: (params.first || 0) + 1,
         prefix: params.prefix
     });
 
-    const response = await fetch(completeUrl);
+    const response = await fetch(completeUrl, { next: { revalidate: 3600 } });
     await handleErrors(response, 'text/html');
 
     return response.text();

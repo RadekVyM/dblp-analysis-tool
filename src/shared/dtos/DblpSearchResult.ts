@@ -217,6 +217,6 @@ function toCompletion(rawCompletion: RawDblpCompletion, type: SearchType): DblpC
         id: parseInt(rawCompletion["@id"]),
         text: rawCompletion.text,
         type: type,
-        localUrl: createLocalSearchPath(type, { q: rawCompletion.text })
+        localUrl: createLocalSearchPath(type, { query: rawCompletion.text })
     }
 }

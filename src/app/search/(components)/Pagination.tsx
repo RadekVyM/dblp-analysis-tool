@@ -1,13 +1,13 @@
 'use client'
 
 import { urlWithParams } from '@/shared/utils/urls'
-import { ITEMS_COUNT_PER_PAGE } from './params'
 import Button from '@/app/(components)/Button'
 import { cn } from '@/shared/utils/tailwindUtils'
 import { MdChevronLeft, MdChevronRight, MdSkipNext, MdSkipPrevious } from 'react-icons/md'
 import { repeat } from '@/shared/utils/numbers'
 import { useElementSize } from 'usehooks-ts'
 import { useEffect, useState } from 'react'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
 
 type PaginationParams = {
     className?: string,
@@ -29,7 +29,7 @@ type PaginationLinkParams = {
 const COLS_GRID = 'grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]';
 
 export default function Pagination({ total, currentPage, url, searchParams, className }: PaginationParams) {
-    const pageCount = Math.ceil(total / ITEMS_COUNT_PER_PAGE);
+    const pageCount = Math.ceil(total / DEFAULT_ITEMS_COUNT_PER_PAGE);
     const pages = getAroundCurrentPages(currentPage, pageCount);
     const left = getLeftSkipPages(currentPage);
     const right = getRightSkipPages(currentPage, pageCount);

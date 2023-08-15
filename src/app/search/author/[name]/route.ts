@@ -5,7 +5,7 @@ import { createLocalSearchPath } from '@/shared/utils/urls'
 import { redirect } from 'next/navigation'
 
 export async function GET(request: Request, { params }: { params: { name: string } }) {
-    let localUrl = createLocalSearchPath(SearchType.Author, { q: params.name });
+    let localUrl = createLocalSearchPath(SearchType.Author, { query: params.name });
 
     try {
         const response = await queryAuthors({ query: params.name, queryOptions: { exactWords: true }, completionsCount: 0, count: 2 });

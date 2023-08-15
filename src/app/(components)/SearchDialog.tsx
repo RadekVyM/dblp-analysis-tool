@@ -77,7 +77,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
     const debouncedSearchQuery = useDebounce(searchQuery, 750);
 
     useEffect(() => {
-        setSearchQuery(isOpen ? searchParams.get('q') || '' : '');
+        setSearchQuery(isOpen ? searchParams.get('query') || '' : '');
         if (isOpen) {
             setSelectedSearchType(pathname.startsWith('/search/venue') ? SearchType.Venue : SearchType.Author);
             inputRef.current?.focus();
@@ -104,7 +104,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        const url = selectedUrl || createLocalSearchPath(selectedSearchType, { q: searchQuery });
+        const url = selectedUrl || createLocalSearchPath(selectedSearchType, { query: searchQuery });
 
         router.push(url);
         hide();

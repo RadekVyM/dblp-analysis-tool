@@ -1,17 +1,14 @@
-import { SearchType } from "@/shared/enums/SearchType";
-import { normalizeQuery } from "./searchQuery";
-import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY, VenueType } from "../enums/VenueType";
-
-type SearchParams = {
-    q?: string,
-    type?: string
-}
+import { SearchType } from '@/shared/enums/SearchType'
+import { normalizeQuery } from './searchQuery'
+import { SearchParams } from '../dtos/SearchParams'
+import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '../constants/search'
+import { VenueType } from '../enums/VenueType'
 
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 
-export const ID_LOCAL_SEPARATOR = '___'; // Do not used single '-'. PIDs can contain '-'
-export const ID_DBLP_SEPARATOR = '/';
+const ID_LOCAL_SEPARATOR = '___'; // Do not use single '-', PIDs can contain '-'
+const ID_DBLP_SEPARATOR = '/';
 
 export function dblpUrlContainsItemId(stringUrl: string) {
     const path = getPath(stringUrl);
@@ -45,7 +42,7 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
 }
 
 export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
-    searchParams.q = searchParams.q ? normalizeQuery(searchParams.q) : undefined;
+    searchParams.query = searchParams.query ? normalizeQuery(searchParams.query) : undefined;
     const params: { [key: string]: any } = searchParams;
 
     switch (searchType) {

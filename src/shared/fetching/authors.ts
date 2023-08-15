@@ -1,6 +1,7 @@
-import { RawDblpBaseSearchResult } from "../dtos/DblpSearchResult";
-import { DBLP_SEARCH_AUTHOR_API, DBLP_URL, ItemsParams } from "./shared";
-import { queryItemsJson } from "./items";
+import { RawDblpBaseSearchResult } from '../dtos/DblpSearchResult'
+import { ItemsParams } from './shared'
+import { queryItemsJson } from './items'
+import { DBLP_SEARCH_AUTHOR_API, DBLP_URL } from '../constants/urls'
 
 export interface AuthorsParams extends ItemsParams {
 }

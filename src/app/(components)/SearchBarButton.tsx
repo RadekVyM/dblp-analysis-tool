@@ -17,7 +17,7 @@ type TextContentParams = {
 
 export default function SearchBarButton({ className, ...props }: SearchBarButtonParams) {
     const searchParams = useSearchParams();
-    const query = searchParams.get('q');
+    const query = searchParams.get('query');
 
     return (
         <Button

@@ -27,6 +27,12 @@ body {
   background: var(--background);
 }
 
+@supports selector(.has-focus-visible-outline:has(:focus-visible)) {
+  body:has(dialog[open]) {
+    @apply overflow-hidden;
+  }
+}
+
 ::selection {
   color: white;
   background-color: var(--accent-dark);
@@ -43,12 +49,12 @@ input::selection {
 }
 
 .dialog {
-  @apply bg-gray-50 border text-[var(--foreground)] border-gray-200 rounded-lg backdrop:backdrop-blur-md
+  @apply bg-gray-50 border text-[var(--foreground)] border-gray-200 rounded-lg backdrop:backdrop-blur-md;
 }
 
 @media (prefers-color-scheme: dark) {
   .dialog {
-    @apply bg-gray-900 border-gray-800
+    @apply bg-gray-900 border-gray-800;
   }
 }
 
@@ -58,24 +64,25 @@ input::selection {
 }
 
 .with-logo::before {
-  content: '';
+  content: "";
   display: block;
   align-self: stretch;
-  width: 2rem;
-  height: 2.5rem;
-  background-image: url('/logo.svg');
+  background-image: url("/logo.svg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
+  @apply w-7 h-8 sm:w-8 sm:h-10;
 }
 
-.has-focus-visible-outline:has(:focus-visible) {
-  @apply outline outline-2 outline-offset-4
+@supports selector(.has-focus-visible-outline:has(:focus-visible)) {
+  .has-focus-visible-outline:has(:focus-visible) {
+    @apply outline outline-2 outline-offset-4;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   .with-logo::before {
-    background-image: url('/logo_dark.svg');
+    background-image: url("/logo_dark.svg");
   }
 }
 

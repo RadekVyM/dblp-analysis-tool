@@ -1,12 +1,4 @@
-import { QueryOptions } from "../utils/searchQuery";
-
-export const DBLP_URL = 'https://dblp.org';
-export const DBLP_SEARCH_AUTHOR_API = '/search/author/api';
-export const DBLP_SEARCH_VENUE_API = '/search/venue/api';
-export const DBLP_AUTHORS_INDEX_HTML = '/pers';
-export const DBLP_JOURNALS_INDEX_HTML = '/db/journals';
-export const DBLP_CONF_INDEX_HTML = '/db/conf';
-export const DBLP_SERIES_INDEX_HTML = '/db/series';
+import { QueryOptions } from '../utils/searchQuery'
 
 interface FetchErrorOptions extends ErrorOptions {
     status?: number,
@@ -28,8 +20,9 @@ export class FetchError extends Error {
 }
 
 export interface BaseItemsParams {
-    first?: number,
-    count?: number
+    first?: number, // zero-based index
+    count?: number,
+    type?: string
 }
 
 export interface ItemsParams extends BaseItemsParams {
