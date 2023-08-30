@@ -5,26 +5,73 @@
 :root {
   --side-bar-width: 17rem;
 
-  --accent-dark: #16775c;
-  --accent-light: #2ed7a7;
+  --primary-light: #2ed7a7;
+  --primary-dark: #16775c;
 
-  --accent: var(--accent-dark);
-  --foreground: #000;
-  --background: #f3f4f5;
+  --primary: var(--primary-dark);
+  --on-primary: #ffffff;
+  --secondary: #1f2937;
+  --on-secondary: #ffffff;
+  --secondary-dim: #000;
+  --on-secondary-dim: #ffffff;
+
+  --surface: #f3f4f5;
+  --on-surface: #000;
+  --on-surface-muted: #6b7280;
+
+  --surface-dim: #e5e7eb;
+  --on-surface-dim: #000;
+  --on-surface-dim-muted: #6b7280;
+
+  --surface-container: #ffffff;
+  --on-surface-container: #000;
+  --on-surface-container-muted: #6b7280;
+
+  --surface-dim-container: #f3f4f6;
+  --on-surface-dim-container: #000;
+  --on-surface-dim-container-muted: #6b7280;
+
+  --outline: #d1d5db;
+  --outline-variant: #e5e7eb;
+
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+
+  --danger-dim: #991b1b;
+  --on-danger-dim: #ffffff;
+
   --backdrop: rgba(0, 0, 0, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --accent: var(--accent-light);
-    --foreground: #f3f4f5;
-    --background: #000;
+    --primary: var(--primary-light);
+    --on-primary: #ffffff;
+    --secondary: #f3f4f6;
+    --on-secondary: #000;
+    --secondary-dim: #d1d5db;
+    --on-secondary-dim: #000;
+
+    --surface: #000;
+    --on-surface: #f3f4f5;
+    --on-surface-muted: #9ca3af;
+
+    --surface-dim: #1f2937;
+    --on-surface-dim: #f3f4f5;
+
+    --surface-container: #111827;
+    --on-surface-container: #f3f4f5;
+
+    --surface-dim-container: #1f2937;
+    --on-surface-dim-container: #f3f4f5;
+
+    --outline: #374151;
+    --outline-variant: #1f2937;
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  @apply text-on-surface bg-surface;
 }
 
 @supports selector(.has-focus-visible-outline:has(:focus-visible)) {
@@ -34,8 +81,7 @@ body {
 }
 
 ::selection {
-  color: white;
-  background-color: var(--accent-dark);
+  @apply text-white bg-[var(--primary-dark)];
 }
 
 input::selection {
@@ -49,18 +95,11 @@ input::selection {
 }
 
 .dialog {
-  @apply bg-gray-50 border text-[var(--foreground)] border-gray-200 rounded-lg backdrop:backdrop-blur-md;
-}
-
-@media (prefers-color-scheme: dark) {
-  .dialog {
-    @apply bg-gray-900 border-gray-800;
-  }
+  @apply bg-surface-container border text-on-surface-container border-outline-variant rounded-lg backdrop:backdrop-blur-md;
 }
 
 .search-dialog[open] {
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col;
 }
 
 @supports selector(.has-focus-visible-outline:has(:focus-visible)) {
@@ -71,13 +110,11 @@ input::selection {
 
 .with-logo::before {
   content: "";
-  display: block;
-  align-self: stretch;
   background-image: url("/logo.svg");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  @apply w-7 h-8 xs:w-8 xs:h-10;
+  @apply block self-stretch w-7 h-8 xs:w-8 xs:h-10;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -92,15 +129,15 @@ input::selection {
   }
 
   .btn-default {
-    @apply bg-gray-800 text-white hover:bg-black dark:bg-gray-100 dark:text-black dark:hover:bg-gray-300;
+    @apply bg-secondary text-on-secondary hover:bg-secondary-dim hover:text-on-secondary-dim;
   }
 
   .btn-destructive {
-    @apply bg-red-700 text-white hover:bg-red-800 dark:hover:bg-red-700;
+    @apply bg-danger text-on-danger hover:bg-danger-dim hover:text-on-danger-dim;
   }
 
   .btn-outline {
-    @apply border bg-white text-black border-gray-300 hover:bg-gray-100 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:hover:bg-gray-800;
+    @apply border bg-surface-container text-on-surface-container border-outline hover:bg-surface-dim-container hover:text-on-surface-dim-container;
   }
 
   .btn-xs {

@@ -18,7 +18,7 @@ export default function VenueSelection({ className }: VenueSelectionParams) {
     const [journalsUrl, setJournalsUrl] = useState('');
     const [conferencesUrl, setConferencesUrl] = useState('');
     const [seriesUrl, setSeriesUrl] = useState('');
-    const [type, setType] = useState(VenueType.Journal);
+    const [type, setType] = useState<VenueType>(VenueType.Journal);
 
     useEffect(() => {
         const params: SearchParams = {};

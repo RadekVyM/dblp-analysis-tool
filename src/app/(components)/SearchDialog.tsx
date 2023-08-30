@@ -180,7 +180,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur, onClear }, ref) => {
     return (
         <form
-            className='relative rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
+            className='relative rounded-lg border border-outline bg-surface-container hover:bg-surface-dim-container transition-colors'
             onSubmit={onSubmit}>
             <input
                 autoFocus
@@ -335,10 +335,10 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
                     </ul>
                     : (authorsResult.isLoading || venuesResult.isLoading) ?
                         <MdAutorenew
-                            className='place-self-center w-10 h-10 animate-spin text-gray-500' />
+                            className='place-self-center w-10 h-10 animate-spin text-on-surface-container-muted' />
                         :
                         <span
-                            className='place-self-center text-gray-500'>
+                            className='place-self-center text-on-surface-container-muted'>
                             No results found
                         </span>
             }
@@ -350,7 +350,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
 function HitsList({ title, children }: ResultsHitsListParams) {
     return (
         <li
-            className='border-t border-gray-200 dark:border-gray-800 p-2 pt-4' >
+            className='border-t border-outline-variant p-2 pt-4' >
             <h3 className='font-semibold mb-2'>{title}</h3>
             {children}
         </li>
@@ -358,7 +358,7 @@ function HitsList({ title, children }: ResultsHitsListParams) {
 }
 
 function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemParams) {
-    const selectedStyling = 'bg-gray-100 dark:bg-gray-800 before:content-[""] before:block before:absolute before:left-0 before:top-1/2 before:translate-y-[-50%] before:bg-accent before:w-1 before:h-4 before:rounded-sm';
+    const selectedStyling = 'bg-surface-dim-container before:content-[""] before:block before:absolute before:left-0 before:top-1/2 before:translate-y-[-50%] before:bg-primary before:w-1 before:h-4 before:rounded-sm';
     const liRef = useRef<HTMLLIElement>(null);
 
     useEffect(() => {
@@ -371,7 +371,7 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
         <Link
             tabIndex={-1}
             className={
-                `relative flex px-3 py-2 my-1 rounded-md hover:bg-gray-100 hover:dark:bg-gray-800 transition-colors
+                `relative flex px-3 py-2 my-1 rounded-md hover:bg-surface-dim-container transition-colors
                 ${url == selectedUrl ? selectedStyling : ''}`
             }
             href={url}

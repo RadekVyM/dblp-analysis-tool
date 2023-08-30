@@ -9,7 +9,7 @@ import { SearchParams } from '@/shared/models/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
-import { isNumber } from '@/shared/utils/strings'
+import { getFulfilledValueAt, getRejectedValueAt } from '@/shared/utils/promises'
 
 type SearchVenuePageParams = {
     searchParams: SearchParams
@@ -60,17 +60,17 @@ async function getSearchResultWithoutQuery(type: VenueType, params: ItemsParams)
     ]
 
     const results = await Promise.allSettled(promises);
-    const venues = results
-        .filter((p): p is PromiseFulfilledResult<Array<SimpleSearchResultItem>> => p.status == 'fulfilled')
-        .map((p) => p.value)
-        .at(0);
-    const count = results
-        .filter((p): p is PromiseFulfilledResult<number> => p.status == 'fulfilled')
-        .map((p) => p.value)
-        .at(1);
+    const venues = getFulfilledValueAt<Array<SimpleSearchResultItem>>(results, 0);
+    const count = getFulfilledValueAt<number>(results, 1);
 
-    if ((!count && count != 0) || !venues) {
-        throw new Error('Items could not be loaded');
+    if (!venues) {
+        const error = getRejectedValueAt<Error>(results, 0);
+        throw error?.cause as Error;
+    }
+
+    if (!count && count != 0) {
+        const error = getRejectedValueAt<Error>(results, 1);
+        throw error?.cause as Error;
     }
 
     const result = new SimpleSearchResult(count, venues);

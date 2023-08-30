@@ -10,11 +10,11 @@ import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML,
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '../constants/html'
 
 export async function fetchVenuesIndex(type: VenueType, params: BaseItemsParams) {
-    const path = getPath(type);
+    const path = DBLP_HTML_INDEX_PATHS[type];
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, params);
     
     const $ = cheerio.load(html);
-    const links = $(`#${getHTMLListId(type)} ul li a`);
+    const links = $(`#${DBLP_INDEX_ELEMENT_IDS[type]} ul li a`);
 
     let authors: Array<SimpleSearchResultItem> = [];
 
@@ -37,10 +37,10 @@ export async function fetchVenuesIndex(type: VenueType, params: BaseItemsParams)
 }
 
 export async function fetchVenuesIndexLength(type: VenueType) {
-    const path = getPath(type);
+    const path = DBLP_HTML_INDEX_PATHS[type];
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, { prefix: 'za' });
 
-    const id = getHTMLListId(type);
+    const id = DBLP_INDEX_ELEMENT_IDS[type];
     const $ = cheerio.load(html);
     const links = $(`#${id} ul li a`);
     const prevLink = $(`#${id} p a[href^="?pos="]:not(.disabled)`).first();
@@ -61,25 +61,14 @@ export async function fetchVenuesIndexLength(type: VenueType) {
     return count;
 }
 
-function getPath(type: VenueType) {
-    switch (type) {
-        case VenueType.Journal:
-            return DBLP_JOURNALS_INDEX_HTML;
-        case VenueType.Conference:
-            return DBLP_CONF_INDEX_HTML;
-        case VenueType.Series:
-            return DBLP_SERIES_INDEX_HTML;
-    }
-}
+const DBLP_HTML_INDEX_PATHS = {
+    [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
+    [VenueType.Conference]: DBLP_CONF_INDEX_HTML,
+    [VenueType.Series]: DBLP_SERIES_INDEX_HTML,
+} as const
 
-function getHTMLListId(type: VenueType) {
-    switch (type) {
-        case VenueType.Journal:
-            return DBLP_JOURNALS_INDEX_ELEMENT_ID;
-        case VenueType.Conference:
-            return DBLP_CONF_INDEX_ELEMENT_ID;
-        case VenueType.Series:
-            return DBLP_SERIES_INDEX_ELEMENT_ID;
-    }
-}
-
+const DBLP_INDEX_ELEMENT_IDS = {
+    [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
+    [VenueType.Conference]: DBLP_CONF_INDEX_ELEMENT_ID,
+    [VenueType.Series]: DBLP_SERIES_INDEX_ELEMENT_ID,
+} as const

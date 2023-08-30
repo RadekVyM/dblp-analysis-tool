@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import SiteHeader from './SiteHeader'
-import { AuthorGroupsMenu } from './AurhorGroupsMenu';
-import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize';
-import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState';
+import { AuthorGroupsMenu } from './AurhorGroupsMenu'
+import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
+import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
 
 const DOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_var(--side-bar-width)]', 'md:gap-x-5'];
 const UNDOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_0]'];

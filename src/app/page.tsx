@@ -10,7 +10,7 @@ export default function HomePage() {
         <h2
           className='font-black flex flex-col items-center text-center text-[min(8vw,3rem)]'>
           Explore and Analyse <br />
-          <span className='text-accent font-black'>dblp</span>
+          <span className='text-primary font-black'>dblp</span>
         </h2>
         <p className='text-center max-w-xl'>
           Computer science bibliography that provides open bibliographic information on major computer science journals and proceedings.

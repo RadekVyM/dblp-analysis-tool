@@ -79,7 +79,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
 
     return (
         <header
-            className={cn('sticky top-0 z-40 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800', className)}>
+            className={cn('sticky top-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
             <div
                 className='grid grid-rows-[auto auto] grid-cols-[1fr] max-w-screen-xl w-full mx-auto px-4'>
                 <div
@@ -89,7 +89,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         className='flex place-items-center gap-3 xs:gap-5 with-logo'>
                         <h1>
                             <span className='block text-lg/6 font-extrabold'>dblp</span>
-                            <span className='block text-xs/3 text-gray-800 dark:text-gray-400 font-semibold whitespace-nowrap'>analysis tool</span>
+                            <span className='block text-xs/3 text-on-surface-container font-semibold whitespace-nowrap'>analysis tool</span>
                         </h1>
                     </Link>
 

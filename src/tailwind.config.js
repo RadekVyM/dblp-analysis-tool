@@ -9,7 +9,38 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: 'var(--accent)'
+        primary: 'var(--primary)',
+        'on-primary': 'var(--on-primary)',
+        secondary: 'var(--secondary)',
+        'on-secondary': 'var(--on-secondary)',
+        'secondary-dim': 'var(--secondary-dim)',
+        'on-secondary-dim': 'var(--on-secondary-dim)',
+
+        surface: 'var(--surface)',
+        'on-surface': 'var(--on-surface)',
+        'on-surface-muted': 'var(--on-surface-muted)',
+
+        'surface-dim': 'var(--surface-dim)',
+        'on-surface-dim': 'var(--on-surface-dim)',
+        'on-surface-dim-muted': 'var(--on-surface-dim-muted)',
+
+        'surface-container': 'var(--surface-container)',
+        'on-surface-container': 'var(--on-surface-container)',
+        'on-surface-container-muted': 'var(--on-surface-container-muted)',
+
+        'surface-dim-container': 'var(--surface-dim-container)',
+        'on-surface-dim-container': 'var(--on-surface-dim-container)',
+        'on-surface-dim-container-muted': 'var(--on-surface-dim-container-muted)',
+
+        outline: 'var(--outline)',
+        'outline-variant': 'var(--outline-variant)',
+
+        danger: 'var(--danger)',
+        'on-danger': 'var(--on-danger)',
+        'danger-dim': 'var(--danger-dim)',
+        'on-danger-dim': 'var(--on-danger-dim)',
+
+        backdrop: 'var(--backdrop)',
       },
       screens: {
         'xs': '400px'

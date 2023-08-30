@@ -31,7 +31,7 @@ export default function SearchBarButton({ className, ...props }: SearchBarButton
             </div>
             {
                 isNullOrWhiteSpace(query) ?
-                    <TextContent className='text-gray-500'>Search dblp...</TextContent> :
+                    <TextContent className='text-on-surface-container-muted'>Search dblp...</TextContent> :
                     <TextContent>{query}</TextContent>
             }
         </Button>

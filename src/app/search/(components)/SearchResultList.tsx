@@ -56,7 +56,7 @@ function ResultStats({ result }: ResultStatsParams) {
             className='flex flex-col xs:flex-row xs:items-center text-sm gap-1'>
             <dt>Total count:</dt>
             <dd className='font-semibold'>{result.totalCount.toLocaleString(undefined, { useGrouping: true })}</dd>
-            <div className='hidden xs:block mx-2 h-full w-0.5 bg-gray-400 dark:bg-gray-500'></div>
+            <div className='hidden xs:block mx-2 h-full w-0.5 bg-outline'></div>
             <dt>Displayed count:</dt>
             <dd className='font-semibold'>{result.items.length}</dd>
         </dl>
@@ -68,15 +68,15 @@ function SearchResultLink({ item }: SearchResultLinkParams) {
         <Link
             href={item.localUrl}
             className='
-                relative flex flex-col px-3 py-2 my-2 rounded-md hover:bg-gray-200 hover:dark:bg-gray-800 transition-colors
+                relative flex flex-col px-3 py-2 my-2 rounded-md hover:bg-surface-dim transition-colors
                 hover:before:content-[""] hover:before:block hover:before:absolute hover:before:left-0 hover:before:top-1/2 hover:before:translate-y-[-50%]
-                hover:before:bg-accent hover:before:w-1 hover:before:h-4 hover:before:rounded-sm'>
+                hover:before:bg-primary hover:before:w-1 hover:before:h-4 hover:before:rounded-sm'>
             <span
                 dangerouslySetInnerHTML={{ __html: item.title }} />
             {
                 item.additionalInfo &&
                 <small
-                    className='text-xs text-gray-500 dark:text-gray-400 pt-1'
+                    className='text-xs text-on-surface-muted pt-1'
                     dangerouslySetInnerHTML={{ __html: item.additionalInfo }} />
             }
         </Link>

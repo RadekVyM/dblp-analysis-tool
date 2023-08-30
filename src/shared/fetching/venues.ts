@@ -14,19 +14,11 @@ export async function queryVenues(params: VenuesParams, type?: VenueType) {
 }
 
 function getQueryPrefix(type: VenueType) {
-    let searchType = '';
+    const searchType = {
+        [VenueType.Journal]: JOURNALS_DBLP_SEARCH_TYPE,
+        [VenueType.Conference]: CONF_DBLP_SEARCH_TYPE,
+        [VenueType.Series]: SERIES_DBLP_SEARCH_TYPE,
+    }[type];
     
-    switch (type) {
-        case VenueType.Journal:
-            searchType = JOURNALS_DBLP_SEARCH_TYPE;
-            break;
-        case VenueType.Conference:
-            searchType = CONF_DBLP_SEARCH_TYPE;
-            break;
-        case VenueType.Series:
-            searchType = SERIES_DBLP_SEARCH_TYPE;
-            break;
-    }
-
     return `type:${searchType}:`;
 }

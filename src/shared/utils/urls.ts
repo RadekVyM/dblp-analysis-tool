@@ -10,6 +10,12 @@ const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 const ID_LOCAL_SEPARATOR = '___'; // Do not use single '-', PIDs can contain '-'
 const ID_DBLP_SEPARATOR = '/';
 
+export const VENUE_PATH_SEGMENTS = {
+    [VenueType.Journal]: JOURNALS_DBLP_KEY,
+    [VenueType.Conference]: CONF_DBLP_KEY,
+    [VenueType.Series]: SERIES_DBLP_KEY,
+} as const
+
 export function dblpUrlContainsItemId(stringUrl: string) {
     const path = getPath(stringUrl);
     return idContainingUrlSegments.some((w) => path.includes(w));
@@ -17,10 +23,10 @@ export function dblpUrlContainsItemId(stringUrl: string) {
 
 export function getVenueTypeFromDdlpUrl(dblpUrl: string) {
     for (const key of Object.keys(VenueType)) {
-        const venue = VenueType[key as keyof typeof VenueType];
+        const segment = VENUE_PATH_SEGMENTS[key as keyof typeof VenueType];
 
-        if (dblpUrl.includes(venue))
-            return venue;
+        if (dblpUrl.includes(segment))
+            return key as keyof typeof VenueType;
     }
 
     return null;
@@ -65,7 +71,12 @@ export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchTyp
             return `/author/${id}`;
         case SearchType.Venue:
             const venueType = getVenueTypeFromDdlpUrl(dblpUrl);
-            return `/venue/${venueType}/${id}`;
+
+            if (!venueType) {
+                return null;
+            }
+
+            return `/venue/${VENUE_PATH_SEGMENTS[venueType]}/${id}`;
     }
 }
 
@@ -76,7 +87,7 @@ export function extractParamsFromUrl(inputUrl: string) {
     if (inputStringParams) {
         inputStringParams.split('&').map((w) => {
             const [key, value] = w.split('=');
-            params[key] = value
+            params[key] = value;
         })
     }
 

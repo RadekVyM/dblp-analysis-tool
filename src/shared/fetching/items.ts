@@ -1,6 +1,6 @@
-import { normalizeQuery } from "../utils/searchQuery";
-import { urlWithParams } from "../utils/urls";
-import { ItemsIndexParams, ItemsParams, handleErrors } from "./shared";
+import { normalizeQuery } from '../utils/searchQuery'
+import { urlWithParams } from '../utils/urls'
+import { ItemsIndexParams, ItemsParams, handleErrors } from './shared'
 
 export async function queryItemsJson(url: string, params: ItemsParams) {
     params.first ??= 0;
