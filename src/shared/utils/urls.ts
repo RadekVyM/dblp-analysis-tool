@@ -21,11 +21,11 @@ export function dblpUrlContainsItemId(stringUrl: string) {
     return idContainingUrlSegments.some((w) => path.includes(w));
 }
 
-export function getVenueTypeFromDdlpUrl(dblpUrl: string) {
+export function getVenueTypeFromString(str: string) {
     for (const key of Object.keys(VenueType)) {
         const segment = VENUE_PATH_SEGMENTS[key as keyof typeof VenueType];
 
-        if (dblpUrl.includes(segment))
+        if (str.toLowerCase().includes(segment))
             return key as keyof typeof VenueType;
     }
 
@@ -34,7 +34,7 @@ export function getVenueTypeFromDdlpUrl(dblpUrl: string) {
 
 export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
     const path = getPath(dblpUrl);
-    const typeSegment = idContainingUrlSegments.find((w) => path.includes(w));
+    const typeSegment = idContainingUrlSegments.find((w) => path.toLowerCase().includes(w));
     if (!typeSegment) {
         return null;
     }
@@ -59,6 +59,21 @@ export function createLocalSearchPath(searchType: SearchType, searchParams: Sear
     }
 }
 
+export function createLocalPath(normalizedId: string, searchType: SearchType) {
+    switch (searchType) {
+        case SearchType.Author:
+            return `/author/${normalizedId}`;
+        case SearchType.Venue:
+            const venueType = getVenueTypeFromString(normalizedId);
+
+            if (!venueType) {
+                return null;
+            }
+
+            return `/venue/${VENUE_PATH_SEGMENTS[venueType]}/${normalizedId}`;
+    }
+}
+
 export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchType) {
     const id = extractNormalizedIdFromDblpUrl(dblpUrl);
 
@@ -66,18 +81,7 @@ export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchTyp
         return null;
     }
 
-    switch (searchType) {
-        case SearchType.Author:
-            return `/author/${id}`;
-        case SearchType.Venue:
-            const venueType = getVenueTypeFromDdlpUrl(dblpUrl);
-
-            if (!venueType) {
-                return null;
-            }
-
-            return `/venue/${VENUE_PATH_SEGMENTS[venueType]}/${id}`;
-    }
+    return createLocalPath(id, searchType);
 }
 
 export function extractParamsFromUrl(inputUrl: string) {

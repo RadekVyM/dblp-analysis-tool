@@ -1,9 +1,9 @@
 import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import Pagination from './Pagination'
 import { SearchParams } from '@/shared/models/SearchParams'
-import Link from 'next/link'
 import { getPageFromSearchParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
+import ListLink from '@/app/(components)/ListLink'
 
 type SearchResultListParams = {
     result: SimpleSearchResult,
@@ -65,12 +65,9 @@ function ResultStats({ result }: ResultStatsParams) {
 
 function SearchResultLink({ item }: SearchResultLinkParams) {
     return (
-        <Link
+        <ListLink
             href={item.localUrl}
-            className='
-                relative flex flex-col px-3 py-2 my-2 rounded-md hover:bg-surface-dim transition-colors
-                hover:before:content-[""] hover:before:block hover:before:absolute hover:before:left-0 hover:before:top-1/2 hover:before:translate-y-[-50%]
-                hover:before:bg-primary hover:before:w-1 hover:before:h-4 hover:before:rounded-sm'>
+            className='my-2'>
             <span
                 dangerouslySetInnerHTML={{ __html: item.title }} />
             {
@@ -79,6 +76,6 @@ function SearchResultLink({ item }: SearchResultLinkParams) {
                     className='text-xs text-on-surface-muted pt-1'
                     dangerouslySetInnerHTML={{ __html: item.additionalInfo }} />
             }
-        </Link>
+        </ListLink>
     )
 }

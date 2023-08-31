@@ -12,6 +12,8 @@ import { createLocalSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
 import { cn } from '@/shared/utils/tailwindUtils'
 import { isNullOrWhiteSpace } from '@/shared/utils/strings'
+import Tabs from './Tabs'
+import ListLink from './ListLink'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -36,13 +38,6 @@ type SearchInputParams = {
 type SearchTypeSelectionParams = {
     selectedSearchType: SearchType,
     setSelectedSearchType: (searchType: SearchType) => void
-}
-
-type SearchTypeSelectionButtonParams = {
-    title: string,
-    searchType: SearchType,
-    selectedSearchType: SearchType,
-    onChange: (searchType: SearchType) => void
 }
 
 type ResultsListParams = {
@@ -128,6 +123,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             { /*
             The <dialog> element is just an invisible contaier stretched accross the entire height of the page
             This allows to align the main dialog content (the inner <article> element) to the top edge of the page
+            TODO: There must be a better way to do that
             */ }
             <article
                 className='dialog flex flex-col h-auto min-h-[20rem] isolate' onClick={(event) => event.stopPropagation()}>
@@ -211,41 +207,15 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ se
 });
 
 function SearchTypeSelection({ selectedSearchType, setSelectedSearchType }: SearchTypeSelectionParams) {
-    return (
-        <fieldset
-            className='flex gap-2 has-focus-visible-outline rounded-sm'>
-            <legend className='sr-only'>Select the search area:</legend>
-
-            <SearchTypeSelectionInput
-                title='Authors'
-                searchType={SearchType.Author}
-                selectedSearchType={selectedSearchType}
-                onChange={setSelectedSearchType} />
-
-            <SearchTypeSelectionInput
-                title='Venues'
-                searchType={SearchType.Venue}
-                selectedSearchType={selectedSearchType}
-                onChange={setSelectedSearchType} />
-        </fieldset>
-    )
-}
-
-function SearchTypeSelectionInput({ title, searchType, selectedSearchType, onChange }: SearchTypeSelectionButtonParams) {
-    const id = `${SearchType[searchType]}-search-selection-radio`;
-    const isSelected = selectedSearchType == searchType;
+    const tabs = [{ title: 'Authors', id: SearchType.Author }, { title: 'Venues', id: SearchType.Venue }];
 
     return (
-        <div
-            className={`btn ${isSelected ? 'btn-default' : 'btn-outline'} btn-md px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2`}>
-            <input
-                className='sr-only'
-                type="radio" id={id}
-                onChange={(event) => onChange(SearchType[event.currentTarget.value as keyof typeof SearchType])}
-                value={SearchType[searchType]} checked={isSelected} />
-            <label
-                className='cursor-pointer grid place-content-center px-3' htmlFor={id}><span>{title}</span></label>
-        </div>
+        <Tabs
+            tabsId='search-dialog'
+            items={tabs}
+            legend='Select the search area:'
+            selectedId={selectedSearchType}
+            setSelectedId={(id) => setSelectedSearchType(id as SearchType)} />
     )
 }
 
@@ -358,7 +328,6 @@ function HitsList({ title, children }: ResultsHitsListParams) {
 }
 
 function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemParams) {
-    const selectedStyling = 'bg-surface-dim-container before:content-[""] before:block before:absolute before:left-0 before:top-1/2 before:translate-y-[-50%] before:bg-primary before:w-1 before:h-4 before:rounded-sm';
     const liRef = useRef<HTMLLIElement>(null);
 
     useEffect(() => {
@@ -368,16 +337,15 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
     }, [selectedUrl]);
 
     return (<li ref={liRef}>
-        <Link
+        <ListLink
             tabIndex={-1}
-            className={
-                `relative flex px-3 py-2 my-1 rounded-md hover:bg-surface-dim-container transition-colors
-                ${url == selectedUrl ? selectedStyling : ''}`
-            }
+            surface='container'
+            marker={url == selectedUrl ? 'visible' : 'none'}
+            className='my-1'
             href={url}
             onClick={() => onClick(url)}
             dangerouslySetInnerHTML={{ __html: text }}>
-        </Link>
+        </ListLink>
     </li>)
 }
 
