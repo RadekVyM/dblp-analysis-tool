@@ -1,27 +1,27 @@
-import { convertDblpUrlToLocalPath, createLocalSearchPath } from "@/shared/utils/urls"
-import { SearchType } from "../enums/SearchType"
+import { convertDblpUrlToLocalPath, createLocalSearchPath } from '@/shared/utils/urls'
+import { SearchType } from '../enums/SearchType'
 
 export interface RawDblpBaseSearchResult {
     result: {
         query: string,
         status: {
-            "@code": string
+            '@code': string
             text: string
         },
         time: {
-            "@unit": string,
+            '@unit': string,
             text: string
         },
         completions: {
-            "@total": string,
-            "@computed": string,
-            "@sent": string
+            '@total': string,
+            '@computed': string,
+            '@sent': string
         },
         hits: {
-            "@total": string,
-            "@computed": string,
-            "@sent": string,
-            "@first": string
+            '@total': string,
+            '@computed': string,
+            '@sent': string,
+            '@first': string
         }
     }
 }
@@ -30,27 +30,27 @@ export interface RawDblpSearchResult<HitT> extends RawDblpBaseSearchResult {
     result: {
         query: string,
         status: {
-            "@code": string
+            '@code': string
             text: string
         },
         time: {
-            "@unit": string,
+            '@unit': string,
             text: string
         },
         completions: {
-            "@total": string,
-            "@computed": string,
-            "@sent": string,
+            '@total': string,
+            '@computed': string,
+            '@sent': string,
             c: Array<RawDblpCompletion> | RawDblpCompletion
         },
         hits: {
-            "@total": string,
-            "@computed": string,
-            "@sent": string,
-            "@first": string,
+            '@total': string,
+            '@computed': string,
+            '@sent': string,
+            '@first': string,
             hit: Array<{
-                "@score": string,
-                "@id": string,
+                '@score': string,
+                '@id': string,
                 info: HitT
             }>
         }
@@ -58,10 +58,10 @@ export interface RawDblpSearchResult<HitT> extends RawDblpBaseSearchResult {
 }
 
 export interface RawDblpCompletion {
-    "@sc": string,
-    "@dc": string,
-    "@oc": string,
-    "@id": string,
+    '@sc': string,
+    '@dc': string,
+    '@oc': string,
+    '@id': string,
     text: string
 }
 
@@ -71,15 +71,6 @@ export interface RawBaseHit {
 
 export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
     public readonly type: SearchType;
-    public readonly query: string;
-    public readonly status: {
-        readonly code: number,
-        readonly text: string
-    };
-    public readonly time: {
-        readonly unit: string,
-        readonly value: number
-    };
     public readonly completions: {
         readonly total: number,
         readonly computed: number,
@@ -102,30 +93,21 @@ export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
         const result = rawResult.result;
 
         this.type = type;
-        this.query = result.query;
-        this.status = {
-            code: parseInt(result.status["@code"]),
-            text: result.status.text
-        };
-        this.time = {
-            unit: result.time["@unit"],
-            value: parseFloat(result.time.text)
-        };
         this.completions = {
-            total: parseInt(result.completions["@total"]),
-            computed: parseInt(result.completions["@computed"]),
-            sent: parseInt(result.completions["@sent"]),
+            total: parseInt(result.completions['@total']),
+            computed: parseInt(result.completions['@computed']),
+            sent: parseInt(result.completions['@sent']),
             items: getCompletions(rawResult, type)
         };
         this.hits = {
-            total: parseInt(result.hits["@total"]),
-            computed: parseInt(result.hits["@computed"]),
-            sent: parseInt(result.hits["@sent"]),
-            first: parseInt(result.hits["@first"]),
+            total: parseInt(result.hits['@total']),
+            computed: parseInt(result.hits['@computed']),
+            sent: parseInt(result.hits['@sent']),
+            first: parseInt(result.hits['@first']),
             items: 'hit' in result.hits ? (rawResult as RawDblpSearchResult<RawBaseHit>).result.hits.hit.map(h => {
                 return {
-                    score: parseInt(h["@score"]),
-                    id: parseInt(h["@id"]),
+                    score: parseInt(h['@score']),
+                    id: parseInt(h['@id']),
                     info: {
                         ...h.info,
                         url: h.info.url,
@@ -211,10 +193,10 @@ function getCompletions<HitT>(rawResult: RawDblpBaseSearchResult, type: SearchTy
 
 function toCompletion(rawCompletion: RawDblpCompletion, type: SearchType): DblpCompletion {
     return {
-        score: parseInt(rawCompletion["@sc"]),
-        dc: parseInt(rawCompletion["@dc"]),
-        oc: parseInt(rawCompletion["@oc"]),
-        id: parseInt(rawCompletion["@id"]),
+        score: parseInt(rawCompletion['@sc']),
+        dc: parseInt(rawCompletion['@dc']),
+        oc: parseInt(rawCompletion['@oc']),
+        id: parseInt(rawCompletion['@id']),
         text: rawCompletion.text,
         type: type,
         localUrl: createLocalSearchPath(type, { query: rawCompletion.text })

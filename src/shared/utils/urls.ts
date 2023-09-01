@@ -47,6 +47,10 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
         .join(ID_LOCAL_SEPARATOR)}`;
 }
 
+export function convertNormalizedIdToDblpPath(normalizedId: string) {
+    return `/${normalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`;
+}
+
 export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
     searchParams.query = searchParams.query ? normalizeQuery(searchParams.query) : undefined;
     const params: { [key: string]: any } = searchParams;

@@ -11,10 +11,10 @@ interface ListLinkParams extends
     children?: React.ReactNode
 }
 
-export default function ListLink({ className, surface, marker, ...rest }: ListLinkParams) {
+export default function ListLink({ className, surface, marker, size, ...rest }: ListLinkParams) {
     return (
         <Link
             {...rest}
-            className={cn(listLinkVariants({ surface, marker, className }))} />
+            className={cn(listLinkVariants({ surface, marker, size, className }))} />
     )
 }

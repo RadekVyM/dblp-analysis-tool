@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority'
 
 export const listLinkVariants = cva(
-    `relative flex flex-col px-3 py-2 rounded-md transition-colors
+    `relative flex flex-col rounded-md transition-colors
      before:hidden before:absolute before:left-0 before:top-1/2 before:translate-y-[-50%]
-     before:bg-primary before:w-1 before:h-4 before:rounded-sm`,
+     before:bg-primary before:w-1 before:rounded-sm`,
     {
         variants: {
             surface: {
@@ -14,11 +14,17 @@ export const listLinkVariants = cva(
                 'none': 'before:hidden hover:before:hidden',
                 'onhover': 'hover:before:content-[""] hover:before:block',
                 'visible': 'before:content-[""] before:block',
+            },
+            size: {
+                default: 'px-3 py-2 before:h-4',
+                sm: 'px-3 py-1 text-sm before:h-3',
+                xs: 'px-2 py-1 text-xs before:h-3',
             }
         },
         defaultVariants: {
             surface: 'default',
             marker: 'onhover',
+            size: 'default',
         },
         compoundVariants: [
             {
