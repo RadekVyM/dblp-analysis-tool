@@ -7,7 +7,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdAutorenew, MdCancel } from 'react-icons/md'
 import { DblpCompletion } from '@/shared/models/DblpSearchResult'
 import { SearchType } from '@/shared/enums/SearchType'
-import Link from 'next/link'
 import { createLocalSearchPath } from '@/shared/utils/urls'
 import Button from './Button'
 import { cn } from '@/shared/utils/tailwindUtils'
@@ -173,6 +172,8 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
     );
 });
 
+SearchDialog.displayName = 'SearchDialog';
+
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur, onClear }, ref) => {
     return (
         <form
@@ -205,6 +206,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ se
         </form>
     )
 });
+
+SearchInput.displayName = 'SearchInput';
 
 function SearchTypeSelection({ selectedSearchType, setSelectedSearchType }: SearchTypeSelectionParams) {
     const tabs = [{ title: 'Authors', id: SearchType.Author }, { title: 'Venues', id: SearchType.Venue }];

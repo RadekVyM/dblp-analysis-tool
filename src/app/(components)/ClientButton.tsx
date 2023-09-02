@@ -20,3 +20,5 @@ export const ClientButton = forwardRef<HTMLButtonElement, ClientButtonParams>(({
         </button>
     )
 });
+
+ClientButton.displayName = 'ClientButton';

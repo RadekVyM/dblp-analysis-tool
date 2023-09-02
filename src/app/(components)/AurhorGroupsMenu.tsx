@@ -30,6 +30,7 @@ type TypeSelectionParams = {
 
 type MenuParams = {
     hide: () => void,
+    className?: string
 }
 
 type SectionTitleParams = {
@@ -84,6 +85,7 @@ export const AuthorGroupsMenu = forwardRef<HTMLElement, AuthorGroupsMenuParams>(
                         grid md:max-h-[calc(100vh_-_4rem_-_1px)] pointer-events-auto'>
                     <Menu
                         ref={ref}
+                        className={state == AuthorGroupsMenuState.Floating ? 'shadow-lg shadow-outline-variant' : ''}
                         hide={hide} />
                 </div>
             </div>
@@ -91,7 +93,9 @@ export const AuthorGroupsMenu = forwardRef<HTMLElement, AuthorGroupsMenuParams>(
     )
 });
 
-const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
+AuthorGroupsMenu.displayName = 'AuthorGroupsMenu';
+
+const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [selectedType, setSelectedType] = useState<SearchType>(SearchType.Author);
     const [isClient, setIsClient] = useState(false);
     const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
@@ -103,11 +107,12 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
         isClient &&
         <article
             ref={ref}
-            className='
+            className={cn(`
                 place-self-stretch flex flex-col md:my-4 p-5 pr-3
                 overflow-y-auto
                 bg-surface-container rounded-l-lg md:rounded-lg md:border border-outline
-                pointer-events-auto animate-slideLeftIn md:animate-none'>
+                pointer-events-auto animate-slideLeftIn md:animate-none`,
+                className)}>
             <div
                 className='flex justify-between items-center mb-6'>
                 <TypeSelection
@@ -159,7 +164,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
                         <MenuSection
                             title='Bookmarked'
                             className='mb-4'>
-                            {authors.bookmarked.slice(0, 5).map((author) =>
+                            {authors.bookmarked.slice(0, 10).map((author) =>
                                 <ListItem
                                     key={author.id}
                                     link={createLocalPath(author.id, SearchType.Author) || '#'}>
@@ -228,6 +233,8 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ hide }, ref) => {
         </article >
     )
 });
+
+Menu.displayName = 'Menu';
 
 function MenuSection({ title, children, className }: MenuSectionParams) {
     return (

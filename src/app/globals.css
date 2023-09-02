@@ -94,6 +94,10 @@ input::selection {
   }
 }
 
+ul {
+  marker-offset: 0.75rem;
+}
+
 .dialog {
   @apply bg-surface-container border text-on-surface-container border-outline-variant rounded-lg backdrop:backdrop-blur-md;
 }

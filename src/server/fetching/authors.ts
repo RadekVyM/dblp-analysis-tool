@@ -5,8 +5,9 @@ import { isNumber } from '@/shared/utils/strings'
 import * as cheerio from 'cheerio'
 import { DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/shared/constants/urls'
 import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '../constants/html'
-import { convertNormalizedIdToDblpPath } from '@/shared/utils/urls'
-import { DblpAuthor } from '@/shared/models/DblpAuthor'
+import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/shared/utils/urls'
+import { DblpAuthor, DblpAuthorHomonym, DblpAuthorInfo } from '@/shared/models/DblpAuthor'
+import { extractPublicationsFromXml } from './publications'
 
 export async function fetchAuthorsIndex(params: BaseItemsParams) {
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, params);
@@ -22,7 +23,7 @@ export async function fetchAuthorsIndex(params: BaseItemsParams) {
 
         authors.push({
             title: title,
-            localUrl: `/search/author/${title}`
+            localUrl: `/search/author/${title.replaceAll(' ', '_')}`
         });
     });
 
@@ -61,15 +62,55 @@ export async function fetchAuthor(id: string) {
 
     const $ = cheerio.load(xml, { xmlMode: true });
 
-    const title = $('dblpperson').attr('name');
-    const person = $('dblpperson person');
+    const title = $('dblpperson').attr('name') || 'Not found';
+    const person = $('dblpperson > person');
+    const homonyms = extractPersonHomonyms($);
 
+    const publications = extractPublicationsFromXml($);
+
+    const author = new DblpAuthor(
+        id,
+        title,
+        extractPersonInfo($, person, id, title),
+        homonyms,
+        publications
+    );
+
+    return author;
+}
+
+function extractPersonHomonyms($: cheerio.Root) {
+    const homonyms = $('dblpperson > homonyms person').map((index, el) => {
+        const elem = $(el);
+        const homPid = elem.attr('key')?.replace('homepages/', '');
+        const normalizedHomId = convertDblpIdToNormalizedId(`pid/${homPid}`);
+        const authorInfo = extractPersonInfo($, elem, normalizedHomId, '');
+
+        return {
+            url: `/author/${normalizedHomId}`,
+            info: authorInfo
+        }
+    }).get() as Array<DblpAuthorHomonym> || [];
+
+    return homonyms;
+}
+
+function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string, title: string) {
     const date = person.attr('mdate');
+    const personPubltype = person.attr('publtype');
 
     const aliases = person
         .children('author')
-        .map((index, el) => $(el).text())
-        .get() as Array<string>;
+        .map((index, el) => {
+            const pid = $(el).attr('pid');
+            const title = $(el).text();
+
+            return {
+                title: title,
+                id: convertDblpIdToNormalizedId(`pid/${pid}`)
+            }
+        })
+        .get() as Array<{ title: string, id?: string }>;
 
     const links = person
         .children('url')
@@ -78,7 +119,7 @@ export async function fetchAuthor(id: string) {
 
     person
         .children('note[type="uname"]')
-        .each((index, el) => aliases.push($(el).text()));
+        .each((index, el) => aliases.push({title: $(el).text(), id: undefined}));
 
     const affiliations = person
         .children('note[type="affiliation"]')
@@ -97,25 +138,21 @@ export async function fetchAuthor(id: string) {
         })
         .get() as Array<{ label: string, title: string }>;
 
-    const author = new DblpAuthor(
-        id,
-        title || 'Not found',
+    return new DblpAuthorInfo(
+        personPubltype == 'disambiguation',
+        date || new Date().toString(),
         {
-            date: date || new Date().toString(),
-            aliases: aliases.filter((alias) => alias != title),
-            links: links,
+            aliases: aliases.filter((alias) => alias.title != title),
+            links: [`${DBLP_URL}${convertNormalizedIdToDblpPath(id)}`, ...links],
             affiliations: affiliations,
             awards: awards
         }
-    );
-
-    return author;
+    )
 }
 
 async function fetchAuthorXml(id: string) {
     const url = `${DBLP_URL}${convertNormalizedIdToDblpPath(id)}.xml`;
 
-    // TODO: When returned file is too large, it is not cached: https://github.com/vercel/next.js/discussions/48324
     const response = await fetch(url, { next: { revalidate: 3600 } });
     await handleErrors(response, 'application/xml');
 

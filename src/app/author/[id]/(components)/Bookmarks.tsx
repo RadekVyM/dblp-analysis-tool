@@ -17,8 +17,8 @@ export default function Bookmarks({ className, authorId, title }: BookmarksParam
     const [isBookmarked, setIsBookmarked] = useState<boolean>();
 
     useEffect(() => {
-        setIsBookmarked(!!authors.bookmarked.find((a) => a.id == authorId));
-    }, [authors]);
+        setIsBookmarked(!!authors?.bookmarked.find((a) => a.id == authorId));
+    }, [authors, authorId]);
 
     function updateBookmark() {
         if (isBookmarked) {
@@ -37,7 +37,7 @@ export default function Bookmarks({ className, authorId, title }: BookmarksParam
                 className='items-center gap-x-2'
                 onClick={() => updateBookmark()}>
                 <MdBookmarks />
-                <span className='hidden xs:block'>Bookmark</span>
+                <span className='hidden xs:block'>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
             </Button>
             <Button
                 variant='outline' size='sm'

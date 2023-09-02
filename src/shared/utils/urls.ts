@@ -41,10 +41,14 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
     const reducedPath = path.substring(path.indexOf(typeSegment) + typeSegment.length);
     const id = removeWords(['index.html'], reducedPath);
 
-    return `${typeSegment}${ID_LOCAL_SEPARATOR}${id
+    return `${typeSegment}${ID_LOCAL_SEPARATOR}${convertDblpIdToNormalizedId(id)}`;
+}
+
+export function convertDblpIdToNormalizedId(dblpId: string) {
+    return dblpId
         .split(ID_DBLP_SEPARATOR)
         .filter((w) => w.length > 0)
-        .join(ID_LOCAL_SEPARATOR)}`;
+        .join(ID_LOCAL_SEPARATOR);
 }
 
 export function convertNormalizedIdToDblpPath(normalizedId: string) {
