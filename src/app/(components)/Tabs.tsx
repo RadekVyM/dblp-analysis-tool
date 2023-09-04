@@ -4,24 +4,26 @@ import { VariantProps } from 'class-variance-authority'
 
 interface TabsParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
-    items: Array<{ title: string, id: any }>,
+    items: Array<{ title: React.ReactNode, id: any }>,
     legend: string,
     selectedId: any,
+    vertical?: boolean,
+    className?: string,
     setSelectedId: (id: any) => void
 }
 
 interface TabParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
-    title: string,
+    title: React.ReactNode,
     id: any,
     selectedId: any,
     onChange: (id: any) => void
 }
 
-export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, ...rest }: TabsParams) {
+export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, vertical, className, ...rest }: TabsParams) {
     return (
         <fieldset
-            className='flex gap-2 has-focus-visible-outline rounded-sm'>
+            className={cn('flex gap-2 has-focus-visible-outline rounded-sm', vertical ? 'flex-col' : 'flex-row', className)}>
             <legend className='sr-only'>{legend}</legend>
 
             {items.map((item) =>

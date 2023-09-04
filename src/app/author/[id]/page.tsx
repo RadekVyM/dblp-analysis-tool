@@ -9,6 +9,10 @@ import { cn } from '@/shared/utils/tailwindUtils'
 import { DblpPublication } from '@/shared/models/DblpPublication'
 import Link from 'next/link'
 import ListLink from '@/app/(components)/ListLink'
+import StatsScaffold from '@/app/(components)/StatsScaffold'
+import { useState } from 'react'
+import Publications from './(components)/Publications'
+import { Section, SectionTitle } from './(components)/Section'
 
 type AuthorPageParams = {
     params: {
@@ -30,11 +34,6 @@ type SameNameAuthorsParams = {
 type AliasesAffiliationsParams = {
     info: DblpAuthorInfo,
     compact?: boolean
-}
-
-type PublicationsParams = {
-    className?: string,
-    publications: Array<DblpPublication>
 }
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
@@ -78,7 +77,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
 
 function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
     return (
-        <div className={cn('flex flex-col gap-7', info.affiliations.length > 0 ? '' : 'mt-4', className)}>
+        <div className={cn('flex flex-col gap-7', info.aliases.length > 0 || info.affiliations.length > 0 ? '' : 'mt-4', className)}>
             <AliasesAffiliations
                 info={info} />
 
@@ -96,7 +95,7 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
             {
                 info.awards.length > 0 &&
                 <div>
-                    <SectionTitle>Awards:</SectionTitle>
+                    <SectionTitle>Awards</SectionTitle>
                     <ul className='flex flex-col gap-2 pl-4'>
                         {info.awards.map((award) =>
                             <li
@@ -140,7 +139,7 @@ function AliasesAffiliations({ info, compact }: AliasesAffiliationsParams) {
 function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
     return (
         <Section>
-            <SectionTitle>Authors with the same name:</SectionTitle>
+            <SectionTitle>Authors with the same name</SectionTitle>
             <ul className='flex flex-col gap-2'>
                 {homonyms.map((homonym) =>
                     <ListLink
@@ -153,42 +152,5 @@ function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
                     </ListLink>)}
             </ul>
         </Section>
-    )
-}
-
-function Publications({ publications, className }: PublicationsParams) {
-    return (
-        <Section>
-            <SectionTitle>Publications:</SectionTitle>
-            <ul className='flex flex-col gap-2 pl-4'>
-                {publications.map((publ) =>
-                    <li
-                        className='list-disc marker:text-primary'
-                        key={publ.id}>
-                        <div
-                            className='inline-flex flex-col'>
-                            <span>
-                                <b>{publ.type}</b> {publ.title}
-                            </span>
-                            <span
-                                className='text-xs'>
-                                {publ.authors.map(a => <><Link href={a.url}>{a.name}</Link>, </>)}
-                            </span>
-                        </div>
-                    </li>)}
-            </ul>
-        </Section>
-    )
-}
-
-function Section({ children }: { children: React.ReactNode }) {
-    return (
-        <section className='mb-12'>{children}</section>
-    )
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-    return (
-        <h3 className='mb-3 font-semibold'>{children}</h3>
     )
 }

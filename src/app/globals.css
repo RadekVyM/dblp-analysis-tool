@@ -99,7 +99,7 @@ ul {
 }
 
 .dialog {
-  @apply bg-surface-container border text-on-surface-container border-outline-variant rounded-lg backdrop:backdrop-blur-md;
+  @apply bg-surface-container border border-outline-variant text-on-surface-container rounded-lg backdrop:backdrop-blur-md;
 }
 
 .search-dialog[open] {
@@ -141,7 +141,7 @@ ul {
   }
 
   .btn-outline {
-    @apply border bg-surface-container text-on-surface-container border-outline hover:bg-surface-dim-container hover:text-on-surface-dim-container;
+    @apply bg-surface-container text-on-surface-container border border-outline hover:bg-surface-dim-container hover:text-on-surface-dim-container;
   }
 
   .btn-xs {

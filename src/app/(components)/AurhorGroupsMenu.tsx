@@ -3,7 +3,7 @@
 import { cn } from '@/shared/utils/tailwindUtils'
 import { useHover } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
-import { MdBookmarks, MdClose, MdOutlineBookmarks, MdOutlineRemoveCircle } from 'react-icons/md'
+import { MdClose, MdOutlineBookmarks, MdOutlineRemoveCircle } from 'react-icons/md'
 import Button from './Button'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
 import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
@@ -98,8 +98,6 @@ AuthorGroupsMenu.displayName = 'AuthorGroupsMenu';
 const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [selectedType, setSelectedType] = useState<SearchType>(SearchType.Author);
     const [isClient, setIsClient] = useState(false);
-    const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
-    const { venues } = useLocalBookmarkedVenues();
 
     useEffect(() => setIsClient(true), [])
 
@@ -133,108 +131,126 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
 
             {
                 selectedType == SearchType.Author &&
-                <>
-                    {
-                        authors.recentlySeen.length > 0 &&
-                        <MenuSection
-                            title='Recently Seen'
-                            className='mb-4'>
-                            {authors.recentlySeen.slice(0, 5).map((author) =>
-                                <ListItem
-                                    key={author.id}
-                                    link={createLocalPath(author.id, SearchType.Author) || '#'}
-                                    floatingContent={
-                                        <button
-                                            className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                removeRecentlySeenAuthor(author.id);
-                                            }}>
-                                            <MdOutlineRemoveCircle
-                                                className='m-auto' />
-                                        </button>
-                                    }>
-                                    <span className='flex-1 mr-8' dangerouslySetInnerHTML={{ __html: author.title }}></span>
-                                </ListItem>)}
-                        </MenuSection>
-                    }
-
-                    {
-                        authors.bookmarked.length > 0 &&
-                        <MenuSection
-                            title='Bookmarked'
-                            className='mb-4'>
-                            {authors.bookmarked.slice(0, 10).map((author) =>
-                                <ListItem
-                                    key={author.id}
-                                    link={createLocalPath(author.id, SearchType.Author) || '#'}>
-                                    <span dangerouslySetInnerHTML={{ __html: author.title }}></span>
-                                </ListItem>)}
-                        </MenuSection>
-                    }
-
-                    {
-                        authors.groups.length > 0 &&
-                        <MenuSection
-                            title='Groups'>
-                            {authors.groups.map((group) =>
-                                <ListItem
-                                    key={group.id}
-                                    link='#'>
-                                    <span dangerouslySetInnerHTML={{ __html: group.title }}></span>
-                                </ListItem>)}
-                        </MenuSection>
-                    }
-
-                    {
-                        authors.recentlySeen.length == 0 && authors.bookmarked.length == 0 && authors.groups.length == 0 &&
-                        <NothingFound
-                            items='authors' />
-                    }
-                </>
+                <AuthorsTab
+                    key={SearchType.Author} />
             }
 
             {
                 selectedType == SearchType.Venue &&
-                <>
-                    {
-                        venues.recentlySeen.length > 0 &&
-                        <MenuSection
-                            title='Recently Seen'>
-                            {venues.recentlySeen.map((venue) =>
-                                <ListItem
-                                    key={venue.id}
-                                    link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
-                                    <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
-                                </ListItem>)}
-                        </MenuSection>
-                    }
-
-                    {
-                        venues.bookmarked.length > 0 &&
-                        <MenuSection
-                            title='Bookmarked'>
-                            {venues.bookmarked.map((venue) =>
-                                <ListItem
-                                    key={venue.id}
-                                    link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
-                                    <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
-                                </ListItem>)}
-                        </MenuSection>
-                    }
-
-                    {
-                        venues.recentlySeen.length == 0 && venues.bookmarked.length == 0 &&
-                        <NothingFound
-                            items='venues' />
-                    }
-                </>
+                <VenuesTab
+                    key={SearchType.Venue} />
             }
         </article >
     )
 });
 
 Menu.displayName = 'Menu';
+
+function AuthorsTab() {
+    const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
+
+    return (
+        <>
+            {
+                authors.recentlySeen.length > 0 &&
+                <MenuSection
+                    title='Recently Seen'
+                    className='mb-4'>
+                    {authors.recentlySeen.slice(0, 5).map((author) =>
+                        <ListItem
+                            key={author.id}
+                            link={createLocalPath(author.id, SearchType.Author) || '#'}
+                            floatingContent={
+                                <button
+                                    className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        removeRecentlySeenAuthor(author.id);
+                                    }}>
+                                    <MdOutlineRemoveCircle
+                                        className='m-auto' />
+                                </button>
+                            }>
+                            <span className='flex-1 mr-8' dangerouslySetInnerHTML={{ __html: author.title }}></span>
+                        </ListItem>)}
+                </MenuSection>
+            }
+
+            {
+                authors.bookmarked.length > 0 &&
+                <MenuSection
+                    title='Bookmarked'
+                    className='mb-4'>
+                    {authors.bookmarked.slice(0, 10).map((author) =>
+                        <ListItem
+                            key={author.id}
+                            link={createLocalPath(author.id, SearchType.Author) || '#'}>
+                            <span dangerouslySetInnerHTML={{ __html: author.title }}></span>
+                        </ListItem>)}
+                </MenuSection>
+            }
+
+            {
+                authors.groups.length > 0 &&
+                <MenuSection
+                    title='Groups'>
+                    {authors.groups.map((group) =>
+                        <ListItem
+                            key={group.id}
+                            link='#'>
+                            <span dangerouslySetInnerHTML={{ __html: group.title }}></span>
+                        </ListItem>)}
+                </MenuSection>
+            }
+
+            {
+                authors.recentlySeen.length == 0 && authors.bookmarked.length == 0 && authors.groups.length == 0 &&
+                <NothingFound
+                    items='authors' />
+            }
+        </>
+    )
+}
+
+function VenuesTab() {
+    const { venues } = useLocalBookmarkedVenues();
+
+    return (
+        <>
+            {
+                venues.recentlySeen.length > 0 &&
+                <MenuSection
+                    title='Recently Seen'>
+                    {venues.recentlySeen.map((venue) =>
+                        <ListItem
+                            key={venue.id}
+                            link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
+                            <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
+                        </ListItem>)}
+                </MenuSection>
+            }
+
+            {
+                venues.bookmarked.length > 0 &&
+                <MenuSection
+                    title='Bookmarked'>
+                    {venues.bookmarked.map((venue) =>
+                        <ListItem
+                            key={venue.id}
+                            link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
+                            <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
+                        </ListItem>)}
+                </MenuSection>
+            }
+
+            {
+                venues.recentlySeen.length == 0 && venues.bookmarked.length == 0 &&
+                <NothingFound
+                    items='venues' />
+            }
+        </>
+    )
+}
 
 function MenuSection({ title, children, className }: MenuSectionParams) {
     return (
