@@ -41,6 +41,15 @@ module.exports = {
         'on-danger-dim': 'var(--on-danger-dim)',
 
         backdrop: 'var(--backdrop)',
+
+        'books-and-theses': 'var(--books-and-theses)',
+        'journal-articles': 'var(--journal-articles)',
+        'conference-and-workshop-papers': 'var(--conference-and-workshop-papers)',
+        'parts-in-books-or-collections': 'var(--parts-in-books-or-collections)',
+        'editorship': 'var(--editorship)',
+        'reference-works': 'var(--reference-works)',
+        'data-and-artifacts': 'var(--data-and-artifacts)',
+        'informal-and-other': 'var(--informal-and-other)',
       },
       screens: {
         'xs': '400px'

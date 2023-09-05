@@ -1,18 +1,11 @@
 import { DblpPublication } from './DblpPublication'
 
-export class DblpAuthor {
-    public readonly homonyms: Array<DblpAuthorHomonym>;
-    public readonly publications: Array<DblpPublication>;
-
-    constructor(
-        public readonly id: string,
-        public readonly name: string,
-        public readonly info?: DblpAuthorInfo,
-        homonyms?: Array<DblpAuthorHomonym>,
-        publications?: Array<DblpPublication>) {
-        this.publications = publications || [];
-        this.homonyms = homonyms || [];
-    }
+export type DblpAuthor = {
+    readonly id: string,
+    readonly name: string,
+    readonly info?: DblpAuthorInfo,
+    readonly homonyms: Array<DblpAuthorHomonym>,
+    readonly publications: Array<DblpPublication>
 }
 
 export type DblpAuthorHomonym = {
@@ -20,33 +13,53 @@ export type DblpAuthorHomonym = {
     info: DblpAuthorInfo
 }
 
-export class DblpAuthorInfo {
-    public readonly date: Date;
-    public readonly aliases: Array<{ title: string, id?: string }>;
-    public readonly affiliations: Array<string>;
-    public readonly awards: Array<{ title: string, label: string }>;
-    public readonly links: Array<
+export type DblpAuthorInfo = {
+    readonly disambiguation: boolean,
+    readonly date: Date,
+    readonly aliases: Array<{ title: string, id?: string }>,
+    readonly affiliations: Array<string>,
+    readonly awards: Array<{ title: string, label: string }>,
+    readonly links: Array<
         {
             url: string,
             title: string,
             icon: string
         }>
+}
 
-    constructor(
-        public readonly disambiguation: boolean,
-        date: string,
-        info: {
-            aliases?: Array<{ title: string, id?: string }>,
-            affiliations?: Array<string>,
-            awards?: Array<{ title: string, label: string }>,
-            links?: Array<string> 
-        }
-    ) {
-        this.date = new Date(date),
-        this.aliases = info.aliases || [],
-        this.affiliations = info.affiliations || [],
-        this.awards = info.awards || [],
-        this.links = info.links?.map((link) => {
+export function createDblpAuthor(
+    id: string,
+    name: string,
+    info?: DblpAuthorInfo,
+    homonyms?: Array<DblpAuthorHomonym>,
+    publications?: Array<DblpPublication>
+): DblpAuthor {
+    return {
+        id,
+        name,
+        info,
+        publications: publications || [],
+        homonyms: homonyms || []
+    }
+}
+
+export function createDblpAuthorInfo(
+    disambiguation: boolean,
+    date: string,
+    info: {
+        aliases?: Array<{ title: string, id?: string }>,
+        affiliations?: Array<string>,
+        awards?: Array<{ title: string, label: string }>,
+        links?: Array<string> 
+    }
+): DblpAuthorInfo {
+    return {
+        disambiguation,
+        date: new Date(date),
+        aliases: info.aliases || [],
+        affiliations: info.affiliations || [],
+        awards: info.awards || [],
+        links: info.links?.map((link) => {
             const url = new URL(link);
             
             return {

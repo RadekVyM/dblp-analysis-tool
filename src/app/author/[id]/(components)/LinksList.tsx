@@ -3,6 +3,7 @@
 import Button from "@/app/(components)/Button";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { MdOutlinePublic } from "react-icons/md";
 
 type LinksListParams = {
     links: Array<
@@ -11,6 +12,11 @@ type LinksListParams = {
             title: string,
             icon: string
         }>
+}
+
+type IconParams = {
+    title: string,
+    src: string
 }
 
 export default function LinksList({ links }: LinksListParams) {
@@ -30,16 +36,34 @@ export default function LinksList({ links }: LinksListParams) {
                         className='px-2 py-1 h-auto gap-x-2'>
                         {
                             isClient &&
-                            <Image
-                                aria-hidden
-                                width={16} height={16}
+                            <Icon
                                 src={link.icon}
-                                alt={link.title}
-                                className='rounded-sm' />
+                                title={link.title} />
                         }
                         {link.title}
                     </Button>
                 </li>)}
         </ul>
     )
-} 
+}
+
+function Icon({ src, title }: IconParams) {
+    const [useDefaultIcon, setUseDefaultIcon] = useState(false);
+
+    useEffect(() => setUseDefaultIcon(false), [src]);
+
+    return !useDefaultIcon ?
+        (
+            <Image
+                aria-hidden
+                width={16} height={16}
+                src={src}
+                alt={title}
+                className='rounded-sm'
+                onError={() => setUseDefaultIcon(true)} />
+        ) :
+        (
+            <MdOutlinePublic
+                className='self-center w-4 h-4 text-on-surface-container-muted' />
+        )
+}

@@ -1,22 +1,16 @@
-import { PublicationType } from "../enums/PublicationType";
+import { randomUUID } from 'crypto'
+import { PublicationType } from '../enums/PublicationType'
 
-export class DblpPublication {
-    public readonly date: Date;
-    public readonly authors: Array<DblpPublicationPerson>;
-    public readonly editors: Array<DblpPublicationPerson>;
-
-    constructor(
-        public readonly id: string,
-        public readonly title: string,
-        date: string,
-        public readonly type: PublicationType,
-        public readonly booktitle?: string,
-        authors?: Array<DblpPublicationPerson>,
-        editors?: Array<DblpPublicationPerson>) {
-        this.date = new Date(date);
-        this.authors = authors || [];
-        this.editors = editors || [];
-    }
+export type DblpPublication = {
+    readonly id: string,
+    readonly title: string,
+    readonly year: number,
+    readonly date: Date,
+    readonly type: PublicationType,
+    readonly ee?: string,
+    readonly booktitle?: string,
+    readonly authors: Array<DblpPublicationPerson>,
+    readonly editors: Array<DblpPublicationPerson>
 }
 
 export type DblpPublicationPerson = {
@@ -24,4 +18,28 @@ export type DblpPublicationPerson = {
     url: string,
     name: string,
     orcid?: string
+}
+
+export function createDblpPublication(
+    id: string,
+    title: string,
+    year: number,
+    date: string,
+    type: PublicationType,
+    ee?: string,
+    booktitle?: string,
+    authors?: Array<DblpPublicationPerson>,
+    editors?: Array<DblpPublicationPerson>
+): DblpPublication {
+    return {
+        id,
+        title,
+        year,
+        date: new Date(date),
+        type,
+        ee,
+        booktitle,
+        authors: authors || [],
+        editors: editors || []
+    }
 }

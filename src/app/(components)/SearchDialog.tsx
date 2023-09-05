@@ -210,7 +210,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ se
 SearchInput.displayName = 'SearchInput';
 
 function SearchTypeSelection({ selectedSearchType, setSelectedSearchType }: SearchTypeSelectionParams) {
-    const tabs = [{ title: 'Authors', id: SearchType.Author }, { title: 'Venues', id: SearchType.Venue }];
+    const tabs = [{ content: 'Authors', id: SearchType.Author }, { content: 'Venues', id: SearchType.Venue }];
 
     return (
         <Tabs

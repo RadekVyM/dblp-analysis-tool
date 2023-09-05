@@ -41,6 +41,26 @@
   --on-danger-dim: #ffffff;
 
   --backdrop: rgba(0, 0, 0, 0.1);
+
+  /*
+  --books-and-theses: #f8c91f;
+  --journal-articles: #ab4173;
+  --conference-and-workshop-papers: #3262a4;
+  --parts-in-books-or-collections: #ef942d;
+  --editorship: #56c1b7;
+  --reference-works: #b6d235;
+  --data-and-artifacts: #885522;
+  --informal-and-other: #626a70;
+  */
+
+  --books-and-theses: #ffdc63;
+  --journal-articles: #ffa3cd;
+  --conference-and-workshop-papers: #94b5e0;
+  --parts-in-books-or-collections: #fcbf79;
+  --editorship: #87c9c3;
+  --reference-works: #d3e38f;
+  --data-and-artifacts: #b58b62;
+  --informal-and-other: #b1b2b3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,6 +87,15 @@
 
     --outline: #374151;
     --outline-variant: #1f2937;
+
+    --books-and-theses: #ffeeb3;
+    --journal-articles: #fcd2e5;
+    --conference-and-workshop-papers: #d4e5fc;
+    --parts-in-books-or-collections: #ffd5a6;
+    --editorship: #c8e8e5;
+    --reference-works: #e3f0aa;
+    --data-and-artifacts: #d9b898;
+    --informal-and-other: #d7d9db;
   }
 }
 

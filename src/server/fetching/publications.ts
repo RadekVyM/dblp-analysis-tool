@@ -1,5 +1,5 @@
 import { PublicationType } from '@/shared/enums/PublicationType'
-import { DblpPublication, DblpPublicationPerson } from '@/shared/models/DblpPublication'
+import { DblpPublication, DblpPublicationPerson, createDblpPublication } from '@/shared/models/DblpPublication'
 import { convertDblpIdToNormalizedId } from '@/shared/utils/urls'
 
 export function extractPublicationsFromXml($: cheerio.Root) {
@@ -7,8 +7,10 @@ export function extractPublicationsFromXml($: cheerio.Root) {
 
     $('r > *').each((index, el) => {
         const elem = $(el);
-        const title = elem.find('title').text();
-        const booktitle = elem.find('booktitle').text();
+        const title = elem.find('title').first().text();
+        const booktitle = elem.find('booktitle').first().text();
+        const year = elem.find('year').first().text();
+        const ee = elem.find('ee').first().text();
         const key = elem.attr('key') || '';
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
@@ -32,11 +34,13 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         else if (tagName == 'book')
             type = PublicationType.BooksAndTheses;
 
-        publications.push(new DblpPublication(
+        publications.push(createDblpPublication(
             key,
             title,
+            parseInt(year),
             date || new Date().toString(),
             type,
+            ee,
             booktitle == '' ? undefined : booktitle,
             authors,
             editors,

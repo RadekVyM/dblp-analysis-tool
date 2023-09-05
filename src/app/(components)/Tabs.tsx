@@ -4,7 +4,7 @@ import { VariantProps } from 'class-variance-authority'
 
 interface TabsParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
-    items: Array<{ title: React.ReactNode, id: any }>,
+    items: Array<{ content: React.ReactNode, title?: string, id: any }>,
     legend: string,
     selectedId: any,
     vertical?: boolean,
@@ -14,7 +14,8 @@ interface TabsParams extends VariantProps<typeof tabVariants> {
 
 interface TabParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
-    title: React.ReactNode,
+    content: React.ReactNode,
+    title?: string,
     id: any,
     selectedId: any,
     onChange: (id: any) => void
@@ -29,6 +30,7 @@ export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId,
             {items.map((item) =>
                 <Tab
                     tabsId={tabsId}
+                    content={item.content}
                     title={item.title}
                     id={item.id}
                     selectedId={selectedId}
@@ -40,7 +42,7 @@ export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId,
     )
 }
 
-function Tab({ tabsId, title, id, selectedId, onChange, size }: TabParams) {
+function Tab({ tabsId, content, title, id, selectedId, onChange, size }: TabParams) {
     const elementId = `${id}-${tabsId}-tab-radio`;
     const isSelected = selectedId == id;
 
@@ -49,14 +51,15 @@ function Tab({ tabsId, title, id, selectedId, onChange, size }: TabParams) {
             className={cn(
                 tabVariants({ size }),
                 'btn px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2',
-                isSelected ? 'btn-default' : 'btn-outline')}>
+                isSelected ? 'btn-default' : 'btn-outline')}
+            title={title}>
             <input
                 className='sr-only'
                 type='radio' id={elementId}
                 onChange={(event) => onChange(event.currentTarget.value)}
                 value={id} checked={isSelected} />
             <label
-                className='cursor-pointer grid place-content-center px-3' htmlFor={elementId}><span>{title}</span></label>
+                className='cursor-pointer grid place-content-center px-3' htmlFor={elementId}><span>{content}</span></label>
         </div>
     )
 }

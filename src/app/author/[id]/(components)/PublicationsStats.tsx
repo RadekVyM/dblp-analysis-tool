@@ -1,9 +1,11 @@
 'use client'
 
 import StatsScaffold from '@/app/(components)/StatsScaffold'
+import Table, { TableData } from '@/app/(components)/Table'
+import { PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
 import { PublicationType } from '@/shared/enums/PublicationType'
-import { useState } from 'react'
-import { MdBarChart, MdBubbleChart, MdCircle, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
+import { useState, useEffect } from 'react'
+import { MdBarChart, MdBubbleChart, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
 
 type PublicationTypesStatsParams = {
     className?: string,
@@ -24,21 +26,21 @@ export function PublicationTypesStats({ className, publications }: PublicationTy
                 {
                     key: 'Bubbles',
                     content: (<p className='min-h-[30rem]'>Bubbles</p>),
-                    title: 'Bubbles',
+                    title: 'Bubble chart',
                     icon: (<MdBubbleChart />),
 
                 },
                 {
                     key: 'Pie',
                     content: (<p className='min-h-[30rem]'>Pie</p>),
-                    title: 'Pie',
+                    title: 'Pie chart',
                     icon: (<MdIncompleteCircle />),
 
                 },
                 {
                     key: 'Bars',
                     content: (<p className='min-h-[30rem]'>Bars</p>),
-                    title: 'Bars',
+                    title: 'Bar chart',
                     icon: (<MdBarChart />),
 
                 },
@@ -65,41 +67,43 @@ export function PublicationTypesStats({ className, publications }: PublicationTy
 }
 
 function PublicationTypesStatsTable({ publications }: PublicationTypesStatsParams) {
-    return (
-        <div className='grid content-stretch'>
-            <table className='border-collapse table-auto'>
-                <thead className='border-b border-outline'>
-                    <tr>
-                        <th scope='col' className='text-start p-2 w-[20rem]'>Type</th>
-                        <th scope='col' className='text-start p-2'>Count</th>
-                        <th scope='col' className='text-start p-2'>Percentage</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {Object.values(PublicationType).map((type, index) => {
-                        const count = publications.filter((publ) => publ.type == type).length;
+    const [rows, setRows] = useState<Array<Array<TableData>>>([]);
 
-                        return (
-                            <tr className={index % 2 == 0 ? ' bg-surface-dim-container' : ''}>
-                                <th scope='row' className='text-start p-2 text-sm border-r border-outline'>{PUBLICATION_TYPE_TITLE[type]}</th>
-                                <td className='p-2'>{count}</td>
-                                <td className='p-2'>{((count / publications.length) * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}%</td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
-        </div>
+    useEffect(() => {
+        const newRows = Object.values(PublicationType).map((type, index) => {
+            const count = publications.filter((publ) => publ.type == type).length;
+            const percentage = count / publications.length;
+
+            return [
+                { value: PUBLICATION_TYPE_TITLE[type], presentedContent: PUBLICATION_TYPE_TITLE[type] },
+                { value: count, presentedContent: count },
+                { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
+            ]
+        });
+
+        setRows(newRows);
+    }, [publications]);
+
+    return (
+        <Table
+            rows={rows}
+            columnHeaders={[
+                {
+                    column: 0,
+                    sortingTitle: 'Sort by publication type',
+                    title: 'Type',
+                    className: 'w-[20rem]'
+                },
+                {
+                    column: 1,
+                    sortingTitle: 'Sort by count',
+                    title: 'Count'
+                },
+                {
+                    column: 2,
+                    sortingTitle: 'Sort by percentage',
+                    title: 'Percentage'
+                }
+            ]} />
     )
 }
-
-const PUBLICATION_TYPE_TITLE = {
-    [PublicationType.BooksAndTheses]: 'Books and Theses',
-    [PublicationType.ConferenceAndWorkshopPapers]: 'Conference and Workshop Papers',
-    [PublicationType.DataAndArtifacts]: 'Data and Artifacts',
-    [PublicationType.Editorship]: 'Editorship',
-    [PublicationType.InformalAndOther]: 'Informal and Other',
-    [PublicationType.JournalArticles]: 'Journal Articles',
-    [PublicationType.PartsInBooksOrCollections]: 'Parts in Books or Collections',
-    [PublicationType.ReferenceWorks]: 'Reference Works',
-} as const

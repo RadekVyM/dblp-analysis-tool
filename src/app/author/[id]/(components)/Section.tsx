@@ -13,6 +13,6 @@ export function Section({ children }: { children: React.ReactNode }) {
 
 export function SectionTitle({ children, className }: SectionTitleParams) {
     return (
-        <h3 className={cn('mb-3 font-semibold', className)}>{children}</h3>
+        <h3 className={cn('mb-4 font-semibold', className)}>{children}</h3>
     )
 }

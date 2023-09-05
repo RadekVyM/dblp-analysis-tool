@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio'
 import { DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/shared/constants/urls'
 import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '../constants/html'
 import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/shared/utils/urls'
-import { DblpAuthor, DblpAuthorHomonym, DblpAuthorInfo } from '@/shared/models/DblpAuthor'
+import { DblpAuthorHomonym, createDblpAuthor, createDblpAuthorInfo } from '@/shared/models/DblpAuthor'
 import { extractPublicationsFromXml } from './publications'
 
 export async function fetchAuthorsIndex(params: BaseItemsParams) {
@@ -68,7 +68,7 @@ export async function fetchAuthor(id: string) {
 
     const publications = extractPublicationsFromXml($);
 
-    const author = new DblpAuthor(
+    const author = createDblpAuthor(
         id,
         title,
         extractPersonInfo($, person, id, title),
@@ -138,7 +138,7 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
         })
         .get() as Array<{ label: string, title: string }>;
 
-    return new DblpAuthorInfo(
+    return createDblpAuthorInfo(
         personPubltype == 'disambiguation',
         date || new Date().toString(),
         {

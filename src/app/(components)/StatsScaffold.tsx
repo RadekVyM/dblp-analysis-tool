@@ -30,12 +30,14 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 {items.find((item) => item.key == selectedKey)?.content}
             </div>
             <Tabs
+                className='self-start'
                 tabsId={`${scaffoldId}-side-tabs`}
                 legend={sideTabsLegend}
                 items={items.map((item) => {
                     return {
                         id: item.key,
-                        title: item.icon
+                        content: item.icon,
+                        title: item.title
                     }
                 })}
                 selectedId={selectedKey}

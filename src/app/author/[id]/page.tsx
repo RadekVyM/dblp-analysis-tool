@@ -6,13 +6,10 @@ import LinksList from './(components)/LinksList'
 import { DblpAuthorHomonym, DblpAuthorInfo } from '@/shared/models/DblpAuthor'
 import Bookmarks from './(components)/Bookmarks'
 import { cn } from '@/shared/utils/tailwindUtils'
-import { DblpPublication } from '@/shared/models/DblpPublication'
-import Link from 'next/link'
 import ListLink from '@/app/(components)/ListLink'
-import StatsScaffold from '@/app/(components)/StatsScaffold'
-import { useState } from 'react'
-import Publications from './(components)/Publications'
+import AuthorPublications from './(components)/AuthorPublications'
 import { Section, SectionTitle } from './(components)/Section'
+import AliasesAffiliations from './(components)/AliasesAffiliations'
 
 type AuthorPageParams = {
     params: {
@@ -29,11 +26,6 @@ type AuthorInfoParams = {
 
 type SameNameAuthorsParams = {
     homonyms: Array<DblpAuthorHomonym>
-}
-
-type AliasesAffiliationsParams = {
-    info: DblpAuthorInfo,
-    compact?: boolean
 }
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
@@ -68,8 +60,10 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
 
             {
                 author.publications.length > 0 &&
-                <Publications
-                    publications={author.publications} />
+                <AuthorPublications
+                    publicationsUrl={`/author/${id}/publications`}
+                    publications={author.publications}
+                    maxDisplayedCount={5} />
             }
         </PageContainer>
     )
@@ -105,32 +99,6 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
                             </li>)}
                     </ul>
                 </div>
-            }
-        </div>
-    )
-}
-
-function AliasesAffiliations({ info, compact }: AliasesAffiliationsParams) {
-    return (
-        (info.aliases.length > 0 || info.affiliations.length > 0) &&
-        <div>
-            {
-                info.aliases.length > 0 &&
-                <dl className='flex gap-2'>
-                    <dt className={cn('font-semibold', compact ? 'hidden' : '')}>Alias: </dt>
-                    <dd>{info.aliases.map((a) => a.title).join(' / ')}</dd>
-                </dl>
-            }
-            {
-                info.affiliations.length > 0 &&
-                <ul>
-                    {info.affiliations.map((affiliation) =>
-                        <li
-                            key={affiliation}
-                            className={compact ? 'text-xs text-on-surface-muted' : 'text-sm'}>
-                            {affiliation}
-                        </li>)}
-                </ul>
             }
         </div>
     )

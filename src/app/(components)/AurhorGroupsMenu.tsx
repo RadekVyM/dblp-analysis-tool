@@ -275,7 +275,7 @@ function SectionTitle({ children }: SectionTitleParams) {
 }
 
 function TypeSelection({ selectedType, setSelectedType }: TypeSelectionParams) {
-    const tabs = [{ title: 'Authors', id: SearchType.Author }, { title: 'Venues', id: SearchType.Venue }];
+    const tabs = [{ content: 'Authors', id: SearchType.Author }, { content: 'Venues', id: SearchType.Venue }];
 
     return (
         <Tabs
