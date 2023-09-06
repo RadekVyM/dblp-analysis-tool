@@ -1,11 +1,14 @@
+import { cn } from "@/shared/utils/tailwindUtils"
+
 type PageContainerParams = {
-    children: React.ReactNode
+    children: React.ReactNode,
+    className?: string
 }
 
-export default function PageContainer({ children }: PageContainerParams) {
+export default function PageContainer({ children, className }: PageContainerParams) {
     return (
         <main
-            className='flex flex-col pt-2 w-full h-full'>
+            className={cn('flex flex-col pt-2 w-full h-full', className)}>
             {children}
         </main>
     )

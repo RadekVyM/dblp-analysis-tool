@@ -4,6 +4,7 @@ import { fetchAuthor } from '@/server/fetching/authors'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { Section, SectionTitle } from '../(components)/Section'
 import GroupedPublicationsList from '../(components)/GroupedPublicationsList'
+import ScrollToTopButton from '@/app/(components)/ScrollToTopButton'
 
 type AuthorPublicationsPageParams = {
     params: {
@@ -15,7 +16,8 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
     const author = await fetchAuthor(id);
 
     return (
-        <PageContainer>
+        <PageContainer
+            className='relative'>
             <header
                 className='mb-10'>
                 <PageTitle
@@ -44,6 +46,8 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
                 <GroupedPublicationsList
                     publications={author.publications} />
             </Section>
+
+            <ScrollToTopButton />
         </PageContainer>
     )
 }

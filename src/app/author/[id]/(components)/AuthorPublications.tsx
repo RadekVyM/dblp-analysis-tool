@@ -8,6 +8,8 @@ import { MdLibraryBooks } from 'react-icons/md'
 import { createLocalPath } from '@/shared/utils/urls'
 import { SearchType } from '@/shared/enums/SearchType'
 import { PublicationType } from '@/shared/enums/PublicationType'
+import { HiArrowNarrowRight } from 'react-icons/hi'
+import LinkArrow from '@/app/(components)/LinkArrow'
 
 type PublicationsParams = {
     className?: string,
@@ -66,16 +68,19 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                 {
                     publication.ee ?
                         <Link
+                            className='link-heading block w-fit text-on-surface-muted hover:text-on-surface transition-colors'
                             href={publication.ee}>
                             <h5
-                                className='font-semibold'>
+                                className='inline font-semibold text-on-surface'>
                                 {publication.title}
                             </h5>
+                            <LinkArrow
+                                className='w-6 h-5 ml-[-0.1rem] mt-[-0.2rem]' />
                         </Link> :
-                        <h4
+                        <h5
                             className='font-semibold'>
                             {publication.title}
-                        </h4>
+                        </h5>
                 }
                 <PublicationInfo
                     publication={publication} />

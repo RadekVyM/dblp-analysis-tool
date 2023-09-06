@@ -44,7 +44,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
 
         publications.push(createDblpPublication(
             key,
-            title,
+            title.endsWith('.') ? title.slice(0, -1) : title,
             parseInt(year),
             date || new Date().toString(),
             type,

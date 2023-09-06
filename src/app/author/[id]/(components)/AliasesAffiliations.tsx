@@ -12,9 +12,9 @@ export default function AliasesAffiliations({ info, compact }: AliasesAffiliatio
         <div>
             {
                 info.aliases.length > 0 &&
-                <dl className='flex gap-2'>
-                    <dt className={cn('font-semibold', compact ? 'hidden' : '')}>Alias: </dt>
-                    <dd>{info.aliases.map((a) => a.title).join(' / ')}</dd>
+                <dl className='inline'>
+                    <dt className={cn('inline font-semibold', compact ? 'hidden' : '')}>Alias: </dt>
+                    <dd className='inline'>{info.aliases.map((a) => a.title).join(' / ')}</dd>
                 </dl>
             }
             {

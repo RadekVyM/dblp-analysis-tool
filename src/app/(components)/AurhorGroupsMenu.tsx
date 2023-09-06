@@ -99,7 +99,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [selectedType, setSelectedType] = useState<SearchType>(SearchType.Author);
     const [isClient, setIsClient] = useState(false);
 
-    useEffect(() => setIsClient(true), [])
+    useEffect(() => setIsClient(true), []);
 
     return (
         isClient &&
@@ -181,7 +181,7 @@ function AuthorsTab() {
                 <MenuSection
                     title='Bookmarked'
                     className='mb-4'>
-                    {authors.bookmarked.slice(0, 10).map((author) =>
+                    {authors.bookmarked.map((author) =>
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}>

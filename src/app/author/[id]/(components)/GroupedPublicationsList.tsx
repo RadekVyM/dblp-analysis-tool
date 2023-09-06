@@ -38,8 +38,8 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                 className='mb-6'
                 size='sm'
                 items={[
-                    { content: 'By Year', id: 'year' },
-                    { content: 'By Type', id: 'type' }
+                    { content: 'Group by Year', id: 'year' },
+                    { content: 'Group by Type', id: 'type' }
                 ]}
                 legend='Choose a grouping property'
                 selectedId={groupedBy}

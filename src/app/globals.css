@@ -152,6 +152,14 @@ input::selection {
   }
 }
 
+.link-heading svg {
+  @apply translate-x-0 transition-transform;
+}
+
+.link-heading:hover svg {
+  @apply translate-x-1/4 transition-transform;
+}
+
 @layer components {
   .btn {
     @apply grid place-content-center grid-flow-col rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;

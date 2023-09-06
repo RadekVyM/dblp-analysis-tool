@@ -1,0 +1,46 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import Button from './Button'
+import { MdArrowUpward } from 'react-icons/md'
+import { cn } from '@/shared/utils/tailwindUtils'
+
+type ScrollToTopButtonParams = {
+    className?: string
+}
+
+export default function ScrollToTopButton({ className }: ScrollToTopButtonParams) {
+    const [isClient, setIsClient] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+
+        const scrollEnded = (event: Event) => {
+            setIsVisible(window.scrollY > window.innerHeight);
+        };
+
+        window.addEventListener('scrollend', scrollEnded);
+
+        return () => {
+            window.removeEventListener('scrollend', scrollEnded);
+        }
+    }, []);
+
+    function scrollToTop() {
+        window.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+    }
+
+    return (
+        <>
+            {
+                isClient &&
+                <Button
+                    onClick={() => scrollToTop()}
+                    className={cn('mb-5 ml-auto bottom-5', isVisible ? 'sticky animate-slideUpIn' : 'hidden')}>
+                    <MdArrowUpward />
+                </Button>
+            }
+        </>
+    )
+}
