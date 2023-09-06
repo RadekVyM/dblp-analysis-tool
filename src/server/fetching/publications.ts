@@ -1,6 +1,6 @@
 import { PublicationType } from '@/shared/enums/PublicationType'
 import { DblpPublication, DblpPublicationPerson, createDblpPublication } from '@/shared/models/DblpPublication'
-import { convertDblpIdToNormalizedId } from '@/shared/utils/urls'
+import { convertDblpIdToNormalizedId, extractNormalizedIdFromDblpUrlPath } from '@/shared/utils/urls'
 
 export function extractPublicationsFromXml($: cheerio.Root) {
     const publications: Array<DblpPublication> = [];
@@ -11,6 +11,10 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         const booktitle = elem.find('booktitle').first().text();
         const year = elem.find('year').first().text();
         const ee = elem.find('ee').first().text();
+        const pages = elem.find('pages').first().text();
+        const journal = elem.find('journal').first().text();
+        const volume = elem.find('volume').first().text();
+        const url = elem.find('url').first().text();
         const key = elem.attr('key') || '';
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
@@ -34,6 +38,10 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         else if (tagName == 'book')
             type = PublicationType.BooksAndTheses;
 
+        // Remove volume segment from the URL path
+        const urlIndexOfHash = url?.indexOf('#');
+        const venueUrl = !url ? undefined : (urlIndexOfHash < 0 ? url : url.slice(0, urlIndexOfHash));
+
         publications.push(createDblpPublication(
             key,
             title,
@@ -42,6 +50,10 @@ export function extractPublicationsFromXml($: cheerio.Root) {
             type,
             ee,
             booktitle == '' ? undefined : booktitle,
+            pages,
+            journal,
+            volume,
+            venueUrl ? extractNormalizedIdFromDblpUrlPath(venueUrl) || undefined : undefined,
             authors,
             editors,
         ));

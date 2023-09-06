@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en'>
+    <html lang='en' className='scroll-pt-36'>
       <body className={inter.className + ' min-h-screen grid grid-rows-[auto_1fr_auto] grid-cols-[1fr]'}>
         <Scaffold>{children}</Scaffold>
       </body>

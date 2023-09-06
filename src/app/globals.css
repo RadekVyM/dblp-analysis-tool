@@ -123,10 +123,6 @@ input::selection {
   }
 }
 
-ul {
-  marker-offset: 0.75rem;
-}
-
 .dialog {
   @apply bg-surface-container border border-outline-variant text-on-surface-container rounded-lg backdrop:backdrop-blur-md;
 }

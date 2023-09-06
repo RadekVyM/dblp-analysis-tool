@@ -1,17 +1,23 @@
-import { DblpPublication } from '@/shared/models/DblpPublication'
+import { DblpPublication, DblpPublicationPerson } from '@/shared/models/DblpPublication'
 import { Section, SectionTitle } from './Section'
 import Link from 'next/link'
 import { PublicationTypesStats } from './PublicationsStats'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/app/(constants)/publications'
 import { cn } from '@/shared/utils/tailwindUtils'
-import { MdLibraryBooks, MdOutlineEast } from 'react-icons/md'
-import GroupedPublicationsList from './GroupedPublicationsList'
+import { MdLibraryBooks } from 'react-icons/md'
+import { createLocalPath } from '@/shared/utils/urls'
+import { SearchType } from '@/shared/enums/SearchType'
+import { PublicationType } from '@/shared/enums/PublicationType'
 
 type PublicationsParams = {
     className?: string,
     maxDisplayedCount?: number,
     publicationsUrl: string,
     publications: Array<DblpPublication>
+}
+
+type PeopleItemsParams = {
+    people: Array<DblpPublicationPerson>
 }
 
 type PublicationListItemParams = {
@@ -21,20 +27,18 @@ type PublicationListItemParams = {
 export default function AuthorPublications({ publications, publicationsUrl, maxDisplayedCount, className }: PublicationsParams) {
     return (
         <Section>
-            <Link
+            <SectionTitle
                 href={publicationsUrl}
-                className='flex items-center gap-2 w-fit'>
-                <SectionTitle className='text-xl'>Publications</SectionTitle>
-                <MdOutlineEast
-                    className='mb-4 w-6 h-5' />
-            </Link>
+                className='text-xl'>
+                Publications
+            </SectionTitle>
 
             <h4
                 className='sr-only'>
                 {maxDisplayedCount ? `${maxDisplayedCount} most recent publications` : 'All publications'}
             </h4>
             <ul
-                className='flex flex-col gap-4 pl-4 mb-10'>
+                className='flex flex-col gap-5 pl-4 mb-10'>
                 {publications.slice(0, maxDisplayedCount).map((publ) =>
                     <PublicationListItem
                         key={publ.id}
@@ -73,18 +77,17 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                             {publication.title}
                         </h4>
                 }
+                <PublicationInfo
+                    publication={publication} />
                 <ul
                     className='text-xs flex flex-wrap gap-1'>
-                    {publication.authors.map((a, index) =>
-                        <li
-                            key={a.id}>
-                            <Link href={a.url} className='hover:underline'>{a.name}</Link>{index != publication.authors.length - 1 && <>, </>}
-                        </li>)}
+                    <PeopleItems
+                        people={publication.authors.concat(...publication.editors)} />
                 </ul>
                 <div
-                    className='flex gap-1 mt-1'>
+                    className='flex gap-1 mt-1 items-center max-w-full flex-wrap'>
                     <span
-                        className={cn('flex gap-2 px-2 py-1 text-xs bg-surface-container text-on-surface-container rounded-lg border border-outline')}>
+                        className={cn('flex gap-2 px-2 py-1 text-xs bg-surface-container text-on-surface-container rounded-lg border border-outline overflow-ellipsis')}>
                         <MdLibraryBooks
                             className={cn(PUBLICATION_TYPE_COLOR[publication.type], 'w-4 h-4')} />
                         {PUBLICATION_TYPE_TITLE_SINGULAR[publication.type]}
@@ -97,4 +100,63 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
             </article>
         </li>
     )
+}
+
+function PeopleItems({ people }: PeopleItemsParams) {
+    return (
+        people.map((a, index) =>
+            <li
+                key={a.id}>
+                <Link href={a.url} className='hover:underline'>{a.name}</Link>{index != people.length - 1 && <>, </>}
+            </li>)
+    )
+}
+
+function PublicationInfo({ publication }: PublicationListItemParams) {
+    return (
+        <p className='text-sm'>
+            {
+                publication.type == PublicationType.JournalArticles && publication.journal ?
+                    <>
+                        {publication.volume ? <>Volume {publication.volume} of</> : ''} {
+                            publication.venueId ?
+                                <Link
+                                    className='hover:underline'
+                                    href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                    {addMissingNoun(publication.journal, 'journal')}
+                                </Link> :
+                                addMissingNoun(publication.journal, 'journal')
+                        }
+                    </> :
+                    publication.type == PublicationType.ConferenceAndWorkshopPapers && publication.booktitle ?
+                        <>
+                            {
+                                publication.venueId ?
+                                    <Link
+                                        className='hover:underline'
+                                        href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                        {addMissingNoun(publication.booktitle, 'conference')}
+                                    </Link> :
+                                    addMissingNoun(publication.booktitle, 'conference')
+                            }
+                        </> :
+                        publication.booktitle &&
+                        <>
+                            {
+                                publication.venueId ?
+                                    <Link
+                                        className='hover:underline'
+                                        href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                        {publication.booktitle}
+                                    </Link> :
+                                    publication.booktitle
+                            }
+                        </>
+            }
+        </p>
+    )
+}
+
+function addMissingNoun(title: string, noun: string) {
+    return `${title}${title.toLocaleLowerCase().includes(noun) ? '' : ` ${noun}`}`
 }

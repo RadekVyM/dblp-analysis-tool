@@ -1,7 +1,6 @@
 import PageContainer from '@/app/(components)/PageContainer'
 import PageTitle from '@/app/(components)/PageTitle'
 import { fetchAuthor } from '@/server/fetching/authors'
-import AuthorPublications from '../(components)/AuthorPublications'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { Section, SectionTitle } from '../(components)/Section'
 import GroupedPublicationsList from '../(components)/GroupedPublicationsList'
@@ -21,6 +20,7 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
                 className='mb-10'>
                 <PageTitle
                     title={author.name}
+                    titleHref={`/author/${id}`}
                     subtitle='Author'
                     className='pb-3' />
 
@@ -32,7 +32,15 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
             </header>
 
             <Section>
-                <SectionTitle className='text-xl'>Publications ({author.publications.length})</SectionTitle>
+                <header
+                    className='mb-4 flex gap-3 items-center'>
+                    <SectionTitle className='text-xl mb-0'>Publications</SectionTitle>
+                    <span
+                        title={`${author.publications.length} publications`}
+                        className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
+                        {author.publications.length}
+                    </span>
+                </header>
                 <GroupedPublicationsList
                     publications={author.publications} />
             </Section>

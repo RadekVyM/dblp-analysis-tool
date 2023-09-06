@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto'
 import { PublicationType } from '../enums/PublicationType'
 
 export type DblpPublication = {
@@ -9,6 +8,10 @@ export type DblpPublication = {
     readonly type: PublicationType,
     readonly ee?: string,
     readonly booktitle?: string,
+    readonly pages?: string,
+    readonly journal?: string,
+    readonly volume?: string,
+    readonly venueId?: string,
     readonly authors: Array<DblpPublicationPerson>,
     readonly editors: Array<DblpPublicationPerson>
 }
@@ -28,6 +31,10 @@ export function createDblpPublication(
     type: PublicationType,
     ee?: string,
     booktitle?: string,
+    pages?: string,
+    journal?: string,
+    volume?: string,
+    venueId?: string,
     authors?: Array<DblpPublicationPerson>,
     editors?: Array<DblpPublicationPerson>
 ): DblpPublication {
@@ -39,6 +46,10 @@ export function createDblpPublication(
         type,
         ee,
         booktitle,
+        pages,
+        journal,
+        volume,
+        venueId,
         authors: authors || [],
         editors: editors || []
     }

@@ -34,21 +34,33 @@ export function getVenueTypeFromString(str: string) {
 
 export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
     const path = getPath(dblpUrl);
-    const typeSegment = idContainingUrlSegments.find((w) => path.toLowerCase().includes(w));
+    return extractNormalizedIdFromDblpUrlPath(path);
+}
+
+export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
+    const typeSegment = idContainingUrlSegments.find((w) => dblpUrlPath.toLowerCase().includes(w));
     if (!typeSegment) {
         return null;
     }
-    const reducedPath = path.substring(path.indexOf(typeSegment) + typeSegment.length);
-    const id = removeWords(['index.html'], reducedPath);
+    // Get part of the path containing typeSegment and segments with an ID
+    const reducedPath = dblpUrlPath.substring(dblpUrlPath.indexOf(typeSegment));
+    const id = removeWords(['index.html', '.html'], reducedPath);
 
-    return `${typeSegment}${ID_LOCAL_SEPARATOR}${convertDblpIdToNormalizedId(id)}`;
+    const result = convertDblpIdToNormalizedId(id);
+    return result;
 }
 
 export function convertDblpIdToNormalizedId(dblpId: string) {
-    return dblpId
+    let split = dblpId
         .split(ID_DBLP_SEPARATOR)
-        .filter((w) => w.length > 0)
-        .join(ID_LOCAL_SEPARATOR);
+        .filter((w) => w.length > 0);
+
+    // If dblpId is a venue ID, take just first two segments (ignore volume ID)
+    if (split.some((s) => venueIdContainingUrlSegments.includes(s.toLowerCase()))) {
+        split = split.slice(0, 2);
+    }
+
+    return split.join(ID_LOCAL_SEPARATOR);
 }
 
 export function convertNormalizedIdToDblpPath(normalizedId: string) {
