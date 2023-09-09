@@ -11,6 +11,7 @@ export type ZoomTransform = { scale: number, x: number, y: number }
 interface VisualDataContainerParams {
     children: React.ReactNode,
     className?: string,
+    innerClassName?: string,
     zoomScaleExtent?: ZoomScaleExtent,
     onDimensionsChange?: (width: number, height: number) => void,
     onZoomChange?: OnZoomChangeCallback,
@@ -21,7 +22,8 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
     zoomScaleExtent,
     onDimensionsChange,
     onZoomChange,
-    className },
+    className,
+    innerClassName },
     ref) => {
     const innerRef = useRef<SVGSVGElement>(null);
     const dimensions = useDimensions(innerRef);
@@ -38,11 +40,12 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
 
     return (
         <div
-            className={cn('w-full h-full', className)}>
+            className={cn('w-full h-full overflow-x-auto', className)}>
             <svg
                 ref={innerRef}
                 width={dimensions.width} height={dimensions.height}
-                className='w-full h-full'>
+                className={cn('w-full h-full', innerClassName)}
+                role='img'>
                 {children}
             </svg>
         </div>

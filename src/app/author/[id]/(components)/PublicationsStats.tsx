@@ -73,7 +73,8 @@ export function PublicationTypesStats({ className, publications }: PublicationTy
 function PublicationTypesStatsBarChart({ publications }: PublicationTypesStatsParams) {
     return (
         <HorizontalBarChart
-            className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-8 py-7'
+            className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-4 xs:px-8 py-7'
+            innerClassName='min-w-[20rem]'
             data={{
                 bar: (value) => value.type,
                 barValue: (value) => value.type,

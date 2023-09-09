@@ -16,18 +16,19 @@ export type HorizontalBarChartData<T> = {
 type HorizontalBarChartParams = {
     data: HorizontalBarChartData<any>,
     padding?: { left: number, top: number, right: number, bottom: number },
-    className?: string
+    className?: string,
+    innerClassName?: string
 }
 
-export default function HorizontalBarChart({ data, padding, className }: HorizontalBarChartParams) {
+export default function HorizontalBarChart({ data, padding, className, innerClassName }: HorizontalBarChartParams) {
     const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
     const [rolled, setRolled] = useState<d3.InternMap<any, number>>(new d3.InternMap<any, number>());
 
     const xLabelHeight = 36;
-    const textWidth = 110;
-    const textGap = 25;
+    const yLabelWidth = 110;
+    const horizontalGap = 25;
     const pad = padding || { left: 0, top: 20, right: 1, bottom: 20 + xLabelHeight };
-    const chartWidth = (dimensions?.width || 1) - textWidth - textGap - pad.left - pad.right;
+    const chartWidth = (dimensions?.width || 1) - yLabelWidth - horizontalGap - pad.left - pad.right;
 
     const xDomain = useMemo(() => [0, (d3.extent(rolled.values()) as [number, number])[1]], [rolled])
     const y = useMemo(() =>
@@ -55,11 +56,12 @@ export default function HorizontalBarChart({ data, padding, className }: Horizon
     return (
         <VisualDataContainer
             className={className}
+            innerClassName={innerClassName}
             onDimensionsChange={(width, height) => setDimensions({ width, height })}>
             {
                 dimensions &&
                 <text
-                    x={pad.left + textWidth + (chartWidth / 2)}
+                    x={pad.left + yLabelWidth + horizontalGap + (chartWidth / 2)}
                     y={dimensions.height - 4}
                     textAnchor='middle'
                     className='text-sm'>
@@ -69,7 +71,7 @@ export default function HorizontalBarChart({ data, padding, className }: Horizon
 
             {
                 dimensions && ticks.map((tick, index) => {
-                    const left = pad.left + textWidth + textGap + tick.xOffset;
+                    const left = pad.left + yLabelWidth + horizontalGap + tick.xOffset;
                     const textVerticalOffset = 8;
                     const textAnchor = xDomain[1] == tick.value ? 'end' : 'middle';
 
@@ -106,7 +108,7 @@ export default function HorizontalBarChart({ data, padding, className }: Horizon
                 const barHeight = Math.min(bandWidth, 28);
                 const yOffset = (bandWidth - barHeight) / 2;
 
-                const left = pad.left + textWidth + textGap;
+                const left = pad.left + yLabelWidth + horizontalGap;
                 const top = (y(key) || 0) + yOffset + pad.top;
                 const width = Math.max(x(rolled.get(key) as number), 2);
                 const radius = Math.min(8, barHeight / 2, width / 2);
@@ -116,7 +118,7 @@ export default function HorizontalBarChart({ data, padding, className }: Horizon
                         <foreignObject
                             x={pad.left}
                             y={(y(key) || 0) + pad.top}
-                            width={textWidth}
+                            width={yLabelWidth}
                             height={bandWidth}>
                             <div
                                 className='flex items-center justify-end h-full'>

@@ -7,7 +7,6 @@ interface TabsParams extends VariantProps<typeof tabVariants> {
     items: Array<{ content: React.ReactNode, title?: string, id: any }>,
     legend: string,
     selectedId: any,
-    vertical?: boolean,
     className?: string,
     setSelectedId: (id: any) => void
 }
@@ -21,10 +20,10 @@ interface TabParams extends VariantProps<typeof tabVariants> {
     onChange: (id: any) => void
 }
 
-export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, vertical, className, ...rest }: TabsParams) {
+export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, className, ...rest }: TabsParams) {
     return (
         <fieldset
-            className={cn('flex flex-wrap gap-2 has-focus-visible-outline rounded-sm', vertical ? 'flex-col' : 'flex-row', className)}>
+            className={cn('flex flex-wrap gap-2 has-focus-visible-outline rounded-sm flex-row', className)}>
             <legend className='sr-only'>{legend}</legend>
 
             {items.map((item) =>
