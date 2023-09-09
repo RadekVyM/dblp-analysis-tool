@@ -47,6 +47,8 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
                         publication={publ} />)}
             </ul>
 
+            <h4 className='font-semibold mb-5'>Publication Types</h4>
+
             <PublicationTypesStats
                 publications={publications.map((publ) => {
                     return {

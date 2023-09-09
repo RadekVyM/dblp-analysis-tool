@@ -22,6 +22,17 @@ export const PUBLICATION_TYPE_COLOR = {
     [PublicationType.ReferenceWorks]: 'text-reference-works',
 } as const
 
+export const PUBLICATION_TYPE_FILL = {
+    [PublicationType.BooksAndTheses]: 'fill-books-and-theses',
+    [PublicationType.ConferenceAndWorkshopPapers]: 'fill-conference-and-workshop-papers',
+    [PublicationType.DataAndArtifacts]: 'fill-data-and-artifacts',
+    [PublicationType.Editorship]: 'fill-editorship',
+    [PublicationType.InformalAndOther]: 'fill-informal-and-other',
+    [PublicationType.JournalArticles]: 'fill-journal-articles',
+    [PublicationType.PartsInBooksOrCollections]: 'fill-parts-in-books-or-collections',
+    [PublicationType.ReferenceWorks]: 'fill-reference-works',
+} as const
+
 export const PUBLICATION_TYPE_TITLE = {
     [PublicationType.BooksAndTheses]: 'Books and Theses',
     [PublicationType.ConferenceAndWorkshopPapers]: 'Conference and Workshop Papers',

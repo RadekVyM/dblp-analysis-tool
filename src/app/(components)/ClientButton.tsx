@@ -3,7 +3,7 @@
 import { forwardRef } from 'react'
 import { VariantProps } from 'class-variance-authority'
 import { cn } from '@/shared/utils/tailwindUtils'
-import { buttonVariants } from '@/shared/styling/buttonVariants';
+import { buttonVariants } from '@/shared/styling/buttonVariants'
 
 export interface ClientButtonParams extends
     React.ButtonHTMLAttributes<HTMLButtonElement>,

@@ -17,7 +17,7 @@ export default function ScrollToTopButton({ className }: ScrollToTopButtonParams
         setIsClient(true);
 
         const scrollEnded = (event: Event) => {
-            setIsVisible(window.scrollY > window.innerHeight);
+            setIsVisible(window.scrollY > window.innerHeight / 2);
         };
 
         window.addEventListener('scrollend', scrollEnded);
@@ -37,7 +37,8 @@ export default function ScrollToTopButton({ className }: ScrollToTopButtonParams
                 isClient &&
                 <Button
                     onClick={() => scrollToTop()}
-                    className={cn('mb-5 ml-auto bottom-5', isVisible ? 'sticky animate-slideUpIn' : 'hidden')}>
+                    title='Scroll to top of the page'
+                    className={cn('sticky mb-5 ml-auto bottom-5', isVisible ? 'animate-slideUpIn' : 'invisible')}>
                     <MdArrowUpward />
                 </Button>
             }

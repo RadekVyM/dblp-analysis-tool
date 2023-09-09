@@ -13,11 +13,12 @@ type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
 }
 
-type GroupedBy = 'year' | 'type'
+type GroupedBy = 'year' | 'type' | 'venue'
 
 const GROUPED_BY_FUNC = {
     'year': byYear,
-    'type': byType
+    'type': byType,
+    'venue': byVenue,
 } as const
 
 const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
@@ -39,7 +40,8 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                 size='sm'
                 items={[
                     { content: 'Group by Year', id: 'year' },
-                    { content: 'Group by Type', id: 'type' }
+                    { content: 'Group by Type', id: 'type' },
+                    { content: 'Group by Venue', id: 'venue' },
                 ]}
                 legend='Choose a grouping property'
                 selectedId={groupedBy}
@@ -57,7 +59,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                             key={`contents_${key}`}
                             size='sm'
                             href={`#${getElementId(key)}`}>
-                            {groupedBy == 'year' ? key : PUBLICATION_TYPE_TITLE[key as PublicationType]}
+                            {getTitleFromKey(key, groupedBy)}
                         </ListLink>)}
                 </ul>
                 {
@@ -71,19 +73,19 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
             </div>
 
             <ul
-                className='flex flex-col gap-8'>
+                className='flex flex-col gap-8 isolate'>
                 {Array.from(groupedPublications.keys(), (key) => key).map((key, keyIndex) => {
                     const keyPublications = groupedPublications.get(key);
 
                     return (
                         <li
-                            key={key}>
+                            key={key || getTitleFromKey(key, groupedBy)}>
                             <header
                                 id={getElementId(key)}
                                 className='mb-6 flex gap-3 items-center'>
                                 <h4
                                     className='font-semibold'>
-                                    {groupedBy == 'year' ? key : PUBLICATION_TYPE_TITLE[key as PublicationType]}
+                                    {getTitleFromKey(key, groupedBy)}
                                 </h4>
                                 <span
                                     title={`${keyPublications?.length} publications`}
@@ -112,6 +114,21 @@ function byYear(publ: DblpPublication) {
 
 function byType(publ: DblpPublication) {
     return publ.type
+}
+
+function byVenue(publ: DblpPublication) {
+    return publ.journal || publ.booktitle
+}
+
+function getTitleFromKey(key: any, groupedBy: GroupedBy) {
+    switch (groupedBy) {
+        case 'type':
+            return PUBLICATION_TYPE_TITLE[key as PublicationType];
+        case 'year':
+            return key;
+        case 'venue':
+            return key || 'Not Listed Publications';
+    }
 }
 
 function group(publications: Array<DblpPublication>, by: (publ: DblpPublication) => any) {

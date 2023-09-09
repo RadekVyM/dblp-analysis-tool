@@ -24,7 +24,7 @@ interface TabParams extends VariantProps<typeof tabVariants> {
 export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, vertical, className, ...rest }: TabsParams) {
     return (
         <fieldset
-            className={cn('flex gap-2 has-focus-visible-outline rounded-sm', vertical ? 'flex-col' : 'flex-row', className)}>
+            className={cn('flex flex-wrap gap-2 has-focus-visible-outline rounded-sm', vertical ? 'flex-col' : 'flex-row', className)}>
             <legend className='sr-only'>{legend}</legend>
 
             {items.map((item) =>

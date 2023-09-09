@@ -1,5 +1,6 @@
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/shared/constants/search'
 import Button from './(components)/Button'
+import { VenueType } from '@/shared/enums/VenueType'
 
 export default function HomePage() {
   return (
@@ -26,19 +27,19 @@ export default function HomePage() {
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${JOURNALS_DBLP_KEY}`}>
+            href={`/search/venue?type=${VenueType.Journal}`}>
             Journals
           </Button>
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${CONF_DBLP_KEY}`}>
+            href={`/search/venue?type=${VenueType.Conference}`}>
             Conferences
           </Button>
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${SERIES_DBLP_KEY}`}>
+            href={`/search/venue?type=${VenueType.Series}`}>
             Series
           </Button>
         </div>

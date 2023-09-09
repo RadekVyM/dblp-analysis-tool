@@ -82,14 +82,14 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
             }
 
             <Bookmarks
-                className={cn(info.awards.length > 0 ? 'mb-1' : '')}
+                className={cn(info.awards.length > 0 ? 'mb-5' : '')}
                 authorId={authorId}
                 title={authorName} />
 
             {
                 info.awards.length > 0 &&
                 <div>
-                    <SectionTitle>Awards</SectionTitle>
+                    <SectionTitle className='text-xl'>Awards</SectionTitle>
                     <ul className='flex flex-col gap-2 pl-4'>
                         {info.awards.map((award) =>
                             <li
