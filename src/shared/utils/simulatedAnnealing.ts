@@ -19,8 +19,8 @@ interface BaseLabel {
     y: number,
     width: number,
     height: number,
-    anchorX: number,
-    anchorY: number
+    idealX: number,
+    idealY: number
 }
 
 type OccupiableArea = { x1: number, y1: number, x2: number, y2: number, }
@@ -95,8 +95,8 @@ function computeEnergy(label: BaseLabel, labels: Array<BaseLabel>, linesIntersec
 }
 
 function computeDistanceEnergy(label: BaseLabel) {
-    const dx = label.x - label.anchorX;
-    const dy = label.y - label.anchorY;
+    const dx = label.x - label.idealX;
+    const dy = label.y - label.idealY;
     const distance = Math.sqrt((dx * dx) - (dy * dy));
 
     return distance * LABEL_DISTANCE_WEIGHT;

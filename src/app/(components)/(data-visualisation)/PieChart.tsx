@@ -6,7 +6,7 @@ import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
 import { cn, prependDashedPrefix } from '@/shared/utils/tailwindUtils'
 import removeOverlaps, { Label } from '@/shared/utils/simulatedAnnealing'
-import { intersect, overlapArea } from '@/shared/utils/geometry'
+import { distance, intersect, overlapArea } from '@/shared/utils/geometry'
 
 export type PieChartData<T> = {
     color: (key: any) => string,
@@ -18,8 +18,8 @@ export type PieChartData<T> = {
 type ArcData = { key: any, value: number }
 
 interface PieLabel extends Label<d3.PieArcDatum<ArcData>> {
-    idealX: number,
-    idealY: number,
+    anchorX: number,
+    anchorY: number,
     center: [number, number]
 }
 
@@ -65,6 +65,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
 
     const wholeArc = useMemo(() =>
         d3.arc()
+            .cornerRadius(6)
             .innerRadius(0)
             .outerRadius(Math.min((dimensions?.width || 1) * 0.5, (dimensions?.height || 1) * 0.4) - 1),
         [dimensions]);
@@ -79,10 +80,10 @@ export default function PieChart({ data, padding, className, innerClassName, arc
                 data: arc,
                 x: x,
                 y: y,
-                anchorX: x,
-                anchorY: y,
                 idealX: x,
                 idealY: y,
+                anchorX: x,
+                anchorY: y,
                 width: 16 * arc.data.value.toString().length,
                 height: 20,
                 center: center
@@ -159,19 +160,19 @@ function PieChartLabels({ labels }: PieChartLabelsParams) {
             {labels.length > 0 && labels.map((label) => {
                 const lineWidth = label.width * 0.75;
 
+                const first: [number, number] = [label.anchorX, label.anchorY];
+                const second: [number, number] = [label.x - (lineWidth / 2), label.y + 4];
+                const third: [number, number] = [label.x + (lineWidth / 2), label.y + 4];
+
+                const order = distance(first, second) < distance(first, third);
+
                 return (
-                    (label.idealX != label.x || label.idealY != label.y) &&
-                    <g
+                    (label.anchorX != label.x || label.anchorY != label.y) &&
+                    <polyline
+                        className='stroke-1 stroke-outline fill-none'
+                        points={[first.join(','), order ? second.join(',') : third.join(','), order ? third.join(',') : second.join(',')].join(' ')}
                         key={`value-line-${label.data.data.key}`}>
-                        <line
-                            className='stroke-1 stroke-outline'
-                            x1={label.x - (lineWidth / 2)} y1={label.y + 4}
-                            x2={label.idealX} y2={label.idealY} />
-                        <line
-                            className='stroke-1 stroke-outline'
-                            x1={label.x + (lineWidth / 2)} y1={label.y + 4}
-                            x2={label.x - (lineWidth / 2)} y2={label.y + 4} />
-                    </g>)
+                    </polyline>)
             })}
 
             {labels.length > 0 && labels.map((label) =>
@@ -190,10 +191,10 @@ function handleOverlappingLabels(newLabels: Array<PieLabel>) {
 
     overlappingLabels.forEach((label) => {
         const center = label.center;
-        label.anchorX = label.x = center[0] * 2.2;
-        label.anchorY = label.y = center[1] * 2.2;
-        label.idealX = center[0] * 2;
-        label.idealY = center[1] * 2;
+        label.idealX = label.x = center[0] * 2.2;
+        label.idealY = label.y = center[1] * 2.2;
+        label.anchorX = center[0] * 2;
+        label.anchorY = center[1] * 2;
     });
 
     if (overlappingLabels.length > 0) {
@@ -211,7 +212,7 @@ function handleOverlappingLabels(newLabels: Array<PieLabel>) {
             linesIntersect: (first, second) => {
                 const f = first as PieLabel;
                 const s = second as PieLabel;
-                return intersect([f.x, f.y], [f.idealX, f.idealY], [s.x, s.y], [s.idealX, s.idealY])
+                return intersect([f.x, f.y], [f.anchorX, f.anchorY], [s.x, s.y], [s.anchorX, s.anchorY])
             }
         });
     }

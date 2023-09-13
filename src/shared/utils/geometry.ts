@@ -18,6 +18,13 @@ export function overlapArea(first: AreaObject, second: AreaObject) {
     return overlapWidth * overlapHeight;
 }
 
+export function distance(first: [number, number], second: [number, number]) {
+    const x = second[0] - first[0];
+    const y = second[1] - first[1];
+
+    return Math.sqrt(x * x + y * y)
+}
+
 // Based on: https://www.tutorialspoint.com/Check-if-two-line-segments-intersect
 export function intersect(first: [number, number], second: [number, number], third: [number, number], fourth: [number, number]) {
     const o1 = orientation(first, second, third);
