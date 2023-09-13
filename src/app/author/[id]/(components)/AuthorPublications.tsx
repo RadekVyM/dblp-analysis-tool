@@ -2,7 +2,7 @@ import { DblpPublication, DblpPublicationPerson } from '@/shared/models/DblpPubl
 import { Section, SectionTitle } from './Section'
 import Link from 'next/link'
 import { PublicationTypesStats } from './PublicationsStats'
-import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/app/(constants)/publications'
+import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/app/(constants)/publications'
 import { cn } from '@/shared/utils/tailwindUtils'
 import { MdLibraryBooks } from 'react-icons/md'
 import { createLocalPath } from '@/shared/utils/urls'
@@ -86,6 +86,10 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                 }
                 <PublicationInfo
                     publication={publication} />
+                {
+                    publication.pages &&
+                    <p className='text-sm'>{publication.pages.includes('-') ? 'Pages' : 'Page'} {publication.pages}</p>
+                }
                 <ul
                     className='text-xs flex flex-wrap gap-1'>
                     <PeopleItems
@@ -96,7 +100,7 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                     <span
                         className={cn('flex gap-2 px-2 py-1 text-xs bg-surface-container text-on-surface-container rounded-lg border border-outline overflow-ellipsis')}>
                         <MdLibraryBooks
-                            className={cn(PUBLICATION_TYPE_COLOR[publication.type], 'w-4 h-4')} />
+                            className={cn(PUBLICATION_TYPE_TEXT_COLOR[publication.type], 'w-4 h-4')} />
                         {PUBLICATION_TYPE_TITLE_SINGULAR[publication.type]}
                     </span>
                     <span

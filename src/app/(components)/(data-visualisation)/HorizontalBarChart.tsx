@@ -4,12 +4,12 @@ import { VisualDataContainer } from './VisualDataContainer'
 import { useEffect, useState, useMemo } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
+import { prependDashedPrefix } from '@/shared/utils/tailwindUtils'
 
 export type HorizontalBarChartData<T> = {
     color: (key: any) => string,
     barTitle?: (key: any) => string,
     bar: (value: T) => any,
-    barValue?: (value: T) => any,
     items: Array<T>
 }
 
@@ -31,23 +31,24 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
     const chartWidth = (dimensions?.width || 1) - yLabelWidth - horizontalGap - pad.left - pad.right;
 
     const xDomain = useMemo(() => [0, (d3.extent(rolled.values()) as [number, number])[1]], [rolled])
-    const y = useMemo(() =>
-        d3.scaleBand([0, (dimensions?.height || 1) - pad.top - pad.bottom]).domain(rolled.keys()),
-        [dimensions, rolled]);
-    const x = useMemo(() =>
+    const xScale = useMemo(() =>
         d3.scaleLinear(xDomain, [0, chartWidth]),
         [dimensions, xDomain]);
+    const yScale = useMemo(() =>
+        d3.scaleBand([0, (dimensions?.height || 1) - pad.top - pad.bottom]).domain(rolled.keys()),
+        [dimensions, rolled]);
 
     const ticks = useMemo(() => {
         const pixelsPerTick = 80;
         const numberOfTicksTarget = Math.max(1, Math.floor((dimensions?.width || 1) / pixelsPerTick));
 
-        return x.ticks(numberOfTicksTarget)
+        return xScale.ticks(numberOfTicksTarget)
+            .filter(value => value % 1 == 0)
             .map(value => ({
                 value,
-                xOffset: x(value)
+                xOffset: xScale(value)
             }));
-    }, [x, dimensions])
+    }, [xScale, dimensions])
 
     useEffect(() => {
         setRolled(d3.rollup(data.items, r => r.length, data.bar));
@@ -64,7 +65,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
                     x={pad.left + yLabelWidth + horizontalGap + (chartWidth / 2)}
                     y={dimensions.height - 4}
                     textAnchor='middle'
-                    className='text-sm'>
+                    className='text-sm fill-on-surface-container'>
                     Publications Count
                 </text>
             }
@@ -76,12 +77,13 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
                     const textAnchor = xDomain[1] == tick.value ? 'end' : 'middle';
 
                     return (
-                        <g>
+                        <g
+                            key={tick.xOffset}>
                             <line
                                 x1={left} y1={pad.top}
                                 x2={left} y2={dimensions.height - pad.bottom}
                                 strokeDasharray='0 6 6'
-                                className='stroke-outline-variant stroke-1' />
+                                className='stroke-outline stroke-1' />
 
                             <text
                                 x={left}
@@ -103,48 +105,50 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
                 })
             }
 
-            {dimensions && Array.from(rolled.keys()).map((key, index) => {
-                const bandWidth = y.bandwidth();
-                const barHeight = Math.min(bandWidth, 28);
-                const yOffset = (bandWidth - barHeight) / 2;
+            {
+                dimensions && Array.from(rolled.keys()).map((key, index) => {
+                    const bandWidth = yScale.bandwidth();
+                    const barHeight = Math.min(bandWidth, 28);
+                    const yOffset = (bandWidth - barHeight) / 2;
 
-                const left = pad.left + yLabelWidth + horizontalGap;
-                const top = (y(key) || 0) + yOffset + pad.top;
-                const width = Math.max(x(rolled.get(key) as number), 2);
-                const radius = Math.min(8, barHeight / 2, width / 2);
+                    const left = pad.left + yLabelWidth + horizontalGap;
+                    const top = (yScale(key) || 0) + yOffset + pad.top;
+                    const width = Math.max(xScale(rolled.get(key) as number), 2);
+                    const radius = Math.min(8, barHeight / 2, width / 2);
 
-                return (
-                    <g>
-                        <foreignObject
-                            x={pad.left}
-                            y={(y(key) || 0) + pad.top}
-                            width={yLabelWidth}
-                            height={bandWidth}>
-                            <div
-                                className='flex items-center justify-end h-full'>
-                                <span className='text-xs text-end text-on-surface-container'>{data.barTitle && data.barTitle(key)}</span>
-                            </div>
-                        </foreignObject>
+                    return (
+                        <g
+                            key={key}>
+                            <foreignObject
+                                x={pad.left}
+                                y={(yScale(key) || 0) + pad.top}
+                                width={yLabelWidth}
+                                height={bandWidth}>
+                                <div
+                                    className='flex items-center justify-end h-full'>
+                                    <span className='text-xs text-end text-on-surface-container'>{data.barTitle && data.barTitle(key)}</span>
+                                </div>
+                            </foreignObject>
 
-                        <rect
-                            className={data.color(key)}
-                            key={key}
-                            x={left}
-                            y={top}
-                            width={width}
-                            height={barHeight}
-                            rx={radius} ry={radius} />
+                            <rect
+                                className={prependDashedPrefix('fill', data.color(key))}
+                                x={left}
+                                y={top}
+                                width={width}
+                                height={barHeight}
+                                rx={radius} ry={radius} />
 
-                        <OutlinedText
-                            x={left + (width / 2)}
-                            y={top + (barHeight / 2) + 2}
-                            dominantBaseline='middle' textAnchor='middle'
-                            className='text-xs font-semibold'>
-                            {rolled.get(key) as number}
-                        </OutlinedText>
-                    </g>
-                )
-            })}
+                            <OutlinedText
+                                x={left + (width / 2)}
+                                y={top + (barHeight / 2) + 2}
+                                dominantBaseline='middle' textAnchor='middle'
+                                className='text-xs font-semibold'>
+                                {rolled.get(key) as number}
+                            </OutlinedText>
+                        </g>
+                    )
+                })
+            }
         </VisualDataContainer>
     )
 }

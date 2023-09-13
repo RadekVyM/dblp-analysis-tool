@@ -1,10 +1,11 @@
 'use client'
 
 import HorizontalBarChart, { HorizontalBarChartData } from '@/app/(components)/(data-visualisation)/HorizontalBarChart'
+import PieChart, { PieChartData } from '@/app/(components)/(data-visualisation)/PieChart'
 import { VisualDataContainer, ZoomTransform } from '@/app/(components)/(data-visualisation)/VisualDataContainer'
 import StatsScaffold from '@/app/(components)/StatsScaffold'
 import Table, { TableData } from '@/app/(components)/Table'
-import { PUBLICATION_TYPE_FILL, PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
+import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_FILL, PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
 import { PublicationType } from '@/shared/enums/PublicationType'
 import { useState, useEffect, useRef } from 'react'
 import { MdBarChart, MdBubbleChart, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
@@ -21,31 +22,31 @@ type PublicationTypesStatsParams = {
 }
 
 export function PublicationTypesStats({ className, publications }: PublicationTypesStatsParams) {
-    const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bubbles');
+    const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
 
     return (
         <StatsScaffold
             className={className}
             items={[
                 {
-                    key: 'Bubbles',
-                    content: (<PublicationTypesStatsBubblesChart />),
-                    title: 'Bubble chart',
-                    icon: (<MdBubbleChart />),
+                    key: 'Bars',
+                    content: (<PublicationTypesStatsBarChart publications={publications} />),
+                    title: 'Bar chart',
+                    icon: (<MdBarChart />),
 
                 },
                 {
                     key: 'Pie',
-                    content: (<p className='min-h-[30rem]'>Pie</p>),
+                    content: (<PublicationTypesStatsPieChart publications={publications} />),
                     title: 'Pie chart',
                     icon: (<MdIncompleteCircle />),
 
                 },
                 {
-                    key: 'Bars',
-                    content: (<PublicationTypesStatsBarChart publications={publications} />),
-                    title: 'Bar chart',
-                    icon: (<MdBarChart />),
+                    key: 'Bubbles',
+                    content: (<PublicationTypesStatsBubblesChart />),
+                    title: 'Bubble chart',
+                    icon: (<MdBubbleChart />),
 
                 },
                 {
@@ -77,11 +78,24 @@ function PublicationTypesStatsBarChart({ publications }: PublicationTypesStatsPa
             innerClassName='min-w-[20rem]'
             data={{
                 bar: (value) => value.type,
-                barValue: (value) => value.type,
                 barTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
-                color: (key) => PUBLICATION_TYPE_FILL[key as PublicationType],
+                color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
                 items: publications
             } as HorizontalBarChartData<Publ>} />
+    )
+}
+
+function PublicationTypesStatsPieChart({ publications }: PublicationTypesStatsParams) {
+    return (
+        <PieChart
+            className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-5 xs:px-10 py-7'
+            arcClassName='stroke-surface-container stroke-[0.1rem]'
+            data={{
+                piece: (value) => value.type,
+                pieceTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
+                color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
+                items: publications
+            } as PieChartData<Publ>} />
     )
 }
 
@@ -90,7 +104,7 @@ function PublicationTypesStatsBubblesChart() {
 
     return (
         <VisualDataContainer
-            className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,45rem)]'
+            className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)]'
             onZoomChange={(transform) => setZoomTransform(transform)}
             zoomScaleExtent={{ max: 8 }}>
             <g

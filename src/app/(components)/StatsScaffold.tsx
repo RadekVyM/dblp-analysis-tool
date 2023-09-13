@@ -39,7 +39,7 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 selectedId={selectedKey}
                 setSelectedId={(id) => onKeySelected(id)} />
             <div
-                className='bg-surface-container rounded-lg border border-outline overflow-x-auto sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
+                className='@container bg-surface-container rounded-lg border border-outline overflow-x-auto sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
                 {items.find((item) => item.key == selectedKey)?.content}
             </div>
         </div>

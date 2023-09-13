@@ -6,6 +6,12 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './shared/styling/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  safelist: [
+    {
+      pattern: /(bg|text|fill|stroke)-(books-and-theses|journal-articles|conference-and-workshop-papers|parts-in-books-or-collections|editorship|reference-works|data-and-artifacts|informal-and-other)/,
+      variants: ['hover', 'before', 'after'],
+    },
+  ],
   theme: {
     extend: {
       colors: {
@@ -95,5 +101,7 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/container-queries')
+  ],
 }

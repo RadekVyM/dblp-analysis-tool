@@ -1,37 +1,24 @@
 import { PublicationType } from '@/shared/enums/PublicationType'
-
-export const PUBLICATION_TYPE_BG = {
-    [PublicationType.BooksAndTheses]: 'bg-books-and-theses',
-    [PublicationType.ConferenceAndWorkshopPapers]: 'bg-conference-and-workshop-papers',
-    [PublicationType.DataAndArtifacts]: 'bg-data-and-artifacts',
-    [PublicationType.Editorship]: 'bg-editorship',
-    [PublicationType.InformalAndOther]: 'bg-informal-and-other',
-    [PublicationType.JournalArticles]: 'bg-journal-articles',
-    [PublicationType.PartsInBooksOrCollections]: 'bg-parts-in-books-or-collections',
-    [PublicationType.ReferenceWorks]: 'bg-reference-works',
-} as const
+import { prependDashedPrefix } from '@/shared/utils/tailwindUtils'
 
 export const PUBLICATION_TYPE_COLOR = {
-    [PublicationType.BooksAndTheses]: 'text-books-and-theses',
-    [PublicationType.ConferenceAndWorkshopPapers]: 'text-conference-and-workshop-papers',
-    [PublicationType.DataAndArtifacts]: 'text-data-and-artifacts',
-    [PublicationType.Editorship]: 'text-editorship',
-    [PublicationType.InformalAndOther]: 'text-informal-and-other',
-    [PublicationType.JournalArticles]: 'text-journal-articles',
-    [PublicationType.PartsInBooksOrCollections]: 'text-parts-in-books-or-collections',
-    [PublicationType.ReferenceWorks]: 'text-reference-works',
+    [PublicationType.BooksAndTheses]: 'books-and-theses',
+    [PublicationType.ConferenceAndWorkshopPapers]: 'conference-and-workshop-papers',
+    [PublicationType.DataAndArtifacts]: 'data-and-artifacts',
+    [PublicationType.Editorship]: 'editorship',
+    [PublicationType.InformalAndOther]: 'informal-and-other',
+    [PublicationType.JournalArticles]: 'journal-articles',
+    [PublicationType.PartsInBooksOrCollections]: 'parts-in-books-or-collections',
+    [PublicationType.ReferenceWorks]: 'reference-works',
 } as const
 
-export const PUBLICATION_TYPE_FILL = {
-    [PublicationType.BooksAndTheses]: 'fill-books-and-theses',
-    [PublicationType.ConferenceAndWorkshopPapers]: 'fill-conference-and-workshop-papers',
-    [PublicationType.DataAndArtifacts]: 'fill-data-and-artifacts',
-    [PublicationType.Editorship]: 'fill-editorship',
-    [PublicationType.InformalAndOther]: 'fill-informal-and-other',
-    [PublicationType.JournalArticles]: 'fill-journal-articles',
-    [PublicationType.PartsInBooksOrCollections]: 'fill-parts-in-books-or-collections',
-    [PublicationType.ReferenceWorks]: 'fill-reference-works',
-} as const
+export const PUBLICATION_TYPE_BG = createColorMap('bg')
+
+export const PUBLICATION_TYPE_TEXT_COLOR = createColorMap('text')
+
+export const PUBLICATION_TYPE_FILL = createColorMap('fill')
+
+export const PUBLICATION_TYPE_STROKE = createColorMap('stroke')
 
 export const PUBLICATION_TYPE_TITLE = {
     [PublicationType.BooksAndTheses]: 'Books and Theses',
@@ -54,3 +41,16 @@ export const PUBLICATION_TYPE_TITLE_SINGULAR = {
     [PublicationType.PartsInBooksOrCollections]: 'Part in a Book or Collection',
     [PublicationType.ReferenceWorks]: 'Reference Work',
 } as const
+
+function createColorMap(prefix: string) {
+    return {
+        [PublicationType.BooksAndTheses]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.BooksAndTheses]),
+        [PublicationType.ConferenceAndWorkshopPapers]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.ConferenceAndWorkshopPapers]),
+        [PublicationType.DataAndArtifacts]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.DataAndArtifacts]),
+        [PublicationType.Editorship]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.Editorship]),
+        [PublicationType.InformalAndOther]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.InformalAndOther]),
+        [PublicationType.JournalArticles]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.JournalArticles]),
+        [PublicationType.PartsInBooksOrCollections]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.PartsInBooksOrCollections]),
+        [PublicationType.ReferenceWorks]:  prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.ReferenceWorks]),
+    } as const
+}
