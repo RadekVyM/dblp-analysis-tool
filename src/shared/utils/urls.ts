@@ -44,7 +44,7 @@ export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
     }
     // Get part of the path containing typeSegment and segments with an ID
     const reducedPath = dblpUrlPath.substring(dblpUrlPath.indexOf(typeSegment));
-    const id = removeWords(['index.html', '.html'], reducedPath);
+    const id = removeWords(['index.html', '.html', 'index.bht', '.bht'], reducedPath);
 
     const result = convertDblpIdToNormalizedId(id);
     return result;

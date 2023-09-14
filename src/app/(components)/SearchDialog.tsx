@@ -82,6 +82,10 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
         setSelectedUrl(undefined);
     }, [urls]);
 
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, [selectedSearchType]);
+
     function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
         if (event.key == ARROW_DOWN_KEY || event.key == ARROW_UP_KEY) {
             event.preventDefault();

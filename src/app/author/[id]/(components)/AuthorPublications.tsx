@@ -50,6 +50,20 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
             <h4 className='font-semibold mb-5'>Publication Types</h4>
 
             <PublicationTypesStats
+                scaffoldId='publication-types-stats-1'
+                className='mb-10'
+                publications={publications.map((publ) => {
+                    return {
+                        id: publ.id,
+                        type: publ.type,
+                        date: publ.date
+                    }
+                })} />
+
+            <h4 className='font-semibold mb-5'>Publication Types over Time</h4>
+
+            <PublicationTypesStats
+                scaffoldId='publication-types-stats-2'
                 publications={publications.map((publ) => {
                     return {
                         id: publ.id,

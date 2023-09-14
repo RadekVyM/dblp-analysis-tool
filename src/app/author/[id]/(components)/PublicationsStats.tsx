@@ -18,10 +18,11 @@ type Publ = {
 
 type PublicationTypesStatsParams = {
     className?: string,
-    publications: Array<Publ>
+    publications: Array<Publ>,
+    scaffoldId?: string,
 }
 
-export function PublicationTypesStats({ className, publications }: PublicationTypesStatsParams) {
+export function PublicationTypesStats({ className, publications, scaffoldId }: PublicationTypesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
 
     return (
@@ -64,7 +65,7 @@ export function PublicationTypesStats({ className, publications }: PublicationTy
 
                 },
             ]}
-            scaffoldId='publication-types-stats'
+            scaffoldId={scaffoldId || 'publication-types-stats'}
             sideTabsLegend='Choose data visualization'
             selectedKey={selectedPublTypesStatsVisual}
             onKeySelected={setSelectedPublTypesStatsVisual} />

@@ -35,9 +35,28 @@ export interface ItemsIndexParams extends BaseItemsParams {
     prefix?: string
 }
 
+export async function fetchXml(url: string) {
+    return fetchWithErrorHandling(url, 'application/xml').then((res) => res.text());
+}
+
+export async function fetchHtml(url: string) {
+    return fetchWithErrorHandling(url, 'text/html').then((res) => res.text());
+}
+
+export async function fetchJson(url: string) {
+    return fetchWithErrorHandling(url, 'application/json').then((res) => res.json());
+}
+
 export async function handleErrors(response: Response, conentType: string) {
     await throwIfNotOk(response);
     throwIfWrongContentType(response, conentType);
+}
+
+async function fetchWithErrorHandling(url: string, type: string) {
+    const response = await fetch(url, { next: { revalidate: 3600 } });
+    await handleErrors(response, type);
+
+    return response;
 }
 
 async function throwIfNotOk(response: Response) {

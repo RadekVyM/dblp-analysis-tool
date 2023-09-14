@@ -14,6 +14,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         const pages = elem.find('pages').first().text();
         const journal = elem.find('journal').first().text();
         const volume = elem.find('volume').first().text();
+        const number = elem.find('number').first().text();
         const url = elem.find('url').first().text();
         const key = elem.attr('key') || '';
         const date = elem.attr('mdate');
@@ -53,6 +54,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
             pages,
             journal,
             volume,
+            number,
             venueUrl ? extractNormalizedIdFromDblpUrlPath(venueUrl) || undefined : undefined,
             authors,
             editors,

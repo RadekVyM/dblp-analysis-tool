@@ -1,6 +1,6 @@
 import { normalizeQuery } from '../utils/searchQuery'
 import { urlWithParams } from '../utils/urls'
-import { ItemsIndexParams, ItemsParams, handleErrors } from './shared'
+import { ItemsIndexParams, ItemsParams, fetchHtml, fetchJson, handleErrors } from './shared'
 
 export async function queryItemsJson(url: string, params: ItemsParams) {
     params.first ??= 0;
@@ -15,10 +15,7 @@ export async function queryItemsJson(url: string, params: ItemsParams) {
         format: 'json'
     });
 
-    const response = await fetch(completeUrl, { next: { revalidate: 3600 } });
-    await handleErrors(response, 'application/json');
-
-    return response.json();
+    return fetchJson(completeUrl);
 }
 
 export async function fetchItemsIndexHtml(url: string, params: ItemsIndexParams) {
@@ -27,8 +24,5 @@ export async function fetchItemsIndexHtml(url: string, params: ItemsIndexParams)
         prefix: params.prefix
     });
 
-    const response = await fetch(completeUrl, { next: { revalidate: 3600 } });
-    await handleErrors(response, 'text/html');
-
-    return response.text();
+    return fetchHtml(completeUrl);
 }

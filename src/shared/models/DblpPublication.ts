@@ -11,6 +11,7 @@ export type DblpPublication = {
     readonly pages?: string,
     readonly journal?: string,
     readonly volume?: string,
+    readonly number?: string,
     readonly venueId?: string,
     readonly authors: Array<DblpPublicationPerson>,
     readonly editors: Array<DblpPublicationPerson>
@@ -34,6 +35,7 @@ export function createDblpPublication(
     pages?: string,
     journal?: string,
     volume?: string,
+    number?: string,
     venueId?: string,
     authors?: Array<DblpPublicationPerson>,
     editors?: Array<DblpPublicationPerson>
@@ -49,6 +51,7 @@ export function createDblpPublication(
         pages,
         journal,
         volume,
+        number,
         venueId,
         authors: authors || [],
         editors: editors || []

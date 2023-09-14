@@ -106,13 +106,13 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
         <article
             ref={ref}
             className={cn(`
-                place-self-stretch flex flex-col md:my-4 p-5 pr-3
-                overflow-y-auto
+                place-self-stretch flex flex-col md:my-4 pt-5 max-h-[100vh]
+                overflow-y-hidden
                 bg-surface-container rounded-l-lg md:rounded-lg md:border border-outline
                 pointer-events-auto animate-slideLeftIn md:animate-none`,
                 className)}>
             <div
-                className='flex justify-between items-center mb-6'>
+                className='flex justify-between items-center mb-6 pl-5 pr-3'>
                 <TypeSelection
                     selectedType={selectedType}
                     setSelectedType={(type) => setSelectedType(type)} />
@@ -129,17 +129,20 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
 
             <h2 className='sr-only'>Saved authors and venues</h2>
 
-            {
-                selectedType == SearchType.Author &&
-                <AuthorsTab
-                    key={SearchType.Author} />
-            }
+            <div
+                className='flex-1 flex flex-col h-full overflow-y-auto pb-5 pl-5 pr-3'>
+                {
+                    selectedType == SearchType.Author &&
+                    <AuthorsTab
+                        key={SearchType.Author} />
+                }
 
-            {
-                selectedType == SearchType.Venue &&
-                <VenuesTab
-                    key={SearchType.Venue} />
-            }
+                {
+                    selectedType == SearchType.Venue &&
+                    <VenuesTab
+                        key={SearchType.Venue} />
+                }
+            </div>
         </article >
     )
 });
@@ -213,7 +216,7 @@ function AuthorsTab() {
 }
 
 function VenuesTab() {
-    const { venues } = useLocalBookmarkedVenues();
+    const { venues, removeRecentlySeenVenue } = useLocalBookmarkedVenues();
 
     return (
         <>
@@ -221,11 +224,22 @@ function VenuesTab() {
                 venues.recentlySeen.length > 0 &&
                 <MenuSection
                     title='Recently Seen'>
-                    {venues.recentlySeen.map((venue) =>
+                    {venues.recentlySeen.slice(0, 5).map((venue) =>
                         <ListItem
                             key={venue.id}
-                            link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
-                            <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
+                            link={createLocalPath(venue.id, SearchType.Venue) || '#'}
+                            floatingContent={
+                                <button
+                                    className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        removeRecentlySeenVenue(venue.id);
+                                    }}>
+                                    <MdOutlineRemoveCircle
+                                        className='m-auto' />
+                                </button>
+                            }>
+                            <span className='flex-1 mr-8' dangerouslySetInnerHTML={{ __html: venue.title }}></span>
                         </ListItem>)}
                 </MenuSection>
             }

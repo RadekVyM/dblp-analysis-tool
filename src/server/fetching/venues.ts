@@ -1,13 +1,26 @@
 import { VenueType } from '@/shared/enums/VenueType'
-import { BaseItemsParams } from '@/shared/fetching/shared'
+import { BaseItemsParams, fetchXml, handleErrors } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
 import { SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
 import * as cheerio from 'cheerio'
-import { convertDblpUrlToLocalPath } from '@/shared/utils/urls'
+import { convertDblpUrlToLocalPath, convertNormalizedIdToDblpPath, getVenueTypeFromString } from '@/shared/utils/urls'
 import { SearchType } from '@/shared/enums/SearchType'
 import { isNumber } from '@/shared/utils/strings'
 import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/shared/constants/urls'
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '../constants/html'
+import { createDblpVenue } from '@/shared/models/DblpVenue'
+
+const DBLP_HTML_INDEX_PATHS = {
+    [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
+    [VenueType.Conference]: DBLP_CONF_INDEX_HTML,
+    [VenueType.Series]: DBLP_SERIES_INDEX_HTML,
+} as const
+
+const DBLP_INDEX_ELEMENT_IDS = {
+    [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
+    [VenueType.Conference]: DBLP_CONF_INDEX_ELEMENT_ID,
+    [VenueType.Series]: DBLP_SERIES_INDEX_ELEMENT_ID,
+} as const
 
 export async function fetchVenuesIndex(type: VenueType, params: BaseItemsParams) {
     const path = DBLP_HTML_INDEX_PATHS[type];
@@ -61,14 +74,29 @@ export async function fetchVenuesIndexLength(type: VenueType) {
     return count;
 }
 
-const DBLP_HTML_INDEX_PATHS = {
-    [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
-    [VenueType.Conference]: DBLP_CONF_INDEX_HTML,
-    [VenueType.Series]: DBLP_SERIES_INDEX_HTML,
-} as const
+export async function fetchVenue(id: string) {
+    const xml = await fetchVenueXml(id);
 
-const DBLP_INDEX_ELEMENT_IDS = {
-    [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
-    [VenueType.Conference]: DBLP_CONF_INDEX_ELEMENT_ID,
-    [VenueType.Series]: DBLP_SERIES_INDEX_ELEMENT_ID,
-} as const
+    const $ = cheerio.load(xml, { xmlMode: true });
+
+    const title = $('h1').text();
+    const key = $('bht').attr('key');
+
+    const venue = createDblpVenue(
+        id,
+        title,
+        key ? getVenueTypeFromString(key) || undefined : undefined
+    );
+
+    return venue;
+}
+
+async function fetchVenueXml(id: string) {
+    const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/index.xml`;
+    return fetchXml(url);
+}
+
+async function fetchVenueVolumeXml(id: string, volume: string) {
+    const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/${volume}.xml`;
+    return fetchXml(url);
+}

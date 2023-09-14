@@ -1,5 +1,5 @@
 import { SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
-import { BaseItemsParams, handleErrors } from '@/shared/fetching/shared'
+import { BaseItemsParams, fetchXml, handleErrors } from '@/shared/fetching/shared'
 import { fetchItemsIndexHtml } from '@/shared/fetching/items'
 import { isNumber } from '@/shared/utils/strings'
 import * as cheerio from 'cheerio'
@@ -152,9 +152,5 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
 
 async function fetchAuthorXml(id: string) {
     const url = `${DBLP_URL}${convertNormalizedIdToDblpPath(id)}.xml`;
-
-    const response = await fetch(url, { next: { revalidate: 3600 } });
-    await handleErrors(response, 'application/xml');
-
-    return response.text();
+    return fetchXml(url);
 }

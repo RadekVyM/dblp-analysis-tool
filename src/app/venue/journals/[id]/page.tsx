@@ -1,7 +1,28 @@
-export default function JournalPage({ params: { id }, searchParams }: VenuePageParams) {
+import PageContainer from '@/app/(components)/PageContainer'
+import PageTitle from '@/app/(components)/PageTitle'
+import { fetchVenue } from '@/server/fetching/venues'
+import AddToRecentlySeen from '../../(components)/AddToRecentlySeen'
+import Bookmarks from '../../(components)/Bookmarks'
+
+export default async function JournalPage({ params: { id }, searchParams }: VenuePageParams) {
+    const venue = await fetchVenue(id);
+
     return (
-        <main className="min-h-screen grid">
-            <p className='w-[fit-content] relative place-self-center'>Hello Venue {id} page!</p>
-        </main>
+        <PageContainer>
+            <AddToRecentlySeen
+                id={id}
+                title={venue.title} />
+
+            <header>
+                <PageTitle
+                    title={venue.title}
+                    subtitle='Journal'
+                    className='pb-3' />
+
+                <Bookmarks
+                    title={venue.title}
+                    venueId={venue.id} />
+            </header>
+        </PageContainer>
     )
 }
