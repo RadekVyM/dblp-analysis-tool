@@ -5,6 +5,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './shared/styling/**/*.{js,ts,jsx,tsx,mdx}',
+    './client/hooks/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   safelist: [
     {

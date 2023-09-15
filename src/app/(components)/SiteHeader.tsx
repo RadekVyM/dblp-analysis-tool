@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { MdBookmarks } from 'react-icons/md'
 import SearchBarButton from './SearchBarButton'
 import NavigationMenu from './NavigationMenu'
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { SearchDialog } from './SearchDialog'
 import { ClientButton } from './ClientButton'
 import { useHover } from 'usehooks-ts'
 import { cn } from '@/shared/utils/tailwindUtils'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
+import useDialog from '@/client/hooks/useDialog'
 import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
 
 type PageHeaderParams = {
@@ -28,36 +29,19 @@ type HeaderParams = {
 }
 
 export default function SiteHeader({ className, authorGroupsMenuState, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick }: PageHeaderParams) {
-    const [searchDialogAnimation, setSearchDialogAnimation] = useState('');
-    const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
-    const searchDialog = useRef<HTMLDialogElement>(null);
-
-    function showSearchView() {
-        setSearchDialogAnimation('backdrop:animate-fadeIn animate-slideUpIn');
-        searchDialog.current?.showModal();
-        setIsSearchDialogOpen(true);
-    }
-
-    function hideSearchView() {
-        setSearchDialogAnimation('backdrop:animate-fadeOut animate-slideDownOut');
-        let timeout = setTimeout(() => {
-            searchDialog.current?.close();
-            setIsSearchDialogOpen(false);
-            clearTimeout(timeout);
-        }, 150);
-    }
+    const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
 
     return (
         <>
             <Header
                 className={className}
                 authorGroupsMenuState={authorGroupsMenuState}
-                showDialog={() => showSearchView()}
+                showDialog={() => showSearchDialog()}
                 authorGroupsMenuButtonHoverChanged={authorGroupsMenuButtonHoverChanged}
                 authorGroupsMenuButtonClick={authorGroupsMenuButtonClick} />
 
             <SearchDialog
-                hide={hideSearchView}
+                hide={hideSearchDialog}
                 animation={searchDialogAnimation}
                 isOpen={isSearchDialogOpen}
                 ref={searchDialog} />

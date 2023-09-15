@@ -127,7 +127,7 @@ input::selection {
   @apply bg-surface-container border border-outline-variant text-on-surface-container rounded-lg backdrop:backdrop-blur-md;
 }
 
-.search-dialog[open] {
+.flex-dialog[open] {
   @apply flex flex-col;
 }
 

@@ -1,16 +1,24 @@
 'use client'
 
-import Tabs from '@/app/(components)/Tabs'
 import { DblpPublication } from '@/shared/models/DblpPublication'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { PublicationListItem } from './AuthorPublications'
 import { PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
 import { PublicationType } from '@/shared/enums/PublicationType'
 import ListLink from '@/app/(components)/ListLink'
 import Button from '@/app/(components)/Button'
+import { MdFilterListAlt } from 'react-icons/md'
+import useDialog from '@/client/hooks/useDialog'
+import { PublicationFiltersDialog } from '@/app/(components)/PublicationFiltersDialog'
+import { group } from '@/shared/utils/array'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
+}
+
+type ContentsTableParams = {
+    keys: Array<any>,
+    groupedBy: GroupedBy
 }
 
 type GroupedBy = 'year' | 'type' | 'venue'
@@ -22,60 +30,119 @@ const GROUPED_BY_FUNC = {
 } as const
 
 const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
+const DISPLAYED_COUNT_INCREASE = 25;
 
 export default function GroupedPublicationsList({ publications }: GroupedPublicationsListParams) {
-    const [groupedPublications, setGroupedPublications] = useState<Map<any, Array<DblpPublication>>>(new Map());
+    const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
     const [groupedBy, setGroupedBy] = useState<GroupedBy>('year');
-    const [contentsLength, setContentsLength] = useState<number | undefined>(DEFAULT_VISIBLE_CONTENTS_COUNT);
+    const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
+    const [selectedTypes, setSelectedTypes] = useState(new Set<PublicationType>([]));
+    const [selectedVenues, setSelectedVenues] = useState(new Set<string | undefined>([]));
+    const [displayedCount, setDisplayedCount] = useState(DISPLAYED_COUNT_INCREASE);
+    const [totalCount, setTotalCount] = useState(publications.length);
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        setGroupedPublications(group(publications, GROUPED_BY_FUNC[groupedBy]));
-        setContentsLength(DEFAULT_VISIBLE_CONTENTS_COUNT);
-    }, [publications, groupedBy]);
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    setDisplayedCount((oldCount) => {
+                        const newCount = oldCount + DISPLAYED_COUNT_INCREASE;
+                        return totalCount > oldCount ? newCount : oldCount;
+                    });
+                }
+            },
+            { threshold: 0 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [observerTarget]);
+
+    useEffect(() => {
+        const publs = publications.filter((publ) =>
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.journal || publ.booktitle)));
+        setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
+        setTotalCount(publs.length);
+        setDisplayedCount(DISPLAYED_COUNT_INCREASE);
+    }, [publications, groupedBy, selectedTypes, selectedVenues]);
+
+    const displayedPublications = useMemo(() => {
+        let count = displayedCount;
+        const newDisplayedPublications: Array<[any, Array<DblpPublication>]> = [];
+
+        for (const [key, publications] of groupedPublications) {
+            if (count <= 0) {
+                break;
+            }
+
+            const newPair: [any, Array<DblpPublication>] = [
+                key,
+                publications.slice(0, count > publications.length ? undefined : count)
+            ];
+
+            newDisplayedPublications.push(newPair);
+
+            count -= publications.length;
+        }
+
+        return newDisplayedPublications;
+    }, [groupedPublications, displayedCount]);
 
     return (
         <>
-            <Tabs
-                className='mb-6'
-                size='sm'
-                items={[
-                    { content: 'Group by Year', id: 'year' },
-                    { content: 'Group by Type', id: 'type' },
-                    { content: 'Group by Venue', id: 'venue' },
-                ]}
-                legend='Choose a grouping property'
-                selectedId={groupedBy}
-                setSelectedId={setGroupedBy}
-                tabsId='grouping-selection' />
+            <PublicationFiltersDialog
+                publications={publications}
+                selectedTypes={selectedTypes}
+                selectedVenues={selectedVenues}
+                onSubmit={(types, venues) => {
+                    setSelectedTypes(types);
+                    setSelectedVenues(venues);
+                }}
+                hide={hideFiltersDialog}
+                animation={filtersDialogAnimation}
+                isOpen={isFiltersDialogOpen}
+                ref={filtersDialog} />
 
             <div
-                className='mb-8'
-                role='navigation'>
-                <h4 className='font-semibold mb-4'>Table of contents</h4>
+                className='mb-8'>
+                <Button
+                    className='items-center gap-2 mb-4'
+                    variant='outline' size='sm'
+                    onClick={() => showFiltersDialog()}>
+                    <MdFilterListAlt />
+                    Filters
+                </Button>
+
                 <ul
-                    className='flex flex-col gap-1 mb-3'>
-                    {Array.from(groupedPublications.keys(), (key) => key).slice(0, contentsLength).map((key, keyIndex) =>
-                        <ListLink
-                            key={`contents_${key}`}
-                            size='sm'
-                            href={`#${getElementId(key)}`}>
-                            {getTitleFromKey(key, groupedBy)}
-                        </ListLink>)}
+                    className='flex gap-2 flex-wrap'>
+                    {[...selectedTypes.values()].map((type) =>
+                        <li
+                            key={`type-filter-${type}`}
+                            className='btn btn-outline btn-xs'>
+                            {type}
+                        </li>)}
+                    {[...selectedVenues.values()].map((venue) =>
+                        <li
+                            key={`venue-filter-${venue}`}
+                            className='btn btn-outline btn-xs'>
+                            {venue || 'undefined'}
+                        </li>)}
                 </ul>
-                {
-                    Array.from(groupedPublications.keys(), (key) => key).length > DEFAULT_VISIBLE_CONTENTS_COUNT &&
-                    <Button
-                        variant='outline' size='xs'
-                        onClick={() => setContentsLength((old) => old ? undefined : DEFAULT_VISIBLE_CONTENTS_COUNT)}>
-                        {contentsLength ? 'Show more' : 'Show less'}
-                    </Button>
-                }
             </div>
 
             <ul
                 className='flex flex-col gap-8 isolate'>
-                {Array.from(groupedPublications.keys(), (key) => key).map((key, keyIndex) => {
-                    const keyPublications = groupedPublications.get(key);
+                {displayedPublications.map((group, keyIndex) => {
+                    const key = group[0];
+                    const keyPublications = group[1];
 
                     return (
                         <li
@@ -104,7 +171,38 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                     )
                 })}
             </ul>
+            <div ref={observerTarget}></div>
         </>
+    )
+}
+
+function ContentsTable({ keys, groupedBy }: ContentsTableParams) {
+    const [contentsLength, setContentsLength] = useState<number | undefined>(DEFAULT_VISIBLE_CONTENTS_COUNT);
+
+    return (
+        <div
+            className='mb-8'
+            role='navigation'>
+            <h4 className='font-semibold mb-4'>Table of contents</h4>
+            <ul
+                className='flex flex-col gap-1 mb-3'>
+                {Array.from(keys, (key) => key).slice(0, contentsLength).map((key, keyIndex) =>
+                    <ListLink
+                        key={`contents_${key}`}
+                        size='sm'
+                        href={`#${getElementId(key)}`}>
+                        {getTitleFromKey(key, groupedBy)}
+                    </ListLink>)}
+            </ul>
+            {
+                Array.from(keys, (key) => key).length > DEFAULT_VISIBLE_CONTENTS_COUNT &&
+                <Button
+                    variant='outline' size='xs'
+                    onClick={() => setContentsLength((old) => old ? undefined : DEFAULT_VISIBLE_CONTENTS_COUNT)}>
+                    {contentsLength ? 'Show more' : 'Show less'}
+                </Button>
+            }
+        </div>
     )
 }
 
@@ -129,20 +227,6 @@ function getTitleFromKey(key: any, groupedBy: GroupedBy) {
         case 'venue':
             return key || 'Not Listed Publications';
     }
-}
-
-function group(publications: Array<DblpPublication>, by: (publ: DblpPublication) => any) {
-    const map = new Map<any, Array<DblpPublication>>();
-    publications.forEach((item) => {
-        const key = by(item);
-        const collection = map.get(key);
-        if (!collection) {
-            map.set(key, [item]);
-        } else {
-            collection.push(item);
-        }
-    });
-    return map;
 }
 
 function getElementId(key: any) {

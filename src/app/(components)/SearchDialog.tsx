@@ -13,6 +13,7 @@ import { cn } from '@/shared/utils/tailwindUtils'
 import { isNullOrWhiteSpace } from '@/shared/utils/strings'
 import Tabs from './Tabs'
 import ListLink from './ListLink'
+import { Dialog, DialogContent } from './Dialog'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -109,30 +110,25 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
     }
 
     return (
-        <dialog
+        <Dialog
             id='search-view-dialog'
             ref={ref}
-            open={false}
             className={cn(
-                `search-dialog z-20 md:max-w-3xl w-full h-full overflow-y-hidden
+                `flex-dialog z-20 md:max-w-3xl w-full h-full overflow-y-hidden
                 bg-transparent rounded-lg backdrop:backdrop-blur-md
-                focus:outline-none`,
-                animation)}
-            onClick={() => hide()}
-            onCancel={(event) => {
-                event.preventDefault();
-                hide();
-            }}>
+                focus:outline-none`)}
+            hide={hide}
+            animation={animation}>
             { /*
             The <dialog> element is just an invisible contaier stretched accross the entire height of the page
-            This allows to align the main dialog content (the inner <article> element) to the top edge of the page
+            This allows to align the main dialog content (<DialogContent>) to the top edge of the page
             TODO: There must be a better way to do that
             */ }
-            <article
-                className='dialog flex flex-col h-auto min-h-[20rem] isolate' onClick={(event) => event.stopPropagation()}>
-                <h2 className='sr-only'>Search dblp</h2>
+            <DialogContent
+                className='dialog flex flex-col h-auto min-h-[20rem] isolate'>
                 <header
                     className='z-10 top-0 flex flex-col gap-4 px-6 pt-6 pb-2 bg-inherit'>
+                    <h2 className='sr-only'>Search dblp</h2>
                     <div
                         className='flex gap-2 justify-between'>
                         <SearchTypeSelection
@@ -171,8 +167,8 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                             hide={hide}
                             setUrls={setUrls} />}
                 </div>
-            </article>
-        </dialog>
+            </DialogContent>
+        </Dialog>
     );
 });
 

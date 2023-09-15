@@ -8,7 +8,6 @@ import { MdLibraryBooks } from 'react-icons/md'
 import { createLocalPath } from '@/shared/utils/urls'
 import { SearchType } from '@/shared/enums/SearchType'
 import { PublicationType } from '@/shared/enums/PublicationType'
-import { HiArrowNarrowRight } from 'react-icons/hi'
 import LinkArrow from '@/app/(components)/LinkArrow'
 
 type PublicationsParams = {
