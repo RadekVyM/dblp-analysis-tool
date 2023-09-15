@@ -1,4 +1,5 @@
 import { PublicationType } from '@/shared/enums/PublicationType'
+import { VenueType } from '@/shared/enums/VenueType'
 import { prependDashedPrefix } from '@/shared/utils/tailwindUtils'
 
 export const PUBLICATION_TYPE_COLOR = {
@@ -40,6 +41,12 @@ export const PUBLICATION_TYPE_TITLE_SINGULAR = {
     [PublicationType.JournalArticles]: 'Journal Article',
     [PublicationType.PartsInBooksOrCollections]: 'Part in a Book or Collection',
     [PublicationType.ReferenceWorks]: 'Reference Work',
+} as const
+
+export const VENUE_TYPE_TITLE = {
+    [VenueType.Conference]: 'Conference',
+    [VenueType.Journal]: 'Journal',
+    [VenueType.Series]: 'Series'
 } as const
 
 function createColorMap(prefix: string) {

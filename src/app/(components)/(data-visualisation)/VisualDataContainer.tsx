@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, forwardRef, useEffect, useRef, useState, useImperativeHandle } from 'react'
+import { RefObject, forwardRef, useEffect, useRef, useState, useImperativeHandle, Suspense } from 'react'
 import { cn } from '@/shared/utils/tailwindUtils'
 import * as d3 from 'd3'
 

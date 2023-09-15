@@ -84,13 +84,7 @@ export function createLocalPath(normalizedId: string, searchType: SearchType) {
         case SearchType.Author:
             return `/author/${normalizedId}`;
         case SearchType.Venue:
-            const venueType = getVenueTypeFromString(normalizedId);
-
-            if (!venueType) {
-                return null;
-            }
-
-            return `/venue/${VENUE_PATH_SEGMENTS[venueType]}/${normalizedId}`;
+            return `/venue/${normalizedId}`;
     }
 }
 

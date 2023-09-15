@@ -1,8 +1,9 @@
 import PageContainer from '@/app/(components)/PageContainer'
 import PageTitle from '@/app/(components)/PageTitle'
 import { fetchVenue } from '@/server/fetching/venues'
-import AddToRecentlySeen from '../../(components)/AddToRecentlySeen'
-import Bookmarks from '../../(components)/Bookmarks'
+import AddToRecentlySeen from '../(components)/AddToRecentlySeen'
+import Bookmarks from '../(components)/Bookmarks'
+import { VENUE_TYPE_TITLE } from '@/app/(constants)/publications'
 
 export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {
     const venue = await fetchVenue(id);
@@ -16,7 +17,7 @@ export default async function ConferencePage({ params: { id }, searchParams }: V
             <header>
                 <PageTitle
                     title={venue.title}
-                    subtitle='Conference'
+                    subtitle={venue.type ? VENUE_TYPE_TITLE[venue.type] : undefined}
                     className='pb-3' />
 
                 <Bookmarks
