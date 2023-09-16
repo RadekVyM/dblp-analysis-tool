@@ -10,6 +10,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         const title = elem.find('title').first().text();
         const booktitle = elem.find('booktitle').first().text();
         const year = elem.find('year').first().text();
+        const month = elem.find('month').first().text();
         const ee = elem.find('ee').first().text();
         const pages = elem.find('pages').first().text();
         const journal = elem.find('journal').first().text();
@@ -49,6 +50,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
             parseInt(year),
             date || new Date().toString(),
             type,
+            month,
             ee,
             booktitle == '' ? undefined : booktitle,
             pages,

@@ -28,6 +28,7 @@ export default function PageTitle({ subtitle, title, titleHref, className }: Pag
                     <div>
                         <Link
                             href={titleHref}
+                            prefetch={false}
                             className='link-heading text-on-surface-muted hover:text-on-surface transition-colors leading-normal'>
                             <Heading
                                 className='inline w-fit'>{title}

@@ -18,7 +18,8 @@ type PublicationFiltersDialogParams = {
     onSubmit: (selectedTypes: Set<PublicationType>, selectedVenues: Set<string | undefined>) => void,
     publications: Array<DblpPublication>,
     selectedTypes: Set<PublicationType>,
-    selectedVenues: Set<string | undefined>
+    selectedVenues: Set<string | undefined>,
+    venuesMap: Map<string | undefined, string>
 }
 
 const FilterCategory = {
@@ -28,7 +29,7 @@ const FilterCategory = {
 
 type FilterCategory = keyof typeof FilterCategory
 
-export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, PublicationFiltersDialogParams>(({ hide, onSubmit, animation, isOpen, publications, selectedTypes, selectedVenues }, ref) => {
+export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, PublicationFiltersDialogParams>(({ hide, onSubmit, animation, isOpen, publications, selectedTypes, selectedVenues, venuesMap }, ref) => {
     const [selectedCategory, setSelectedCategory] = useState<FilterCategory>(FilterCategory.Type);
     const [currentlySelectedTypes, setCurrentlySelectedTypes] = useState(selectedTypes);
     const [currentlySelectedVenues, setCurrentlySelectedVenues] = useState(selectedVenues);
@@ -42,7 +43,7 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
 
         groupedPublications.forEach((pair) => {
             if (currentlySelectedTypes.size == 0 || currentlySelectedTypes.has(pair[0])) {
-                pair[1].forEach((publ) => venues.add(publ.journal || publ.booktitle));
+                pair[1].forEach((publ) => venues.add(publ.venueId));
             }
         });
 
@@ -150,7 +151,7 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                                             surface='container'
                                             className='w-full flex-row'
                                             onClick={() => updateSelectedVenue(venue)}>
-                                            {venue || 'undefined'}
+                                            {venuesMap.get(venue)}
                                             {
                                                 currentlySelectedVenues.has(venue) &&
                                                 <span>🍕</span>

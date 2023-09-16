@@ -13,6 +13,7 @@ export default function Button({ className, children, href, variant, size, title
     if (href) {
         return (
             <Link
+                prefetch={false}
                 title={title}
                 href={href}
                 className={cn(buttonVariants({ variant, size, className }))}>

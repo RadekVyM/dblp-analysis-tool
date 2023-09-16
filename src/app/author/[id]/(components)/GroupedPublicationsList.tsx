@@ -42,6 +42,16 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     const [totalCount, setTotalCount] = useState(publications.length);
     const observerTarget = useRef<HTMLDivElement>(null);
 
+    const venuesMap = useMemo(() => {
+        const map = new Map<string | undefined, string>();
+
+        for (const publ of publications) {
+            map.set(publ.venueId, publ.venueId ? publ.journal || publ.booktitle || 'undefined' : 'Not Listed Publications');
+        }
+
+        return map;
+    }, [publications]);
+
     useEffect(() => {
         const observer = new IntersectionObserver(
             entries => {
@@ -68,7 +78,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
 
     useEffect(() => {
         const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.journal || publ.booktitle)));
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
         setDisplayedCount(DISPLAYED_COUNT_INCREASE);
@@ -102,6 +112,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                 publications={publications}
                 selectedTypes={selectedTypes}
                 selectedVenues={selectedVenues}
+                venuesMap={venuesMap}
                 onSubmit={(types, venues) => {
                     setSelectedTypes(types);
                     setSelectedVenues(venues);
@@ -133,7 +144,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                         <li
                             key={`venue-filter-${venue}`}
                             className='btn btn-outline btn-xs'>
-                            {venue || 'undefined'}
+                            {venuesMap.get(venue)}
                         </li>)}
                 </ul>
             </div>

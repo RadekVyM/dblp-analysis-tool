@@ -83,6 +83,7 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                 {
                     publication.ee ?
                         <Link
+                            prefetch={false}
                             className='link-heading block w-fit text-on-surface-muted hover:text-on-surface transition-colors'
                             href={publication.ee}>
                             <h5
@@ -131,7 +132,11 @@ function PeopleItems({ people }: PeopleItemsParams) {
         people.map((a, index) =>
             <li
                 key={a.id}>
-                <Link href={a.url} className='hover:underline'>{a.name}</Link>{index != people.length - 1 && <>, </>}
+                <Link
+                    prefetch={false}
+                    href={a.url}
+                    className='hover:underline'>
+                    {a.name}</Link>{index != people.length - 1 && <>, </>}
             </li>)
     )
 }
@@ -145,6 +150,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                         {publication.volume ? <>Volume {publication.volume} of</> : ''} {
                             publication.venueId ?
                                 <Link
+                                    prefetch={false}
                                     className='hover:underline'
                                     href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
                                     {addMissingNoun(publication.journal, 'journal')}
@@ -157,6 +163,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                             {
                                 publication.venueId ?
                                     <Link
+                                        prefetch={false}
                                         className='hover:underline'
                                         href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
                                         {addMissingNoun(publication.booktitle, 'conference')}
@@ -169,6 +176,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                             {
                                 publication.venueId ?
                                     <Link
+                                        prefetch={false}
                                         className='hover:underline'
                                         href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
                                         {publication.booktitle}

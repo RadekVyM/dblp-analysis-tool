@@ -15,6 +15,7 @@ export default function ListLink({ className, surface, marker, size, ...rest }: 
     return (
         <Link
             {...rest}
+            prefetch={false}
             className={cn(listLinkVariants({ surface, marker, size, className }))} />
     )
 }
