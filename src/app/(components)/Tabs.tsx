@@ -4,7 +4,7 @@ import { VariantProps } from 'class-variance-authority'
 
 interface TabsParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
-    items: Array<{ content: React.ReactNode, title?: string, id: any }>,
+    items: Array<{ content: React.ReactNode, title?: string, badgeContent?: string, id: any }>,
     legend: string,
     selectedId: any,
     className?: string,
@@ -15,6 +15,7 @@ interface TabParams extends VariantProps<typeof tabVariants> {
     tabsId: string,
     content: React.ReactNode,
     title?: string,
+    badgeContent?: string,
     id: any,
     selectedId: any,
     onChange: (id: any) => void
@@ -31,6 +32,7 @@ export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId,
                     tabsId={tabsId}
                     content={item.content}
                     title={item.title}
+                    badgeContent={item.badgeContent}
                     id={item.id}
                     selectedId={selectedId}
                     onChange={setSelectedId}
@@ -41,7 +43,7 @@ export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId,
     )
 }
 
-function Tab({ tabsId, content, title, id, selectedId, onChange, size }: TabParams) {
+function Tab({ tabsId, content, title, badgeContent, id, selectedId, onChange, size }: TabParams) {
     const elementId = `${id}-${tabsId}-tab-radio`;
     const isSelected = selectedId == id;
 
@@ -49,7 +51,7 @@ function Tab({ tabsId, content, title, id, selectedId, onChange, size }: TabPara
         <div
             className={cn(
                 tabVariants({ size }),
-                'btn px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2',
+                'relative isolate btn px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2',
                 isSelected ? 'btn-default' : 'btn-outline')}
             title={title}>
             <input
@@ -59,6 +61,14 @@ function Tab({ tabsId, content, title, id, selectedId, onChange, size }: TabPara
                 value={id} checked={isSelected} />
             <label
                 className='cursor-pointer grid place-content-center px-3' htmlFor={elementId}><span>{content}</span></label>
+
+            {
+                badgeContent &&
+                <span
+                    className='absolute right-[-15%] top-[-0.7rem] z-10 text-[0.5rem] bg-secondary text-on-secondary px-2 rounded-lg pointer-events-none'>
+                    {badgeContent}
+                </span>
+            }
         </div>
     )
 }

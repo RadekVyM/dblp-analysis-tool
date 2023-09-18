@@ -3,7 +3,7 @@
 import { cn } from '@/shared/utils/tailwindUtils'
 import { useHover } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
-import { MdClose, MdOutlineBookmarks, MdOutlineRemoveCircle } from 'react-icons/md'
+import { MdCancel, MdClose, MdOutlineBookmarks, MdOutlineRemoveCircle } from 'react-icons/md'
 import Button from './Button'
 import useIsNotMobileSize from '@/client/hooks/useIsNotMobileSize'
 import { AuthorGroupsMenuState } from '@/shared/enums/AuthorGroupsMenuState'
@@ -170,7 +170,7 @@ function AuthorsTab() {
                                         event.stopPropagation();
                                         removeRecentlySeenAuthor(author.id);
                                     }}>
-                                    <MdOutlineRemoveCircle
+                                    <MdCancel
                                         className='m-auto' />
                                 </button>
                             }>
@@ -235,7 +235,7 @@ function VenuesTab() {
                                         event.stopPropagation();
                                         removeRecentlySeenVenue(venue.id);
                                     }}>
-                                    <MdOutlineRemoveCircle
+                                    <MdCancel
                                         className='m-auto' />
                                 </button>
                             }>

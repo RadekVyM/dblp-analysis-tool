@@ -119,7 +119,7 @@ export function PublicationListItem({ publication }: PublicationListItemParams) 
                     </span>
                     <span
                         className='px-2 py-1 bg-surface-container text-on-surface-container text-xs rounded-lg border border-outline'>
-                        {publication.year}
+                        {publication.month && `${publication.month} `}{publication.year}
                     </span>
                 </div>
             </article>

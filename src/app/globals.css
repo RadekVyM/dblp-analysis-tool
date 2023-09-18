@@ -103,9 +103,9 @@ body {
   @apply text-on-surface bg-surface;
 }
 
-@supports selector(.has-focus-visible-outline:has(:focus-visible)) {
+@supports selector(body:has(dialog[open])) {
   body:has(dialog[open]) {
-    @apply overflow-hidden;
+    @apply overflow-y-hidden;
   }
 }
 
@@ -178,18 +178,18 @@ input::selection {
   }
 
   .btn-xs {
-    @apply h-7 px-2 text-xs;
+    @apply min-h-[1.75rem] px-2 py-1 text-xs;
   }
 
   .btn-sm {
-    @apply h-8 px-3;
+    @apply min-h-[2rem] px-3 py-1;
   }
 
   .btn-md {
-    @apply h-9 px-3;
+    @apply min-h-[2.25rem] px-3 py-1;
   }
 
   .btn-lg {
-    @apply h-11 px-6;
+    @apply min-h-[2.75rem] px-6 py-1;
   }
 }

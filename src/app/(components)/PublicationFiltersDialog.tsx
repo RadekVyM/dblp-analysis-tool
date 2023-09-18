@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent } from './Dialog'
-import { MdClose } from 'react-icons/md'
+import { MdCheckBox, MdCheckBoxOutlineBlank, MdClose } from 'react-icons/md'
 import Button from './Button'
 import Tabs from './Tabs'
 import { PublicationType } from '@/shared/enums/PublicationType'
@@ -20,6 +20,12 @@ type PublicationFiltersDialogParams = {
     selectedTypes: Set<PublicationType>,
     selectedVenues: Set<string | undefined>,
     venuesMap: Map<string | undefined, string>
+}
+
+type FilterItemParams = {
+    children: React.ReactNode,
+    isSelected: boolean,
+    onClick: () => void
 }
 
 const FilterCategory = {
@@ -104,18 +110,21 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                         items={[
                             {
                                 id: FilterCategory.Type,
-                                content: 'Types'
+                                content: 'Types',
+                                badgeContent: currentlySelectedTypes.size > 0 ? currentlySelectedTypes.size.toString() : undefined
                             },
                             {
                                 id: FilterCategory.Venue,
-                                content: 'Venues'
+                                content: 'Venues',
+                                badgeContent: currentlySelectedVenues.size > 0 ? currentlySelectedVenues.size.toString() : undefined
                             }
                         ]}
                         legend='Choose a filter category'
                         selectedId={selectedCategory}
                         setSelectedId={setSelectedCategory}
                         tabsId='filter-dialog-tabs'
-                        size='sm' />
+                        size='sm'
+                        className='gap-3' />
                 </header>
 
                 <div
@@ -125,39 +134,23 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                             <ul
                                 className='flex flex-col gap-2'>
                                 {groupedPublications.map(([type, publs]) =>
-                                    <li
-                                        key={type}>
-                                        <ListButton
-                                            size='sm'
-                                            surface='container'
-                                            className='w-full flex-row'
-                                            onClick={() => updateSelectedType(type)}>
-                                            {PUBLICATION_TYPE_TITLE[type]}
-                                            {
-                                                currentlySelectedTypes.has(type) &&
-                                                <span>🍕</span>
-                                            }
-                                        </ListButton>
-                                    </li>)}
+                                    <FilterItem
+                                        key={type}
+                                        isSelected={currentlySelectedTypes.has(type)}
+                                        onClick={() => updateSelectedType(type)}>
+                                        {PUBLICATION_TYPE_TITLE[type]}
+                                    </FilterItem>)}
                             </ul> :
                             selectedCategory == FilterCategory.Venue &&
                             <ul
                                 className='flex flex-col gap-2'>
                                 {selectableVenues.map((venue) =>
-                                    <li
-                                        key={venue || 'undefined'}>
-                                        <ListButton
-                                            size='sm'
-                                            surface='container'
-                                            className='w-full flex-row'
-                                            onClick={() => updateSelectedVenue(venue)}>
-                                            {venuesMap.get(venue)}
-                                            {
-                                                currentlySelectedVenues.has(venue) &&
-                                                <span>🍕</span>
-                                            }
-                                        </ListButton>
-                                    </li>)}
+                                    <FilterItem
+                                        key={venue || 'undefined'}
+                                        isSelected={currentlySelectedVenues.has(venue)}
+                                        onClick={() => updateSelectedVenue(venue)}>
+                                        {venuesMap.get(venue)}
+                                    </FilterItem>)}
                             </ul>
                     }
                 </div>
@@ -179,3 +172,27 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
 });
 
 PublicationFiltersDialog.displayName = 'PublicationFiltersDialog';
+
+function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
+    return (
+        <li>
+            <ListButton
+                role='checkbox'
+                aria-checked={isSelected}
+                marker='none'
+                size='sm'
+                surface='container'
+                className='w-full flex-row items-center gap-2'
+                onClick={onClick}>
+                {
+                    isSelected ?
+                        <MdCheckBox
+                            className='w-4 h-4' /> :
+                        <MdCheckBoxOutlineBlank
+                            className='w-4 h-4 text-on-surface-dim-container-muted' />
+                }
+                {children}
+            </ListButton>
+        </li>
+    )
+}

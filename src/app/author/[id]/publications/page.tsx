@@ -37,11 +37,6 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
                 <header
                     className='mb-4 flex gap-3 items-center'>
                     <SectionTitle className='text-xl mb-0'>Publications</SectionTitle>
-                    <span
-                        title={`${author.publications.length} publications`}
-                        className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
-                        {author.publications.length}
-                    </span>
                 </header>
                 <GroupedPublicationsList
                     publications={author.publications} />

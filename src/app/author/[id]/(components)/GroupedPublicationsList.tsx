@@ -7,10 +7,11 @@ import { PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
 import { PublicationType } from '@/shared/enums/PublicationType'
 import ListLink from '@/app/(components)/ListLink'
 import Button from '@/app/(components)/Button'
-import { MdFilterListAlt } from 'react-icons/md'
+import { MdCancel, MdFilterListAlt } from 'react-icons/md'
 import useDialog from '@/client/hooks/useDialog'
 import { PublicationFiltersDialog } from '@/app/(components)/PublicationFiltersDialog'
 import { group } from '@/shared/utils/array'
+import ItemsStats from '@/app/(components)/ItemsStats'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -19,6 +20,16 @@ type GroupedPublicationsListParams = {
 type ContentsTableParams = {
     keys: Array<any>,
     groupedBy: GroupedBy
+}
+
+type FilterItemParams = {
+    onClick: () => void,
+    children: React.ReactNode
+}
+
+type PublicationGroup = {
+    publications: Array<DblpPublication>,
+    count: number
 }
 
 type GroupedBy = 'year' | 'type' | 'venue'
@@ -86,16 +97,19 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
 
     const displayedPublications = useMemo(() => {
         let count = displayedCount;
-        const newDisplayedPublications: Array<[any, Array<DblpPublication>]> = [];
+        const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
 
         for (const [key, publications] of groupedPublications) {
             if (count <= 0) {
                 break;
             }
 
-            const newPair: [any, Array<DblpPublication>] = [
+            const newPair: [any, PublicationGroup] = [
                 key,
-                publications.slice(0, count > publications.length ? undefined : count)
+                {
+                    publications: publications.slice(0, count > publications.length ? undefined : count),
+                    count: publications.length
+                }
             ];
 
             newDisplayedPublications.push(newPair);
@@ -105,6 +119,17 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
 
         return newDisplayedPublications;
     }, [groupedPublications, displayedCount]);
+
+    function deselectType(type: PublicationType) {
+        setSelectedTypes(types => new Set([...types].filter((t) => t != type)));
+        const venues = new Set(publications.filter((p) => p.type == type).map((p) => p.venueId));
+        setSelectedVenues((currentlySelected) =>
+            new Set([...currentlySelected].filter((v) => !venues.has(v))));
+    }
+
+    function deselectVenue(venue: string | undefined) {
+        setSelectedVenues(venues => new Set([...venues].filter((v) => v != venue)))
+    }
 
     return (
         <>
@@ -122,30 +147,36 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                 isOpen={isFiltersDialogOpen}
                 ref={filtersDialog} />
 
+            <ItemsStats
+                className='mb-6'
+                totalCount={publications.length}
+                displayedCount={groupedPublications.reduce((prev, current) => prev + current[1].length, 0)} />
+
             <div
                 className='mb-8'>
-                <Button
-                    className='items-center gap-2 mb-4'
-                    variant='outline' size='sm'
-                    onClick={() => showFiltersDialog()}>
-                    <MdFilterListAlt />
-                    Filters
-                </Button>
-
                 <ul
                     className='flex gap-2 flex-wrap'>
+                    <li>
+                        <Button
+                            className='items-center gap-2'
+                            variant='outline' size='xs'
+                            onClick={() => showFiltersDialog()}>
+                            <MdFilterListAlt />
+                            Add Filters
+                        </Button>
+                    </li>
                     {[...selectedTypes.values()].map((type) =>
-                        <li
+                        <FilterItem
                             key={`type-filter-${type}`}
-                            className='btn btn-outline btn-xs'>
-                            {type}
-                        </li>)}
+                            onClick={() => deselectType(type)}>
+                            {PUBLICATION_TYPE_TITLE[type]}
+                        </FilterItem>)}
                     {[...selectedVenues.values()].map((venue) =>
-                        <li
+                        <FilterItem
                             key={`venue-filter-${venue}`}
-                            className='btn btn-outline btn-xs'>
+                            onClick={() => deselectVenue(venue)}>
                             {venuesMap.get(venue)}
-                        </li>)}
+                        </FilterItem>)}
                 </ul>
             </div>
 
@@ -166,14 +197,14 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                                     {getTitleFromKey(key, groupedBy)}
                                 </h4>
                                 <span
-                                    title={`${keyPublications?.length} publications`}
+                                    title={`${keyPublications.count} publications`}
                                     className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
-                                    {keyPublications?.length}
+                                    {keyPublications.count}
                                 </span>
                             </header>
                             <ul
                                 className='flex flex-col gap-5 pl-4'>
-                                {keyPublications?.map((publ, publIndex) =>
+                                {keyPublications.publications.map((publ, publIndex) =>
                                     <PublicationListItem
                                         key={publ.id}
                                         publication={publ} />)}
@@ -184,6 +215,20 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
             </ul>
             <div ref={observerTarget}></div>
         </>
+    )
+}
+
+function FilterItem({ onClick, children }: FilterItemParams) {
+    return (
+        <li>
+            <Button
+                className='items-center gap-2'
+                variant='outline' size='xs'
+                onClick={onClick}>
+                {children}
+                <MdCancel />
+            </Button>
+        </li>
     )
 }
 

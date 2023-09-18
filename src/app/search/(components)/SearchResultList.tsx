@@ -4,6 +4,7 @@ import { SearchParams } from '@/shared/models/SearchParams'
 import { getPageFromSearchParams } from '@/shared/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
 import ListLink from '@/app/(components)/ListLink'
+import ItemsStats from '@/app/(components)/ItemsStats'
 
 type SearchResultListParams = {
     result: SimpleSearchResult,
@@ -52,14 +53,9 @@ export default function SearchResultList({ result, searchParams, paginationUrl }
 
 function ResultStats({ result }: ResultStatsParams) {
     return (
-        <dl
-            className='flex flex-col xs:flex-row xs:items-center text-sm gap-1'>
-            <dt>Total count:</dt>
-            <dd className='font-semibold'>{result.totalCount.toLocaleString(undefined, { useGrouping: true })}</dd>
-            <div className='hidden xs:block mx-2 h-full w-0.5 bg-outline'></div>
-            <dt>Displayed count:</dt>
-            <dd className='font-semibold'>{result.items.length}</dd>
-        </dl>
+        <ItemsStats
+            totalCount={result.totalCount}
+            displayedCount={result.items.length} />
     )
 }
 
