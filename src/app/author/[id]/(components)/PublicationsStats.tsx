@@ -31,7 +31,7 @@ export function PublicationTypesStats({ className, publications, scaffoldId }: P
             items={[
                 {
                     key: 'Bars',
-                    content: (<PublicationTypesStatsBarChart publications={publications} />),
+                    content: (<PublicationTypesStatsBarChart publications={publications} scaffoldId={scaffoldId} />),
                     title: 'Bar chart',
                     icon: (<MdBarChart />),
 
@@ -72,9 +72,10 @@ export function PublicationTypesStats({ className, publications, scaffoldId }: P
     )
 }
 
-function PublicationTypesStatsBarChart({ publications }: PublicationTypesStatsParams) {
+function PublicationTypesStatsBarChart({ publications, scaffoldId }: PublicationTypesStatsParams) {
     return (
         <HorizontalBarChart
+            unitsId={scaffoldId || ''}
             className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-4 xs:px-8 py-7'
             innerClassName='min-w-[20rem]'
             data={{

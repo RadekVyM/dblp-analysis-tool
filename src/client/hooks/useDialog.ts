@@ -16,7 +16,7 @@ export default function useDialog():
 
     const hideDialog = () => {
         setDialogAnimationClass('backdrop:animate-fadeOut animate-slideDownOut');
-        let timeout = setTimeout(() => {
+        const timeout = setTimeout(() => {
             dialogRef.current?.close();
             setIsDialogOpen(false);
             clearTimeout(timeout);

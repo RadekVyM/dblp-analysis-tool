@@ -80,17 +80,22 @@ export async function fetchAuthor(id: string) {
 }
 
 function extractPersonHomonyms($: cheerio.Root) {
-    const homonyms = $('dblpperson > homonyms person').map((index, el) => {
+    const homonyms: Array<DblpAuthorHomonym> = [];
+
+    $('dblpperson > homonyms person').each((index, el) => {
         const elem = $(el);
         const homPid = elem.attr('key')?.replace('homepages/', '');
         const normalizedHomId = convertDblpIdToNormalizedId(`pid/${homPid}`);
         const authorInfo = extractPersonInfo($, elem, normalizedHomId, '');
+        const url = `/author/${normalizedHomId}`
 
-        return {
-            url: `/author/${normalizedHomId}`,
-            info: authorInfo
+        if (!homonyms.some((hom) => hom.url == url)) {
+            homonyms.push({
+                url: url,
+                info: authorInfo
+            });
         }
-    }).get() as Array<DblpAuthorHomonym> || [];
+    });
 
     return homonyms;
 }

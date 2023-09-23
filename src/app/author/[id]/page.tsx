@@ -24,6 +24,10 @@ type AuthorInfoParams = {
     authorName: string
 }
 
+type AwardsParams = {
+    awards: Array<{ title: string, label: string }>,
+}
+
 type SameNameAuthorsParams = {
     homonyms: Array<DblpAuthorHomonym>
 }
@@ -59,6 +63,12 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
             }
 
             {
+                author.info && author.info.awards.length > 0 &&
+                <Awards
+                    awards={author.info.awards} />
+            }
+
+            {
                 author.publications.length > 0 &&
                 <AuthorPublications
                     publicationsUrl={`/author/${id}/publications`}
@@ -82,32 +92,32 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
             }
 
             <Bookmarks
-                className={cn(info.awards.length > 0 ? 'mb-5' : '')}
                 authorId={authorId}
                 title={authorName} />
-
-            {
-                info.awards.length > 0 &&
-                <div>
-                    <SectionTitle className='text-xl'>Awards</SectionTitle>
-                    <ul className='flex flex-col gap-2 pl-4'>
-                        {info.awards.map((award) =>
-                            <li
-                                key={award.title + award.label}
-                                className='text-sm list-disc marker:text-primary'>
-                                {award.title}
-                            </li>)}
-                    </ul>
-                </div>
-            }
         </div>
+    )
+}
+
+function Awards({ awards }: AwardsParams) {
+    return (
+        <Section>
+            <SectionTitle className='text-xl'>Awards</SectionTitle>
+            <ul className='flex flex-col gap-2 pl-4'>
+                {awards.map((award) =>
+                    <li
+                        key={award.title + award.label}
+                        className='text-sm list-disc marker:text-primary'>
+                        {award.title}
+                    </li>)}
+            </ul>
+        </Section>
     )
 }
 
 function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
     return (
         <Section>
-            <SectionTitle>Authors with the same name</SectionTitle>
+            <SectionTitle className='text-xl'>Authors with the same name</SectionTitle>
             <ul className='flex flex-col gap-2'>
                 {homonyms.map((homonym) =>
                     <ListLink

@@ -60,15 +60,17 @@ function Tab({ tabsId, content, title, badgeContent, id, selectedId, onChange, s
                 onChange={(event) => onChange(event.currentTarget.value)}
                 value={id} checked={isSelected} />
             <label
-                className='cursor-pointer grid place-content-center px-3' htmlFor={elementId}><span>{content}</span></label>
-
-            {
-                badgeContent &&
-                <span
-                    className='absolute right-[-15%] top-[-0.7rem] z-10 text-[0.5rem] bg-secondary text-on-secondary px-2 rounded-lg pointer-events-none'>
-                    {badgeContent}
-                </span>
-            }
+                className='cursor-pointer flex justify-center justify-items-center items-center px-3' htmlFor={elementId}>
+                <span>{content}</span>
+                {
+                    badgeContent &&
+                    <span
+                        className={cn('inline-block text-[0.5rem] leading-none ml-2 px-1.5 py-1 rounded-lg pointer-events-none',
+                            isSelected ? 'bg-surface-dim-container text-on-surface-dim-container' : 'bg-secondary text-on-secondary')}>
+                        {badgeContent}
+                    </span>
+                }
+            </label>
         </div>
     )
 }

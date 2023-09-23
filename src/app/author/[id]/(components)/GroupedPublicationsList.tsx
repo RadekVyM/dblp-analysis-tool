@@ -12,6 +12,7 @@ import useDialog from '@/client/hooks/useDialog'
 import { PublicationFiltersDialog } from '@/app/(components)/PublicationFiltersDialog'
 import { group } from '@/shared/utils/array'
 import ItemsStats from '@/app/(components)/ItemsStats'
+import { cn } from '@/shared/utils/tailwindUtils'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -25,6 +26,22 @@ type ContentsTableParams = {
 type FilterItemParams = {
     onClick: () => void,
     children: React.ReactNode
+}
+
+type FiltersListParams = {
+    className?: string,
+    selectedTypes: Array<PublicationType>,
+    selectedVenues: Array<string | undefined>,
+    venuesMap: Map<string | undefined, string>,
+    deselectType: (type: PublicationType) => void,
+    deselectVenue: (venueId: string | undefined) => void,
+    showFiltersDialog: () => void
+}
+
+type PublicationsListParams = {
+    className?: string,
+    publications: Array<[any, PublicationGroup]>,
+    groupedBy: GroupedBy
 }
 
 type PublicationGroup = {
@@ -84,7 +101,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
             if (observerTarget.current) {
                 observer.unobserve(observerTarget.current);
             }
-        };
+        }
     }, [observerTarget]);
 
     useEffect(() => {
@@ -152,69 +169,50 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
                 totalCount={publications.length}
                 displayedCount={groupedPublications.reduce((prev, current) => prev + current[1].length, 0)} />
 
-            <div
-                className='mb-8'>
-                <ul
-                    className='flex gap-2 flex-wrap'>
-                    <li>
-                        <Button
-                            className='items-center gap-2'
-                            variant='outline' size='xs'
-                            onClick={() => showFiltersDialog()}>
-                            <MdFilterListAlt />
-                            Add Filters
-                        </Button>
-                    </li>
-                    {[...selectedTypes.values()].map((type) =>
-                        <FilterItem
-                            key={`type-filter-${type}`}
-                            onClick={() => deselectType(type)}>
-                            {PUBLICATION_TYPE_TITLE[type]}
-                        </FilterItem>)}
-                    {[...selectedVenues.values()].map((venue) =>
-                        <FilterItem
-                            key={`venue-filter-${venue}`}
-                            onClick={() => deselectVenue(venue)}>
-                            {venuesMap.get(venue)}
-                        </FilterItem>)}
-                </ul>
-            </div>
+            <FiltersList
+                className='mb-8'
+                deselectType={deselectType}
+                deselectVenue={deselectVenue}
+                selectedTypes={[...selectedTypes.values()]}
+                selectedVenues={[...selectedVenues.values()]}
+                showFiltersDialog={showFiltersDialog}
+                venuesMap={venuesMap} />
 
-            <ul
-                className='flex flex-col gap-8 isolate'>
-                {displayedPublications.map((group, keyIndex) => {
-                    const key = group[0];
-                    const keyPublications = group[1];
+            <PublicationsList
+                groupedBy={groupedBy}
+                publications={displayedPublications} />
 
-                    return (
-                        <li
-                            key={key || getTitleFromKey(key, groupedBy)}>
-                            <header
-                                id={getElementId(key)}
-                                className='mb-6 flex gap-3 items-center'>
-                                <h4
-                                    className='font-semibold'>
-                                    {getTitleFromKey(key, groupedBy)}
-                                </h4>
-                                <span
-                                    title={`${keyPublications.count} publications`}
-                                    className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
-                                    {keyPublications.count}
-                                </span>
-                            </header>
-                            <ul
-                                className='flex flex-col gap-5 pl-4'>
-                                {keyPublications.publications.map((publ, publIndex) =>
-                                    <PublicationListItem
-                                        key={publ.id}
-                                        publication={publ} />)}
-                            </ul>
-                        </li>
-                    )
-                })}
-            </ul>
             <div ref={observerTarget}></div>
         </>
+    )
+}
+
+function FiltersList({ className, selectedTypes, selectedVenues, venuesMap, deselectType, deselectVenue, showFiltersDialog }: FiltersListParams) {
+    return (
+        <ul
+            className={cn('flex gap-2 flex-wrap mb-8', className)}>
+            <li>
+                <Button
+                    className='items-center gap-2'
+                    variant='outline' size='xs'
+                    onClick={() => showFiltersDialog()}>
+                    <MdFilterListAlt />
+                    Add Filters
+                </Button>
+            </li>
+            {selectedTypes.map((type) =>
+                <FilterItem
+                    key={`type-filter-${type}`}
+                    onClick={() => deselectType(type)}>
+                    {PUBLICATION_TYPE_TITLE[type]}
+                </FilterItem>)}
+            {selectedVenues.map((venue) =>
+                <FilterItem
+                    key={`venue-filter-${venue}`}
+                    onClick={() => deselectVenue(venue)}>
+                    {venuesMap.get(venue)}
+                </FilterItem>)}
+        </ul>
     )
 }
 
@@ -229,6 +227,44 @@ function FilterItem({ onClick, children }: FilterItemParams) {
                 <MdCancel />
             </Button>
         </li>
+    )
+}
+
+function PublicationsList({ publications, groupedBy, className }: PublicationsListParams) {
+    return (
+        <ul
+            className={cn('flex flex-col gap-8 isolate', className)}>
+            {publications.map((group, keyIndex) => {
+                const key = group[0];
+                const keyPublications = group[1];
+
+                return (
+                    <li
+                        key={key || getTitleFromKey(key, groupedBy)}>
+                        <header
+                            id={getElementId(key)}
+                            className='mb-6 flex gap-3 items-center'>
+                            <h4
+                                className='font-semibold'>
+                                {getTitleFromKey(key, groupedBy)}
+                            </h4>
+                            <span
+                                title={`${keyPublications.count} publications`}
+                                className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
+                                {keyPublications.count}
+                            </span>
+                        </header>
+                        <ul
+                            className='flex flex-col gap-5 pl-4'>
+                            {keyPublications.publications.map((publ, publIndex) =>
+                                <PublicationListItem
+                                    key={publ.id}
+                                    publication={publ} />)}
+                        </ul>
+                    </li>
+                )
+            })}
+        </ul>
     )
 }
 

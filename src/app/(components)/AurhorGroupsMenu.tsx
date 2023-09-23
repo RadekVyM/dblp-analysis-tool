@@ -183,7 +183,7 @@ function AuthorsTab() {
                 authors.bookmarked.length > 0 &&
                 <MenuSection
                     title='Bookmarked'
-                    className='mb-4'>
+                    className={authors.groups.length > 0 ? 'mb-4' : undefined}>
                     {authors.bookmarked.map((author) =>
                         <ListItem
                             key={author.id}
@@ -223,7 +223,8 @@ function VenuesTab() {
             {
                 venues.recentlySeen.length > 0 &&
                 <MenuSection
-                    title='Recently Seen'>
+                    title='Recently Seen'
+                    className='mb-4'>
                     {venues.recentlySeen.slice(0, 5).map((venue) =>
                         <ListItem
                             key={venue.id}

@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent } from './Dialog'
 import { MdCheckBox, MdCheckBoxOutlineBlank, MdClose } from 'react-icons/md'
+import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
 import Button from './Button'
 import Tabs from './Tabs'
 import { PublicationType } from '@/shared/enums/PublicationType'
@@ -182,14 +183,14 @@ function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
                 marker='none'
                 size='sm'
                 surface='container'
-                className='w-full flex-row items-center gap-2'
+                className='w-full flex-row items-center gap-2 text-start'
                 onClick={onClick}>
                 {
                     isSelected ?
-                        <MdCheckBox
-                            className='w-4 h-4' /> :
-                        <MdCheckBoxOutlineBlank
-                            className='w-4 h-4 text-on-surface-dim-container-muted' />
+                        <ImCheckboxChecked
+                            className='w-3 h-3 flex-shrink-0' /> :
+                        <ImCheckboxUnchecked
+                            className='w-3 h-3 text-on-surface-dim-container-muted flex-shrink-0' />
                 }
                 {children}
             </ListButton>

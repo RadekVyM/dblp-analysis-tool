@@ -4,7 +4,8 @@ import { VisualDataContainer } from './VisualDataContainer'
 import { useEffect, useState, useMemo } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
-import { prependDashedPrefix } from '@/shared/utils/tailwindUtils'
+import { cn, prependDashedPrefix } from '@/shared/utils/tailwindUtils'
+import Tabs from '../Tabs'
 
 export type HorizontalBarChartData<T> = {
     color: (key: any) => string,
@@ -18,6 +19,7 @@ type Padding = { left: number, top: number, right: number, bottom: number }
 type Dimensions = { width: number, height: number }
 
 type HorizontalBarChartParams = {
+    unitsId: string,
     data: HorizontalBarChartData<any>,
     padding?: Padding,
     className?: string,
@@ -25,6 +27,7 @@ type HorizontalBarChartParams = {
 }
 
 type TicksParams = {
+    selectedUnitsType: UnitsType,
     scale: d3.ScaleLinear<number, number, never>,
     domain: [number, number],
     dimensions: Dimensions,
@@ -32,6 +35,7 @@ type TicksParams = {
 }
 
 type ChartParams = {
+    selectedUnitsType: UnitsType,
     padding: Padding,
     dimensions: Dimensions,
     rolledItems: d3.InternMap<any, number>,
@@ -42,85 +46,132 @@ type ChartParams = {
     barTitle?: (key: any) => string
 }
 
-export default function HorizontalBarChart({ data, padding, className, innerClassName }: HorizontalBarChartParams) {
+const UnitsType = {
+    Count: 'Count',
+    Percentage: 'Percentage'
+} as const
+
+type UnitsType = keyof typeof UnitsType
+
+export default function HorizontalBarChart({ data, padding, className, innerClassName, unitsId }: HorizontalBarChartParams) {
+    const [selectedUnitsType, setSelectedUnitsType] = useState<UnitsType>('Count');
     const [dimensions, setDimensions] = useState<Dimensions | null>(null);
     const [rolledItems, setRolledItems] = useState<d3.InternMap<any, number>>(new d3.InternMap<any, number>());
 
     const valuesLabelHeight = 36;
     const barLabelWidth = 110;
-    const barLabelHorizontalGap = 25;
-    const pad = padding || { left: 0, top: 20, right: 1, bottom: 20 + valuesLabelHeight };
+    const barLabelHorizontalGap = 30;
+    const pad = padding || { left: 0, top: 20, right: 30, bottom: 20 + valuesLabelHeight };
 
     const chartWidth = useMemo(() =>
         (dimensions?.width || 1) - barLabelWidth - barLabelHorizontalGap - pad.left - pad.right,
         [dimensions]);
     const valuesDomain: [number, number] = useMemo(() =>
-        [0, (d3.extent(rolledItems.values()) as [number, number])[1]],
+        [0, getTopDomainValue()],
         [rolledItems]);
     const valuesScale = useMemo(() =>
         d3.scaleLinear(valuesDomain, [0, chartWidth]),
         [chartWidth, valuesDomain]);
 
     useEffect(() => {
-        setRolledItems(d3.rollup(data.items, r => r.length, data.bar));
-    }, [data]);
+        const rolled = d3.rollup(data.items, r => r.length, data.bar);
+
+        if (selectedUnitsType == UnitsType.Percentage) {
+            const total = data.items.length;
+
+            for (const key of rolled.keys()) {
+                const value = rolled.get(key);
+                if (total && value) {
+                    rolled.set(key, value / total);
+                }
+            }
+        }
+
+        setRolledItems(rolled);
+    }, [data, selectedUnitsType]);
+
+    function getTopDomainValue() {
+        return selectedUnitsType == UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1]
+    }
 
     return (
-        <VisualDataContainer
-            className={className}
-            innerClassName={innerClassName}
-            onDimensionsChange={(width, height) => setDimensions({ width, height })}>
-            {
-                dimensions &&
-                <>
-                    <text
-                        x={pad.left + barLabelWidth + barLabelHorizontalGap + (chartWidth / 2)}
-                        y={dimensions.height - 4}
-                        textAnchor='middle'
-                        className='text-sm fill-on-surface-container'>
-                        Publications Count
-                    </text>
+        <div
+            className={cn(className, 'flex flex-col')}>
+            <VisualDataContainer
+                innerClassName={innerClassName}
+                onDimensionsChange={(width, height) => setDimensions({ width, height })}>
+                {
+                    dimensions &&
+                    <>
+                        <text
+                            x={pad.left + barLabelWidth + barLabelHorizontalGap + (chartWidth / 2)}
+                            y={dimensions.height - 4}
+                            textAnchor='middle'
+                            className='text-sm fill-on-surface-container'>
+                            {selectedUnitsType == UnitsType.Percentage ? '% of publications' : 'Publications Count'}
+                        </text>
 
-                    <Ticks
-                        dimensions={dimensions}
-                        domain={valuesDomain}
-                        scale={valuesScale}
-                        padding={{ top: pad.top, bottom: pad.bottom, right: pad.right, left: pad.left + barLabelWidth + barLabelHorizontalGap }} />
+                        <Ticks
+                            selectedUnitsType={selectedUnitsType}
+                            dimensions={dimensions}
+                            domain={valuesDomain}
+                            scale={valuesScale}
+                            padding={{ top: pad.top, bottom: pad.bottom, right: pad.right, left: pad.left + barLabelWidth + barLabelHorizontalGap }} />
 
-                    <Chart
-                        valuesScale={valuesScale}
-                        barLabelWidth={barLabelWidth}
-                        barLabelHorizontalGap={barLabelHorizontalGap}
-                        dimensions={dimensions}
-                        padding={pad}
-                        rolledItems={rolledItems}
-                        color={data.color}
-                        barTitle={data.barTitle} />
-                </>
-            }
-        </VisualDataContainer>
+                        <Chart
+                            selectedUnitsType={selectedUnitsType}
+                            valuesScale={valuesScale}
+                            barLabelWidth={barLabelWidth}
+                            barLabelHorizontalGap={barLabelHorizontalGap}
+                            dimensions={dimensions}
+                            padding={pad}
+                            rolledItems={rolledItems}
+                            color={data.color}
+                            barTitle={data.barTitle} />
+                    </>
+                }
+            </VisualDataContainer>
+            <Tabs
+                className='mx-auto mt-6 w-fit'
+                size='xs'
+                legend='Choose units'
+                tabsId={unitsId}
+                selectedId={selectedUnitsType}
+                setSelectedId={setSelectedUnitsType}
+                items={[
+                    {
+                        content: 'Publications Count',
+                        id: UnitsType.Count
+                    },
+                    {
+                        content: '% of publications',
+                        id: UnitsType.Percentage
+                    }
+                ]} />
+        </div>
     )
 }
 
-function Ticks({ scale, dimensions, padding, domain }: TicksParams) {
+function Ticks({ scale, dimensions, padding, domain, selectedUnitsType }: TicksParams) {
     const ticks = useMemo(() => {
         const pixelsPerTick = 80;
         const numberOfTicksTarget = Math.max(1, Math.floor((dimensions?.width || 1) / pixelsPerTick));
 
         return scale.ticks(numberOfTicksTarget)
-            .filter(value => value % 1 == 0)
+            .filter(value => selectedUnitsType == UnitsType.Percentage ? true : value % 1 == 0)
             .map(value => ({
                 value,
+                displayedValue: selectedUnitsType == UnitsType.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
                 xOffset: scale(value)
             }));
-    }, [scale, dimensions]);
+    }, [scale, dimensions, selectedUnitsType]);
 
     return (
         <>
             {ticks.map((tick, index) => {
                 const left = padding.left + tick.xOffset;
                 const textVerticalOffset = 8;
-                const textAnchor = domain[1] == tick.value ? 'end' : 'middle';
+                const textAnchor = 'middle';
 
                 return (
                     <g
@@ -136,7 +187,7 @@ function Ticks({ scale, dimensions, padding, domain }: TicksParams) {
                             y={padding.top - textVerticalOffset}
                             textAnchor={textAnchor}
                             className='text-xs fill-on-surface-container'>
-                            {tick.value}
+                            {tick.displayedValue}
                         </text>
 
                         <text
@@ -144,7 +195,7 @@ function Ticks({ scale, dimensions, padding, domain }: TicksParams) {
                             y={dimensions.height - padding.bottom + textVerticalOffset}
                             dominantBaseline='hanging' textAnchor={textAnchor}
                             className='text-xs fill-on-surface-container'>
-                            {tick.value}
+                            {tick.displayedValue}
                         </text>
                     </g>
                 )
@@ -153,7 +204,7 @@ function Ticks({ scale, dimensions, padding, domain }: TicksParams) {
     )
 }
 
-function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, barLabelHorizontalGap, color, barTitle }: ChartParams) {
+function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, barLabelHorizontalGap, selectedUnitsType, color, barTitle }: ChartParams) {
     const barsScale = useMemo(() =>
         d3.scaleBand([0, dimensions.height - padding.top - padding.bottom]).domain(rolledItems.keys()),
         [dimensions, rolledItems]);
@@ -163,6 +214,9 @@ function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, b
             {
                 Array.from(rolledItems.keys()).map((key, index) => {
                     const value = rolledItems.get(key) as number;
+                    const displayedValue = selectedUnitsType == UnitsType.Percentage ?
+                        value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
+                        value.toLocaleString(undefined, { maximumFractionDigits: 2 });
                     const bandWidth = barsScale.bandwidth();
                     const barHeight = Math.min(bandWidth, 28);
                     const yOffset = (bandWidth - barHeight) / 2;
@@ -194,7 +248,7 @@ function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, b
                                 x={left + (width / 2)} y={top + (barHeight / 2) + 2}
                                 dominantBaseline='middle' textAnchor='middle'
                                 className='text-xs font-semibold'>
-                                {value}
+                                {displayedValue}
                             </OutlinedText>
                         </g>
                     )
