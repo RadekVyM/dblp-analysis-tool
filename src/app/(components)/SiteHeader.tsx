@@ -93,7 +93,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                             variant={bookmarkButtonVariant}
                             onClick={authorGroupsMenuButtonClick}>
                             <MdBookmarks
-                                className='w-full' />
+                                className='' />
                         </ClientButton>
                     </div>
                 </div>
@@ -108,7 +108,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         variant={bookmarkButtonVariant}
                         onClick={authorGroupsMenuButtonClick}>
                         <MdBookmarks
-                            className='w-full' />
+                            className='' />
                     </ClientButton>
                 </div>
 

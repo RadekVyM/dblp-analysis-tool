@@ -10,7 +10,7 @@ export default function NavigationMenu() {
         <nav
             className='flex'>
             <ul
-                className='place-self-center flex gap-3 sm:gap-7 place-items-center'>
+                className='place-self-center flex gap-3 xs:gap-7 place-items-center'>
                 {items.map(item =>
                     <li key={item.url}>
                         <Link

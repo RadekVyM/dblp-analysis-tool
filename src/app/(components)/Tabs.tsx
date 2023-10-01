@@ -53,14 +53,9 @@ function Tab({ tabsId, content, title, badgeContent, id, selectedId, onChange, s
                 tabVariants({ size }),
                 'relative isolate btn px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2',
                 isSelected ? 'btn-default' : 'btn-outline')}
-            title={title}>
-            <input
-                className='sr-only'
-                type='radio' id={elementId}
-                onChange={(event) => onChange(event.currentTarget.value)}
-                value={id} checked={isSelected} />
-            <label
-                className='cursor-pointer flex justify-center justify-items-center items-center px-3' htmlFor={elementId}>
+                onClick={() => onChange(id)}>
+            <div
+                className='cursor-pointer flex px-3'>
                 <span>{content}</span>
                 {
                     badgeContent &&
@@ -70,7 +65,13 @@ function Tab({ tabsId, content, title, badgeContent, id, selectedId, onChange, s
                         {badgeContent}
                     </span>
                 }
-            </label>
+            </div>
+            <input
+                className='sr-only'
+                title={title}
+                type='radio'
+                onChange={(event) => onChange(event.currentTarget.value)}
+                value={id} checked={isSelected} />
         </div>
     )
 }

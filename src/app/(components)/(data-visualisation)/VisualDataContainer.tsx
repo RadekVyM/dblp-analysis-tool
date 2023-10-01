@@ -1,8 +1,9 @@
 'use client'
 
-import { RefObject, forwardRef, useEffect, useRef, useState, useImperativeHandle, Suspense } from 'react'
+import { RefObject, forwardRef, useEffect, useRef, useImperativeHandle } from 'react'
 import { cn } from '@/shared/utils/tailwindUtils'
 import * as d3 from 'd3'
+import useDimensions from '@/client/hooks/useDimensions'
 
 type OnZoomChangeCallback = (param: ZoomTransform) => void
 type ZoomScaleExtent = { min?: number, max?: number }
@@ -26,7 +27,9 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
     innerClassName },
     ref) => {
     const innerRef = useRef<SVGSVGElement>(null);
-    const dimensions = useDimensions(innerRef);
+    const outerRef = useRef<HTMLDivElement>(null);
+    // ResizeObserver does not work on SVG elements. The outer div reference has to be used
+    const dimensions = useDimensions(outerRef);
 
     useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
 
@@ -40,6 +43,7 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
 
     return (
         <div
+            ref={outerRef}
             className={cn('w-full h-full overflow-x-auto', className)}>
             <svg
                 ref={innerRef}
@@ -53,30 +57,6 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
 });
 
 VisualDataContainer.displayName = 'VisualDataContainer';
-
-function useDimensions(ref: RefObject<Element | null>) {
-    const [dimensions, setDimensions] = useState({
-        width: 0,
-        height: 0
-    });
-
-    useEffect(() => {
-        if (!ref.current) {
-            return;
-        }
-
-        const observeTarget = ref.current;
-        const resizeObserver = new ResizeObserver(entries => {
-            entries.forEach(entry => {
-                setDimensions(entry.contentRect);
-            });
-        });
-        resizeObserver.observe(observeTarget);
-        return () => resizeObserver.unobserve(observeTarget);
-    }, [ref]);
-
-    return dimensions;
-}
 
 function useZoom(
     dimensions: { width: number, height: number },
