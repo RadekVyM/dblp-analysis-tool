@@ -1,10 +1,10 @@
-import PageContainer from '@/app/(components)/PageContainer'
-import PageTitle from '@/app/(components)/PageTitle'
-import { fetchAuthor } from '@/server/fetching/authors'
+import PageContainer from '@/components/PageContainer'
+import PageTitle from '@/components/PageTitle'
+import { fetchAuthor } from '@/services/authors/authors'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { Section, SectionTitle } from '../(components)/Section'
 import GroupedPublicationsList from '../(components)/GroupedPublicationsList'
-import ScrollToTopButton from '@/app/(components)/ScrollToTopButton'
+import ScrollToTopButton from '@/components/ScrollToTopButton'
 
 type AuthorPublicationsPageParams = {
     params: {

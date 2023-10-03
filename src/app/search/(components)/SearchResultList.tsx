@@ -1,10 +1,10 @@
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/models/SimpleSearchResult'
 import Pagination from './Pagination'
-import { SearchParams } from '@/shared/models/SearchParams'
-import { getPageFromSearchParams } from '@/shared/utils/searchParams'
-import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
-import ListLink from '@/app/(components)/ListLink'
-import ItemsStats from '@/app/(components)/ItemsStats'
+import { SearchParams } from '@/models/SearchParams'
+import { getPageFromSearchParams } from '@/utils/searchParams'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
+import ListLink from '@/components/ListLink'
+import ItemsStats from '@/components/ItemsStats'
 
 type SearchResultListParams = {
     result: SimpleSearchResult,

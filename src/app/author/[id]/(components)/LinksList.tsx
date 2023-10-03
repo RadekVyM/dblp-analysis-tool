@@ -1,9 +1,9 @@
 'use client'
 
-import Button from "@/app/(components)/Button";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { MdOutlinePublic } from "react-icons/md";
+import Button from '@/components/Button'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { MdOutlinePublic } from 'react-icons/md'
 
 type LinksListParams = {
     links: Array<

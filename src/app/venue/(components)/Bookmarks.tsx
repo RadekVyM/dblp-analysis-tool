@@ -1,8 +1,8 @@
 'use client'
 
-import Button from '@/app/(components)/Button'
-import useLocalBookmarkedVenues from '@/client/hooks/useLocalBookmarkedVenues'
-import { cn } from '@/shared/utils/tailwindUtils'
+import Button from '@/components/Button'
+import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
+import { cn } from '@/utils/tailwindUtils'
 import { useEffect, useState } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 

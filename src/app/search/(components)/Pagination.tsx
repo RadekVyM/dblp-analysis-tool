@@ -1,13 +1,13 @@
 'use client'
 
-import { urlWithParams } from '@/shared/utils/urls'
-import Button from '@/app/(components)/Button'
-import { cn } from '@/shared/utils/tailwindUtils'
+import { urlWithParams } from '@/utils/urls'
+import Button from '@/components/Button'
+import { cn } from '@/utils/tailwindUtils'
 import { MdChevronLeft, MdChevronRight, MdSkipNext, MdSkipPrevious } from 'react-icons/md'
-import { repeat } from '@/shared/utils/numbers'
+import { repeat } from '@/utils/numbers'
 import { useElementSize } from 'usehooks-ts'
 import { useEffect, useState } from 'react'
-import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/shared/constants/search'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 
 type PaginationParams = {
     className?: string,

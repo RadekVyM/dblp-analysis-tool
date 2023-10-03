@@ -1,7 +1,7 @@
+import HeaderBookmarks from '@/components/HeaderAuthorGroupsMenu'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import HeaderAuthorGroupsMenu from './(components)/HeaderAuthorGroupsMenu'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +31,7 @@ function Scaffold({
 }) {
   return (
     <>
-      <HeaderAuthorGroupsMenu />
+      <HeaderBookmarks />
 
       <div
         id='main-content-container'

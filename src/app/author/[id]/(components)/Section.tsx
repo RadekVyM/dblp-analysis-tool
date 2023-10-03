@@ -1,5 +1,5 @@
-import LinkArrow from '@/app/(components)/LinkArrow'
-import { cn } from '@/shared/utils/tailwindUtils'
+import LinkArrow from '@/components/LinkArrow'
+import { cn } from '@/utils/tailwindUtils'
 import Link from 'next/link'
 
 type SectionTitleParams = {

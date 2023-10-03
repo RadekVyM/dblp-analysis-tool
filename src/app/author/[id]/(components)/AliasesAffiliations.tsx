@@ -1,5 +1,5 @@
-import { DblpAuthorInfo } from '@/shared/models/DblpAuthor'
-import { cn } from '@/shared/utils/tailwindUtils'
+import { DblpAuthorInfo } from '@/models/DblpAuthor'
+import { cn } from '@/utils/tailwindUtils'
 
 type AliasesAffiliationsParams = {
     info: DblpAuthorInfo,

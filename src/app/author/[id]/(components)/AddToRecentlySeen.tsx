@@ -1,6 +1,6 @@
 'use client'
 
-import useLocalBookmarkedAuthors from '@/client/hooks/useLocalBookmarkedAuthors'
+import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors';
 import { useEffect } from 'react'
 
 type AddToRecentlySeenParams = {

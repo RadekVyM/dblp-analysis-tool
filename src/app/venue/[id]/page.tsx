@@ -1,9 +1,9 @@
-import PageContainer from '@/app/(components)/PageContainer'
-import PageTitle from '@/app/(components)/PageTitle'
-import { fetchVenue } from '@/server/fetching/venues'
+import PageContainer from '@/components/PageContainer'
+import PageTitle from '@/components/PageTitle'
+import { fetchVenue } from '@/services/venues/venues'
 import AddToRecentlySeen from '../(components)/AddToRecentlySeen'
 import Bookmarks from '../(components)/Bookmarks'
-import { VENUE_TYPE_TITLE } from '@/app/(constants)/publications'
+import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 
 export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {
     const venue = await fetchVenue(id);

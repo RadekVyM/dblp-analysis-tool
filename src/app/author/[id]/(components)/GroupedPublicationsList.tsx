@@ -1,18 +1,18 @@
 'use client'
 
-import { DblpPublication } from '@/shared/models/DblpPublication'
+import { DblpPublication } from '@/models/DblpPublication'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PublicationListItem } from './AuthorPublications'
-import { PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
-import { PublicationType } from '@/shared/enums/PublicationType'
-import ListLink from '@/app/(components)/ListLink'
-import Button from '@/app/(components)/Button'
+import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import { PublicationType } from '@/enums/PublicationType'
 import { MdCancel, MdFilterListAlt } from 'react-icons/md'
-import useDialog from '@/client/hooks/useDialog'
-import { PublicationFiltersDialog } from '@/app/(components)/PublicationFiltersDialog'
-import { group } from '@/shared/utils/array'
-import ItemsStats from '@/app/(components)/ItemsStats'
-import { cn } from '@/shared/utils/tailwindUtils'
+import { group } from '@/utils/array'
+import { cn } from '@/utils/tailwindUtils'
+import useDialog from '@/hooks/useDialog'
+import { PublicationFiltersDialog } from '@/components/PublicationFiltersDialog'
+import ItemsStats from '@/components/ItemsStats'
+import Button from '@/components/Button'
+import ListLink from '@/components/ListLink'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>

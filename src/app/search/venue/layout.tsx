@@ -1,5 +1,5 @@
-import PageContainer from '@/app/(components)/PageContainer'
-import PageTitle from '@/app/(components)/PageTitle'
+import PageContainer from '@/components/PageContainer'
+import PageTitle from '@/components/PageTitle'
 import VenueSelection from './(components)/VenueSelection'
 
 type SearchVenueLayoutParams = {

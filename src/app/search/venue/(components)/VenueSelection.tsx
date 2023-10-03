@@ -1,11 +1,11 @@
 'use client'
 
-import Button from '@/app/(components)/Button'
-import { SearchParams } from '@/shared/models/SearchParams'
-import { SearchType } from '@/shared/enums/SearchType'
-import { VenueType, getVenueTypeByKey } from '@/shared/enums/VenueType'
-import { cn } from '@/shared/utils/tailwindUtils'
-import { createLocalSearchPath } from '@/shared/utils/urls'
+import Button from '@/components/Button'
+import { SearchParams } from '@/models/SearchParams'
+import { SearchType } from '@/enums/SearchType'
+import { VenueType, getVenueTypeByKey } from '@/enums/VenueType'
+import { cn } from '@/utils/tailwindUtils'
+import { createLocalSearchPath } from '@/utils/urls'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 

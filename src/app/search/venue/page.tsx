@@ -1,15 +1,14 @@
-import { ItemsParams } from '@/shared/fetching/shared'
-import { DblpSearchResult, DblpVenueSearchHit } from '@/shared/models/DblpSearchResult'
-import { SearchType } from '@/shared/enums/SearchType'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
-import { queryVenues } from '@/shared/fetching/venues'
-import { fetchVenuesIndex, fetchVenuesIndexLength } from '@/server/fetching/venues'
-import { VenueType, getVenueTypeByKey } from '@/shared/enums/VenueType'
-import { SearchParams } from '@/shared/models/SearchParams'
+import { DblpSearchResult, DblpVenueSearchHit } from '@/models/DblpSearchResult'
+import { SearchType } from '@/enums/SearchType'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/models/SimpleSearchResult'
+import { VenueType, getVenueTypeByKey } from '@/enums/VenueType'
+import { SearchParams } from '@/models/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
-import { searchToItemsParams } from '@/shared/utils/searchParams'
-import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
-import { getFulfilledValueAt, getRejectedValueAt } from '@/shared/utils/promises'
+import { searchToItemsParams } from '@/utils/searchParams'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/constants/search'
+import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
+import { SearchItemsParams } from '@/models/searchItemsParams'
+import { fetchVenuesIndex, fetchVenuesIndexLength, queryVenues } from '@/services/venues/venues'
 
 type SearchVenuePageParams = {
     searchParams: SearchParams
@@ -28,7 +27,7 @@ export default async function SearchVenuePage({ searchParams }: SearchVenuePageP
     )
 }
 
-async function getSearchResult(type: VenueType, params: ItemsParams) {
+async function getSearchResult(type: VenueType, params: SearchItemsParams) {
     if (params.query && params.query.length > 0) {
         return await getSearchResultWithQuery(type, params);
     }
@@ -37,7 +36,7 @@ async function getSearchResult(type: VenueType, params: ItemsParams) {
     }
 }
 
-async function getSearchResultWithQuery(type: VenueType, params: ItemsParams) {
+async function getSearchResultWithQuery(type: VenueType, params: SearchItemsParams) {
     const response = await queryVenues(params, type);
     const authors = new DblpSearchResult<DblpVenueSearchHit>(response, SearchType.Venue);
     const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
@@ -53,7 +52,7 @@ async function getSearchResultWithQuery(type: VenueType, params: ItemsParams) {
     return result;
 }
 
-async function getSearchResultWithoutQuery(type: VenueType, params: ItemsParams) {
+async function getSearchResultWithoutQuery(type: VenueType, params: SearchItemsParams) {
     const promises = [
         fetchVenuesIndex(type, { first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE }),
         fetchVenuesIndexLength(type)

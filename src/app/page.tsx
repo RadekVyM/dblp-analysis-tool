@@ -1,6 +1,5 @@
-import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/shared/constants/search'
-import Button from './(components)/Button'
-import { VenueType } from '@/shared/enums/VenueType'
+import Button from '@/components/Button'
+import { VenueType } from '@/enums/VenueType'
 
 export default function HomePage() {
   return (

@@ -1,14 +1,14 @@
-import { DblpPublication, DblpPublicationPerson } from '@/shared/models/DblpPublication'
+import { DblpPublication, DblpPublicationPerson } from '@/models/DblpPublication'
 import { Section, SectionTitle } from './Section'
 import Link from 'next/link'
 import { PublicationTypesStats } from './PublicationsStats'
-import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/app/(constants)/publications'
-import { cn } from '@/shared/utils/tailwindUtils'
+import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/client/publications'
+import { cn } from '@/utils/tailwindUtils'
 import { MdLibraryBooks } from 'react-icons/md'
-import { createLocalPath } from '@/shared/utils/urls'
-import { SearchType } from '@/shared/enums/SearchType'
-import { PublicationType } from '@/shared/enums/PublicationType'
-import LinkArrow from '@/app/(components)/LinkArrow'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
+import { PublicationType } from '@/enums/PublicationType'
+import LinkArrow from '@/components/LinkArrow'
 
 type PublicationsParams = {
     className?: string,

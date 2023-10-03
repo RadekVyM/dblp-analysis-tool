@@ -1,14 +1,13 @@
-import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/shared/models/DblpSearchResult'
-import { SearchType } from '@/shared/enums/SearchType'
-import { queryAuthors } from '@/shared/fetching/authors'
-import { ItemsParams } from '@/shared/fetching/shared'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/shared/models/SimpleSearchResult'
-import { fetchAuthorsIndex, fetchAuthorsIndexLength } from '@/server/fetching/authors'
-import { SearchParams } from '@/shared/models/SearchParams'
+import { DblpAuthorSearchHit, DblpSearchResult, getAuthorsNotes } from '@/models/DblpSearchResult'
+import { SearchType } from '@/enums/SearchType'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/models/SimpleSearchResult'
+import { fetchAuthorsIndex, fetchAuthorsIndexLength, queryAuthors } from '@/services/authors/authors'
+import { SearchParams } from '@/models/SearchParams'
+import { searchToItemsParams } from '@/utils/searchParams'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/constants/search'
+import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import SearchResultList from '../(components)/SearchResultList'
-import { searchToItemsParams } from '@/shared/utils/searchParams'
-import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/shared/constants/search'
-import { getFulfilledValueAt, getRejectedValueAt } from '@/shared/utils/promises'
+import { SearchItemsParams } from '@/models/searchItemsParams'
 
 type SearchAuthorPageParams = {
     searchParams: SearchParams
@@ -26,7 +25,7 @@ export default async function SearchAuthorPage({ searchParams }: SearchAuthorPag
     )
 }
 
-async function getSearchResult(params: ItemsParams) {
+async function getSearchResult(params: SearchItemsParams) {
     if (params.query && params.query.length > 0) {
         return await getSearchResultWithQuery(params);
     }
@@ -35,7 +34,7 @@ async function getSearchResult(params: ItemsParams) {
     }
 }
 
-async function getSearchResultWithQuery(params: ItemsParams) {
+async function getSearchResultWithQuery(params: SearchItemsParams) {
     const response = await queryAuthors(params);
     const authors = new DblpSearchResult<DblpAuthorSearchHit>(response, SearchType.Author);
     const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
@@ -52,12 +51,11 @@ async function getSearchResultWithQuery(params: ItemsParams) {
     return result;
 }
 
-async function getSearchResultWithoutQuery(params: ItemsParams) {
+async function getSearchResultWithoutQuery(params: SearchItemsParams) {
     const promises = [
         fetchAuthorsIndex({ first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE }),
         fetchAuthorsIndexLength()
     ]
-
 
     const results = await Promise.allSettled(promises);
     const authors = getFulfilledValueAt<Array<SimpleSearchResultItem>>(results, 0);

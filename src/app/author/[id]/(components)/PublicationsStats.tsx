@@ -1,14 +1,15 @@
 'use client'
 
-import HorizontalBarChart, { HorizontalBarChartData } from '@/app/(components)/(data-visualisation)/HorizontalBarChart'
-import PieChart, { PieChartData } from '@/app/(components)/(data-visualisation)/PieChart'
-import { VisualDataContainer, ZoomTransform } from '@/app/(components)/(data-visualisation)/VisualDataContainer'
-import StatsScaffold from '@/app/(components)/StatsScaffold'
-import Table, { TableData } from '@/app/(components)/Table'
-import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_FILL, PUBLICATION_TYPE_TITLE } from '@/app/(constants)/publications'
-import { PublicationType } from '@/shared/enums/PublicationType'
-import { useState, useEffect, useRef } from 'react'
+import HorizontalBarChart, { HorizontalBarChartData } from '@/components/(data-visualisation)/HorizontalBarChart'
+import PieChart, { PieChartData } from '@/components/(data-visualisation)/PieChart'
+import { VisualDataContainer } from '@/components/(data-visualisation)/VisualDataContainer'
+import StatsScaffold from '@/components/StatsScaffold'
+import Table, { TableData } from '@/components/Table'
+import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import { PublicationType } from '@/enums/PublicationType'
+import { useState, useEffect } from 'react'
 import { MdBarChart, MdBubbleChart, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
+import { ZoomTransform } from '@/components/(data-visualisation)/VisualDataContainer'
 
 type Publ = {
     id: string,

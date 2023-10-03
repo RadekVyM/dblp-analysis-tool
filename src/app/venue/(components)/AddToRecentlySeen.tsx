@@ -1,6 +1,6 @@
 'use client'
 
-import useLocalBookmarkedVenues from '@/client/hooks/useLocalBookmarkedVenues'
+import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
 import { useEffect } from 'react'
 
 type AddToRecentlySeenParams = {
