@@ -5,3 +5,6 @@ export const DBLP_AUTHORS_INDEX_HTML = '/pers';
 export const DBLP_JOURNALS_INDEX_HTML = '/db/journals';
 export const DBLP_CONF_INDEX_HTML = '/db/conf';
 export const DBLP_SERIES_INDEX_HTML = '/db/series';
+
+export const SEARCH_AUTHOR = '/search/author';
+export const SEARCH_VENUE = '/search/venue';

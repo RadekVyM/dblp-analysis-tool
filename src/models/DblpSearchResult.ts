@@ -1,7 +1,7 @@
 import { convertDblpUrlToLocalPath, createLocalSearchPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 
-export interface RawDblpBaseSearchResult {
+export type RawDblpBaseSearchResult = {
     result: {
         query: string,
         status: {
@@ -26,7 +26,7 @@ export interface RawDblpBaseSearchResult {
     }
 }
 
-export interface RawDblpSearchResult<HitT> extends RawDblpBaseSearchResult {
+export type RawDblpSearchResult<HitT> = RawDblpBaseSearchResult & {
     result: {
         query: string,
         status: {
@@ -57,7 +57,7 @@ export interface RawDblpSearchResult<HitT> extends RawDblpBaseSearchResult {
     }
 }
 
-export interface RawDblpCompletion {
+export type RawDblpCompletion = {
     '@sc': string,
     '@dc': string,
     '@oc': string,
@@ -65,7 +65,7 @@ export interface RawDblpCompletion {
     text: string
 }
 
-export interface RawBaseHit {
+export type RawBaseHit = {
     url: string
 }
 
@@ -119,7 +119,7 @@ export class DblpSearchResult<HitT extends BaseDblpSearchHit> {
     }
 }
 
-export interface DblpCompletion {
+export type DblpCompletion = {
     readonly localUrl: string,
     readonly type: SearchType,
     readonly score: number,
@@ -129,12 +129,12 @@ export interface DblpCompletion {
     readonly text: string
 }
 
-export interface BaseDblpSearchHit {
+export type BaseDblpSearchHit = {
     readonly url: string,
     readonly localUrl: string
 }
 
-export interface DblpAuthorSearchHit extends BaseDblpSearchHit {
+export type DblpAuthorSearchHit = BaseDblpSearchHit & {
     readonly author: string,
     readonly aliases?: { allias: string }
     readonly notes?: { note: Array<DblpAuthorSearchHitNote> | DblpAuthorSearchHitNote }
@@ -145,7 +145,7 @@ export type DblpAuthorSearchHitNote = {
     readonly text: string
 }
 
-export interface DblpVenueSearchHit extends BaseDblpSearchHit {
+export type DblpVenueSearchHit = BaseDblpSearchHit & {
     readonly venue: string,
     readonly acronym: string,
     readonly type: string

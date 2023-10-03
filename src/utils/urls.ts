@@ -3,6 +3,7 @@ import { normalizeQuery } from '@/utils/searchQuery'
 import { SearchParams } from '@/models/SearchParams'
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
+import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
@@ -73,9 +74,9 @@ export function createLocalSearchPath(searchType: SearchType, searchParams: Sear
 
     switch (searchType) {
         case SearchType.Author:
-            return urlWithParams('/search/author', params);
+            return urlWithParams(SEARCH_AUTHOR, params);
         case SearchType.Venue:
-            return urlWithParams('/search/venue', params);
+            return urlWithParams(SEARCH_VENUE, params);
     }
 }
 

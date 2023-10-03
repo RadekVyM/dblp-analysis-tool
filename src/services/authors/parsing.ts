@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio'
-import { DBLP_URL } from '@/constants/urls'
+import { DBLP_URL, SEARCH_AUTHOR } from '@/constants/urls'
 import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { DblpAuthorHomonym, createDblpAuthor, createDblpAuthorInfo } from '@/models/DblpAuthor'
 import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '@/constants/html'
@@ -58,7 +58,7 @@ export function extractAuthorsIndex(html: string, count?: number) {
 
         authors.push({
             title: title,
-            localUrl: `/search/author/${title.replaceAll(' ', '_')}`
+            localUrl: `${SEARCH_AUTHOR}/${title.replaceAll(' ', '_')}`
         });
     });
 

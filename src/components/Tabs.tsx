@@ -2,7 +2,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { VariantProps } from 'class-variance-authority'
 import { tabVariants } from './variants/tabVariants'
 
-interface TabsParams extends VariantProps<typeof tabVariants> {
+type TabsParams = VariantProps<typeof tabVariants> & {
     tabsId: string,
     items: Array<{ content: React.ReactNode, title?: string, badgeContent?: string, id: any }>,
     legend: string,
@@ -11,7 +11,7 @@ interface TabsParams extends VariantProps<typeof tabVariants> {
     setSelectedId: (id: any) => void
 }
 
-interface TabParams extends VariantProps<typeof tabVariants> {
+type TabParams = VariantProps<typeof tabVariants> & {
     tabsId: string,
     content: React.ReactNode,
     title?: string,

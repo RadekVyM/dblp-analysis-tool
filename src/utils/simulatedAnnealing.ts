@@ -10,11 +10,11 @@ const LABEL_LABEL_OVERLAP_WEIGHT = 30;
 const LABEL_DISTANCE_WEIGHT = 2;
 const LINES_INTERSECT_WEIGHT = 200000;
 
-export interface Label<T> extends BaseLabel {
+export type Label<T> = BaseLabel & {
     data: T
 }
 
-interface BaseLabel {
+type BaseLabel = {
     x: number,
     y: number,
     width: number,

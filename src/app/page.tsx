@@ -1,4 +1,5 @@
 import Button from '@/components/Button'
+import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 import { VenueType } from '@/enums/VenueType'
 
 export default function HomePage() {
@@ -20,25 +21,25 @@ export default function HomePage() {
           className='mt-6 flex gap-3 flex-wrap justify-center'>
           <Button
             size='sm'
-            href='/search/author'>
+            href={SEARCH_AUTHOR}>
             Authors
           </Button>
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${VenueType.Journal}`}>
+            href={`${SEARCH_VENUE}?type=${VenueType.Journal}`}>
             Journals
           </Button>
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${VenueType.Conference}`}>
+            href={`${SEARCH_VENUE}?type=${VenueType.Conference}`}>
             Conferences
           </Button>
           <Button
             size='sm'
             variant='outline'
-            href={`/search/venue?type=${VenueType.Series}`}>
+            href={`${SEARCH_VENUE}?type=${VenueType.Series}`}>
             Series
           </Button>
         </div>

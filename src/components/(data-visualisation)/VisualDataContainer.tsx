@@ -5,11 +5,13 @@ import { cn } from '@/utils/tailwindUtils'
 import * as d3 from 'd3'
 import useDimensions from '@/hooks/useDimensions'
 
-type OnZoomChangeCallback = (param: ZoomTransform) => void
-type ZoomScaleExtent = { min?: number, max?: number }
 export type ZoomTransform = { scale: number, x: number, y: number }
 
-interface VisualDataContainerParams {
+type OnZoomChangeCallback = (param: ZoomTransform) => void
+
+type ZoomScaleExtent = { min?: number, max?: number }
+
+type VisualDataContainerParams = {
     children: React.ReactNode,
     className?: string,
     innerClassName?: string,

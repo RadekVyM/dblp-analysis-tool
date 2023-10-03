@@ -1,20 +1,23 @@
 import { SearchQueryOptions } from '@/models/SearchQueryOptions'
 
-export type BaseItemsParams = {
+export type BaseSearchItemsParams = {
     first?: number, // zero-based index
     count?: number,
     type?: string
 }
 
-export type SearchItemsParams = BaseItemsParams & {
+export type SearchItemsParams = BaseSearchItemsParams & {
     query?: string,
     queryOptions?: SearchQueryOptions,
     completionsCount?: number
 }
 
-export type ItemsIndexParams = BaseItemsParams & {
+export type ItemsIndexParams = BaseSearchItemsParams & {
     prefix?: string
 }
 
-export interface SearchAuthorsParams extends SearchItemsParams {
+export type SearchAuthorsParams = SearchItemsParams & {
+}
+
+export type SearchVenuesParams = SearchItemsParams & {
 }

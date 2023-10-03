@@ -19,7 +19,7 @@ type ArcData = { key: any, value: number }
 
 type PieArc = d3.PieArcDatum<ArcData>
 
-interface PieLabel extends Label<PieArc> {
+type PieLabel = Label<PieArc> & {
     anchorX: number,
     anchorY: number,
     center: [number, number]

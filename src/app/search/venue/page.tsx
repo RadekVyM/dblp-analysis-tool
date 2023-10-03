@@ -1,14 +1,11 @@
-import { DblpSearchResult, DblpVenueSearchHit } from '@/models/DblpSearchResult'
-import { SearchType } from '@/enums/SearchType'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/models/SimpleSearchResult'
 import { VenueType, getVenueTypeByKey } from '@/enums/VenueType'
 import { SearchParams } from '@/models/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/utils/searchParams'
-import { DEFAULT_ITEMS_COUNT_PER_PAGE, MAX_QUERYABLE_ITEMS_COUNT } from '@/constants/search'
-import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
+import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import { SearchItemsParams } from '@/models/searchItemsParams'
-import { fetchVenuesIndex, fetchVenuesIndexLength, queryVenues } from '@/services/venues/venues'
+import { getSearchResultWithQuery, getSearchResultWithoutQuery } from '@/services/venues/venues'
+import { SEARCH_VENUE } from '@/constants/urls'
 
 type SearchVenuePageParams = {
     searchParams: SearchParams
@@ -23,7 +20,7 @@ export default async function SearchVenuePage({ searchParams }: SearchVenuePageP
         <SearchResultList
             result={result}
             searchParams={searchParams}
-            paginationUrl='/search/venue' />
+            paginationUrl={SEARCH_VENUE} />
     )
 }
 
@@ -32,47 +29,6 @@ async function getSearchResult(type: VenueType, params: SearchItemsParams) {
         return await getSearchResultWithQuery(type, params);
     }
     else {
-        return await getSearchResultWithoutQuery(type, params);
+        return await getSearchResultWithoutQuery(type, params, DEFAULT_ITEMS_COUNT_PER_PAGE);
     }
-}
-
-async function getSearchResultWithQuery(type: VenueType, params: SearchItemsParams) {
-    const response = await queryVenues(params, type);
-    const authors = new DblpSearchResult<DblpVenueSearchHit>(response, SearchType.Venue);
-    const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
-    const result = new SimpleSearchResult(
-        count,
-        authors.hits.items.map((item) => {
-            return {
-                title: item.info.venue,
-                localUrl: item.info.localUrl
-            }
-        }));
-
-    return result;
-}
-
-async function getSearchResultWithoutQuery(type: VenueType, params: SearchItemsParams) {
-    const promises = [
-        fetchVenuesIndex(type, { first: params.first, count: DEFAULT_ITEMS_COUNT_PER_PAGE }),
-        fetchVenuesIndexLength(type)
-    ]
-
-    const results = await Promise.allSettled(promises);
-    const venues = getFulfilledValueAt<Array<SimpleSearchResultItem>>(results, 0);
-    const count = getFulfilledValueAt<number>(results, 1);
-
-    if (!venues) {
-        const error = getRejectedValueAt<Error>(results, 0);
-        throw error?.cause as Error;
-    }
-
-    if (!count && count != 0) {
-        const error = getRejectedValueAt<Error>(results, 1);
-        throw error?.cause as Error;
-    }
-
-    const result = new SimpleSearchResult(count, venues);
-
-    return result;
 }

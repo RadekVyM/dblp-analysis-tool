@@ -1,9 +1,10 @@
+import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 import Link from 'next/link'
 
 export default function NavigationMenu() {
     const items = [
-        new NavMenuItem('Authors', '/search/author'),
-        new NavMenuItem('Venues', '/search/venue'),
+        new NavMenuItem('Authors', SEARCH_AUTHOR),
+        new NavMenuItem('Venues', SEARCH_VENUE),
     ];
 
     return (
