@@ -104,8 +104,9 @@ describe('intersect function', () => {
     ];
 
     const falsyValues: Array<IntersectValue> = [
+        [[0, 0], [1, 0], [0, 1], [1, 2]],
         // Colinear
-        [[1, 0], [0, 0], [0, 1], [1, 1]],
+        [[0, 0], [1, 0], [0, 1], [1, 1]],
     ];
 
     for (const [firstPoint, secondPoint, thirdPoint, fourthPoint] of truthyValues) {
@@ -122,5 +123,5 @@ describe('intersect function', () => {
 });
 
 function rectToString(rect: Rect) {
-    return `{ x: ${rect.x}, y: ${rect.y}, width: ${rect.width}, height: ${rect.height}}`
+    return JSON.stringify(rect)
 }

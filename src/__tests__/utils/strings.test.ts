@@ -41,6 +41,7 @@ describe('isNumber function', () => {
         '12a35',
         '12 35',
         '12 35 89',
+        ' ',
     ];
 
     for (const value of truthyValues) {
