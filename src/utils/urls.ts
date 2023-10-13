@@ -3,19 +3,13 @@ import { normalizeQuery } from '@/utils/searchQuery'
 import { SearchParams } from '@/models/SearchParams'
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
-import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
+import { SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'
 
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 
 const ID_LOCAL_SEPARATOR = '___'; // Cannot use single '-', PIDs can contain '-'
 const ID_DBLP_SEPARATOR = '/';
-
-export const VENUE_PATH_SEGMENTS = {
-    [VenueType.Journal]: JOURNALS_DBLP_KEY,
-    [VenueType.Conference]: CONF_DBLP_KEY,
-    [VenueType.Series]: SERIES_DBLP_KEY,
-} as const
 
 export function dblpUrlContainsItemId(stringUrl: string) {
     const path = getPath(stringUrl);
@@ -45,7 +39,7 @@ export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
     }
     // Get part of the path containing typeSegment and segments with an ID
     const reducedPath = dblpUrlPath.substring(dblpUrlPath.indexOf(typeSegment));
-    const id = removeWords(['index.html', '.html', 'index.bht', '.bht'], reducedPath);
+    const id = removeWords(['index.html', '.html', 'index.bht', '.bht', 'index.xml', '.xml'], reducedPath);
 
     const result = convertDblpIdToNormalizedId(id);
     return result;

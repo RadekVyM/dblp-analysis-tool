@@ -1,13 +1,16 @@
 import { SearchQueryOptions } from '@/models/SearchQueryOptions'
+import { isNullOrWhiteSpace } from './strings';
 
 export function normalizeQuery(query: string, options?: SearchQueryOptions) {
-    const separator = options?.userOr ? '|' : ' ';
+    const separator = options?.useOr ? '|' : ' ';
 
-    const words = query
+    if (isNullOrWhiteSpace(query)) {
+        return query;
+    }
+
+    return query
         .split(' ')
         .filter(s => s.length > 0)
         .map(s => options?.exactWords ? `${s}$` : s)
         .join(separator);
-
-    return words;
 }
