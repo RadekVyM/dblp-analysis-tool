@@ -75,7 +75,7 @@ function extractPersonHomonyms($: cheerio.Root) {
     $('dblpperson > homonyms person').each((index, el) => {
         const elem = $(el);
         const homPid = elem.attr('key')?.replace('homepages/', '');
-        const normalizedHomId = convertDblpIdToNormalizedId(`pid/${homPid}`);
+        const [normalizedHomId, _] = convertDblpIdToNormalizedId(`pid/${homPid}`) || ['', null];
         const authorInfo = extractPersonInfo($, elem, normalizedHomId, '');
         const url = `/author/${normalizedHomId}`
 

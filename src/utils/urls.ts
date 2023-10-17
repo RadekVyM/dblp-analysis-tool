@@ -33,33 +33,28 @@ export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
 }
 
 export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
-    const typeSegment = idContainingUrlSegments.find((w) => dblpUrlPath.toLowerCase().includes(w));
+    const segments = dblpUrlPath.split(ID_DBLP_SEPARATOR);
+    const typeSegment = idContainingUrlSegments.find((w) => segments.includes(w));
     if (!typeSegment) {
         return null;
     }
     // Get part of the path containing typeSegment and segments with an ID
-    const reducedPath = dblpUrlPath.substring(dblpUrlPath.indexOf(typeSegment));
-    const id = removeWords(['index.html', '.html', 'index.bht', '.bht', 'index.xml', '.xml'], reducedPath);
-
-    const result = convertDblpIdToNormalizedId(id);
-    return result;
+    const reducedSegments = segments.slice(segments.indexOf(typeSegment), segments.length);
+    return convertDblpIdSegmentsToNormalizedId(reducedSegments);
 }
 
-export function convertDblpIdToNormalizedId(dblpId: string) {
-    let split = dblpId
-        .split(ID_DBLP_SEPARATOR)
-        .filter((w) => w.length > 0);
+export function convertDblpIdToNormalizedId(dblpId: string): [string, string | null] | null {
+    return convertDblpIdSegmentsToNormalizedId(dblpId.split(ID_DBLP_SEPARATOR));
+}
 
-    // If dblpId is a venue ID, take just first two segments (ignore volume ID)
-    if (split.some((s) => venueIdContainingUrlSegments.includes(s.toLowerCase()))) {
-        split = split.slice(0, 2);
+export function convertNormalizedIdToDblpPath(normalizedId: string, followingNormalizedId: string | undefined | null = undefined) {
+    const firstPart = `/${normalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`
+
+    if (followingNormalizedId) {
+        return `${firstPart}/${followingNormalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`
     }
 
-    return split.join(ID_LOCAL_SEPARATOR);
-}
-
-export function convertNormalizedIdToDblpPath(normalizedId: string) {
-    return `/${normalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`;
+    return firstPart;
 }
 
 export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
@@ -74,23 +69,27 @@ export function createLocalSearchPath(searchType: SearchType, searchParams: Sear
     }
 }
 
-export function createLocalPath(normalizedId: string, searchType: SearchType) {
+export function createLocalPath(normalizedId: string, searchType: SearchType, followingNormalizedId: string | undefined | null = undefined) {
+    const following = followingNormalizedId ?
+        `/${followingNormalizedId}` :
+        '';
+    
     switch (searchType) {
         case SearchType.Author:
-            return `/author/${normalizedId}`;
+            return `/author/${normalizedId}${following}`;
         case SearchType.Venue:
-            return `/venue/${normalizedId}`;
+            return `/venue/${normalizedId}${following}`;
     }
 }
 
 export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchType) {
-    const id = extractNormalizedIdFromDblpUrl(dblpUrl);
+    const [firstId, secondId] = extractNormalizedIdFromDblpUrl(dblpUrl) || [null, null];
 
-    if (!id) {
+    if (!firstId) {
         return null;
     }
 
-    return createLocalPath(id, searchType);
+    return createLocalPath(firstId, searchType, secondId);
 }
 
 export function extractParamsFromUrl(inputUrl: string) {
@@ -120,6 +119,25 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
         .join('&');
 
     return `${url}?${paramsString}`
+}
+
+function convertDblpIdSegmentsToNormalizedId(segments: Array<string>): [string, string | null] | null {
+    let split = segments
+        .map((w) => removeWords(['.html', '.bht', '.xml'], w))
+        .filter((w) => w != 'index' && w.length > 0);
+    let third: null | string = null;
+
+    // If dblpId is a venue ID, take just first two segments (ignore volume ID)
+    if (split.some((s) => venueIdContainingUrlSegments.includes(s.toLowerCase()))) {
+        third = split.length > 2 ? split[2] : null;
+        split = split.slice(0, 2);
+    }
+
+    if (split.length < 2) {
+        return null;
+    }
+
+    return [split.join(ID_LOCAL_SEPARATOR), third];
 }
 
 function getPath(stringUrl: string) {

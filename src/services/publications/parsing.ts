@@ -57,7 +57,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
             journal,
             volume,
             number,
-            venueUrl ? extractNormalizedIdFromDblpUrlPath(venueUrl) || undefined : undefined,
+            venueUrl ? (extractNormalizedIdFromDblpUrlPath(venueUrl) || [null, null])[0] || undefined : undefined,
             authors,
             editors,
         ));
@@ -73,7 +73,7 @@ function getPeople($: cheerio.Root, children: cheerio.Cheerio) {
             const pid = elem.attr('pid');
             const orcid = elem.attr('orcid');
             const name = elem.text();
-            const id = convertDblpIdToNormalizedId(`pid/${pid}`);
+            const [id, _] = convertDblpIdToNormalizedId(`pid/${pid}`) || [null, null];
 
             return {
                 id: id,
