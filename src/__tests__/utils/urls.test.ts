@@ -1,5 +1,7 @@
+import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
-import { dblpUrlContainsItemId, getVenueTypeFromString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/utils/urls'
+import { SearchParams } from '@/models/SearchParams'
+import { dblpUrlContainsItemId, getVenueTypeFromString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath, createLocalSearchPath, createLocalPath, convertDblpUrlToLocalPath, extractParamsFromUrl } from '@/utils/urls'
 import { describe, expect, test } from '@jest/globals'
 
 type UrlValue = [
@@ -12,6 +14,22 @@ type IdValue = [
 
 type NormalizedIdValue = [
     normalizedId: [string, string | null], url: string
+]
+
+type LocalSearchPathValue = [
+    type: SearchType, params: SearchParams, path: string
+]
+
+type LocalPathValue = [
+    type: SearchType, normalizedId: string, followingNormalizedId: string | undefined | null, path: string
+]
+
+type DblpUrlToLocalPathValue = [
+    type: SearchType, dblpUrl: string, localPath: string
+]
+
+type ParamsFromUrlValue = [
+    url: string, params: { [key: string]: any }
 ]
 
 const validIdUrls: Array<UrlValue> = [
@@ -163,6 +181,86 @@ describe('convertNormalizedIdToDblpPath function', () => {
     for (const [normalizedId, id] of values) {
         test(`${JSON.stringify(normalizedId)} should be converted to this path: "${id}"`, () => {
             expect(convertNormalizedIdToDblpPath(normalizedId[0], normalizedId[1])).toEqual(id);
+        });
+    }
+});
+
+describe('createLocalSearchPath function', () => {
+    const values: Array<LocalSearchPathValue> = [
+        [SearchType.Author, {}, '/search/author'],
+        [SearchType.Venue, {}, '/search/venue'],
+        [SearchType.Author, { query: undefined }, '/search/author?query'],
+        [SearchType.Author, { query: '' }, '/search/author?query='],
+        [SearchType.Author, { query: 'hello' }, '/search/author?query=hello'],
+        [SearchType.Author, { query: 'hello', page: '2', type: 'hello' }, '/search/author?query=hello&page=2&type=hello'],
+        [SearchType.Author, { page: '25f', type: 'hello' }, '/search/author?page=25f&type=hello'],
+    ];
+
+    for (const [type, params, path] of values) {
+        test(`path of type ${type} with ${JSON.stringify(params)} should be: "${path}"`, () => {
+            expect(createLocalSearchPath(type, params)).toBe(path);
+        });
+    }
+});
+
+describe('createLocalPath function', () => {
+    const values: Array<LocalPathValue> = [
+        [SearchType.Author, '', undefined, '/author/'],
+        [SearchType.Author, 'hello', undefined, '/author/hello'],
+        [SearchType.Author, 'hello', null, '/author/hello'],
+        [SearchType.Author, 'hello', 'world', '/author/hello/world'],
+        [SearchType.Venue, '', undefined, '/venue/'],
+        [SearchType.Venue, 'hello', undefined, '/venue/hello'],
+        [SearchType.Venue, 'hello', null, '/venue/hello'],
+        [SearchType.Venue, 'hello', 'world', '/venue/hello/world'],
+    ];
+
+    for (const [type, normalizedId, followingNormalizedId, path] of values) {
+        test(`path of type ${type} with "${normalizedId}" and "${followingNormalizedId} should be: "${path}"`, () => {
+            expect(createLocalPath(normalizedId, type, followingNormalizedId)).toBe(path);
+        });
+    }
+});
+
+describe('convertDblpUrlToLocalPath function', () => {
+    const values: Array<DblpUrlToLocalPathValue> = [
+        [SearchType.Author, 'https://dblp.org/pid/08/1510.xml', '/author/pid___08___1510'],
+        [SearchType.Author, 'https://dblp.org/pid/08/1510.html', '/author/pid___08___1510'],
+        [SearchType.Author, 'https://dblp.org/pid/08/1510', '/author/pid___08___1510'],
+        [SearchType.Author, 'https://dblp.org/pid/l/BarbaraLiskov.xml', '/author/pid___l___BarbaraLiskov'],
+        [SearchType.Author, 'https://dblp.org/pid/l/BarbaraLiskov.html', '/author/pid___l___BarbaraLiskov'],
+        [SearchType.Author, 'https://dblp.org/pid/l/BarbaraLiskov', '/author/pid___l___BarbaraLiskov'],
+        [SearchType.Venue, 'https://dblp.org/db/conf/broadcom/broadcom2008.xml', '/venue/conf___broadcom/broadcom2008'],
+        [SearchType.Venue, 'https://dblp.org/db/conf/broadcom/broadcom2008.html', '/venue/conf___broadcom/broadcom2008'],
+        [SearchType.Venue, 'https://dblp.org/db/conf/broadcom/broadcom2008', '/venue/conf___broadcom/broadcom2008'],
+        [SearchType.Venue, 'https://dblp.org/db/series/lncs/index.xml', '/venue/series___lncs'],
+        [SearchType.Venue, 'https://dblp.org/db/series/lncs/index.html', '/venue/series___lncs'],
+        [SearchType.Venue, 'https://dblp.org/db/series/lncs/index', '/venue/series___lncs'],
+    ];
+
+    for (const [type, dblpUrl, localPath] of values) {
+        test(`"${dblpUrl}" should be converted to: "${localPath}"`, () => {
+            expect(convertDblpUrlToLocalPath(dblpUrl, type)).toBe(localPath);
+        });
+    }
+});
+
+describe('extractParamsFromUrl function', () => {
+    const values: Array<ParamsFromUrlValue> = [
+        ['https://dblp.org/pid/08/1510.xml', {}],
+        ['https://dblp.org', {}],
+        ['https://dblp.org?', {}],
+        ['?', {}],
+        ['https://dblp.org?hello=0', { hello: '0' }],
+        ['https://dblp.org?hello=0&world=!', { hello: '0', world: '!' }],
+        ['https://dblp.org?hello=0&world', { hello: '0', world: undefined }],
+        ['?hello=0&world', { hello: '0', world: undefined }],
+        ['/author?hello=0&world', { hello: '0', world: undefined }],
+    ];
+
+    for (const [url, params] of values) {
+        test(`this "${url}" contains these parameters: "${JSON.stringify(params)}"`, () => {
+            expect(extractParamsFromUrl(url)).toEqual(params);
         });
     }
 });

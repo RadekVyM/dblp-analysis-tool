@@ -4,6 +4,7 @@ import { SearchParams } from '@/models/SearchParams'
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
 import { SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'
+import { isNullOrWhiteSpace } from './strings'
 
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
@@ -58,7 +59,9 @@ export function convertNormalizedIdToDblpPath(normalizedId: string, followingNor
 }
 
 export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
-    searchParams.query = searchParams.query ? normalizeQuery(searchParams.query) : undefined;
+    if (searchParams.query) {
+        searchParams.query = normalizeQuery(searchParams.query);
+    }
     const params: { [key: string]: any } = searchParams;
 
     switch (searchType) {
@@ -110,15 +113,17 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
     const [url] = inputUrl.split('?');
     const params: { [key: string]: any } = ignoreExistingUrlParams ? {} : extractParamsFromUrl(inputUrl);
 
-    Object.keys(inputParams).map((key) => params[key] = inputParams[key]);
+    Object.keys(inputParams).forEach((key) => params[key] = inputParams[key]);
 
     const paramsString = Object
         .keys(params)
-        .map((key) => params[key] == undefined ? undefined : `${key}=${params[key]}`)
+        .map((key) => params[key] == undefined ? key : `${key}=${params[key]}`)
         .filter((p) => p)
         .join('&');
 
-    return `${url}?${paramsString}`
+    return isNullOrWhiteSpace(paramsString) ?
+        url :
+        `${url}?${paramsString}`;
 }
 
 function convertDblpIdSegmentsToNormalizedId(segments: Array<string>): [string, string | null] | null {
