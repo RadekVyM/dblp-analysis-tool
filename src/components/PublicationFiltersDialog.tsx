@@ -133,6 +133,8 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                     {
                         selectedCategory == FilterCategory.Type ?
                             <ul
+                                role='tabpanel'
+                                aria-labelledby={FilterCategory.Type}
                                 className='flex flex-col gap-2'>
                                 {groupedPublications.map(([type, publs]) =>
                                     <FilterItem
@@ -144,6 +146,8 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                             </ul> :
                             selectedCategory == FilterCategory.Venue &&
                             <ul
+                                role='tabpanel'
+                                aria-labelledby={FilterCategory.Venue}
                                 className='flex flex-col gap-2'>
                                 {selectableVenues.map((venue) =>
                                     <FilterItem

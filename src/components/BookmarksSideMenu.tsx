@@ -17,10 +17,16 @@ import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
 // TODO: Do I want the hover feature?
 
 type BookmarksSideMenuParams = {
-    className: string,
+    className?: string,
     state: BookmarksSideMenuState,
     bookmarksSideMenuHoverChanged: (value: boolean) => void,
     hide: () => void,
+}
+
+type TabPanelParams = {
+    className?: string,
+    children: React.ReactNode,
+    id: any
 }
 
 type TypeSelectionParams = {
@@ -129,31 +135,40 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
 
             <h2 className='sr-only'>Saved authors and venues</h2>
 
-            <div
-                className='flex-1 flex flex-col h-full overflow-y-auto pb-5 pl-5 pr-3'>
-                {
-                    selectedType == SearchType.Author &&
-                    <AuthorsTab
-                        key={SearchType.Author} />
-                }
+            {
+                selectedType == SearchType.Author &&
+                <AuthorsTab
+                    key={SearchType.Author} />
+            }
 
-                {
-                    selectedType == SearchType.Venue &&
-                    <VenuesTab
-                        key={SearchType.Venue} />
-                }
-            </div>
+            {
+                selectedType == SearchType.Venue &&
+                <VenuesTab
+                    key={SearchType.Venue} />
+            }
         </article >
     )
 });
 
 Menu.displayName = 'Menu';
 
+function TabPanel({ id, className, children }: TabPanelParams) {
+    return (
+        <div
+            role='tabpanel'
+            aria-labelledby={id}
+            className={cn('flex-1 flex flex-col h-full overflow-y-auto pb-5 pl-5 pr-3', className)}>
+            {children}
+        </div>
+    )
+}
+
 function AuthorsTab() {
     const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
 
     return (
-        <>
+        <TabPanel
+            id={SearchType.Author}>
             {
                 authors.recentlySeen.length > 0 &&
                 <MenuSection
@@ -211,7 +226,7 @@ function AuthorsTab() {
                 <NothingFound
                     items='authors' />
             }
-        </>
+        </TabPanel>
     )
 }
 
@@ -219,7 +234,8 @@ function VenuesTab() {
     const { venues, removeRecentlySeenVenue } = useLocalBookmarkedVenues();
 
     return (
-        <>
+        <TabPanel
+            id={SearchType.Venue}>
             {
                 venues.recentlySeen.length > 0 &&
                 <MenuSection
@@ -263,7 +279,7 @@ function VenuesTab() {
                 <NothingFound
                     items='venues' />
             }
-        </>
+        </TabPanel>
     )
 }
 

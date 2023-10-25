@@ -1,6 +1,7 @@
 import { cn } from '@/utils/tailwindUtils'
 import { VariantProps } from 'class-variance-authority'
 import { tabVariants } from './variants/tabVariants'
+import Button from './Button'
 
 type TabsParams = VariantProps<typeof tabVariants> & {
     tabsId: string,
@@ -12,9 +13,7 @@ type TabsParams = VariantProps<typeof tabVariants> & {
 }
 
 type TabParams = VariantProps<typeof tabVariants> & {
-    tabsId: string,
     content: React.ReactNode,
-    title?: string,
     badgeContent?: string,
     id: any,
     selectedId: any,
@@ -23,15 +22,12 @@ type TabParams = VariantProps<typeof tabVariants> & {
 
 export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, className, ...rest }: TabsParams) {
     return (
-        <fieldset
-            className={cn('flex flex-wrap gap-2 has-focus-visible-outline rounded-sm flex-row', className)}>
-            <legend className='sr-only'>{legend}</legend>
-
+        <div
+            role='tablist'
+            className={cn('flex flex-wrap gap-2 rounded-sm flex-row', className)}>
             {items.map((item) =>
                 <Tab
-                    tabsId={tabsId}
                     content={item.content}
-                    title={item.title}
                     badgeContent={item.badgeContent}
                     id={item.id}
                     selectedId={selectedId}
@@ -39,39 +35,31 @@ export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId,
                     key={item.id}
                     {...rest} />
             )}
-        </fieldset>
+        </div>
     )
 }
 
-function Tab({ tabsId, content, title, badgeContent, id, selectedId, onChange, size }: TabParams) {
-    const elementId = `${id}-${tabsId}-tab-radio`;
+function Tab({ content, badgeContent, id, selectedId, onChange, size }: TabParams) {
     const isSelected = selectedId == id;
 
     return (
-        <div
-            className={cn(
-                tabVariants({ size }),
-                'relative isolate btn px-0 place-content-stretch cursor-pointer select-none focus-within:outline focus-within:outline-2',
-                isSelected ? 'btn-default' : 'btn-outline')}
+        <Button
+            role='tab'
+            aria-controls={id}
+            aria-selected={isSelected}
+            className='isolate place-content-stretch'
+            size={size}
+            variant={isSelected ? 'default' : 'outline'}
             onClick={() => onChange(id)}>
-            <div
-                className='cursor-pointer flex px-3'>
-                <span>{content}</span>
-                {
-                    badgeContent &&
-                    <span
-                        className={cn('inline-block text-[0.5rem] leading-none ml-2 px-1.5 py-1 rounded-lg pointer-events-none',
-                            isSelected ? 'bg-surface-dim-container text-on-surface-dim-container' : 'bg-secondary text-on-secondary')}>
-                        {badgeContent}
-                    </span>
-                }
-            </div>
-            <input
-                className='sr-only'
-                title={title}
-                type='radio'
-                onChange={(event) => onChange(event.currentTarget.value)}
-                value={id} checked={isSelected} />
-        </div>
+            <span>{content}</span>
+            {
+                badgeContent &&
+                <span
+                    className={cn('inline-block text-[0.5rem] leading-none ml-2 px-1.5 py-1 rounded-lg pointer-events-none',
+                        isSelected ? 'bg-surface-dim-container text-on-surface-dim-container' : 'bg-secondary text-on-secondary')}>
+                    {badgeContent}
+                </span>
+            }
+        </Button>
     )
 }
