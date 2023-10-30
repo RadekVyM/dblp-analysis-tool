@@ -50,7 +50,7 @@ export default function useLocalBookmarkedAuthors() {
 
     const updateAuthorGroup = useCallback((id: string, title: string, authors: Array<SavedAuthor> = []) => {
         setAuthors((prev) => {
-            const group = prev.groups.find((g) => g.id == id);
+            const group = prev.groups.find((g) => g.id === id);
             
             if (group) {
                 group.title = title;

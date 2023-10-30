@@ -110,7 +110,7 @@ function computeOverlapsIntersectionsEnergy(labels: Array<BaseLabel>, linesInter
         let linesIntersectCount = 0;
 
         for (let j = 0; j < labels.length; j++) {
-            if (i == j) {
+            if (i === j) {
                 continue;
             }
 

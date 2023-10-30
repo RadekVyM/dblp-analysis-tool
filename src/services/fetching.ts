@@ -38,7 +38,7 @@ async function throwIfNotOk(response: Response) {
             cause: cause,
             status: response.status,
             statusText: response.statusText,
-            retryAfter: response.status == 429 ? parseInt(retryAfter) : undefined
+            retryAfter: response.status === 429 ? parseInt(retryAfter) : undefined
         });
 }
 

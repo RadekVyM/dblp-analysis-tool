@@ -117,7 +117,11 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
 
     const paramsString = Object
         .keys(params)
-        .map((key) => params[key] == undefined ? key : `${key}=${params[key]}`)
+        .map((key) => params[key] === undefined ?
+            undefined :
+            params[key] === null ?
+                key :
+                `${key}=${params[key]}`)
         .filter((p) => p)
         .join('&');
 

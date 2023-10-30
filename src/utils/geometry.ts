@@ -8,7 +8,7 @@ export function scaleToLength(vec: [number, number], length: number) {
     const [x, y] = vec;
     const oldLength = Math.sqrt((x * x) + (y * y));
 
-    if (oldLength == 0) {
+    if (oldLength === 0) {
         return [x, y];
     }
 
@@ -54,10 +54,10 @@ export function intersect(first: [number, number], second: [number, number], thi
     const o4 = orientation(third, fourth, second);
 
     return (o1 != o2 && o3 != o4) ||
-        (o1 == SegmentOrientation.Colinear && isPointOnSegment(first, second, third)) ||
-        (o1 == SegmentOrientation.Colinear && isPointOnSegment(first, second, fourth)) ||
-        (o1 == SegmentOrientation.Colinear && isPointOnSegment(third, fourth, first)) ||
-        (o1 == SegmentOrientation.Colinear && isPointOnSegment(third, fourth, second));
+        (o1 === SegmentOrientation.Colinear && isPointOnSegment(first, second, third)) ||
+        (o1 === SegmentOrientation.Colinear && isPointOnSegment(first, second, fourth)) ||
+        (o1 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, first)) ||
+        (o1 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, second));
 }
 
 function orientation(first: [number, number], second: [number, number], third: [number, number]) {
@@ -67,7 +67,7 @@ function orientation(first: [number, number], second: [number, number], third: [
 
     const val = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2);
     
-    if (val == 0) {
+    if (val === 0) {
         return SegmentOrientation.Colinear;
     }
     else if (val < 0) {

@@ -79,7 +79,7 @@ function extractPersonHomonyms($: cheerio.Root) {
         const authorInfo = extractPersonInfo($, elem, normalizedHomId, '');
         const url = `/author/${normalizedHomId}`
 
-        if (!homonyms.some((hom) => hom.url == url)) {
+        if (!homonyms.some((hom) => hom.url === url)) {
             homonyms.push({
                 url: url,
                 info: authorInfo
@@ -134,7 +134,7 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
         .get() as Array<{ label: string, title: string }>;
 
     return createDblpAuthorInfo(
-        personPubltype == 'disambiguation',
+        personPubltype === 'disambiguation',
         date || new Date().toString(),
         {
             aliases: aliases.filter((alias) => alias.title != title),

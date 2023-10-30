@@ -67,7 +67,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                                 title={`Go to page ${page}`}
                                 url={urlWithParams(url, withPage(searchParams, page))}>
                                 {
-                                    page == 1 ?
+                                    page === 1 ?
                                         <MdSkipPrevious /> :
                                         <div
                                             className='flex -mx-0.5'>
@@ -92,7 +92,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                             key={page}
                             title={`Go to page ${page}`}
                             url={urlWithParams(url, withPage(searchParams, page))}
-                            isSelected={page == currentPage}>
+                            isSelected={page === currentPage}>
                             {page}
                         </PaginationLink>
                     )}
@@ -109,7 +109,7 @@ export default function Pagination({ total, currentPage, url, searchParams, clas
                                 title={`Go to page ${page}`}
                                 url={urlWithParams(url, withPage(searchParams, page))}>
                                 {
-                                    page == pageCount ?
+                                    page === pageCount ?
                                         <MdSkipNext /> :
                                         <div
                                             className='flex -mx-0.5'>

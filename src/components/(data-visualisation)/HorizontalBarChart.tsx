@@ -76,7 +76,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
     useEffect(() => {
         const rolled = d3.rollup(data.items, r => r.length, data.bar);
 
-        if (selectedUnitsType == UnitsType.Percentage) {
+        if (selectedUnitsType === UnitsType.Percentage) {
             const total = data.items.length;
 
             for (const key of rolled.keys()) {
@@ -91,7 +91,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
     }, [data, selectedUnitsType]);
 
     function getTopDomainValue() {
-        return selectedUnitsType == UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1]
+        return selectedUnitsType === UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1]
     }
 
     return (
@@ -108,7 +108,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
                             y={dimensions.height - 4}
                             textAnchor='middle'
                             className='text-sm fill-on-surface-container'>
-                            {selectedUnitsType == UnitsType.Percentage ? '% of publications' : 'Publications Count'}
+                            {selectedUnitsType === UnitsType.Percentage ? '% of publications' : 'Publications Count'}
                         </text>
 
                         <Ticks
@@ -158,10 +158,10 @@ function Ticks({ scale, dimensions, padding, domain, selectedUnitsType }: TicksP
         const numberOfTicksTarget = Math.max(1, Math.floor((dimensions?.width || 1) / pixelsPerTick));
 
         return scale.ticks(numberOfTicksTarget)
-            .filter(value => selectedUnitsType == UnitsType.Percentage ? true : value % 1 == 0)
+            .filter(value => selectedUnitsType === UnitsType.Percentage ? true : value % 1 === 0)
             .map(value => ({
                 value,
-                displayedValue: selectedUnitsType == UnitsType.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
+                displayedValue: selectedUnitsType === UnitsType.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
                 xOffset: scale(value)
             }));
     }, [scale, dimensions, selectedUnitsType]);
@@ -214,7 +214,7 @@ function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, b
             {
                 Array.from(rolledItems.keys()).map((key, index) => {
                     const value = rolledItems.get(key) as number;
-                    const displayedValue = selectedUnitsType == UnitsType.Percentage ?
+                    const displayedValue = selectedUnitsType === UnitsType.Percentage ?
                         value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
                         value.toLocaleString(undefined, { maximumFractionDigits: 2 });
                     const bandWidth = barsScale.bandwidth();

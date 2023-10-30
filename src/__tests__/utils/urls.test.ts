@@ -189,7 +189,8 @@ describe('createLocalSearchPath function', () => {
     const values: Array<LocalSearchPathValue> = [
         [SearchType.Author, {}, '/search/author'],
         [SearchType.Venue, {}, '/search/venue'],
-        [SearchType.Author, { query: undefined }, '/search/author?query'],
+        [SearchType.Author, { query: undefined }, '/search/author'],
+        [SearchType.Author, { query: null }, '/search/author?query'],
         [SearchType.Author, { query: '' }, '/search/author?query='],
         [SearchType.Author, { query: 'hello' }, '/search/author?query=hello'],
         [SearchType.Author, { query: 'hello', page: '2', type: 'hello' }, '/search/author?query=hello&page=2&type=hello'],

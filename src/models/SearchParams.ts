@@ -1,5 +1,5 @@
 export type SearchParams = {
-    query?: string,
+    query?: string | null,
     type?: string,
     page?: string,
     [key: string]: any

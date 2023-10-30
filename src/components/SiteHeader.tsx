@@ -55,7 +55,9 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
     const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
-    const bookmarkButtonVariant = authorGroupsMenuState == BookmarksSideMenuState.Docked && isNotMobile ? 'icon-default' : 'icon-outline';
+    const bookmarkButtonVariant = authorGroupsMenuState === BookmarksSideMenuState.Docked && isNotMobile ?
+        'icon-default' :
+        'icon-outline';
 
     useEffect(() => {
         authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != BookmarksSideMenuState.Collapsed));

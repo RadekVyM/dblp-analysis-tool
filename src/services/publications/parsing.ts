@@ -21,23 +21,23 @@ export function extractPublicationsFromXml($: cheerio.Root) {
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
         const authors = getPeople($, elem.children('author'));
-        const informal = elem.attr('publtype') == 'informal';
-        const encyclopedia = elem.attr('publtype') == 'encyclopedia';
+        const informal = elem.attr('publtype') === 'informal';
+        const encyclopedia = elem.attr('publtype') === 'encyclopedia';
         const tagName = elem.prop('tagName').toLowerCase();
 
         let type: PublicationType = PublicationType.InformalAndOther;
 
         if (editors.length > 0)
             type = PublicationType.Editorship;
-        else if (tagName == 'incollection')
+        else if (tagName === 'incollection')
             type = encyclopedia ? PublicationType.ReferenceWorks : PublicationType.PartsInBooksOrCollections;
-        else if (tagName == 'article' && !informal)
+        else if (tagName === 'article' && !informal)
             type = PublicationType.JournalArticles;
-        else if (tagName == 'data' && !informal)
+        else if (tagName === 'data' && !informal)
             type = PublicationType.DataAndArtifacts;
-        else if (tagName == 'inproceedings')
+        else if (tagName === 'inproceedings')
             type = PublicationType.ConferenceAndWorkshopPapers;
-        else if (tagName == 'book')
+        else if (tagName === 'book')
             type = PublicationType.BooksAndTheses;
 
         // Remove volume segment from the URL path
@@ -52,7 +52,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
             type,
             month,
             ee,
-            booktitle == '' ? undefined : booktitle,
+            booktitle === '' ? undefined : booktitle,
             pages,
             journal,
             volume,

@@ -5,7 +5,7 @@ export function getFulfilledValueAt<T>(promises: Array<PromiseSettledResult<any>
         throw new Error('Fulfilled promise value nof found');
     }
 
-    if (at!.status == 'fulfilled') {
+    if (at!.status === 'fulfilled') {
         return at?.value as T;
     }
 
@@ -19,7 +19,7 @@ export function getRejectedValueAt<T>(promises: Array<PromiseSettledResult<any>>
         throw new Error('Rejected promise value nof found');
     }
 
-    if (at!.status == 'rejected') {
+    if (at!.status === 'rejected') {
         return at?.reason as T;
     }
 

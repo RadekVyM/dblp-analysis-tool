@@ -1,7 +1,7 @@
 export function getVenueTypeByKey(stringKey: string) {
     const venueKey = Object
         .keys(VenueType)
-        .find(key => key == stringKey);
+        .find(key => key === stringKey);
     return venueKey ? venueKey as keyof typeof VenueType : null;
 }
 

@@ -35,7 +35,7 @@ export function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: 
     }
 
     return (args: SearchItemsArgs) => {
-        if (!args.params.query || (args.params.count == 0 && args.params.completionsCount == 0)) {
+        if (!args.params.query || (args.params.count === 0 && args.params.completionsCount === 0)) {
             return null;
         }
 

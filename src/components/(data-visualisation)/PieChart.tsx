@@ -223,7 +223,7 @@ function PieChartLabels({ arcs, defaultRadius, hoveredSlice }: PieChartLabelsPar
     return (
         <>
             {labels.length > 0 && labels.map((label) => {
-                if (label.anchorX == label.x && label.anchorY == label.y) {
+                if (label.anchorX === label.x && label.anchorY === label.y) {
                     return undefined
                 }
 

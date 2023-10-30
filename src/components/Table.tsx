@@ -64,7 +64,7 @@ export default function Table({ rows, columnHeaders }: TableParams) {
     }, [rows, sorting]);
 
     function updateSorting(column: TableColumn) {
-        if (sorting && sorting.column == column) {
+        if (sorting && sorting.column === column) {
             if (!sorting.descending) {
                 setSorting({ column: column, descending: true });
             }
@@ -97,8 +97,8 @@ export default function Table({ rows, columnHeaders }: TableParams) {
                 <tbody>
                     {sortedRows.map((row, index) => {
                         return (
-                            <tr key={`row-${row.map(d => d.value).join('-')}`} className={index % 2 == 0 ? ' bg-surface-dim-container' : ''}>
-                                {row.map((col, index) => index == 0 ?
+                            <tr key={`row-${row.map(d => d.value).join('-')}`} className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
+                                {row.map((col, index) => index === 0 ?
                                     <th key={index} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
                                     <td key={index} className='px-3 py-2 border-l border-outline'>{col.presentedContent}</td>)}
                             </tr>
@@ -119,7 +119,7 @@ function TableColumnHeader({ className, column, sortingTitle, children, currentS
                 <SortButton
                     title={sortingTitle}
                     onClick={() => updateSorting(column)}
-                    descending={currentSorting?.column == column ? currentSorting.descending : undefined} />
+                    descending={currentSorting?.column === column ? currentSorting.descending : undefined} />
             </div>
         </th>
     )
@@ -132,9 +132,9 @@ function SortButton({ onClick, descending, title }: SortButtonParams) {
             onClick={onClick}
             className='flex flex-col items-center justify-center px-1 rounded-md bg-surface-container hover:bg-surface-dim-container text-on-surface-container-muted'>
             <MdArrowDropUp
-                className={cn('mb-[-0.25rem] scale-125', descending == true ? 'text-on-surface-container scale-150' : '')} />
+                className={cn('mb-[-0.25rem] scale-125', descending === true ? 'text-on-surface-container scale-150' : '')} />
             <MdArrowDropDown
-                className={cn('mt-[-0.25rem] scale-125', descending == false ? 'text-on-surface-container scale-150' : '')} />
+                className={cn('mt-[-0.25rem] scale-125', descending === false ? 'text-on-surface-container scale-150' : '')} />
         </button>
     )
 }
