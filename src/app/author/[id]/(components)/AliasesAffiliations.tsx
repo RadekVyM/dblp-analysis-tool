@@ -1,4 +1,4 @@
-import { DblpAuthorInfo } from '@/models/DblpAuthor'
+import { DblpAuthorInfo } from '@/dtos/DblpAuthor'
 import { cn } from '@/utils/tailwindUtils'
 
 type AliasesAffiliationsParams = {

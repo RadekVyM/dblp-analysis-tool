@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR, { Fetcher } from 'swr'
-import { DblpAuthorSearchHit, DblpSearchResult } from '@/models/DblpSearchResult'
+import { DblpAuthorSearchHit, DblpSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { SWR_CONFIG, SearchItemsArgs, createArgs, createSearchFetcher } from './shared'
 

@@ -1,10 +1,10 @@
-import { DblpAuthorSearchHit, getAuthorsNotes } from '@/models/DblpSearchResult'
+import { DblpAuthorSearchHit, getAuthorsNotes } from '@/dtos/DblpSearchResult'
 import { getSearchResultWithQuery, getSearchResultWithoutQuery } from '@/services/authors/authors'
-import { SearchParams } from '@/models/SearchParams'
+import { SearchParams } from '@/dtos/SearchParams'
 import { searchToItemsParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import SearchResultList from '../(components)/SearchResultList'
-import { SearchItemsParams } from '@/models/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { SEARCH_AUTHOR } from '@/constants/urls'
 
 type SearchAuthorPageParams = {

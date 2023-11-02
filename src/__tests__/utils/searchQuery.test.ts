@@ -1,4 +1,4 @@
-import { SearchQueryOptions } from '@/models/SearchQueryOptions';
+import { SearchQueryOptions } from '@/dtos/SearchQueryOptions';
 import { normalizeQuery } from '@/utils/searchQuery'
 import { describe, expect, test } from '@jest/globals'
 

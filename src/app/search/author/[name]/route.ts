@@ -1,4 +1,4 @@
-import { BaseDblpSearchHit, DblpSearchResult } from '@/models/DblpSearchResult'
+import { BaseDblpSearchHit, DblpSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'

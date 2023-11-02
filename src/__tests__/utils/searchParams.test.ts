@@ -1,5 +1,5 @@
-import { SearchParams } from '@/models/SearchParams'
-import { SearchItemsParams } from '@/models/searchItemsParams'
+import { SearchParams } from '@/dtos/SearchParams'
+import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { getPageFromSearchParams, searchToItemsCountParams, searchToItemsParams } from '@/utils/searchParams'
 import { describe, expect, test } from '@jest/globals'
 

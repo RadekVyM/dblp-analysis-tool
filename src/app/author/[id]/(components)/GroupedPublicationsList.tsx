@@ -1,6 +1,6 @@
 'use client'
 
-import { DblpPublication } from '@/models/DblpPublication'
+import { DblpPublication } from '@/dtos/DblpPublication'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { PublicationListItem } from './AuthorPublications'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'

@@ -1,6 +1,6 @@
 import { SearchType } from '@/enums/SearchType'
 import { normalizeQuery } from '@/utils/searchQuery'
-import { SearchParams } from '@/models/SearchParams'
+import { SearchParams } from '@/dtos/SearchParams'
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
 import { SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'

@@ -1,6 +1,6 @@
 'use client'
 
-import { SavedVenues } from '@/models/SavedVenues'
+import { SavedVenues } from '@/dtos/SavedVenues'
 import { useCallback } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 

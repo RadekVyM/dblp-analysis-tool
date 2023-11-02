@@ -1,4 +1,4 @@
-import { SearchQueryOptions } from '@/models/SearchQueryOptions'
+import { SearchQueryOptions } from '@/dtos/SearchQueryOptions'
 import { isNullOrWhiteSpace } from './strings';
 
 export function normalizeQuery(query: string, options?: SearchQueryOptions) {

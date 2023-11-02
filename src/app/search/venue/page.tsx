@@ -1,9 +1,9 @@
 import { VenueType, getVenueTypeByKey } from '@/enums/VenueType'
-import { SearchParams } from '@/models/SearchParams'
+import { SearchParams } from '@/dtos/SearchParams'
 import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
-import { SearchItemsParams } from '@/models/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { getSearchResultWithQuery, getSearchResultWithoutQuery } from '@/services/venues/venues'
 import { SEARCH_VENUE } from '@/constants/urls'
 

@@ -1,4 +1,4 @@
-import { Rect } from '@/models/Rect'
+import { Rect } from '@/dtos/Rect'
 
 export function scaleToLength(vec: [number, number], length: number) {
     if (length < 0) {

@@ -1,7 +1,7 @@
 import { normalizeQuery } from '@/utils/searchQuery'
 import { urlWithParams } from '@/utils/urls'
 import { fetchHtml, fetchJson } from '@/services/fetching'
-import { ItemsIndexParams, SearchItemsParams } from '@/models/searchItemsParams'
+import { ItemsIndexParams, SearchItemsParams } from '@/dtos/searchItemsParams'
 
 export async function queryItemsJson(url: string, params: SearchItemsParams) {
     params.first ??= 0;

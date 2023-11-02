@@ -1,4 +1,4 @@
-import { FetchError } from '@/models/FetchError'
+import { FetchError } from '@/dtos/FetchError'
 
 export async function fetchXml(url: string) {
     return fetchWithErrorHandling(url, 'application/xml').then((res) => res.text());

@@ -4,7 +4,7 @@ import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, Focu
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdAutorenew, MdCancel } from 'react-icons/md'
-import { DblpCompletion } from '@/models/DblpSearchResult'
+import { DblpCompletion } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import Button from './Button'

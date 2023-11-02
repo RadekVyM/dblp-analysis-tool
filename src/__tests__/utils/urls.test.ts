@@ -1,6 +1,6 @@
 import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
-import { SearchParams } from '@/models/SearchParams'
+import { SearchParams } from '@/dtos/SearchParams'
 import { dblpUrlContainsItemId, getVenueTypeFromString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath, createLocalSearchPath, createLocalPath, convertDblpUrlToLocalPath, extractParamsFromUrl } from '@/utils/urls'
 import { describe, expect, test } from '@jest/globals'
 

@@ -1,10 +1,10 @@
 import * as cheerio from 'cheerio'
 import { DBLP_URL, SEARCH_AUTHOR } from '@/constants/urls'
 import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/utils/urls'
-import { DblpAuthorHomonym, createDblpAuthor, createDblpAuthorInfo } from '@/models/DblpAuthor'
+import { DblpAuthorHomonym, createDblpAuthor, createDblpAuthorInfo } from '@/dtos/DblpAuthor'
 import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '@/constants/html'
 import { isNumber } from '@/utils/strings'
-import { SimpleSearchResultItem } from '@/models/SimpleSearchResult'
+import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { extractPublicationsFromXml } from '../publications/parsing'
 
 export function extractAuthor(xml: string, id: string) {

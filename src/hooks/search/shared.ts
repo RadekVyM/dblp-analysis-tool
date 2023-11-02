@@ -1,10 +1,10 @@
 'use client'
 
-import { BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/models/DblpSearchResult'
+import { BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { queryAuthors } from '@/services/authors/authors'
 import { queryVenues } from '@/services/venues/venues'
-import { SearchItemsParams } from '@/models/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/searchItemsParams'
 
 // https://swr.vercel.app/docs/api#options
 export const SWR_CONFIG = { revalidateIfStale: false, revalidateOnFocus: false };

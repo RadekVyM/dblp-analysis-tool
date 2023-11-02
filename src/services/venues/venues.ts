@@ -5,11 +5,11 @@ import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SEARCH_VENUE_API, 
 import { extractVenue, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
 import { queryItemsJson } from '@/services/items/items'
 import { fetchXml } from '@/services/fetching'
-import { DblpSearchResult, DblpVenueSearchHit, RawDblpBaseSearchResult } from '@/models/DblpSearchResult'
+import { DblpSearchResult, DblpVenueSearchHit, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
 import { CONF_DBLP_SEARCH_TYPE, DEFAULT_ITEMS_COUNT_PER_PAGE, JOURNALS_DBLP_SEARCH_TYPE, MAX_QUERYABLE_ITEMS_COUNT, SERIES_DBLP_SEARCH_TYPE } from '@/constants/search'
-import { BaseSearchItemsParams, SearchItemsParams, SearchVenuesParams } from '@/models/searchItemsParams'
+import { BaseSearchItemsParams, SearchItemsParams, SearchVenuesParams } from '@/dtos/searchItemsParams'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/models/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { SearchType } from '@/enums/SearchType'
 
 const DBLP_HTML_INDEX_PATHS = {

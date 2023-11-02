@@ -1,5 +1,5 @@
 import { PublicationType } from '@/enums/PublicationType'
-import { DblpPublication, DblpPublicationPerson, createDblpPublication } from '@/models/DblpPublication'
+import { DblpPublication, DblpPublicationPerson, createDblpPublication } from '@/dtos/DblpPublication'
 import { convertDblpIdToNormalizedId, extractNormalizedIdFromDblpUrlPath } from '@/utils/urls'
 
 export function extractPublicationsFromXml($: cheerio.Root) {

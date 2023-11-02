@@ -1,6 +1,6 @@
 'use client'
 
-import { SavedAuthor, SavedAuthors } from '@/models/SavedAuthors'
+import { SavedAuthor, SavedAuthors } from '@/dtos/SavedAuthors'
 import { useCallback } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 

@@ -1,4 +1,4 @@
-import { Rect } from '@/models/Rect'
+import { Rect } from '@/dtos/Rect'
 import { distance, intersect, overlapArea, scaleToLength } from '@/utils/geometry'
 import { describe, expect, test } from '@jest/globals'
 

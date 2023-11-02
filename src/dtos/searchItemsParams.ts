@@ -1,4 +1,4 @@
-import { SearchQueryOptions } from '@/models/SearchQueryOptions'
+import { SearchQueryOptions } from '@/dtos/SearchQueryOptions'
 
 export type BaseSearchItemsParams = {
     first?: number, // zero-based index

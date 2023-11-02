@@ -1,4 +1,4 @@
-import { DblpPublication, DblpPublicationPerson } from '@/models/DblpPublication'
+import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { Section, SectionTitle } from './Section'
 import Link from 'next/link'
 import { PublicationTypesStats } from './PublicationsStats'

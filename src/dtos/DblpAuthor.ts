@@ -1,4 +1,4 @@
-import { DblpPublication } from '@/models/DblpPublication'
+import { DblpPublication } from '@/dtos/DblpPublication'
 
 export type DblpAuthor = {
     readonly id: string,

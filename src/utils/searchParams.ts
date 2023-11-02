@@ -1,6 +1,6 @@
-import { SearchItemsParams } from '@/models/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { isNumber } from './strings'
-import { SearchParams } from '@/models/SearchParams'
+import { SearchParams } from '@/dtos/SearchParams'
 
 export function searchToItemsParams(searchParams: SearchParams, count: number) {
     const query = searchParams.query;
