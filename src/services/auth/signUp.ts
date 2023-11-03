@@ -2,6 +2,7 @@
 
 import User, { Users } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
+import { isNullOrWhiteSpace } from '@/utils/strings'
 import bcrypt from 'bcrypt'
 import 'server-only'
 
@@ -15,8 +16,11 @@ export async function signUp(email: string, username: string, password: string) 
     if (user) {
         throw new Error('User with this e-mail already exists');
     }
+    if (isNullOrWhiteSpace(password)) {
+        throw new Error('Password cannot be empty');
+    }
 
-    const passwordHash = bcrypt.hash(password, SALT_ROUNDS);
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const newUser = new User({
         email: email,

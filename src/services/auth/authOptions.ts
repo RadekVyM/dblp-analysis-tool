@@ -4,6 +4,7 @@ import { AuthOptions } from 'next-auth'
 import bcrypt from 'bcrypt'
 import User from '@/db/models/User'
 import connectDb from '@/db/mongodb'
+import { isNullOrWhiteSpace } from '@/utils/strings'
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -14,7 +15,7 @@ export const authOptions: AuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials, req) {
-                if(!credentials || !credentials.email || !credentials.password) {
+                if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.email) || !credentials) {
                     throw new Error('Please enter an email and password');
                 }
 
@@ -22,22 +23,32 @@ export const authOptions: AuthOptions = {
 
                 const user = await User.findOne({ email: credentials.email });
 
-                if (!user || !user?.passwordHash) {
+                if (!user?.passwordHash) {
                     throw new Error('No user found');
                 }
 
-                // check to see if password matches
                 const passwordMatch = await bcrypt.compare(credentials.password, user.passwordHash);
 
-                // if password does not match
                 if (!passwordMatch) {
                     throw new Error('Incorrect password');
                 }
 
-                return { id: user._id.toString(), username: user.username, email: user.email }
+                return { id: user._id.toString(), name: user.username, username: user.username, email: user.email }
             },
         }),  
     ],
-    secret: process.env.SECRET,
+    secret: process.env.NEXTAUTH_SECRET,
+    /*
+    session: {
+        strategy: 'jwt',
+    },
+    */
     debug: process.env.NODE_ENV === 'development',
+    pages: {
+        signIn: '/auth/signin',
+        signOut: '/auth/signout',
+        error: '/auth/signin',
+        verifyRequest: '/auth/verify-request',
+        newUser: '/'
+    }
 };

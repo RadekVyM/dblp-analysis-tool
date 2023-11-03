@@ -3,6 +3,8 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import SignUpForm from '../(components)/SignUpForm'
+import PageContainer from '@/components/PageContainer'
+import Link from 'next/link'
 
 export default async function SignUpPage({ }) {
 
@@ -31,7 +33,18 @@ export default async function SignUpPage({ }) {
     }
 
     return (
-        <SignUpForm
-            submit={submit} />
+        <PageContainer
+            className='justify-center items-center py-6'>
+            <div
+                className='max-w-lg w-full'>
+                <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign up</h2>
+
+                <SignUpForm
+                    className='w-full mb-8'
+                    submit={submit} />
+
+                <span className='text-center mx-auto block'>Already have an account? <Link href='/auth/signin' className='underline'>Sign in</Link></span>
+            </div>
+        </PageContainer>
     )
 }

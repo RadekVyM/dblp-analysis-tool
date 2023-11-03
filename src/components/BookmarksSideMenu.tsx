@@ -13,6 +13,7 @@ import { createLocalPath } from '@/utils/urls'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors'
 import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
+import { signOut, useSession } from 'next-auth/react'
 
 // TODO: Do I want the hover feature?
 
@@ -29,14 +30,23 @@ type TabPanelParams = {
     id: any
 }
 
+type UserInfoParams = {
+    className?: string
+}
+
 type TypeSelectionParams = {
     selectedType: SearchType,
-    setSelectedType: (type: SearchType) => void
+    setSelectedType: (type: SearchType) => void,
+    className?: string
 }
 
 type MenuParams = {
     hide: () => void,
     className?: string
+}
+
+type MenuContentParams = {
+    hide: () => void
 }
 
 type SectionTitleParams = {
@@ -102,8 +112,8 @@ export const BookmarksSideMenu = forwardRef<HTMLElement, BookmarksSideMenuParams
 BookmarksSideMenu.displayName = 'BookmarksSideMenu';
 
 const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
-    const [selectedType, setSelectedType] = useState<SearchType>(SearchType.Author);
     const [isClient, setIsClient] = useState(false);
+    const session = useSession();
 
     useEffect(() => setIsClient(true), []);
 
@@ -117,23 +127,40 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
                 bg-surface-container rounded-l-lg md:rounded-lg md:border border-outline
                 pointer-events-auto animate-slideLeftIn md:animate-none`,
                 className)}>
+            {
+                session.status !== 'authenticated' ?
+                    <NotAuthenticated /> :
+                    <MenuContent
+                        hide={hide} />
+            }
+        </article>
+    )
+});
+
+Menu.displayName = 'Menu';
+
+function MenuContent({ hide }: MenuContentParams) {
+    const [selectedType, setSelectedType] = useState<SearchType>(SearchType.Author);
+
+    return (
+        <>
             <div
                 className='flex justify-between items-center mb-6 pl-5 pr-3'>
-                <TypeSelection
-                    selectedType={selectedType}
-                    setSelectedType={(type) => setSelectedType(type)} />
-
+                <UserInfo />
                 <Button
                     title='Close'
                     size='sm' variant='icon-outline'
-                    className='md:hidden self-end'
+                    className='md:hidden self-start'
                     onClick={() => hide()}>
                     <MdClose
                         className='w-5 h-5' />
                 </Button>
             </div>
 
-            <h2 className='sr-only'>Saved authors and venues</h2>
+            <TypeSelection
+                className='px-5 mb-6'
+                selectedType={selectedType}
+                setSelectedType={(type) => setSelectedType(type)} />
 
             {
                 selectedType == SearchType.Author &&
@@ -146,18 +173,35 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
                 <VenuesTab
                     key={SearchType.Venue} />
             }
-        </article >
-    )
-});
 
-Menu.displayName = 'Menu';
+            <ul
+                className='flex gap-2 mx-6 py-6 border-t border-outline-variant'>
+                <li>
+                    <Button
+                        size='xs'
+                        onClick={async () => await signOut()}>
+                        Sign Out
+                    </Button>
+                </li>
+                <li>
+                    <Button
+                        variant='outline'
+                        size='xs'
+                        href='/auth/profile'>
+                        Your Profile
+                    </Button>
+                </li>
+            </ul>
+        </>
+    )
+}
 
 function TabPanel({ id, className, children }: TabPanelParams) {
     return (
         <div
             role='tabpanel'
             aria-labelledby={id}
-            className={cn('flex-1 flex flex-col h-full overflow-y-auto pb-5 pl-5 pr-3', className)}>
+            className={cn('flex-1 flex flex-col h-full overflow-y-auto pb-3 pl-5 pr-3', className)}>
             {children}
         </div>
     )
@@ -305,11 +349,23 @@ function SectionTitle({ children }: SectionTitleParams) {
     )
 }
 
-function TypeSelection({ selectedType, setSelectedType }: TypeSelectionParams) {
+function UserInfo({ className }: UserInfoParams) {
+    const session = useSession();
+
+    return (
+        <div>
+            <h2 className='font-bold leading-4'>{session.data?.user?.name}</h2>
+            <span className='text-xs leading-3'>{session.data?.user?.email}</span>
+        </div>
+    )
+}
+
+function TypeSelection({ selectedType, setSelectedType, className }: TypeSelectionParams) {
     const tabs = [{ content: 'Authors', id: SearchType.Author }, { content: 'Venues', id: SearchType.Venue }];
 
     return (
         <Tabs
+            className={className}
             tabsId='bookmarks-menu'
             items={tabs}
             legend='Select authors or venues:'
@@ -342,10 +398,29 @@ function NothingFound({ items }: NothingFoundParams) {
             className='flex-1 flex flex-col place-content-center items-center gap-4'>
             <MdOutlineBookmarks
                 className='w-10 h-10 text-on-surface-container-muted' />
-            <span
+            <p
                 className='text-center text-on-surface-container-muted text-sm'>
                 No {items} bookmarked yet
-            </span>
+            </p>
+        </div>
+    )
+}
+
+function NotAuthenticated() {
+    return (
+        <div
+            className='flex-1 flex flex-col place-content-center items-center gap-4 px-6'>
+            <MdOutlineBookmarks
+                className='w-10 h-10 text-on-surface-container-muted' />
+            <p
+                className='text-center text-on-surface-container-muted text-sm'>
+                You must sign in first to access your bookmarks
+            </p>
+            <Button
+                size='sm'
+                href='/api/auth/signin'>
+                Sign In
+            </Button>
         </div>
     )
 }
