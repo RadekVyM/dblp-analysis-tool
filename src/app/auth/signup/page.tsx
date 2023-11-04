@@ -20,14 +20,15 @@ export default async function SignUpPage({ }) {
         const email = formData.get('email')?.toString() || '';
         const username = formData.get('username')?.toString() || '';
         const password = formData.get('password')?.toString() || '';
+        const confirmPassword = formData.get('confirmPassword')?.toString() || '';
 
-        if (isNullOrWhiteSpace(email) || isNullOrWhiteSpace(username) || isNullOrWhiteSpace(password)) {
+        if (isNullOrWhiteSpace(email) || isNullOrWhiteSpace(username) || isNullOrWhiteSpace(password) || isNullOrWhiteSpace(confirmPassword)) {
             revalidatePath('auth');
             return
         }
 
         try {
-            await signUp(email, username, password);
+            await signUp(email, username, password, confirmPassword);
         }
         catch (e) {
             if (e instanceof Error) {

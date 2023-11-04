@@ -6,7 +6,7 @@ import 'server-only'
 
 const SALT_ROUNDS = 10;
 
-export async function signUp(email: string, username: string, password: string) : Promise<Users> {
+export async function signUp(email: string, username: string, password: string, confirmPassword: string) : Promise<Users> {
     // TODO: server-side validation
     
     await connectDb();
@@ -18,6 +18,9 @@ export async function signUp(email: string, username: string, password: string) 
     }
     if (isNullOrWhiteSpace(password)) {
         throw new Error('Password cannot be empty.');
+    }
+    if (password !== confirmPassword) {
+        throw new Error('Passwords do not match.');
     }
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);

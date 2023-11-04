@@ -68,7 +68,7 @@ export default function SignInForm({ className }: SignInFormParams) {
                 required
                 disabled={loading}
                 onChange={handleChange}
-                error={errors?.email && 'Invalid e-mail address'} />
+                error={errors?.email && 'Invalid e-mail address.'} />
             <Input
                 id='signin-password'
                 label='Password'
@@ -77,7 +77,7 @@ export default function SignInForm({ className }: SignInFormParams) {
                 required
                 disabled={loading}
                 onChange={handleChange}
-                error={errors?.password && 'Password must contain at least 8 alphanumeric characters'} />
+                error={errors?.password && 'Invalid password.'} />
 
             {error && <span className='text-xs text-danger'>{error}</span>}
 

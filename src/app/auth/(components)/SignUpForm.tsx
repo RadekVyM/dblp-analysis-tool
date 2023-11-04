@@ -19,6 +19,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
         email: '',
         username: '',
         password: '',
+        confirmPassword: ''
     });
     const [error, formAction] = useFormState(submit, {});
     const [loading, setLoading] = useState(false);
@@ -54,7 +55,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
                 required
                 disabled={loading}
                 onChange={handleChange}
-                error={errors?.username && 'Name must contain at least 1 character'} />
+                error={errors?.username && 'Name must contain at least 1 character.'} />
             <Input
                 id='signup-email'
                 label='E-mail'
@@ -63,7 +64,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
                 required
                 disabled={loading}
                 onChange={handleChange}
-                error={errors?.email && 'Invalid e-mail address'} />
+                error={errors?.email && 'Invalid e-mail address.'} />
             <Input
                 id='signup-password'
                 label='Password'
@@ -72,7 +73,16 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
                 required
                 disabled={loading}
                 onChange={handleChange}
-                error={errors?.password && 'Password must contain at least 8 alphanumeric characters'} />
+                error={errors?.password && 'Password must be at least 8 characters long and contain uppercase and lowercase letters and a numeric or special symbol.'} />
+            <Input
+                id='signup-password-confirm'
+                label='Confirm Password'
+                type='password'
+                name='confirmPassword'
+                required
+                disabled={loading}
+                onChange={handleChange}
+                error={errors?.confirmPassword && 'Passwords do not match.'} />
 
             {error?.error && <span className='text-xs text-danger'>{error?.error}</span>}
 
