@@ -3,20 +3,24 @@
 import Button from '@/components/Button'
 import Input from './Input'
 import { ChangeEvent, useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/utils/tailwindUtils'
+import signIn from '@/services/auth/signIn'
+import signInValidator from '@/validation/signInValidator'
+import { SignInInputs } from '@/validation/schemas/SignInSchema'
 
 type SignInFormParams = {
     className?: string
 }
 
 export default function SignInForm({ className }: SignInFormParams) {
-    const [formValues, setFormValues] = useState({
+    const [formValues, setFormValues] = useState<SignInInputs>({
         email: '',
         password: '',
     });
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: any }>({});
+    const [error, setError] = useState<string | null>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
     const callbackUrl = searchParams.get('callbackUrl') || '/';
@@ -26,19 +30,21 @@ export default function SignInForm({ className }: SignInFormParams) {
 
         try {
             setLoading(true);
+            const err = signInValidator({ ...formValues });
+            setErrors(err);
 
-            const response = await signIn('credentials', {
-                email: formValues.email,
-                password: formValues.password,
-                callbackUrl
-            });
-
-            if (!response?.error) {
-                router.push(callbackUrl);
+            if (Object.keys(err).length !== 0) {
+                return;
             }
+
+            await signIn(formValues.email, formValues.password, callbackUrl);
+
+            router.push(callbackUrl);
         }
         catch (error) {
-
+            if (error instanceof Error) {
+                setError(error.message);
+            }
         }
         finally {
             setLoading(false);
@@ -53,8 +59,7 @@ export default function SignInForm({ className }: SignInFormParams) {
     return (
         <form
             onSubmit={onSubmit}
-            className={cn('flex flex-col gap-2 items-center', className)}>
-            <p>{searchParams?.get('error')}</p>
+            className={cn('flex flex-col gap-2 items-stretch', className)}>
             <Input
                 id='signin-email'
                 label='E-mail'
@@ -62,7 +67,8 @@ export default function SignInForm({ className }: SignInFormParams) {
                 name='email'
                 required
                 disabled={loading}
-                onChange={handleChange} />
+                onChange={handleChange}
+                error={errors?.email && 'Invalid e-mail address'} />
             <Input
                 id='signin-password'
                 label='Password'
@@ -70,7 +76,11 @@ export default function SignInForm({ className }: SignInFormParams) {
                 name='password'
                 required
                 disabled={loading}
-                onChange={handleChange} />
+                onChange={handleChange}
+                error={errors?.password && 'Password must contain at least 8 alphanumeric characters'} />
+
+            {error && <span className='text-xs text-danger'>{error}</span>}
+
             <Button
                 className='w-full mt-4'
                 type='submit'

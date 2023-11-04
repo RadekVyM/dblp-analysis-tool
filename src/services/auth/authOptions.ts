@@ -1,10 +1,10 @@
 import 'server-only'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { AuthOptions } from 'next-auth'
-import bcrypt from 'bcrypt'
-import User from '@/db/models/User'
-import connectDb from '@/db/mongodb'
 import { isNullOrWhiteSpace } from '@/utils/strings'
+import connectDb from '@/db/mongodb'
+import User, { Users } from '@/db/models/User'
+import bcrypt from 'bcrypt'
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -16,24 +16,15 @@ export const authOptions: AuthOptions = {
             },
             async authorize(credentials, req) {
                 if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.email) || !credentials) {
-                    throw new Error('Please enter an email and password');
+                    throw new Error('Please enter an e-mail and password.');
                 }
 
-                await connectDb();
-
-                const user = await User.findOne({ email: credentials.email });
-
-                if (!user?.passwordHash) {
-                    throw new Error('No user found');
+                try {
+                    return await findMatchingUser(credentials?.email, credentials.password);
                 }
-
-                const passwordMatch = await bcrypt.compare(credentials.password, user.passwordHash);
-
-                if (!passwordMatch) {
-                    throw new Error('Incorrect password');
+                catch (error) {
+                    throw new Error('An account matching the e-mail and password you entered couldn\'t be found. Please check your e-mail and password and try again.');
                 }
-
-                return { id: user._id.toString(), name: user.username, username: user.username, email: user.email }
             },
         }),  
     ],
@@ -52,3 +43,21 @@ export const authOptions: AuthOptions = {
         newUser: '/'
     }
 };
+
+async function findMatchingUser(email: string, password: string) {
+    await connectDb();
+
+    const user = await User.findOne<Users>({ email: email });
+
+    if (!user?.passwordHash) {
+        throw new Error('A user matching the e-mail and password couldn\'t be found.');
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!passwordMatch) {
+        throw new Error('A user matching the e-mail and password couldn\'t be found.');
+    }
+
+    return { id: user._id.toString(), name: user.username, username: user.username, email: user.email }
+}

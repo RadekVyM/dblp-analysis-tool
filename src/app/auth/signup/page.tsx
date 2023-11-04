@@ -5,8 +5,14 @@ import { redirect } from 'next/navigation'
 import SignUpForm from '../(components)/SignUpForm'
 import PageContainer from '@/components/PageContainer'
 import Link from 'next/link'
+import { getServerSession } from 'next-auth'
 
 export default async function SignUpPage({ }) {
+    const session = await getServerSession();
+
+    if (session && session?.user) {
+        redirect('/auth/profile');
+    }
 
     async function submit(prevState: any, formData: FormData) {
         'use server'
@@ -24,12 +30,12 @@ export default async function SignUpPage({ }) {
             await signUp(email, username, password);
         }
         catch (e) {
-            const error = e as Error
-            console.log(error)
-            return { error: error.message }
+            if (e instanceof Error) {
+                return { error: e.message }
+            }
         }
 
-        redirect('/');
+        redirect('/auth/signin');
     }
 
     return (
