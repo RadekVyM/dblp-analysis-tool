@@ -160,6 +160,30 @@ input::selection {
   @apply translate-x-1/4 transition-transform;
 }
 
+.thin-scrollbar {
+  scrollbar-color: var(--outline) transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  --thumb: var(--outline-variant);
+
+  background: var(--thumb);
+  border-radius: 0.2rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  --thumb: var(--outline);
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 @layer components {
   .btn {
     @apply box-border grid place-content-center items-center grid-flow-col rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;

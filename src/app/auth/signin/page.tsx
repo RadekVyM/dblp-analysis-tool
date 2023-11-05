@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: SignInPageParams) {
                 <SignInForm
                     className='w-full mb-8' />
 
-                <span className='text-center mx-auto block'>Don&apos;t have an account? <Link href='/auth/signup' className='underline'>Sign up</Link></span>
+                <span className='text-center mx-auto block'>Don&apos;t have an account? <Link href='/auth/signup' className='underline' prefetch={false}>Sign up</Link></span>
             </div>
         </PageContainer>
     )

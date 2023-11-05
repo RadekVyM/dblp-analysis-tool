@@ -201,7 +201,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
         <div
             role='tabpanel'
             aria-labelledby={id}
-            className={cn('flex-1 flex flex-col overflow-y-auto pb-3 pl-5 pr-3', className)}>
+            className={cn('flex-1 flex flex-col overflow-y-auto pb-3 pl-5 pr-3 thin-scrollbar', className)}>
             {children}
         </div>
     )

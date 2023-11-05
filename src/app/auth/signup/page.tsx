@@ -50,7 +50,7 @@ export default async function SignUpPage({ }) {
                     className='w-full mb-8'
                     submit={submit} />
 
-                <span className='text-center mx-auto block'>Already have an account? <Link href='/auth/signin' className='underline'>Sign in</Link></span>
+                <span className='text-center mx-auto block'>Already have an account? <Link href='/auth/signin' className='underline' prefetch={false}>Sign in</Link></span>
             </div>
         </PageContainer>
     )

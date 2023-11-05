@@ -1,13 +1,15 @@
 'use client'
 
 // @ts-expect-error
-import { useFormState, useFormStatus } from 'react-dom'
+import { useFormState } from 'react-dom'
 import Button from '@/components/Button'
 import Input from './Input'
 import { cn } from '@/utils/tailwindUtils'
 import { ChangeEvent, useState } from 'react'
 import { SignUpInputs } from '@/validation/schemas/SignUpSchema'
 import signUpValidator from '@/validation/signUpValidator'
+import ErrorMessage from './ErrorMessage'
+import { anyKeys } from '@/utils/objects'
 
 type RegisterFormParams = {
     submit: (prevState: any, formData: FormData) => void,
@@ -30,7 +32,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
         const err = signUpValidator({ ...formValues });
         setErrors(err);
 
-        if (Object.keys(err).length !== 0) {
+        if (anyKeys(err)) {
             e.preventDefault();
         }
 
@@ -84,7 +86,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
                 onChange={handleChange}
                 error={errors?.confirmPassword && 'Passwords do not match.'} />
 
-            {error?.error && <span className='text-xs text-danger'>{error?.error}</span>}
+            {error?.error && <ErrorMessage>{error?.error}</ErrorMessage>}
 
             <Button
                 className='w-full mt-4'

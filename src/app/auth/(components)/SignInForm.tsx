@@ -8,6 +8,8 @@ import { cn } from '@/utils/tailwindUtils'
 import signIn from '@/services/auth/signIn'
 import signInValidator from '@/validation/signInValidator'
 import { SignInInputs } from '@/validation/schemas/SignInSchema'
+import ErrorMessage from './ErrorMessage'
+import { anyKeys } from '@/utils/objects'
 
 type SignInFormParams = {
     className?: string
@@ -33,7 +35,7 @@ export default function SignInForm({ className }: SignInFormParams) {
             const err = signInValidator({ ...formValues });
             setErrors(err);
 
-            if (Object.keys(err).length !== 0) {
+            if (anyKeys(err)) {
                 return;
             }
 
@@ -79,7 +81,7 @@ export default function SignInForm({ className }: SignInFormParams) {
                 onChange={handleChange}
                 error={errors?.password && 'Invalid password.'} />
 
-            {error && <span className='text-xs text-danger'>{error}</span>}
+            {error && <ErrorMessage>{error}</ErrorMessage>}
 
             <Button
                 className='w-full mt-4'

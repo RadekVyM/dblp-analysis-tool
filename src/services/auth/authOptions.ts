@@ -3,8 +3,10 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { AuthOptions } from 'next-auth'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import connectDb from '@/db/mongodb'
-import User, { Users } from '@/db/models/User'
+import User, { UserSchema } from '@/db/models/User'
 import bcrypt from 'bcrypt'
+import signInValidator from '@/validation/signInValidator'
+import { anyKeys } from '@/utils/objects'
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -15,8 +17,14 @@ export const authOptions: AuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials, req) {
-                if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.email) || !credentials) {
+                if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.password) || !credentials) {
                     throw new Error('Please enter an e-mail and password.');
+                }
+
+                const err = signInValidator({ email: credentials?.email || '', password: credentials?.password || '' });
+
+                if (anyKeys(err)) {
+                    throw new Error('The values you entered are not valid.');
                 }
 
                 try {
@@ -47,7 +55,7 @@ export const authOptions: AuthOptions = {
 async function findMatchingUser(email: string, password: string) {
     await connectDb();
 
-    const user = await User.findOne<Users>({ email: email });
+    const user = await User.findOne<UserSchema>({ email: email });
 
     if (!user?.passwordHash) {
         throw new Error('A user matching the e-mail and password couldn\'t be found.');

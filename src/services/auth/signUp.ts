@@ -1,17 +1,23 @@
-import User, { Users } from '@/db/models/User'
+import User, { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
+import { anyKeys } from '@/utils/objects'
 import { isNullOrWhiteSpace } from '@/utils/strings'
+import signUpValidator from '@/validation/signUpValidator'
 import bcrypt from 'bcrypt'
 import 'server-only'
 
 const SALT_ROUNDS = 10;
 
-export async function signUp(email: string, username: string, password: string, confirmPassword: string) : Promise<Users> {
-    // TODO: server-side validation
-    
+export async function signUp(email: string, username: string, password: string, confirmPassword: string) : Promise<UserSchema> {
+    const err = signUpValidator({ email, username, password, confirmPassword });
+
+    if (anyKeys(err)) {
+        throw new Error('The values you entered are not valid.');
+    }
+
     await connectDb();
 
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne<UserSchema>({ email: email });
 
     if (user) {
         throw new Error('User with this e-mail already exists.');

@@ -187,7 +187,12 @@ function Coauthors({ author }: CoauthorsParams) {
                     <li
                         key={coauthor.person.id}>
                         <span>{`${coauthor.count} `}</span>
-                        <Link className='hover:underline' href={createLocalPath(coauthor.person.id, SearchType.Author)}>{coauthor.person.name}</Link>
+                        <Link
+                            prefetch={false}
+                            className='hover:underline'
+                            href={createLocalPath(coauthor.person.id, SearchType.Author)}>
+                            {coauthor.person.name}
+                        </Link>
                     </li>)}
             </ul>
         </div>
