@@ -1,6 +1,6 @@
 export type SavedAuthors = {
     recentlySeen: Array<SavedAuthor>,
-    groups: Array<SavedAuthorGroup>
+    groups: Array<AuthorGroup>
 }
 
 export type SavedAuthor = {
@@ -8,7 +8,7 @@ export type SavedAuthor = {
     id: string
 }
 
-export type SavedAuthorGroup = {
+export type AuthorGroup = {
     id: string,
     title: string,
     authors: Array<SavedAuthor>,

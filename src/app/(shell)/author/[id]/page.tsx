@@ -4,7 +4,7 @@ import { fetchAuthor } from '@/services/authors/authors'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import LinksList from './(components)/LinksList'
 import { DblpAuthor, DblpAuthorHomonym, DblpAuthorInfo } from '@/dtos/DblpAuthor'
-import Bookmarks from './(components)/Bookmarks'
+import SaveButtons from './(components)/SaveButtons'
 import { cn } from '@/utils/tailwindUtils'
 import ListLink from '@/components/ListLink'
 import AuthorPublications from './(components)/AuthorPublications'
@@ -109,7 +109,7 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
                     links={info.links} />
             }
 
-            <Bookmarks
+            <SaveButtons
                 authorId={authorId}
                 title={authorName} />
         </div>

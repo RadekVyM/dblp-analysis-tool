@@ -2,6 +2,8 @@
 
 import { cn } from '@/utils/tailwindUtils'
 import { forwardRef } from 'react'
+import { createPortal } from 'react-dom'
+import { useIsClient } from 'usehooks-ts'
 
 interface DialogParams extends
     React.HTMLAttributes<HTMLDialogElement> {
@@ -17,18 +19,24 @@ type DialogContentParams = {
 }
 
 export const Dialog = forwardRef<HTMLDialogElement, DialogParams>(({ hide, animation, className, children, ...rest }, ref) => {
+    const isClient = useIsClient();
+
     return (
-        <dialog
-            {...rest}
-            ref={ref}
-            onClick={() => hide()}
-            onCancel={(event) => {
-                event.preventDefault();
-                hide();
-            }}
-            className={cn(className, animation)}>
-            {children}
-        </dialog>
+        <>
+            {isClient && createPortal(
+                <dialog
+                    {...rest}
+                    ref={ref}
+                    onClick={() => hide()}
+                    onCancel={(event) => {
+                        event.preventDefault();
+                        hide();
+                    }}
+                    className={cn(className, animation)}>
+                    {children}
+                </dialog>,
+                document.body)}
+        </>
     )
 });
 

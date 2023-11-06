@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { noUser } from '../../shared'
 import getCurrentUser from '@/services/auth/getCurrentUser'
-import { removeSavedAuthor } from '@/services/saves/authors'
+import { removeSavedVenue } from '@/services/saves/venues'
 
-export async function DELETE(request: Request, { params }: { params: { authorId: string } }) {
+export async function DELETE(request: Request, { params }: { params: { venueId: string } }) {
     try {
         const user = await getCurrentUser();
 
@@ -11,11 +11,11 @@ export async function DELETE(request: Request, { params }: { params: { authorId:
             return noUser()
         }
 
-        await removeSavedAuthor(params.authorId, user);
+        await removeSavedVenue(params.venueId, user);
 
         return new NextResponse(null, { status: 204 })
     }
     catch (error) {
-        return new NextResponse('Saved author could not be removed.', { status: 400 })
+        return new NextResponse('Saved venue could not be removed.', { status: 400 })
     }
 }

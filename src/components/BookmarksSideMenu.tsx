@@ -15,6 +15,7 @@ import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors'
 import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
 import { signOut, useSession } from 'next-auth/react'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
+import useSavedVenues from '@/hooks/saves/useSavedVenues'
 
 // TODO: Do I want the hover feature?
 
@@ -278,6 +279,7 @@ function AuthorsTab() {
 
 function VenuesTab() {
     const { venues, removeRecentlySeenVenue } = useLocalBookmarkedVenues();
+    const { savedVenues } = useSavedVenues();
 
     return (
         <TabPanel
@@ -308,10 +310,10 @@ function VenuesTab() {
             }
 
             {
-                venues.bookmarked.length > 0 &&
+                savedVenues.length > 0 &&
                 <MenuSection
-                    title='Bookmarked'>
-                    {venues.bookmarked.map((venue) =>
+                    title='Saved'>
+                    {savedVenues.map((venue) =>
                         <ListItem
                             key={venue.id}
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
@@ -321,7 +323,7 @@ function VenuesTab() {
             }
 
             {
-                venues.recentlySeen.length == 0 && venues.bookmarked.length == 0 &&
+                venues.recentlySeen.length == 0 && savedVenues.length == 0 &&
                 <NothingFound
                     items='venues' />
             }
@@ -402,7 +404,7 @@ function NothingFound({ items }: NothingFoundParams) {
                 className='w-10 h-10 text-on-surface-container-muted' />
             <p
                 className='text-center text-on-surface-container-muted text-sm'>
-                No {items} bookmarked yet
+                No {items} saved yet
             </p>
         </div>
     )
@@ -416,7 +418,7 @@ function NotAuthenticated() {
                 className='w-10 h-10 text-on-surface-container-muted' />
             <p
                 className='text-center text-on-surface-container-muted text-sm'>
-                You must sign in first to access your bookmarks
+                You must sign in first to access your saved authors and venues
             </p>
             <Button
                 size='sm'

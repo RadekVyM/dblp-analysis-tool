@@ -11,6 +11,7 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import { group } from '@/utils/array'
 import ListButton from './ListButton'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import CheckListButton from './CheckListButton'
 
 type PublicationFiltersDialogParams = {
     hide: () => void,
@@ -129,7 +130,7 @@ export const PublicationFiltersDialog = forwardRef<HTMLDialogElement, Publicatio
                 </header>
 
                 <div
-                    className='px-6 py-6 overflow-y-auto h-full flex-1'>
+                    className='px-6 py-6 overflow-y-auto h-full flex-1 thin-scrollbar'>
                     {
                         selectedCategory == FilterCategory.Type ?
                             <ul
@@ -181,23 +182,11 @@ PublicationFiltersDialog.displayName = 'PublicationFiltersDialog';
 function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
     return (
         <li>
-            <ListButton
-                role='checkbox'
-                aria-checked={isSelected}
-                marker='none'
-                size='sm'
-                surface='container'
-                className='w-full flex-row items-center gap-2 text-start'
+            <CheckListButton
+                isSelected={isSelected}
                 onClick={onClick}>
-                {
-                    isSelected ?
-                        <ImCheckboxChecked
-                            className='w-3 h-3 flex-shrink-0' /> :
-                        <ImCheckboxUnchecked
-                            className='w-3 h-3 text-on-surface-dim-container-muted flex-shrink-0' />
-                }
                 {children}
-            </ListButton>
+            </CheckListButton>
         </li>
     )
 }

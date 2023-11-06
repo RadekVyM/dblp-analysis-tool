@@ -1,4 +1,4 @@
-import { fetchXml } from '@/services/fetching'
+import { fetchXml } from '@/services/fetch'
 import { fetchItemsIndexHtml, queryItemsJson } from '@/services/items/items'
 import { DBLP_AUTHORS_INDEX_HTML, DBLP_SEARCH_AUTHOR_API, DBLP_URL } from '@/constants/urls'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'

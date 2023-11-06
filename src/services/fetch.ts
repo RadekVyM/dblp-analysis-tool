@@ -12,13 +12,34 @@ export async function fetchJson(url: string) {
     return fetchWithErrorHandling(url, 'application/json').then((res) => res.json());
 }
 
+export async function sendPost(url: string, data: any) {
+    const response = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
+
+    await throwIfNotOk(response);
+
+    return response
+}
+
+export async function sendDelete(url: string) {
+    const response = await fetch(url, {
+        method: 'DELETE'
+    })
+    
+    await throwIfNotOk(response);
+
+    return response
+}
+
 export async function handleErrors(response: Response, conentType: string) {
     await throwIfNotOk(response);
     throwIfWrongContentType(response, conentType);
 }
 
-async function fetchWithErrorHandling(url: string, type: string) {
-    const response = await fetch(url, { next: { revalidate: 3600 } });
+async function fetchWithErrorHandling(url: string, type: string, options?: any) {
+    const response = await fetch(url, { next: { revalidate: 3600 }, ...options });
     await handleErrors(response, type);
 
     return response;

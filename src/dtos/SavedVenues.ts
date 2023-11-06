@@ -1,6 +1,5 @@
 export type SavedVenues = {
-    recentlySeen: Array<SavedVenue>,
-    bookmarked: Array<SavedVenue>
+    recentlySeen: Array<SavedVenue>
 }
 
 export type SavedVenue = {
