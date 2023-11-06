@@ -9,7 +9,6 @@ const LOCAL_AUTHOR_BOOKMARKS_KEY = 'local-authors-bookmarks';
 export default function useLocalBookmarkedAuthors() {
     const [authors, setAuthors] = useLocalStorage<SavedAuthors>(LOCAL_AUTHOR_BOOKMARKS_KEY, {
         recentlySeen: [],
-        bookmarked: [],
         groups: []
     });
 
@@ -23,20 +22,6 @@ export default function useLocalBookmarkedAuthors() {
     const removeRecentlySeenAuthor = useCallback((id: string) => {
         setAuthors((prev) => {
             prev.recentlySeen = prev.recentlySeen.filter((a) => a.id != id);
-            return { ...prev };
-        });
-    }, [authors]);
-
-    const addBookmarkedAuthor = useCallback((id: string, title: string) => {
-        setAuthors((prev) => {
-            prev.bookmarked = [{ title: title, id: id }, ...prev.bookmarked];
-            return { ...prev };
-        });
-    }, [authors]);
-
-    const removeBookmarkedAuthor = useCallback((id: string) => {
-        setAuthors((prev) => {
-            prev.bookmarked = prev.bookmarked.filter((a) => a.id != id);
             return { ...prev };
         });
     }, [authors]);
@@ -76,8 +61,6 @@ export default function useLocalBookmarkedAuthors() {
         authors,
         addRecentlySeenAuthor,
         removeRecentlySeenAuthor,
-        addBookmarkedAuthor,
-        removeBookmarkedAuthor,
         addAuthorGroup,
         updateAuthorGroup,
         removeAuthorGroup,

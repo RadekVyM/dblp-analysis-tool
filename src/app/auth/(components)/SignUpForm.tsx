@@ -1,7 +1,7 @@
 'use client'
 
 // @ts-expect-error
-import { useFormState } from 'react-dom'
+import { useFormState, useFormStatus } from 'react-dom'
 import Button from '@/components/Button'
 import Input from './Input'
 import { cn } from '@/utils/tailwindUtils'
@@ -14,6 +14,10 @@ import { anyKeys } from '@/utils/objects'
 type RegisterFormParams = {
     submit: (prevState: any, formData: FormData) => void,
     className?: string
+}
+
+type SubmitButtonParams = {
+    loading: boolean
 }
 
 export default function SignUpForm({ submit, className }: RegisterFormParams) {
@@ -88,12 +92,21 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
 
             {error?.error && <ErrorMessage>{error?.error}</ErrorMessage>}
 
-            <Button
-                className='w-full mt-4'
-                type='submit'
-                disabled={loading}>
-                Sign Up
-            </Button>
+            <SubmitButton
+                loading={loading} />
         </form>
+    )
+}
+
+function SubmitButton({ loading }: SubmitButtonParams) {
+    const { pending } = useFormStatus();
+
+    return (
+        <Button
+            className='w-full mt-4'
+            type='submit'
+            disabled={pending || loading}>
+            Sign Up
+        </Button>
     )
 }

@@ -1,6 +1,5 @@
 export type SavedAuthors = {
     recentlySeen: Array<SavedAuthor>,
-    bookmarked: Array<SavedAuthor>,
     groups: Array<SavedAuthorGroup>
 }
 

@@ -45,20 +45,6 @@ export function PublicationTypesStats({ className, publications, scaffoldId }: P
 
                 },
                 {
-                    key: 'Bubbles',
-                    content: (<PublicationTypesStatsBubblesChart />),
-                    title: 'Bubble chart',
-                    icon: (<MdBubbleChart />),
-
-                },
-                {
-                    key: 'Treemap',
-                    content: (<p className='min-h-[30rem]'>Treemap</p>),
-                    title: 'Treemap',
-                    icon: (<MdViewComfy />),
-
-                },
-                {
                     key: 'Table',
                     content: (<PublicationTypesStatsTable publications={publications} />),
                     title: 'Table',

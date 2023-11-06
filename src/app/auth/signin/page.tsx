@@ -12,7 +12,7 @@ export default async function SignInPage({ searchParams }: SignInPageParams) {
     const session = await getServerSession();
 
     if (session && session?.user) {
-        redirect('/auth/profile');
+        redirect('/profile');
     }
 
     return (

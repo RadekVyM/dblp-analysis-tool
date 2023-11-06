@@ -1,7 +1,7 @@
 'use client'
 
 import Button from '@/components/Button'
-import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors'
+import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import { cn } from '@/utils/tailwindUtils'
 import { useEffect, useState } from 'react'
 import { MdBookmarks, MdLibraryAdd } from 'react-icons/md'
@@ -13,31 +13,31 @@ type BookmarksParams = {
 }
 
 export default function Bookmarks({ className, authorId, title }: BookmarksParams) {
-    const { authors, addBookmarkedAuthor, removeBookmarkedAuthor } = useLocalBookmarkedAuthors();
-    const [isBookmarked, setIsBookmarked] = useState<boolean>();
+    const [isSaved, setIsBookmarked] = useState<boolean>();
+    const { removeSavedAuthor, saveAuthor, savedAuthors } = useSavedAuthors();
 
     useEffect(() => {
-        setIsBookmarked(!!authors?.bookmarked.find((a) => a.id == authorId));
-    }, [authors, authorId]);
+        setIsBookmarked(!!savedAuthors.find((a) => a.id == authorId));
+    }, [savedAuthors, authorId]);
 
     function updateBookmark() {
-        if (isBookmarked) {
-            removeBookmarkedAuthor(authorId);
+        if (isSaved) {
+            removeSavedAuthor(authorId);
         }
         else {
-            addBookmarkedAuthor(authorId, title);
+            saveAuthor(authorId, title);
         }
     }
 
     return (
         <div className={cn('flex gap-2', className)}>
             <Button
-                variant={isBookmarked ? 'default' : 'outline'}
+                variant={isSaved ? 'default' : 'outline'}
                 size='sm'
                 className='items-center gap-x-2'
                 onClick={() => updateBookmark()}>
                 <MdBookmarks />
-                <span className='hidden xs:block'>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+                <span className='hidden xs:block'>{isSaved ? 'Saved' : 'Save'}</span>
             </Button>
             <Button
                 variant='outline' size='sm'

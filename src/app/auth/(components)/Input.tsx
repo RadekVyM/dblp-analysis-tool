@@ -15,7 +15,7 @@ export default function Input({ label, id, error, ...rest }: InputParams) {
             <input
                 {...rest}
                 id={id}
-                className='px-3 py-2 border border-outline rounded-md' />
+                className='px-3 py-2 border border-outline rounded-md bg-surface-container' />
             {error && <span className='text-xs text-danger'>{error}</span>}
         </div>
     )

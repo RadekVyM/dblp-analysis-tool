@@ -11,7 +11,7 @@ export default async function SignUpPage({ }) {
     const session = await getServerSession();
 
     if (session && session?.user) {
-        redirect('/auth/profile');
+        redirect('/profile');
     }
 
     async function submit(prevState: any, formData: FormData) {

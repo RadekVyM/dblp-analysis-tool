@@ -14,6 +14,7 @@ import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors'
 import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
 import { signOut, useSession } from 'next-auth/react'
+import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 
 // TODO: Do I want the hover feature?
 
@@ -187,7 +188,7 @@ function MenuContent({ hide }: MenuContentParams) {
                     <Button
                         variant='outline'
                         size='xs'
-                        href='/auth/profile'>
+                        href='/profile'>
                         Your Profile
                     </Button>
                 </li>
@@ -209,6 +210,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
 
 function AuthorsTab() {
     const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
+    const { savedAuthors } = useSavedAuthors();
 
     return (
         <TabPanel
@@ -239,11 +241,11 @@ function AuthorsTab() {
             }
 
             {
-                authors.bookmarked.length > 0 &&
+                savedAuthors.length > 0 &&
                 <MenuSection
-                    title='Bookmarked'
+                    title='Saved'
                     className={authors.groups.length > 0 ? 'mb-4' : undefined}>
-                    {authors.bookmarked.map((author) =>
+                    {savedAuthors.map((author) =>
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}>
@@ -266,7 +268,7 @@ function AuthorsTab() {
             }
 
             {
-                authors.recentlySeen.length == 0 && authors.bookmarked.length == 0 && authors.groups.length == 0 &&
+                authors.recentlySeen.length == 0 && savedAuthors.length == 0 && authors.groups.length == 0 &&
                 <NothingFound
                     items='authors' />
             }

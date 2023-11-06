@@ -23,6 +23,7 @@ export default function Button({ className, children, href, variant, size, title
     }
     return (
         <button
+            title={title}
             className={cn(buttonVariants({ variant, size, className }))}
             {...props}>
             {children}
