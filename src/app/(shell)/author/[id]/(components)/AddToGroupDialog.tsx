@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from '@/components/Dialog'
 import Button from '@/components/Button'
 import { MdClose, MdLibraryAdd } from 'react-icons/md'
 import CheckListButton from '@/components/CheckListButton'
+import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 
 type AddToGroupDialogParams = {
     hide: () => void,
@@ -37,16 +38,6 @@ export const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogPa
                 </header>
 
                 <GroupsList />
-
-                <footer
-                    className='px-6 pt-2 pb-6 flex justify-end'>
-                    <Button
-                        variant='outline'
-                        className='items-center gap-x-2'>
-                        <MdLibraryAdd />
-                        New group
-                    </Button>
-                </footer>
             </DialogContent>
         </Dialog>
     )
@@ -55,20 +46,33 @@ export const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogPa
 AddToGroupDialog.displayName = 'AddToGroupDialog';
 
 function GroupsList() {
-    const groups = ['First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group', 'First group'];
+    const { authorGroups, saveAuthorGroup, error, isLoading } = useAuthorGroups();
 
     return (
-        <ul
-            className='flex-1 flex flex-col gap-2 px-6 py-2 overflow-auto thin-scrollbar'>
-            {groups.map((group) =>
-                <li
-                    key={group}>
-                    <CheckListButton
-                        isSelected={false}
-                        onClick={() => { }}>
-                        {group}
-                    </CheckListButton>
-                </li>)}
-        </ul>
+        <>
+            <ul
+                className='flex-1 flex flex-col gap-2 px-6 py-2 overflow-auto thin-scrollbar'>
+                {authorGroups.map((group) =>
+                    <li
+                        key={group.id}>
+                        <CheckListButton
+                            isSelected={false}
+                            onClick={() => { }}>
+                            {group.title}
+                        </CheckListButton>
+                    </li>)}
+            </ul>
+
+            <footer
+                className='px-6 pt-2 pb-6 flex justify-end'>
+                <Button
+                    variant='outline'
+                    className='items-center gap-x-2'
+                    onClick={() => saveAuthorGroup(`Author group ${authorGroups.length}`)}>
+                    <MdLibraryAdd />
+                    New group
+                </Button>
+            </footer>
+        </>
     )
 }

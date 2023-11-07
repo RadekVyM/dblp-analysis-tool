@@ -16,6 +16,7 @@ import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
 import { signOut, useSession } from 'next-auth/react'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
+import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 
 // TODO: Do I want the hover feature?
 
@@ -212,6 +213,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
 function AuthorsTab() {
     const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
     const { savedAuthors } = useSavedAuthors();
+    const { authorGroups } = useAuthorGroups();
 
     return (
         <TabPanel
@@ -245,7 +247,7 @@ function AuthorsTab() {
                 savedAuthors.length > 0 &&
                 <MenuSection
                     title='Saved'
-                    className={authors.groups.length > 0 ? 'mb-4' : undefined}>
+                    className={savedAuthors.length > 0 ? 'mb-4' : undefined}>
                     {savedAuthors.map((author) =>
                         <ListItem
                             key={author.id}
@@ -256,10 +258,10 @@ function AuthorsTab() {
             }
 
             {
-                authors.groups.length > 0 &&
+                authorGroups.length > 0 &&
                 <MenuSection
                     title='Groups'>
-                    {authors.groups.map((group) =>
+                    {authorGroups.map((group) =>
                         <ListItem
                             key={group.id}
                             link='#'>
@@ -269,7 +271,7 @@ function AuthorsTab() {
             }
 
             {
-                authors.recentlySeen.length == 0 && savedAuthors.length == 0 && authors.groups.length == 0 &&
+                authors.recentlySeen.length == 0 && savedAuthors.length == 0 && authorGroups.length == 0 &&
                 <NothingFound
                     items='authors' />
             }

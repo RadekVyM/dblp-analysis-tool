@@ -1,8 +1,7 @@
-import { SavedAuthor } from '@/dtos/SavedAuthors'
 import getCurrentUser from '@/services/auth/getCurrentUser'
 import { getSavedAuthors, saveAuthor } from '@/services/saves/authors'
 import { NextResponse } from 'next/server'
-import { noUser } from '../shared'
+import { authorDto, noUser } from '../shared'
 
 export async function GET(request: Request) {
     try {
@@ -39,14 +38,4 @@ export async function POST(request: Request) {
     catch (error) {
         return new NextResponse('Author could not be saved.', { status: 400 })
     }
-}
-
-async function authorDto(request: Request) {
-    const dto = await request.json() as SavedAuthor;
-
-    if (!dto.id || !dto.title) {
-        return new NextResponse('Some properties are missing.', { status: 400 })
-    }
-
-    return dto
 }

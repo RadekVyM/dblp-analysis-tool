@@ -16,11 +16,11 @@ export default function useSavedVenues() {
     const { trigger: triggerDelete, error: deleteError } = useSWRMutation('/api/save/venue', sendDeleteRequest);
 
     const saveVenue = useCallback(async (id: string, title: string) => {
-        await triggerPost({ title: title, id: id });
+        await triggerPost({ data: { title: title, id: id } });
     }, [triggerPost]);
 
     const removeSavedVenue = useCallback(async (id: string) => {
-        await triggerDelete(id);
+        await triggerDelete([id]);
     }, [triggerDelete]);
 
     return {

@@ -8,8 +8,7 @@ const LOCAL_AUTHOR_BOOKMARKS_KEY = 'local-authors-bookmarks';
 
 export default function useLocalBookmarkedAuthors() {
     const [authors, setAuthors] = useLocalStorage<SavedAuthors>(LOCAL_AUTHOR_BOOKMARKS_KEY, {
-        recentlySeen: [],
-        groups: []
+        recentlySeen: []
     });
 
     const addRecentlySeenAuthor = useCallback((id: string, title: string) => {
@@ -25,44 +24,10 @@ export default function useLocalBookmarkedAuthors() {
             return { ...prev };
         });
     }, [authors]);
-
-    const addAuthorGroup = useCallback((id: string, title: string, authors: Array<SavedAuthor> = []) => {
-        setAuthors((prev) => {
-            prev.groups = [{ title: title, id: id, authors: authors }, ...prev.groups];
-            return { ...prev };
-        });
-    }, [authors]);
-
-    const updateAuthorGroup = useCallback((id: string, title: string, authors: Array<SavedAuthor> = []) => {
-        setAuthors((prev) => {
-            const group = prev.groups.find((g) => g.id === id);
-            
-            if (group) {
-                group.title = title;
-                group.authors = authors;
-            }
-            else {
-                prev.groups = [{ title: title, id: id, authors: authors }, ...prev.groups];
-            }
-
-            return { ...prev };
-        });
-    }, [authors]);
-
-    const removeAuthorGroup = useCallback((id: string) => {
-        setAuthors((prev) => {
-            prev.groups = prev.groups.filter((a) => a.id != id);
-            return { ...prev };
-        });
-    }, [authors]);
-
     
     return {
         authors,
         addRecentlySeenAuthor,
-        removeRecentlySeenAuthor,
-        addAuthorGroup,
-        updateAuthorGroup,
-        removeAuthorGroup,
+        removeRecentlySeenAuthor
     }
 }
