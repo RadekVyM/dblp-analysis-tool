@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 import { TimestampsDocument } from './TimestampsDocument'
 
 const savedVenueSchema = new mongoose.Schema<SavedVenueSchema>({
-    venueId: { type: String, required: true, unique: true, dropDups: true },
+    venueId: { type: String, required: true },
     title: { type: String, required: true },
     user: { type: mongoose.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });

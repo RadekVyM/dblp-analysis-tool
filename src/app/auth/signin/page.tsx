@@ -20,7 +20,7 @@ export default async function SignInPage({ searchParams }: SignInPageParams) {
             className='justify-center items-center py-6'>
             <div
                 className='max-w-lg w-full'>
-                <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign in</h2>
+                <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign In</h2>
 
                 <SignInForm
                     className='w-full mb-8' />

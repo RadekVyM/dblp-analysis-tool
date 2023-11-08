@@ -1,6 +1,6 @@
 'use client'
 
-import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
+import useVisitedVenues from '@/hooks/useVisitedVenues'
 import { useEffect } from 'react'
 
 type AddToRecentlySeenParams = {
@@ -9,11 +9,10 @@ type AddToRecentlySeenParams = {
 }
 
 export default function AddToRecentlySeen({ id, title }: AddToRecentlySeenParams) {
-    const { addRecentlySeenVenue, removeRecentlySeenVenue } = useLocalBookmarkedVenues();
+    const { visitedVenue } = useVisitedVenues();
 
     useEffect(() => {
-        removeRecentlySeenVenue(id);
-        addRecentlySeenVenue(id, title);
+        visitedVenue(id, title);
     }, []);
 
     return (

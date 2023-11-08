@@ -1,6 +1,6 @@
-export type SavedVenues = {
-    recentlySeen: Array<SavedVenue>
-}
+export type VisitedVenue = {
+    visitsCount?: number
+} & SavedVenue
 
 export type SavedVenue = {
     title: string,

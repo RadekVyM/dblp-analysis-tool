@@ -1,13 +1,14 @@
-import { getSavedAuthors, saveAuthor } from '@/services/saves/authors'
 import { NextResponse } from 'next/server'
 import { authorDto, authorizedRequest } from '../../shared'
+import { getVisitedAuthors, visitedAuthor } from '@/services/visits/authors'
+import { DISPLAYED_VISITED_AUTHORS_COUNT } from '@/constants/visits'
 
 export async function GET(request: Request) {
     return await authorizedRequest(async (user) => {
-        const authors = await getSavedAuthors(user);
+        const authors = await getVisitedAuthors(user, DISPLAYED_VISITED_AUTHORS_COUNT);
         return NextResponse.json(authors)
     },
-    'Saved authors could not be fetched.')
+    'Visited authors could not be fetched.')
 }
 
 export async function POST(request: Request) {
@@ -17,8 +18,8 @@ export async function POST(request: Request) {
             return dto
         }
 
-        const author = await saveAuthor(dto, user);
+        const author = await visitedAuthor(dto, user);
         return NextResponse.json(author)
     },
-    'Author could not be saved.')
+    'Visited author could not be saved.')
 }

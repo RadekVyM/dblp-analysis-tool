@@ -1,0 +1,1 @@
+export const DISPLAYED_VISITED_AUTHORS_COUNT = 5

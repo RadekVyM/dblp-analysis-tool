@@ -124,6 +124,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                     isInputVisible &&
                     <Input
                         ref={inputRef}
+                        id='author-group-name'
                         label='Group name'
                         className='flex-1 min-w-0'
                         inputClassName='min-h-[2.25rem] px-3 py-1'

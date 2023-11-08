@@ -2,16 +2,18 @@ import 'server-only'
 import mongoose from 'mongoose'
 import { TimestampsDocument } from './TimestampsDocument'
 
-const savedAuthorSchema = new mongoose.Schema<SavedAuthorSchema>({
+const visitedAuthorSchema = new mongoose.Schema<VisitedAuthorSchema>({
+    visitsCount: { type: Number, required: true },
     authorId: { type: String, required: true },
     name: { type: String, required: true },
     user: { type: mongoose.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
-export default mongoose.models.SavedAuthor || mongoose.model<SavedAuthorSchema>('SavedAuthor', savedAuthorSchema);
+export default mongoose.models.VisitedAuthor || mongoose.model<VisitedAuthorSchema>('VisitedAuthor', visitedAuthorSchema);
 
-export type SavedAuthorSchema = {
+export type VisitedAuthorSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     name: string,
-    authorId: string
+    authorId: string,
+    visitsCount: number
 } & TimestampsDocument

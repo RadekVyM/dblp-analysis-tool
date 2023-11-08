@@ -87,7 +87,7 @@ export default function SignInForm({ className }: SignInFormParams) {
                 className='w-full mt-4'
                 type='submit'
                 disabled={loading}>
-                Sign In
+                Sign in
             </Button>
         </form>
     )

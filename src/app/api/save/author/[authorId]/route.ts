@@ -1,21 +1,6 @@
-import { NextResponse } from 'next/server'
-import { noUser } from '../../shared'
-import getCurrentUser from '@/services/auth/getCurrentUser'
+import { deleteItem } from '../../../shared'
 import { removeSavedAuthor } from '@/services/saves/authors'
 
 export async function DELETE(request: Request, { params }: { params: { authorId: string } }) {
-    try {
-        const user = await getCurrentUser();
-
-        if (!user) {
-            return noUser()
-        }
-
-        await removeSavedAuthor(params.authorId, user);
-
-        return new NextResponse(null, { status: 204 })
-    }
-    catch (error) {
-        return new NextResponse('Saved author could not be removed.', { status: 400 })
-    }
+    return await deleteItem(removeSavedAuthor, params.authorId, 'Saved author could not be removed.')
 }

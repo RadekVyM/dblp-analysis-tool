@@ -33,7 +33,7 @@ export async function signUp(email: string, username: string, password: string, 
 
     const newUser = new User({
         email: email,
-        username: username,
+        username: username.trim(),
         passwordHash: passwordHash
     });
     const result = await newUser.save();

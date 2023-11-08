@@ -1,6 +1,6 @@
-export type SavedAuthors = {
-    recentlySeen: Array<SavedAuthor>
-}
+export type VisitedAuthor = {
+    visitsCount?: number
+} & SavedAuthor
 
 export type SavedAuthor = {
     title: string,

@@ -44,7 +44,7 @@ export default async function SignUpPage({ }) {
             className='justify-center items-center py-6'>
             <div
                 className='max-w-lg w-full'>
-                <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign up</h2>
+                <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign Up</h2>
 
                 <SignUpForm
                     className='w-full mb-8'

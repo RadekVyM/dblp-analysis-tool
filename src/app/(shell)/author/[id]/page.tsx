@@ -15,7 +15,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
-import { getServerSession } from 'next-auth'
+import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
 
 type AuthorPageParams = {
     params: {
@@ -44,12 +44,18 @@ type CoauthorsParams = {
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
     const author = await fetchAuthor(id);
+    const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <PageContainer>
-            <AddToRecentlySeen
-                id={id}
-                title={author.name} />
+
+            {
+                isAuthorized &&
+                <AddToRecentlySeen
+                    id={id}
+                    title={author.name} />
+            }
+
             <header>
                 <PageTitle
                     title={author.name}
@@ -99,8 +105,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
 }
 
 async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
-    const session = await getServerSession();
-    const isAuthorized = session && session.user;
+    const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <div className={cn('flex flex-col gap-7', info.aliases.length > 0 || info.affiliations.length > 0 ? '' : 'mt-4', className)}>

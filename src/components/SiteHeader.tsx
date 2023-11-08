@@ -8,7 +8,7 @@ import { SearchDialog } from './SearchDialog'
 import ClientButton from './ClientButton'
 import { useHover } from 'usehooks-ts'
 import { cn } from '@/utils/tailwindUtils'
-import { BookmarksSideMenuState } from '@/enums/BookmarksSideMenuState'
+import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 import useDialog from '@/hooks/useDialog'
 import { useSession } from 'next-auth/react'
@@ -17,14 +17,14 @@ import SiteLogo from './SiteLogo'
 
 type PageHeaderParams = {
     className: string,
-    authorGroupsMenuState: BookmarksSideMenuState,
+    authorGroupsMenuState: SavedItemsMenuState,
     authorGroupsMenuButtonClick: () => void,
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
 type HeaderParams = {
     className: string,
-    authorGroupsMenuState: BookmarksSideMenuState,
+    authorGroupsMenuState: SavedItemsMenuState,
     showDialog: () => void,
     authorGroupsMenuButtonClick: () => void,
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
@@ -57,13 +57,13 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
     const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
-    const bookmarkButtonVariant = authorGroupsMenuState === BookmarksSideMenuState.Docked && isNotMobile ?
+    const bookmarkButtonVariant = authorGroupsMenuState === SavedItemsMenuState.Docked && isNotMobile ?
         'icon-default' :
         'icon-outline';
     const session = useSession();
 
     useEffect(() => {
-        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != BookmarksSideMenuState.Collapsed));
+        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != SavedItemsMenuState.Collapsed));
     }, [isTopAuthorGroupsMenuButtonHovered, isHoverAreaHovered]);
 
     return (

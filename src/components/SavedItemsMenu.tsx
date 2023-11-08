@@ -5,25 +5,26 @@ import { useHover } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
 import { MdCancel, MdClose, MdOutlineBookmarks } from 'react-icons/md'
 import Button from './Button'
-import { BookmarksSideMenuState as BookmarksSideMenuState } from '@/enums/BookmarksSideMenuState'
+import { SavedItemsMenuState as SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import { SearchType } from '@/enums/SearchType'
 import Tabs from './Tabs'
 import ListLink from './ListLink'
 import { createLocalPath } from '@/utils/urls'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
-import useLocalBookmarkedAuthors from '@/hooks/useLocalBookmarkedAuthors'
-import useLocalBookmarkedVenues from '@/hooks/useLocalBookmarkedVenues'
+import useVisitedAuthors from '@/hooks/useVisitedAuthors'
+import useVisitedVenues from '@/hooks/useVisitedVenues'
 import { signOut, useSession } from 'next-auth/react'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
+import { DISPLAYED_VISITED_AUTHORS_COUNT as DISPLAYED_VISITED_ITEMS_COUNT } from '@/constants/visits'
 
 // TODO: Do I want the hover feature?
 
-type BookmarksSideMenuParams = {
+type SavedItemsMenuParams = {
     className?: string,
-    state: BookmarksSideMenuState,
-    bookmarksSideMenuHoverChanged: (value: boolean) => void,
+    state: SavedItemsMenuState,
+    savedItemsMenuHoverChanged: (value: boolean) => void,
     hide: () => void,
 }
 
@@ -72,15 +73,15 @@ type NothingFoundParams = {
     items: string
 }
 
-export const BookmarksSideMenu = forwardRef<HTMLElement, BookmarksSideMenuParams>(({ className, state, bookmarksSideMenuHoverChanged, hide }, ref) => {
+export const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
     const containerRef = useRef(null);
     const isContainerHovered = useHover(containerRef);
     const isNotMobile = useIsNotMobileSize();
-    const isExpanded = state != BookmarksSideMenuState.Collapsed;
+    const isExpanded = state != SavedItemsMenuState.Collapsed;
 
     useEffect(() => {
         if (isNotMobile) {
-            bookmarksSideMenuHoverChanged(isContainerHovered);
+            savedItemsMenuHoverChanged(isContainerHovered);
         }
     }, [isContainerHovered]);
 
@@ -104,7 +105,7 @@ export const BookmarksSideMenu = forwardRef<HTMLElement, BookmarksSideMenuParams
                         grid md:max-h-[calc(100vh_-_4rem_-_1px)] pointer-events-auto'>
                     <Menu
                         ref={ref}
-                        className={state == BookmarksSideMenuState.Floating ? 'shadow-lg shadow-outline-variant' : ''}
+                        className={state == SavedItemsMenuState.Floating ? 'shadow-lg shadow-outline-variant' : ''}
                         hide={hide} />
                 </div>
             </div>
@@ -112,7 +113,7 @@ export const BookmarksSideMenu = forwardRef<HTMLElement, BookmarksSideMenuParams
     )
 });
 
-BookmarksSideMenu.displayName = 'BookmarksSideMenu';
+SavedItemsMenu.displayName = 'BookmarksSideMenu';
 
 const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [isClient, setIsClient] = useState(false);
@@ -183,7 +184,7 @@ function MenuContent({ hide }: MenuContentParams) {
                     <Button
                         size='xs'
                         onClick={async () => await signOut()}>
-                        Sign Out
+                        Sign out
                     </Button>
                 </li>
                 <li>
@@ -191,7 +192,7 @@ function MenuContent({ hide }: MenuContentParams) {
                         variant='outline'
                         size='xs'
                         href='/profile'>
-                        Your Profile
+                        Your profile
                     </Button>
                 </li>
             </ul>
@@ -211,7 +212,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
 }
 
 function AuthorsTab() {
-    const { authors, removeRecentlySeenAuthor } = useLocalBookmarkedAuthors();
+    const { visitedAuthors, removeVisitedAuthor, isMutating } = useVisitedAuthors();
     const { savedAuthors } = useSavedAuthors();
     const { authorGroups } = useAuthorGroups();
 
@@ -219,20 +220,21 @@ function AuthorsTab() {
         <TabPanel
             id={SearchType.Author}>
             {
-                authors.recentlySeen.length > 0 &&
+                visitedAuthors.length > 0 &&
                 <MenuSection
                     title='Recently Seen'
                     className='mb-4'>
-                    {authors.recentlySeen.slice(0, 5).map((author) =>
+                    {visitedAuthors.slice(0, DISPLAYED_VISITED_ITEMS_COUNT).map((author) =>
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}
                             floatingContent={
                                 <button
+                                    disabled={isMutating}
                                     className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        removeRecentlySeenAuthor(author.id);
+                                        removeVisitedAuthor(author.id);
                                     }}>
                                     <MdCancel
                                         className='m-auto' />
@@ -271,7 +273,7 @@ function AuthorsTab() {
             }
 
             {
-                authors.recentlySeen.length == 0 && savedAuthors.length == 0 && authorGroups.length == 0 &&
+                visitedAuthors.length == 0 && savedAuthors.length == 0 && authorGroups.length == 0 &&
                 <NothingFound
                     items='authors' />
             }
@@ -280,27 +282,28 @@ function AuthorsTab() {
 }
 
 function VenuesTab() {
-    const { venues, removeRecentlySeenVenue } = useLocalBookmarkedVenues();
+    const { visitedVenues, removeVisitedVenue, isMutating } = useVisitedVenues();
     const { savedVenues } = useSavedVenues();
 
     return (
         <TabPanel
             id={SearchType.Venue}>
             {
-                venues.recentlySeen.length > 0 &&
+                visitedVenues.length > 0 &&
                 <MenuSection
                     title='Recently Seen'
                     className='mb-4'>
-                    {venues.recentlySeen.slice(0, 5).map((venue) =>
+                    {visitedVenues.slice(0, DISPLAYED_VISITED_ITEMS_COUNT).map((venue) =>
                         <ListItem
                             key={venue.id}
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}
                             floatingContent={
                                 <button
+                                    disabled={isMutating}
                                     className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        removeRecentlySeenVenue(venue.id);
+                                        removeVisitedVenue(venue.id);
                                     }}>
                                     <MdCancel
                                         className='m-auto' />
@@ -325,7 +328,7 @@ function VenuesTab() {
             }
 
             {
-                venues.recentlySeen.length == 0 && savedVenues.length == 0 &&
+                visitedVenues.length == 0 && savedVenues.length == 0 &&
                 <NothingFound
                     items='venues' />
             }
@@ -372,7 +375,7 @@ function TypeSelection({ selectedType, setSelectedType, className }: TypeSelecti
     return (
         <Tabs
             className={className}
-            tabsId='bookmarks-menu'
+            tabsId='saved-items-menu'
             items={tabs}
             legend='Select authors or venues:'
             selectedId={selectedType}

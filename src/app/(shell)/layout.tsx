@@ -1,4 +1,4 @@
-import HeaderBookmarks from '@/components/HeaderBookmarks'
+import HeaderSavedItems from '@/components/HeaderSavedItems'
 
 export default function ShellLayout({
     children,
@@ -18,7 +18,7 @@ function Scaffold({
     return (
         <div
             className='min-h-screen grid grid-rows-[auto_1fr_auto] grid-cols-[1fr]'>
-            <HeaderBookmarks />
+            <HeaderSavedItems />
 
             <div
                 id='main-content-container'

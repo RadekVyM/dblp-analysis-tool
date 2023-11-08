@@ -106,7 +106,7 @@ function SubmitButton({ loading }: SubmitButtonParams) {
             className='w-full mt-4'
             type='submit'
             disabled={pending || loading}>
-            Sign Up
+            Sign up
         </Button>
     )
 }
