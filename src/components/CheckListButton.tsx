@@ -1,22 +1,21 @@
 import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
-import ListButton from './ListButton'
+import ListButton, { ListButtonParams } from './ListButton'
 
 type CheckListButtonParams = {
     children: React.ReactNode,
-    isSelected: boolean,
-    onClick: () => void
-}
+    isSelected: boolean
+} & ListButtonParams
 
-export default function CheckListButton({ children, isSelected, onClick }: CheckListButtonParams) {
+export default function CheckListButton({ children, isSelected, ...props }: CheckListButtonParams) {
     return (
         <ListButton
+            {...props}
             role='checkbox'
             aria-checked={isSelected}
             marker='none'
             size='sm'
             surface='container'
-            className='w-full flex-row items-center gap-2 text-start'
-            onClick={onClick}>
+            className='w-full flex-row items-center gap-2 text-start'>
             {
                 isSelected ?
                     <ImCheckboxChecked

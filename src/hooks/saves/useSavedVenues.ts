@@ -12,8 +12,8 @@ const savedVenuesFetcher: Fetcher<Array<SavedVenue> | null, string> = (key) =>
 
 export default function useSavedVenues() {
     const { data, error: fetchError, isLoading } = useSWR('/api/save/venue', savedVenuesFetcher);
-    const { trigger: triggerPost, error: postError } = useSWRMutation('/api/save/venue', sendPostRequest<SavedVenue, SavedVenue>);
-    const { trigger: triggerDelete, error: deleteError } = useSWRMutation('/api/save/venue', sendDeleteRequest);
+    const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } = useSWRMutation('/api/save/venue', sendPostRequest<SavedVenue, SavedVenue>);
+    const { trigger: triggerDelete, error: deleteError, isMutating: isMutatingDelete } = useSWRMutation('/api/save/venue', sendDeleteRequest);
 
     const saveVenue = useCallback(async (id: string, title: string) => {
         await triggerPost({ data: { title: title, id: id } });
@@ -28,6 +28,7 @@ export default function useSavedVenues() {
         saveVenue,
         removeSavedVenue,
         error: fetchError | postError | deleteError,
+        isMutating: isMutatingPost || isMutatingDelete,
         isLoading
     }
 }

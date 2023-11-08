@@ -33,7 +33,9 @@ export async function saveVenue(dto: SavedVenueDto, user: UserSchema): Promise<S
 export async function getSavedVenues(user: UserSchema): Promise<Array<SavedVenueDto>> {
     await connectDb();
 
-    const venues = await SavedVenue.find<SavedVenueSchema>({ user: user._id });
+    const venues = await SavedVenue
+        .find<SavedVenueSchema>({ user: user._id })
+        .sort({ createdAt: 'desc' });
 
     return venues.map((v) => ({
         id: v.venueId,

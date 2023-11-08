@@ -32,9 +32,19 @@ export async function createOrUpdateAuthorGroup(dto: AuthorGroupDto & { id: stri
 export async function getAuthorGroups(user: UserSchema): Promise<Array<AuthorGroupDto>> {
     await connectDb();
 
-    const authors = await AuthorGroup.find<AuthorGroupSchema>({ user: user._id });
+    const authorGroups = await AuthorGroup
+        .find<AuthorGroupSchema>({ user: user._id })
+        .sort({ createdAt: 'desc' });
 
-    return authors.map((ag) => authorGroupToDto(ag));
+    return authorGroups.map((ag) => authorGroupToDto(ag))
+}
+
+export async function getAuthorGroup(authorGroupId: string, user: UserSchema): Promise<AuthorGroupDto | null> {
+    await connectDb();
+
+    const authorGroup = await AuthorGroup.findOne<AuthorGroupSchema>({ _id: objectId(authorGroupId), user: user._id });
+
+    return authorGroup ? authorGroupToDto(authorGroup) : null
 }
 
 export async function removeAuthorGroup(authorGroupId: string, user: UserSchema): Promise<void> {
@@ -52,7 +62,7 @@ export async function addAuthorsToAuthorGroup(authors: Array<SavedAuthorDto>, au
             .filter((a) => !authors.find((aa) => a.authorId == aa.id))
 
         authorGroup = await AuthorGroup.findOneAndUpdate<AuthorGroupSchema>(authorGroup._id, {
-            authors: [...authors, ...oldAuthors]
+            authors: [...(authors.map((a) => ({ authorId: a.id, name: a.title }))), ...oldAuthors]
         });
     }
 

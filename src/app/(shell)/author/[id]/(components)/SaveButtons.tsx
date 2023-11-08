@@ -5,18 +5,24 @@ import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useDialog from '@/hooks/useDialog'
 import { cn } from '@/utils/tailwindUtils'
 import { useEffect, useState } from 'react'
-import { MdBookmarks, MdLibraryAdd } from 'react-icons/md'
+import { MdBookmarks } from 'react-icons/md'
+import { FaUsers } from 'react-icons/fa'
 import { AddToGroupDialog } from './AddToGroupDialog'
 
 type SaveButtonsParams = {
     className?: string,
     authorId: string,
-    title: string
+    authorName: string
 }
 
-export default function SaveButtons({ className, authorId, title }: SaveButtonsParams) {
+type GroupButtonParams = {
+    authorId: string,
+    authorName: string
+}
+
+export default function SaveButtons({ className, authorId, authorName }: SaveButtonsParams) {
     const [isSaved, setIsSaved] = useState<boolean>();
-    const { removeSavedAuthor, saveAuthor, savedAuthors, error } = useSavedAuthors();
+    const { removeSavedAuthor, saveAuthor, savedAuthors, error, isMutating } = useSavedAuthors();
 
     // TODO: Handle errors
 
@@ -29,13 +35,14 @@ export default function SaveButtons({ className, authorId, title }: SaveButtonsP
             removeSavedAuthor(authorId);
         }
         else {
-            saveAuthor(authorId, title);
+            saveAuthor(authorId, authorName);
         }
     }
 
     return (
         <div className={cn('flex gap-2', className)}>
             <Button
+                disabled={isMutating}
                 variant={isSaved ? 'default' : 'outline'}
                 size='sm'
                 className='items-center gap-x-2'
@@ -43,12 +50,14 @@ export default function SaveButtons({ className, authorId, title }: SaveButtonsP
                 <MdBookmarks />
                 <span className='hidden xs:block'>{isSaved ? 'Saved' : 'Save'}</span>
             </Button>
-            <GroupButton />
+            <GroupButton
+                authorId={authorId}
+                authorName={authorName} />
         </div>
     )
 }
 
-function GroupButton() {
+function GroupButton({ authorId, authorName }: GroupButtonParams) {
     const [dialogRef, isDialogOpen, dialogAnimationClass, showDialog, hideDialog] = useDialog();
 
     return (
@@ -57,14 +66,16 @@ function GroupButton() {
                 variant='outline' size='sm'
                 className='items-center gap-x-2'
                 onClick={showDialog}>
-                <MdLibraryAdd />
-                <span className='hidden xs:block'>Add to group</span>
+                <FaUsers />
+                <span className='hidden xs:block'>Groups</span>
             </Button>
             <AddToGroupDialog
                 hide={hideDialog}
                 animation={dialogAnimationClass}
                 isOpen={isDialogOpen}
-                ref={dialogRef} />
+                ref={dialogRef}
+                authorId={authorId}
+                authorName={authorName} />
         </>
     )
 }

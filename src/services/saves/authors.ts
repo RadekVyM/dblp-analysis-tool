@@ -33,7 +33,9 @@ export async function saveAuthor(dto: SavedAuthorDto, user: UserSchema): Promise
 export async function getSavedAuthors(user: UserSchema): Promise<Array<SavedAuthorDto>> {
     await connectDb();
 
-    const authors = await SavedAuthor.find<SavedAuthorSchema>({ user: user._id });
+    const authors = await SavedAuthor
+        .find<SavedAuthorSchema>({ user: user._id })
+        .sort({ createdAt: 'desc' });
 
     return authors.map((a) => ({
         id: a.authorId,

@@ -42,12 +42,12 @@ async function fetchWithErrorHandling(url: string, type: string, options?: any) 
     const response = await fetch(url, { next: { revalidate: 3600 }, ...options });
     await handleErrors(response, type);
 
-    return response;
+    return response
 }
 
 async function throwIfNotOk(response: Response) {
     if (response.ok) {
-        return;
+        return
     }
 
     const retryAfter = response.headers.get('Retry-After') || '60';

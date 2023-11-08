@@ -264,7 +264,7 @@ function AuthorsTab() {
                     {authorGroups.map((group) =>
                         <ListItem
                             key={group.id}
-                            link='#'>
+                            link={`/authorgroup/${group.id}`}>
                             <span dangerouslySetInnerHTML={{ __html: group.title }}></span>
                         </ListItem>)}
                 </MenuSection>

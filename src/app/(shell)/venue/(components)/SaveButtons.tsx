@@ -14,7 +14,7 @@ type SaveButtonsParams = {
 
 export default function SaveButtons({ className, venueId, title }: SaveButtonsParams) {
     const [isSaved, setIsSaved] = useState<boolean>();
-    const { removeSavedVenue, saveVenue, savedVenues, error } = useSavedVenues();
+    const { removeSavedVenue, saveVenue, savedVenues, error, isMutating } = useSavedVenues();
 
     // TODO: Handle errors
 
@@ -33,6 +33,7 @@ export default function SaveButtons({ className, venueId, title }: SaveButtonsPa
 
     return (
         <Button
+            disabled={isMutating}
             variant={isSaved ? 'default' : 'outline'}
             size='sm'
             className='items-center gap-x-2'

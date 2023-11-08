@@ -1,12 +1,11 @@
 'use client'
 
-import Link from 'next/link'
 import { MdBookmarks } from 'react-icons/md'
 import SearchBarButton from './SearchBarButton'
 import NavigationMenu from './NavigationMenu'
 import { useRef, useEffect } from 'react'
 import { SearchDialog } from './SearchDialog'
-import { ClientButton } from './ClientButton'
+import ClientButton from './ClientButton'
 import { useHover } from 'usehooks-ts'
 import { cn } from '@/utils/tailwindUtils'
 import { BookmarksSideMenuState } from '@/enums/BookmarksSideMenuState'

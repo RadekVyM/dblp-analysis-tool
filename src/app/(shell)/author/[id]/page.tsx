@@ -15,6 +15,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
+import { getServerSession } from 'next-auth'
 
 type AuthorPageParams = {
     params: {
@@ -97,7 +98,10 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
     )
 }
 
-function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
+async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
+    const session = await getServerSession();
+    const isAuthorized = session && session.user;
+
     return (
         <div className={cn('flex flex-col gap-7', info.aliases.length > 0 || info.affiliations.length > 0 ? '' : 'mt-4', className)}>
             <AliasesAffiliations
@@ -109,9 +113,12 @@ function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams)
                     links={info.links} />
             }
 
-            <SaveButtons
-                authorId={authorId}
-                title={authorName} />
+            {
+                isAuthorized &&
+                <SaveButtons
+                    authorId={authorId}
+                    authorName={authorName} />
+            }
         </div>
     )
 }

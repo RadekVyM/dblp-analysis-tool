@@ -4,9 +4,12 @@ import { fetchVenue } from '@/services/venues/venues'
 import AddToRecentlySeen from '../(components)/AddToRecentlySeen'
 import SaveButtons from '../(components)/SaveButtons'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
+import { getServerSession } from 'next-auth'
 
 export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {
     const venue = await fetchVenue(id);
+    const session = await getServerSession();
+    const isAuthorized = session && session.user;
 
     return (
         <PageContainer>
@@ -20,9 +23,12 @@ export default async function ConferencePage({ params: { id }, searchParams }: V
                     subtitle={venue.type ? VENUE_TYPE_TITLE[venue.type] : undefined}
                     className='pb-3' />
 
-                <SaveButtons
-                    title={venue.title}
-                    venueId={venue.id} />
+                {
+                    isAuthorized &&
+                    <SaveButtons
+                        title={venue.title}
+                        venueId={venue.id} />
+                }
             </header>
         </PageContainer>
     )

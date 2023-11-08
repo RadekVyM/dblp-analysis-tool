@@ -6,8 +6,6 @@ import { noUser } from '../shared'
 
 export async function GET(request: Request) {
     try {
-        console.log('hello')
-
         const user = await getCurrentUser();
 
         if (!user) {
@@ -35,8 +33,8 @@ export async function POST(request: Request) {
             return dto
         }
 
-        const author = await createOrUpdateAuthorGroup(dto, user);
-        return NextResponse.json(author)
+        const authorGroup = await createOrUpdateAuthorGroup(dto, user);
+        return NextResponse.json(authorGroup)
     }
     catch (error) {
         return new NextResponse('Author group could not be saved.', { status: 400 })

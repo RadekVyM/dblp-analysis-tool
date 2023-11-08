@@ -3,7 +3,7 @@
 // @ts-expect-error
 import { useFormState, useFormStatus } from 'react-dom'
 import Button from '@/components/Button'
-import Input from './Input'
+import Input from '../../../components/Input'
 import { cn } from '@/utils/tailwindUtils'
 import { ChangeEvent, useState } from 'react'
 import { SignUpInputs } from '@/validation/schemas/SignUpSchema'

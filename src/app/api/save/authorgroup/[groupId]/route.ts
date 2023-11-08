@@ -16,12 +16,12 @@ export async function POST(request: Request, { params }: { params: { groupId: st
             return dto
         }
 
-        await addAuthorsToAuthorGroup([dto], params.groupId, user);
+        const authorGroup = await addAuthorsToAuthorGroup([dto], params.groupId, user);
 
-        return new NextResponse(null, { status: 204 })
+        return NextResponse.json(authorGroup)
     }
     catch (error) {
-        return new NextResponse('Author group could not be removed.', { status: 400 })
+        return new NextResponse('Author could not be added to the group.', { status: 400 })
     }
 }
 

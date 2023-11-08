@@ -10,7 +10,7 @@ export interface ClientButtonParams extends
     VariantProps<typeof buttonVariants> {
 }
 
-export const ClientButton = forwardRef<HTMLButtonElement, ClientButtonParams>(({ className, children, variant, size, ...props }, ref) => {
+const ClientButton = forwardRef<HTMLButtonElement, ClientButtonParams>(({ className, children, variant, size, ...props }, ref) => {
     return (
         <button
             className={cn(buttonVariants({ variant, size, className }))}
@@ -22,3 +22,5 @@ export const ClientButton = forwardRef<HTMLButtonElement, ClientButtonParams>(({
 });
 
 ClientButton.displayName = 'ClientButton';
+
+export default ClientButton
