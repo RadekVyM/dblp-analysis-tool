@@ -27,8 +27,8 @@ export async function changeUserInfo(email: string, username: string) : Promise<
     }
     
     const updatedUser = await User.findByIdAndUpdate<UserSchema>(currentUser._id, {
-        email: email,
-        username: username
+        email: email.trim(),
+        username: username.trim()
     });
 
     if (!updatedUser) {

@@ -9,6 +9,9 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { revalidatePath } from 'next/cache'
 import { changeUserInfo } from '@/services/auth/changeUserInfo'
 import ProfileHeader from './(components)/ProfileHeader'
+import ChangePasswordForm from './(components)/ChangePasswordForm'
+import changePassword from '@/services/auth/changePassword'
+import DeleteAccountForm from './(components)/DeleteAccountForm'
 
 type YourInfoParams = {
 }
@@ -56,8 +59,9 @@ function YourInfo({ }: YourInfoParams) {
             return { email: user?.email, username: user?.username }
         }
         catch (e) {
-            if (e instanceof Error) {
-                return { error: e.message }
+            const handled = handleError(e)
+            if (handled) {
+                return handled
             }
         }
 
@@ -74,37 +78,61 @@ function YourInfo({ }: YourInfoParams) {
 }
 
 function ChangePassword() {
+    async function submit(prevState: any, formData: FormData) {
+        'use server'
+
+        const currentPassword = formData.get('currentPassword')?.toString() || '';
+        const newPassword = formData.get('newPassword')?.toString() || '';
+        const confirmNewPassword = formData.get('confirmNewPassword')?.toString() || '';
+
+        if (isNullOrWhiteSpace(currentPassword) || isNullOrWhiteSpace(newPassword) || isNullOrWhiteSpace(confirmNewPassword)) {
+            revalidatePath('profile');
+            return
+        }
+
+        try {
+            await changePassword(currentPassword, newPassword, confirmNewPassword);
+        }
+        catch (e) {
+            const handled = handleError(e)
+            if (handled) {
+                return handled
+            }
+        }
+
+        revalidatePath('profile');
+    }
+
     return (
         <Section
             title='Change Password'>
-            <form
-                className='flex flex-col gap-2 items-stretch max-w-xl'>
-                <Input
-                    id='profile-old-password'
-                    label='Current password' />
-                <Input
-                    id='profile-new-password'
-                    label='New password' />
-                <Input
-                    id='profile-confirm-new-password'
-                    label='Confirm new password' />
-                <Button
-                    className='self-end mt-4'>
-                    Change password
-                </Button>
-            </form>
+            <ChangePasswordForm
+                submit={submit} />
         </Section>
     )
 }
 
 function DeleteAccount() {
+    async function submit(prevState: any, formData: FormData) {
+        'use server'
+
+        try {
+        }
+        catch (e) {
+            const handled = handleError(e)
+            if (handled) {
+                return handled
+            }
+        }
+
+        revalidatePath('profile');
+    }
+
     return (
         <Section
             title='Delete Account'>
-            <Button
-                variant='destructive'>
-                Delete account
-            </Button>
+            <DeleteAccountForm
+                submit={submit} />
         </Section>
     )
 }
@@ -117,4 +145,14 @@ function Section({ title, children }: SectionParams) {
             {children}
         </section>
     )
+}
+
+function handleError(e: any) {
+    if (e instanceof Error) {
+        if (e instanceof TypeError) {
+            return { error: 'Operation could not be finished.' }
+        }
+
+        return { error: e.message }
+    }
 }
