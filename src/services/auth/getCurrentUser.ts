@@ -1,6 +1,7 @@
 import User, { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
 import { getServerSession } from 'next-auth'
+import 'server-only'
 
 export default async function getCurrentUser() {
     const session = await getServerSession();

@@ -1,15 +1,16 @@
 import Button from '@/components/Button'
-import Input from '@/components/Input'
+import Input from '@/components/forms/Input'
 import PageContainer from '@/components/PageContainer'
 import PageTitle from '@/components/PageTitle'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import YourInfoForm from './(components)/YourInfoForm'
+import { isNullOrWhiteSpace } from '@/utils/strings'
+import { revalidatePath } from 'next/cache'
+import { changeUserInfo } from '@/services/auth/changeUserInfo'
+import ProfileHeader from './(components)/ProfileHeader'
 
 type YourInfoParams = {
-    user: {
-        name?: string | null,
-        email?: string | null
-    }
 }
 
 type SectionParams = {
@@ -26,15 +27,9 @@ export default async function ProfilePage() {
 
     return (
         <PageContainer>
-            <header>
-                <PageTitle
-                    title={session.user.name || ''}
-                    subtitle='Profile'
-                    className='pb-12' />
-            </header>
+            <ProfileHeader />
 
-            <YourInfo
-                user={session.user} />
+            <YourInfo />
 
             <ChangePassword />
 
@@ -43,26 +38,37 @@ export default async function ProfilePage() {
     )
 }
 
-function YourInfo({ user }: YourInfoParams) {
+function YourInfo({ }: YourInfoParams) {
+    async function submit(prevState: any, formData: FormData) {
+        'use server'
+
+        const email = formData.get('email')?.toString() || '';
+        const username = formData.get('username')?.toString() || '';
+
+        if (isNullOrWhiteSpace(email) || isNullOrWhiteSpace(username)) {
+            revalidatePath('profile');
+            return
+        }
+
+        try {
+            const user = await changeUserInfo(email, username);
+            // Send the updated data back to the client to update the current session
+            return { email: user?.email, username: user?.username }
+        }
+        catch (e) {
+            if (e instanceof Error) {
+                return { error: e.message }
+            }
+        }
+
+        revalidatePath('profile');
+    }
+
     return (
         <Section
             title='Your Info'>
-            <form
-                className='flex flex-col gap-2 items-stretch max-w-xl'>
-                <Input
-                    id='profile-name'
-                    label='Name'
-                    defaultValue={user.name || ''} />
-                <Input
-                    id='profile-email'
-                    label='E-mail'
-                    type='email'
-                    defaultValue={user.email || ''} />
-                <Button
-                    className='self-end mt-4'>
-                    Save changes
-                </Button>
-            </form>
+            <YourInfoForm
+                submit={submit} />
         </Section>
     )
 }

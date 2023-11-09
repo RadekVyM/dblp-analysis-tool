@@ -1,23 +1,20 @@
 'use client'
 
 // @ts-expect-error
-import { useFormState, useFormStatus } from 'react-dom'
-import Button from '@/components/Button'
-import Input from '../../../components/Input'
+import { useFormState } from 'react-dom'
+import Input from '../../../components/forms/Input'
 import { cn } from '@/utils/tailwindUtils'
 import { ChangeEvent, useState } from 'react'
 import { SignUpInputs } from '@/validation/schemas/SignUpSchema'
 import signUpValidator from '@/validation/signUpValidator'
-import ErrorMessage from './ErrorMessage'
+import ErrorMessage from '../../../components/forms/ErrorMessage'
 import { anyKeys } from '@/utils/objects'
+import SubmitButton from '@/components/forms/SubmitButton'
+import Form from '@/components/forms/Form'
 
 type RegisterFormParams = {
     submit: (prevState: any, formData: FormData) => void,
     className?: string
-}
-
-type SubmitButtonParams = {
-    loading: boolean
 }
 
 export default function SignUpForm({ submit, className }: RegisterFormParams) {
@@ -45,14 +42,14 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
-        setFormValues({ ...formValues, [name]: value });
+        setFormValues((old) => ({ ...old, [name]: value }));
     }
 
     return (
-        <form
+        <Form
             action={formAction}
             onSubmit={onSubmit}
-            className={cn('flex flex-col gap-2 items-stretch', className)}>
+            className={className}>
             <Input
                 id='signup-username'
                 label='Name'
@@ -93,20 +90,10 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
             {error?.error && <ErrorMessage>{error?.error}</ErrorMessage>}
 
             <SubmitButton
-                loading={loading} />
-        </form>
-    )
-}
-
-function SubmitButton({ loading }: SubmitButtonParams) {
-    const { pending } = useFormStatus();
-
-    return (
-        <Button
-            className='w-full mt-4'
-            type='submit'
-            disabled={pending || loading}>
-            Sign up
-        </Button>
+                className='w-full mt-4'
+                loading={loading}>
+                Sign up
+            </SubmitButton>
+        </Form>
     )
 }

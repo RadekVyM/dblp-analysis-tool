@@ -6,7 +6,7 @@ import Button from '@/components/Button'
 import { MdClose, MdLibraryAdd } from 'react-icons/md'
 import CheckListButton from '@/components/CheckListButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
-import Input from '@/components/Input'
+import Input from '@/components/forms/Input'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/SavedAuthors'
 

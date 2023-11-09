@@ -37,11 +37,9 @@ export const authOptions: AuthOptions = {
         }),  
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    /*
     session: {
         strategy: 'jwt',
     },
-    */
     debug: process.env.NODE_ENV === 'development',
     pages: {
         signIn: '/auth/signin',
@@ -49,7 +47,20 @@ export const authOptions: AuthOptions = {
         error: '/auth/signin',
         verifyRequest: '/auth/verify-request',
         newUser: '/'
-    }
+    },
+    callbacks: {
+        async jwt({ token, trigger, session, user }) {
+            if (trigger === 'update' && session) {
+                return { ...token, ...session.user }
+            }
+            
+            return { ...token, ...user }
+        },
+        async session({ session, token, user }) {
+            session.user = token;
+            return session
+        },
+    },
 };
 
 async function findMatchingUser(email: string, password: string) {

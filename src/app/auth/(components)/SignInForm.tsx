@@ -1,15 +1,17 @@
 'use client'
 
 import Button from '@/components/Button'
-import Input from '../../../components/Input'
+import Input from '../../../components/forms/Input'
 import { ChangeEvent, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { cn } from '@/utils/tailwindUtils'
 import signIn from '@/services/auth/signIn'
 import signInValidator from '@/validation/signInValidator'
 import { SignInInputs } from '@/validation/schemas/SignInSchema'
-import ErrorMessage from './ErrorMessage'
+import ErrorMessage from '../../../components/forms/ErrorMessage'
 import { anyKeys } from '@/utils/objects'
+import SubmitButton from '@/components/forms/SubmitButton'
+import Form from '@/components/forms/Form'
 
 type SignInFormParams = {
     className?: string
@@ -55,13 +57,13 @@ export default function SignInForm({ className }: SignInFormParams) {
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
         const { name, value } = e.target;
-        setFormValues({ ...formValues, [name]: value });
+        setFormValues((old) => ({ ...old, [name]: value }));
     }
 
     return (
-        <form
+        <Form
             onSubmit={onSubmit}
-            className={cn('flex flex-col gap-2 items-stretch', className)}>
+            className={className}>
             <Input
                 id='signin-email'
                 label='E-mail'
@@ -83,12 +85,11 @@ export default function SignInForm({ className }: SignInFormParams) {
 
             {error && <ErrorMessage>{error}</ErrorMessage>}
 
-            <Button
+            <SubmitButton
                 className='w-full mt-4'
-                type='submit'
-                disabled={loading}>
+                loading={loading}>
                 Sign in
-            </Button>
-        </form>
+            </SubmitButton>
+        </Form>
     )
 }
