@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter, Gabarito } from 'next/font/google'
 import SessionProvider from '@/components/SessionProvider'
 import { getServerSession } from 'next-auth'
+import Notifications from '@/components/Notifications'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,6 +26,7 @@ export default async function RootLayout({
           session={session}>
           {children}
         </SessionProvider>
+        <Notifications />
       </body>
     </html>
   )

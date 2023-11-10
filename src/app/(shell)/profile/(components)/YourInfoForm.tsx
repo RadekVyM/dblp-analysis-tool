@@ -4,6 +4,8 @@ import ErrorMessage from '@/components/forms/ErrorMessage'
 import Form from '@/components/forms/Form'
 import Input from '@/components/forms/Input'
 import SubmitButton from '@/components/forms/SubmitButton'
+import { NotificationType } from '@/enums/NotificationType'
+import useNotifications from '@/hooks/useNotifications'
 import updatedSession from '@/services/auth/updateSession'
 import { anyKeys } from '@/utils/objects'
 import changeUserInfoValidator from '@/validation/changeUserInfoValidator'
@@ -28,13 +30,21 @@ export default function YourInfoForm({ submit }: YourInfoFormParams) {
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
     const { data: session, update: updateSession } = useSession();
     const router = useRouter();
+    const { pushNotification } = useNotifications();
 
     useEffect(() => {
         // Update session after successful form submit 
-        if (formState?.email && formState?.username) {
+        if (formState.success && formState?.email && formState?.username) {
             const newSession = updatedSession(session, formState?.username, formState?.email);
             updateSession(newSession)
                 .then(() => { });
+
+            pushNotification({
+                key: 'PROFILE_INFO_CHANGED',
+                message: 'Your profile information has been changed succesfully',
+                type: NotificationType.Success,
+                autoclose: true
+            });
         }
     }, [formState]);
 

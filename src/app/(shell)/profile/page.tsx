@@ -12,6 +12,7 @@ import ProfileHeader from './(components)/ProfileHeader'
 import ChangePasswordForm from './(components)/ChangePasswordForm'
 import changePassword from '@/services/auth/changePassword'
 import DeleteAccountForm from './(components)/DeleteAccountForm'
+import deleteCurrentUser from '@/services/auth/deleteUser'
 
 type YourInfoParams = {
 }
@@ -56,7 +57,7 @@ function YourInfo({ }: YourInfoParams) {
         try {
             const user = await changeUserInfo(email, username);
             // Send the updated data back to the client to update the current session
-            return { email: user?.email, username: user?.username }
+            return { email: user?.email, username: user?.username, success: true }
         }
         catch (e) {
             const handled = handleError(e)
@@ -92,6 +93,7 @@ function ChangePassword() {
 
         try {
             await changePassword(currentPassword, newPassword, confirmNewPassword);
+            return { success: true }
         }
         catch (e) {
             const handled = handleError(e)
@@ -117,6 +119,8 @@ function DeleteAccount() {
         'use server'
 
         try {
+            await deleteCurrentUser();
+            return { success: true }
         }
         catch (e) {
             const handled = handleError(e)

@@ -4,7 +4,10 @@ import ErrorMessage from '@/components/forms/ErrorMessage'
 import Form from '@/components/forms/Form'
 import Input from '@/components/forms/Input'
 import SubmitButton from '@/components/forms/SubmitButton'
+import { NotificationType } from '@/enums/NotificationType'
+import useNotifications from '@/hooks/useNotifications'
 import { anyKeys } from '@/utils/objects'
+import { isNullOrWhiteSpace } from '@/utils/strings'
 import changePasswordValidator from '@/validation/changePasswordValidator'
 import { ChangePasswordInputs } from '@/validation/schemas/ChangePasswordSchema'
 import { ChangeEvent, useEffect, useState } from 'react'
@@ -24,13 +27,21 @@ export default function ChangePasswordForm({ submit }: ChangePasswordFormParams)
     const [formState, formAction] = useFormState(submit, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
+    const { pushNotification } = useNotifications();
 
     useEffect(() => {
-        if (!formState?.error) {
+        if (formState.success) {
             setFormValues({
                 currentPassword: '',
                 newPassword: '',
                 confirmNewPassword: ''
+            });
+
+            pushNotification({
+                key: 'PASSWORD_CHANGED',
+                message: 'Your password has been changed succesfully',
+                type: NotificationType.Success,
+                autoclose: true
             });
         }
     }, [formState]);
@@ -89,7 +100,8 @@ export default function ChangePasswordForm({ submit }: ChangePasswordFormParams)
 
             <SubmitButton
                 className='self-end mt-4'
-                loading={loading}>
+                loading={loading}
+                disabled={Object.values(formValues).some((v) => isNullOrWhiteSpace(v))}>
                 Change password
             </SubmitButton>
         </Form>

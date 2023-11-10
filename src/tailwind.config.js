@@ -90,6 +90,10 @@ module.exports = {
         slideRightOut: {
           '0%': { transform: 'translateX(0)', opacity: 1 },
           '100%': { transform: 'translateX(50%)', opacity: 0 },
+        },
+        widthShrink: {
+          '0%': { width: '100%' },
+          '100%': { width: '0' },
         }
       },
       animation: {
@@ -99,6 +103,7 @@ module.exports = {
         slideLeftIn: 'slideLeftIn 150ms ease-in-out forwards',
         slideDownOut: 'slideDownOut 150ms ease-in-out forwards',
         slideRightOut: 'slideRightOut 150ms ease-in-out forwards',
+        widthShrink: 'widthShrink 4500ms linear forwards',
       }
     },
   },
