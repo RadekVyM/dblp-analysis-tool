@@ -1,9 +1,9 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Gabarito } from 'next/font/google'
-import SessionProvider from '@/components/SessionProvider'
+import SessionProvider from '@/components/providers/SessionProvider'
 import { getServerSession } from 'next-auth'
-import Notifications from '@/components/Notifications'
+import Notifications from '@/components/shell/Notifications'
 
 const inter = Inter({ subsets: ['latin'] })
 

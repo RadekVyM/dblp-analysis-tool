@@ -1,8 +1,8 @@
-import PageContainer from '@/components/PageContainer'
-import PageTitle from '@/components/PageTitle'
+import PageContainer from '@/components/shell/PageContainer'
+import PageTitle from '@/components/shell/PageTitle'
 import { fetchVenue } from '@/services/venues/venues'
-import AddToRecentlySeen from '../(components)/AddToRecentlySeen'
-import SaveButtons from '../(components)/SaveButtons'
+import AddToRecentlySeen from './(components)/AddToRecentlySeen'
+import SaveButtons from './(components)/SaveButtons'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
 

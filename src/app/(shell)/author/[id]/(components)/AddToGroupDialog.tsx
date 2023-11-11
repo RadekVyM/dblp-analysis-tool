@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef, useEffect, useRef, useState } from 'react'
-import { Dialog, DialogContent } from '@/components/Dialog'
+import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
 import Button from '@/components/Button'
 import { MdClose, MdLibraryAdd } from 'react-icons/md'
 import CheckListButton from '@/components/CheckListButton'

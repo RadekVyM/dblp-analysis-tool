@@ -9,7 +9,7 @@ import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 const DOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_var(--side-bar-width)]', 'md:gap-x-5'];
 const UNDOCKED_SIDE_MENU_CLASSES = ['md:grid-cols-[1fr_0]'];
 
-export default function HeaderSavedItems() {
+export default function SiteHeaderSavedItemsCombination() {
     const isNotMobile = useIsNotMobileSize();
     const [savedItemsMenuState, setSavedItemsMenuState] = useState<SavedItemsMenuState>(SavedItemsMenuState.Collapsed);
 

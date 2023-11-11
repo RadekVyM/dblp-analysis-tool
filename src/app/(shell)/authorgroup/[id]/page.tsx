@@ -1,6 +1,6 @@
 import ListLink from '@/components/ListLink'
-import PageContainer from '@/components/PageContainer'
-import PageTitle from '@/components/PageTitle'
+import PageContainer from '@/components/shell/PageContainer'
+import PageTitle from '@/components/shell/PageTitle'
 import { SearchType } from '@/enums/SearchType'
 import getCurrentUser from '@/services/auth/getCurrentUser'
 import { getAuthorGroup } from '@/services/saves/authorGroups'

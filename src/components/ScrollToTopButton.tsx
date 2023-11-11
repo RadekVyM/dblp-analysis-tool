@@ -22,9 +22,7 @@ export default function ScrollToTopButton({ className }: ScrollToTopButtonParams
 
         window.addEventListener('scrollend', scrollEnded);
 
-        return () => {
-            window.removeEventListener('scrollend', scrollEnded);
-        }
+        return () => window.removeEventListener('scrollend', scrollEnded)
     }, []);
 
     function scrollToTop() {

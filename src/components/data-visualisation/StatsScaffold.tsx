@@ -1,5 +1,5 @@
 import { cn } from '@/utils/tailwindUtils'
-import Tabs from './Tabs'
+import Tabs from '../Tabs'
 
 type StatsScaffoldParams = {
     items: Array<StatsScaffoldItem>,

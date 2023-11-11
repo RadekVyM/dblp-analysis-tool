@@ -1,5 +1,5 @@
 import SignInForm from '../(components)/SignInForm'
-import PageContainer from '@/components/PageContainer'
+import PageContainer from '@/components/shell/PageContainer'
 import { getServerSession } from 'next-auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'

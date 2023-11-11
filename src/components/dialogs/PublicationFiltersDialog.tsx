@@ -4,14 +4,14 @@ import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent } from './Dialog'
 import { MdCheckBox, MdCheckBoxOutlineBlank, MdClose } from 'react-icons/md'
 import { ImCheckboxChecked, ImCheckboxUnchecked } from 'react-icons/im'
-import Button from './Button'
-import Tabs from './Tabs'
+import Button from '../Button'
+import Tabs from '../Tabs'
 import { PublicationType } from '@/enums/PublicationType'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { group } from '@/utils/array'
-import ListButton from './ListButton'
+import ListButton from '../ListButton'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
-import CheckListButton from './CheckListButton'
+import CheckListButton from '../CheckListButton'
 
 type PublicationFiltersDialogParams = {
     hide: () => void,

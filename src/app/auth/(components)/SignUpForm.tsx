@@ -3,14 +3,16 @@
 // @ts-expect-error
 import { useFormState } from 'react-dom'
 import Input from '../../../components/forms/Input'
-import { cn } from '@/utils/tailwindUtils'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { SignUpInputs } from '@/validation/schemas/SignUpSchema'
 import signUpValidator from '@/validation/signUpValidator'
 import ErrorMessage from '../../../components/forms/ErrorMessage'
 import { anyKeys } from '@/utils/objects'
 import SubmitButton from '@/components/forms/SubmitButton'
 import Form from '@/components/forms/Form'
+import { useRouter } from 'next/navigation'
+import useNotifications from '@/hooks/useNotifications'
+import { NotificationType } from '@/enums/NotificationType'
 
 type RegisterFormParams = {
     submit: (prevState: any, formData: FormData) => void,
@@ -24,9 +26,23 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
         password: '',
         confirmPassword: ''
     });
-    const [error, formAction] = useFormState(submit, {});
+    const [formState, formAction] = useFormState(submit, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
+    const { pushNotification } = useNotifications();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (formState.success) {
+            pushNotification({
+                key: 'ACCOUNT_REGISTERED',
+                message: 'Your account has been created succesfully',
+                type: NotificationType.Success,
+                autoclose: true
+            });
+            router.push('/auth/signin')
+        }
+    }, [formState]);
 
     async function onSubmit(e: React.FormEvent) {
         setLoading(true);
@@ -87,7 +103,7 @@ export default function SignUpForm({ submit, className }: RegisterFormParams) {
                 onChange={handleChange}
                 error={errors?.confirmPassword && 'Passwords do not match.'} />
 
-            {error?.error && <ErrorMessage>{error?.error}</ErrorMessage>}
+            {formState?.error && <ErrorMessage>{formState?.error}</ErrorMessage>}
 
             <SubmitButton
                 className='w-full mt-4'

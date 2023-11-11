@@ -3,7 +3,7 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import SignUpForm from '../(components)/SignUpForm'
-import PageContainer from '@/components/PageContainer'
+import PageContainer from '@/components/shell/PageContainer'
 import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 
@@ -29,14 +29,14 @@ export default async function SignUpPage({ }) {
 
         try {
             await signUp(email, username, password, confirmPassword);
+            return { success: true }
         }
         catch (e) {
             if (e instanceof Error) {
                 return { error: e.message }
             }
+            return { error: 'Registration was not successful.' }
         }
-
-        redirect('/auth/signin');
     }
 
     return (

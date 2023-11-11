@@ -1,6 +1,6 @@
 import { cn } from '@/utils/tailwindUtils'
 import Link from 'next/link'
-import LinkArrow from './LinkArrow'
+import LinkArrow from '../LinkArrow'
 
 type PageTitleParams = {
     subtitle?: string,

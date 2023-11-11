@@ -1,12 +1,13 @@
 'use client'
 
 import useNotifications, { Notification } from '@/hooks/useNotifications'
-import { useIsClient } from 'usehooks-ts'
-import Button from './Button'
-import { useEffect, useState } from 'react'
+import { useHover, useIsClient, useTimeout } from 'usehooks-ts'
+import Button from '../Button'
+import { useEffect, useRef, useState } from 'react'
 import { MdCheckCircle, MdClose, MdReportProblem } from 'react-icons/md'
 import { cn } from '@/utils/tailwindUtils'
 import { NotificationType } from '@/enums/NotificationType'
+import useTimer from '@/hooks/useTimer'
 
 type NotificationItemParams = {
     notification: Notification,
@@ -18,12 +19,12 @@ export default function Notifications() {
     const isClient = useIsClient();
 
     return (
-        <div
-            className='fixed inset-0 z-[1000] grid justify-start items-end pointer-events-none'>
+        <>
             {
                 isClient &&
                 <ul
-                    className='flex flex-col gap-2 p-4'>
+                    aria-live='polite'
+                    className='flex flex-col gap-2 p-4 max-w-md w-full fixed right-0 bottom-0 z-[1000] pointer-events-none'>
                     {notifications.map((notification) =>
                         <NotificationItem
                             key={notification.key}
@@ -31,37 +32,45 @@ export default function Notifications() {
                             removeNotification={removeNotification} />)}
                 </ul>
             }
-        </div>
+        </>
     )
 }
 
 function NotificationItem({ notification, removeNotification }: NotificationItemParams) {
-    const [progressClass, setProgressClass] = useState('');
+    const { progress, paused, start, pause, resume, stop } = useTimer(4500, () => {
+        removeNotification(notification);
+    });
+    const itemRef = useRef(null);
+    const isHovered = useHover(itemRef);
+
+    if (notification.autoclose) {
+        start();
+    }
 
     useEffect(() => {
         if (!notification.autoclose) {
             return
         }
 
-        setProgressClass('animate-widthShrink');
-
-        const timeout = setTimeout(() => {
-            removeNotification(notification);
-            setProgressClass('');
-        }, 4500);
-
-        return () => clearTimeout(timeout)
-    }, []);
+        if (isHovered) {
+            pause();
+        }
+        else {
+            resume();
+        }
+    }, [isHovered]);
 
     return (
         <li
-            className='pointer-events-auto bg-surface-container border border-outline rounded-lg shadow-2xl max-w-md w-full overflow-hidden'>
+            ref={itemRef}
+            aria-atomic='true' role={notificationRole(notification.type)}
+            className='pointer-events-auto bg-surface-container border border-outline rounded-lg shadow-2xl w-full overflow-hidden animate-slideUpIn'>
             <div
                 className='flex gap-4 items-center pl-3 pr-2 py-2'>
                 {notificationIcon(notification.type)}
 
                 <div
-                    className='flex-1 text-sm'>
+                    className='flex-1 text-sm leading-4'>
                     <span
                         className='align-middle'>
                         {notification.message}
@@ -69,11 +78,15 @@ function NotificationItem({ notification, removeNotification }: NotificationItem
                 </div>
 
                 <Button
+                    aria-label='Close notification'
                     title='Close'
                     variant='icon-outline'
                     size='xs'
                     className='self-start'
-                    onClick={() => removeNotification(notification)}>
+                    onClick={() => {
+                        stop();
+                        removeNotification(notification);
+                    }}>
                     <MdClose
                         className='w-4 h-4' />
                 </Button>
@@ -81,7 +94,8 @@ function NotificationItem({ notification, removeNotification }: NotificationItem
             {
                 notification.autoclose &&
                 <div
-                    className={cn('h-1 w-full', notificationBgColor(notification.type), progressClass)}>
+                    style={{ width: `${(1 - progress) * 100}%` }}
+                    className={cn('h-1 w-full', notificationBgColor(notification.type))}>
                 </div>
             }
         </li>
@@ -109,5 +123,14 @@ function notificationBgColor(type: NotificationType) {
             return 'bg-primary'
         case NotificationType.Error:
             return 'bg-danger'
+    }
+}
+
+function notificationRole(type: NotificationType) {
+    switch (type) {
+        case NotificationType.Success:
+            return 'status'
+        case NotificationType.Error:
+            return 'alert'
     }
 }

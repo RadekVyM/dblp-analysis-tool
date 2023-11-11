@@ -1,6 +1,6 @@
 'use client'
 
-import PageTitle from '@/components/PageTitle'
+import PageTitle from '@/components/shell/PageTitle'
 import { useSession } from 'next-auth/react'
 
 export default function ProfileHeader() {

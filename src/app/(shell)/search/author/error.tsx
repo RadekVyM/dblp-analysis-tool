@@ -1,9 +1,9 @@
 'use client'
 
-export default function Error({ error, reset }: ErrorParams) {
+import ErrorPage, { ErrorParams } from '@/components/shell/ErrorPage'
+
+export default function Error(params: ErrorParams) {
     return (
-        <div className='flex-1 grid place-content-center'>
-            {error.cause as string || error.message}
-        </div>
+        <ErrorPage params={params} />
     )
 }

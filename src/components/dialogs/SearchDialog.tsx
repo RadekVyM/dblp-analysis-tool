@@ -3,18 +3,19 @@
 import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent } from 'react'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { MdSearch, MdClose, MdAutorenew, MdCancel } from 'react-icons/md'
+import { MdSearch, MdClose, MdCancel } from 'react-icons/md'
 import { DblpCompletion } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
-import Button from './Button'
+import Button from '../Button'
 import { cn } from '@/utils/tailwindUtils'
 import { isNullOrWhiteSpace } from '@/utils/strings'
-import Tabs from './Tabs'
-import ListLink from './ListLink'
+import Tabs from '../Tabs'
+import ListLink from '../ListLink'
 import { Dialog, DialogContent } from './Dialog'
 import { useAuthorsSearch } from '@/hooks/search/useAuthorsSearch'
 import { useVenuesSearch } from '@/hooks/search/useVenuesSearch'
+import LoadingWheel from '../LoadingWheel'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -308,15 +309,14 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
                         }
                     </ul>
                     : (authorsResult.isLoading || venuesResult.isLoading) ?
-                        <MdAutorenew
-                            className='place-self-center w-10 h-10 animate-spin text-on-surface-container-muted' />
+                        <LoadingWheel
+                            className='place-self-center w-8 h-8 text-on-surface-container-muted' />
                         :
                         <span
                             className='place-self-center text-on-surface-container-muted'>
                             No results found
                         </span>
             }
-            { /* TODO: Find better loading icon than MdAutorenew */}
         </>
     )
 }

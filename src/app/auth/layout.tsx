@@ -1,4 +1,4 @@
-import SiteLogo from '@/components/SiteLogo'
+import SiteLogo from '@/components/shell/SiteLogo'
 
 export default function AuthLayout({
     children,

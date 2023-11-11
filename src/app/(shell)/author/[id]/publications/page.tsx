@@ -1,5 +1,5 @@
-import PageContainer from '@/components/PageContainer'
-import PageTitle from '@/components/PageTitle'
+import PageContainer from '@/components/shell/PageContainer'
+import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/authors'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { Section, SectionTitle } from '../(components)/Section'

@@ -1,4 +1,4 @@
-import HeaderSavedItems from '@/components/HeaderSavedItems'
+import SiteHeaderSavedItemsCombination from '@/components/shell/SiteHeaderSavedItemsCombination'
 
 export default function ShellLayout({
     children,
@@ -18,7 +18,7 @@ function Scaffold({
     return (
         <div
             className='min-h-screen grid grid-rows-[auto_1fr_auto] grid-cols-[1fr]'>
-            <HeaderSavedItems />
+            <SiteHeaderSavedItemsCombination />
 
             <div
                 id='main-content-container'
