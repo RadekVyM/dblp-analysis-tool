@@ -1,4 +1,4 @@
-import { cn } from "@/utils/tailwindUtils"
+import { cn } from '@/utils/tailwindUtils'
 
 type PageContainerParams = {
     children: React.ReactNode,

@@ -27,7 +27,7 @@ export default function useNotifications() {
     }, [setNotifications]);
 
     const removeNotification = useCallback((notification: Notification) => {
-        setNotifications((old) => old.filter((n) => n !== notification));
+        setNotifications((old) => old.filter((n) => n.key !== notification.key));
     }, [setNotifications]);
 
     const clearNotifications = useCallback(() => {
