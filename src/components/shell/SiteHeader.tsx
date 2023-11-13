@@ -22,47 +22,26 @@ type PageHeaderParams = {
     authorGroupsMenuButtonHoverChanged: (value: boolean) => void
 }
 
-type HeaderParams = {
-    className: string,
-    authorGroupsMenuState: SavedItemsMenuState,
-    showDialog: () => void,
-    authorGroupsMenuButtonClick: () => void,
-    authorGroupsMenuButtonHoverChanged: (value: boolean) => void
+type SearchParams = {
+    className?: string
 }
 
-export default function SiteHeader({ className, authorGroupsMenuState, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick }: PageHeaderParams) {
-    const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
-
-    return (
-        <>
-            <Header
-                className={className}
-                authorGroupsMenuState={authorGroupsMenuState}
-                showDialog={() => showSearchDialog()}
-                authorGroupsMenuButtonHoverChanged={authorGroupsMenuButtonHoverChanged}
-                authorGroupsMenuButtonClick={authorGroupsMenuButtonClick} />
-
-            <SearchDialog
-                hide={hideSearchDialog}
-                animation={searchDialogAnimation}
-                isOpen={isSearchDialogOpen}
-                ref={searchDialog} />
-        </>
-    )
-}
-
-function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick, className, authorGroupsMenuState }: HeaderParams) {
+export default function SiteHeader({ authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick, className, authorGroupsMenuState }: PageHeaderParams) {
     const topAuthorGroupsMenuButtonRef = useRef(null);
     const hoverAreaRef = useRef(null);
     const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
     const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
-    const bookmarkButtonVariant = authorGroupsMenuState === SavedItemsMenuState.Docked && isNotMobile ?
+    const savedItemsButtonVariant = authorGroupsMenuState === SavedItemsMenuState.Docked && isNotMobile ?
         'icon-default' :
         'icon-outline';
     const session = useSession();
 
     useEffect(() => {
+        if (!isNotMobile) {
+            return
+        }
+
         authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != SavedItemsMenuState.Collapsed));
     }, [isTopAuthorGroupsMenuButtonHovered, isHoverAreaHovered]);
 
@@ -70,7 +49,7 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
         <header
             className={cn('sticky top-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
             <div
-                className='grid grid-rows-[auto auto] grid-cols-[1fr] max-w-screen-xl w-full mx-auto px-4'>
+                className='grid grid-rows-[auto_auto] grid-cols-[1fr] md:grid-cols-[1fr_auto] max-w-screen-xl w-full mx-auto px-4'>
                 <div
                     className='row-start-1 row-end-2 col-start-1 col-end-2 flex place-items-center gap-6 sm:gap-10 h-16'>
                     <SiteLogo />
@@ -79,50 +58,53 @@ function Header({ showDialog, authorGroupsMenuButtonHoverChanged, authorGroupsMe
                         className='flex-1 flex flex-col place-items-end'>
                         <NavigationMenu />
                     </div>
-
-                    <div
-                        className='hidden md:flex gap-5'>
-                        <SearchBarButton
-                            className='min-w-[18rem] w-full'
-                            onClick={() => showDialog()} />
-
-                        {
-                            session?.status == 'authenticated' ?
-                                <ClientButton
-                                    ref={topAuthorGroupsMenuButtonRef}
-                                    variant={bookmarkButtonVariant}
-                                    onClick={authorGroupsMenuButtonClick}>
-                                    <MdBookmarks />
-                                </ClientButton> :
-                                <SignInButton />
-                        }
-                    </div>
                 </div>
 
                 <div
-                    className='row-start-2 row-end-3 col-start-1 col-end-2 flex md:hidden gap-5 place-items-center h-16'>
-                    <SearchBarButton
-                        className='w-full'
-                        onClick={() => showDialog()} />
+                    className='row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 md:col-start-2 md:col-end-3
+                        relative flex gap-5 place-items-center h-16 md:h-auto md:ml-6'>
+                    <Search
+                        className='md:min-w-[18rem]' />
 
                     {
                         session?.status == 'authenticated' ?
-                            <ClientButton
-                                variant={bookmarkButtonVariant}
-                                onClick={authorGroupsMenuButtonClick}>
-                                <MdBookmarks />
-                            </ClientButton> :
+                            <>
+                                <div
+                                    ref={hoverAreaRef}
+                                    className={
+                                        `absolute right-0 bottom-0 w-16 h-4 mb-[-2px] bg-transparent
+                                        ${isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered ? 'hidden md:block' : 'hidden'}`}>
+                                </div>
+
+                                <ClientButton
+                                    ref={topAuthorGroupsMenuButtonRef}
+                                    variant={savedItemsButtonVariant}
+                                    onClick={authorGroupsMenuButtonClick}>
+                                    <MdBookmarks />
+                                </ClientButton>
+                            </> :
                             <SignInButton />
                     }
                 </div>
-
-                <div
-                    ref={hoverAreaRef}
-                    className={
-                        `row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 place-self-end w-16 h-4 mb-[-2px] bg-transparent
-                        ${isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered ? 'block' : 'hidden'}`}>
-                </div>
             </div>
         </header>
+    )
+}
+
+function Search({ className }: SearchParams) {
+    const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
+
+    return (
+        <>
+            <SearchBarButton
+                className={cn('w-full', className)}
+                onClick={() => showSearchDialog()} />
+
+            <SearchDialog
+                hide={hideSearchDialog}
+                animation={searchDialogAnimation}
+                isOpen={isSearchDialogOpen}
+                ref={searchDialog} />
+        </>
     )
 }

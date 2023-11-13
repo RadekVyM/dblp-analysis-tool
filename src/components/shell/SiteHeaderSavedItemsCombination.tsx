@@ -46,7 +46,6 @@ export default function SiteHeaderSavedItemsCombination() {
                 authorGroupsMenuButtonHoverChanged={savedItemsMenuHoverChanged}
                 authorGroupsMenuButtonClick={savedItemsMenuButtonClick} />
             <SavedItemsMenu
-                className='row-start-2 row-end-3 col-start-1 col-end-3 max-w-screen-xl md:px-4 mx-auto w-full grid-cols-[1fr_var(--side-bar-width)]'
                 state={savedItemsMenuState}
                 savedItemsMenuHoverChanged={savedItemsMenuHoverChanged}
                 hide={() => setSavedItemsMenuState(SavedItemsMenuState.Collapsed)} />

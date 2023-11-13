@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/utils/tailwindUtils'
-import { useHover } from 'usehooks-ts'
+import { useHover, useIsClient } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
 import { MdCancel, MdClose, MdOutlineBookmarks } from 'react-icons/md'
 import Button from '../Button'
@@ -18,6 +18,7 @@ import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { DISPLAYED_VISITED_AUTHORS_COUNT as DISPLAYED_VISITED_ITEMS_COUNT } from '@/constants/visits'
+import { createPortal } from 'react-dom'
 
 // TODO: Do I want the hover feature?
 
@@ -74,6 +75,26 @@ type NothingFoundParams = {
 }
 
 export const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
+    const isClient = useIsClient();
+
+    return (
+        <>
+            {
+                isClient && createPortal(
+                    <MenuContainer
+                        ref={ref}
+                        className={className}
+                        state={state}
+                        hide={hide}
+                        savedItemsMenuHoverChanged={savedItemsMenuHoverChanged} />, document.body.querySelector('#saveditems-menu-container')!)
+            }
+        </>
+    )
+});
+
+SavedItemsMenu.displayName = 'SavedItemsMenu';
+
+const MenuContainer = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
     const containerRef = useRef(null);
     const isContainerHovered = useHover(containerRef);
     const isNotMobile = useIsNotMobileSize();
@@ -86,34 +107,33 @@ export const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ c
     }, [isContainerHovered]);
 
     return (
-        <>
+        <div
+            className={cn(
+                `pointer-events-auto fixed inset-0 z-50 md:relative md:inset-auto md:z-20 w-full h-full isolate bg-transparent`,
+                isExpanded ? 'grid grid-cols-[1fr,var(--side-bar-width)] md:grid-cols-1' : 'hidden',
+                className)}>
             <div
-                className={cn(
-                    `fixed inset-0 z-50 md:relative md:inset-auto md:z-20 w-full h-full isolate pointer-events-none ${isExpanded ? 'grid' : 'hidden'}`,
-                    className)}>
-                <div
-                    onClick={() => hide()}
-                    className={`
-                        md:hidden row-start-1 row-end-2 col-start-1 col-end-3 bg-[var(--backdrop)] backdrop-blur-md
-                        ${isExpanded ? 'pointer-events-auto animate-fadeIn' : 'pointer-events-none'}`}>
-                </div>
-
-                <div
-                    ref={containerRef}
-                    className='
-                        row-start-1 row-end-2 col-start-2 col-end-3 md:sticky z-20 md:top-[calc(4rem_+_1px)]
-                        grid md:max-h-[calc(100vh_-_4rem_-_1px)] pointer-events-auto'>
-                    <Menu
-                        ref={ref}
-                        className={state == SavedItemsMenuState.Floating ? 'shadow-lg shadow-outline-variant' : ''}
-                        hide={hide} />
-                </div>
+                onClick={() => hide()}
+                className={`
+                    md:hidden row-start-1 row-end-2 col-start-1 col-end-3 bg-[var(--backdrop)] backdrop-blur-md
+                    ${isExpanded ? 'pointer-events-auto animate-fadeIn' : 'pointer-events-none'}`}>
             </div>
-        </>
+
+            <div
+                ref={containerRef}
+                className='
+                    row-start-1 row-end-2 col-start-2 col-end-3 md:col-start-1 md:col-end-2 md:sticky z-20 md:top-[calc(4rem_+_1px)]
+                    grid md:max-h-[calc(100vh_-_4rem_-_1px)]'>
+                <Menu
+                    ref={ref}
+                    className={state == SavedItemsMenuState.Floating ? 'shadow-lg shadow-outline-variant' : ''}
+                    hide={hide} />
+            </div>
+        </div>
     )
 });
 
-SavedItemsMenu.displayName = 'BookmarksSideMenu';
+MenuContainer.displayName = 'MenuContainer';
 
 const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [isClient, setIsClient] = useState(false);

@@ -39,6 +39,8 @@ type TryAgainButtonParams = {
 }
 
 export default function ErrorPage({ params: { error, reset } }: ErrorPageParams) {
+    // TODO: Next.js sends just plain Error so this does not work
+
     return (
         <PageContainer>
             {

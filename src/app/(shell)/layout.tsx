@@ -27,6 +27,10 @@ function Scaffold({
                     className='col-start-1 col-end-2'>
                     {children}
                 </div>
+                <div
+                    id='saveditems-menu-container'
+                    className='col-start-2 col-end-3 justify-self-end w-[var(--side-bar-width)] h-full bg-transparent pointer-events-none'>
+                </div>
             </div>
 
             <footer
