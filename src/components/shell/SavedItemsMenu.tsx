@@ -147,6 +147,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
             ref={ref}
             className={cn(`
                 place-self-stretch flex flex-col md:my-4 pt-5 max-h-[100vh]
+                w-[var(--side-bar-width)]
                 overflow-y-hidden
                 bg-surface-container rounded-l-lg md:rounded-lg md:border border-outline
                 pointer-events-auto animate-slideLeftIn md:animate-none`,

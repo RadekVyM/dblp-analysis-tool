@@ -1,49 +1,17 @@
-'use client'
-
-import { MdBookmarks } from 'react-icons/md'
-import SearchBarButton from './SearchBarButton'
 import NavigationMenu from './NavigationMenu'
-import { useRef, useEffect } from 'react'
-import { SearchDialog } from '../dialogs/SearchDialog'
-import ClientButton from '../ClientButton'
-import { useHover } from 'usehooks-ts'
 import { cn } from '@/utils/tailwindUtils'
-import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
-import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
-import useDialog from '@/hooks/useDialog'
-import { useSession } from 'next-auth/react'
 import SignInButton from '../SignInButton'
 import SiteLogo from './SiteLogo'
+import { SavedItemsMenuIntegration } from './SavedItemsMenuIntegration'
+import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
+import Search from './Search'
 
-type PageHeaderParams = {
-    className: string,
-    authorGroupsMenuState: SavedItemsMenuState,
-    authorGroupsMenuButtonClick: () => void,
-    authorGroupsMenuButtonHoverChanged: (value: boolean) => void
+type SiteHeaderParams = {
+    className?: string,
 }
 
-type SearchParams = {
-    className?: string
-}
-
-export default function SiteHeader({ authorGroupsMenuButtonHoverChanged, authorGroupsMenuButtonClick, className, authorGroupsMenuState }: PageHeaderParams) {
-    const topAuthorGroupsMenuButtonRef = useRef(null);
-    const hoverAreaRef = useRef(null);
-    const isTopAuthorGroupsMenuButtonHovered = useHover(topAuthorGroupsMenuButtonRef);
-    const isHoverAreaHovered = useHover(hoverAreaRef);
-    const isNotMobile = useIsNotMobileSize();
-    const savedItemsButtonVariant = authorGroupsMenuState === SavedItemsMenuState.Docked && isNotMobile ?
-        'icon-default' :
-        'icon-outline';
-    const session = useSession();
-
-    useEffect(() => {
-        if (!isNotMobile) {
-            return
-        }
-
-        authorGroupsMenuButtonHoverChanged(isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && authorGroupsMenuState != SavedItemsMenuState.Collapsed));
-    }, [isTopAuthorGroupsMenuButtonHovered, isHoverAreaHovered]);
+export default async function SiteHeader({ className }: SiteHeaderParams) {
+    const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <header
@@ -67,44 +35,12 @@ export default function SiteHeader({ authorGroupsMenuButtonHoverChanged, authorG
                         className='md:min-w-[18rem]' />
 
                     {
-                        session?.status == 'authenticated' ?
-                            <>
-                                <div
-                                    ref={hoverAreaRef}
-                                    className={
-                                        `absolute right-0 bottom-0 w-16 h-4 mb-[-2px] bg-transparent
-                                        ${isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered ? 'hidden md:block' : 'hidden'}`}>
-                                </div>
-
-                                <ClientButton
-                                    ref={topAuthorGroupsMenuButtonRef}
-                                    variant={savedItemsButtonVariant}
-                                    onClick={authorGroupsMenuButtonClick}>
-                                    <MdBookmarks />
-                                </ClientButton>
-                            </> :
+                        isAuthorized ?
+                            <SavedItemsMenuIntegration /> :
                             <SignInButton />
                     }
                 </div>
             </div>
         </header>
-    )
-}
-
-function Search({ className }: SearchParams) {
-    const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
-
-    return (
-        <>
-            <SearchBarButton
-                className={cn('w-full', className)}
-                onClick={() => showSearchDialog()} />
-
-            <SearchDialog
-                hide={hideSearchDialog}
-                animation={searchDialogAnimation}
-                isOpen={isSearchDialogOpen}
-                ref={searchDialog} />
-        </>
     )
 }
