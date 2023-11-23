@@ -16,6 +16,7 @@ import { Dialog, DialogContent } from './Dialog'
 import { useAuthorsSearch } from '@/hooks/search/useAuthorsSearch'
 import { useVenuesSearch } from '@/hooks/search/useVenuesSearch'
 import LoadingWheel from '../LoadingWheel'
+import he from 'he'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -347,8 +348,8 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
             marker={url == selectedUrl ? 'visible' : 'none'}
             className='my-1'
             href={url}
-            onClick={() => onClick(url)}
-            dangerouslySetInnerHTML={{ __html: text }}>
+            onClick={() => onClick(url)}>
+            {he.decode(text)}
         </ListLink>
     </li>)
 }

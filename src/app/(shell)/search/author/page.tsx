@@ -6,6 +6,7 @@ import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import SearchResultList from '../(components)/SearchResultList'
 import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { SEARCH_AUTHOR } from '@/constants/urls'
+import he from 'he'
 
 type SearchAuthorPageParams = {
     searchParams: SearchParams
@@ -36,7 +37,7 @@ function getAdditionalInfo(author: DblpAuthorSearchHit) {
     const notes = getAuthorsNotes(author);
 
     return notes
-        .map((n) => n['@type'] == 'award' ? undefined : n.text)
+        .map((n) => n['@type'] == 'award' ? undefined : he.decode(n.text))
         .filter((t) => t)
         .join('<br/>');
 }

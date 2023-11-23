@@ -30,7 +30,7 @@ export default async function SiteHeader({ className }: SiteHeaderParams) {
 
                 <div
                     className='row-start-2 row-end-3 md:row-start-1 md:row-end-2 col-start-1 col-end-2 md:col-start-2 md:col-end-3
-                        relative flex gap-5 place-items-center h-16 md:h-auto md:ml-6'>
+                        relative flex gap-5 place-items-center h-16 md:h-auto md:ml-8'>
                     <Search
                         className='md:min-w-[18rem]' />
 

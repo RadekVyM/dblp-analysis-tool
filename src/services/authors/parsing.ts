@@ -6,6 +6,7 @@ import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '@/constants/html'
 import { isNumber } from '@/utils/strings'
 import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { extractPublicationsFromXml } from '../publications/parsing'
+import he from 'he'
 
 export function extractAuthor(xml: string, id: string) {
     const $ = cheerio.load(xml, { xmlMode: true });
@@ -18,7 +19,7 @@ export function extractAuthor(xml: string, id: string) {
 
     return createDblpAuthor(
         id,
-        title,
+        he.decode(title),
         extractPersonInfo($, person, id, title),
         homonyms,
         publications
@@ -57,7 +58,7 @@ export function extractAuthorsIndex(html: string, count?: number) {
         const title = link.text();
 
         authors.push({
-            title: title,
+            title: he.decode(title),
             localUrl: `${SEARCH_AUTHOR}/${title.replaceAll(' ', '_')}`
         });
     });
@@ -101,7 +102,7 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
             const title = $(el).text();
 
             return {
-                title: title,
+                title: he.decode(title),
                 id: convertDblpIdToNormalizedId(`pid/${pid}`)
             }
         })

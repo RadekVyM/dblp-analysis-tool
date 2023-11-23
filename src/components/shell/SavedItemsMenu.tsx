@@ -261,7 +261,7 @@ function AuthorsTab() {
                                         className='m-auto' />
                                 </button>
                             }>
-                            <span className='flex-1 mr-8' dangerouslySetInnerHTML={{ __html: author.title }}></span>
+                            <span className='flex-1 mr-6'>{author.title}</span>
                         </ListItem>)}
                 </MenuSection>
             }
@@ -275,7 +275,7 @@ function AuthorsTab() {
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}>
-                            <span dangerouslySetInnerHTML={{ __html: author.title }}></span>
+                            <span>{author.title}</span>
                         </ListItem>)}
                 </MenuSection>
             }
@@ -288,7 +288,7 @@ function AuthorsTab() {
                         <ListItem
                             key={group.id}
                             link={`/authorgroup/${group.id}`}>
-                            <span dangerouslySetInnerHTML={{ __html: group.title }}></span>
+                            <span>{group.title}</span>
                         </ListItem>)}
                 </MenuSection>
             }
@@ -330,7 +330,7 @@ function VenuesTab() {
                                         className='m-auto' />
                                 </button>
                             }>
-                            <span className='flex-1 mr-8' dangerouslySetInnerHTML={{ __html: venue.title }}></span>
+                            <span className='flex-1 mr-6'>{venue.title}</span>
                         </ListItem>)}
                 </MenuSection>
             }
@@ -343,7 +343,7 @@ function VenuesTab() {
                         <ListItem
                             key={venue.id}
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
-                            <span dangerouslySetInnerHTML={{ __html: venue.title }}></span>
+                            <span>{venue.title}</span>
                         </ListItem>)}
                 </MenuSection>
             }

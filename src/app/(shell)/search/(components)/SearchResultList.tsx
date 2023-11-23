@@ -65,8 +65,9 @@ function SearchResultLink({ item }: SearchResultLinkParams) {
             href={item.localUrl}
             className='my-2'
             prefetch={false}>
-            <span
-                dangerouslySetInnerHTML={{ __html: item.title }} />
+            <span>
+                {item.title}
+            </span>
             {
                 item.additionalInfo &&
                 <small
