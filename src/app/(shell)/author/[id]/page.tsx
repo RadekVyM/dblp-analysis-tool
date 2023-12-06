@@ -3,19 +3,17 @@ import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/authors'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import LinksList from './(components)/LinksList'
-import { DblpAuthor, DblpAuthorHomonym, DblpAuthorInfo } from '@/dtos/DblpAuthor'
+import { DblpAuthorHomonym, DblpAuthorInfo } from '@/dtos/DblpAuthor'
 import SaveButtons from './(components)/SaveButtons'
 import { cn } from '@/utils/tailwindUtils'
 import ListLink from '@/components/ListLink'
 import AuthorPublications from './(components)/AuthorPublications'
 import { Section, SectionTitle } from './(components)/Section'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
-import { DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { Suspense } from 'react'
-import Link from 'next/link'
-import { createLocalPath } from '@/utils/urls'
-import { SearchType } from '@/enums/SearchType'
 import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
+import AuthorCoauthors from './(components)/AuthorCoauthors'
+import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 
 type AuthorPageParams = {
     params: {
@@ -36,10 +34,6 @@ type AwardsParams = {
 
 type SameNameAuthorsParams = {
     homonyms: Array<DblpAuthorHomonym>
-}
-
-type CoauthorsParams = {
-    author: DblpAuthor
 }
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
@@ -92,11 +86,8 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                         publications={author.publications}
                         maxDisplayedCount={5} />
 
-                    <Suspense
-                        fallback={<span>Loading...</span>}>
-                        <Coauthors
-                            author={author} />
-                    </Suspense>
+                    <AuthorCoauthors
+                        author={author} />
                 </>
             }
 
@@ -160,53 +151,5 @@ function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
                     </ListLink>)}
             </ul>
         </Section>
-    )
-}
-
-function Coauthors({ author }: CoauthorsParams) {
-    const coauthorsMap = new Map<string, { person: DblpPublicationPerson, count: number }>();
-    const edgesSet = new Set<string>();
-    author.publications.forEach(p => p.authors.forEach(a => {
-        if (a.id === author.id) {
-            return;
-        }
-
-        const savedCoauthor = coauthorsMap.get(a.id);
-        if (savedCoauthor) {
-            savedCoauthor.count += 1;
-        }
-        else {
-            coauthorsMap.set(a.id, { person: a, count: 1 });
-        }
-
-        p.authors.forEach(co => {
-            if (co.id !== a.id) {
-                const t = co.id < a.id;
-                edgesSet.add(JSON.stringify({ from: t ? a.id : co.id, to: t ? co.id : a.id }));
-            }
-        });
-    }));
-    const coauthors = [...coauthorsMap.values()];
-    const edges = [...edgesSet.values()].map(e => JSON.parse(e) as { from: string, to: string });
-    coauthors.sort((a, b) => b.count - a.count);
-
-    return (
-        <div>
-            <span className='block mb-3'>Coauthors count: {coauthors.length}</span>
-            <span className='block mb-3'>Edges count: {edges.length}</span>
-            <ul>
-                {coauthors.map((coauthor) =>
-                    <li
-                        key={coauthor.person.id}>
-                        <span>{`${coauthor.count} `}</span>
-                        <Link
-                            prefetch={false}
-                            className='hover:underline'
-                            href={createLocalPath(coauthor.person.id, SearchType.Author)}>
-                            {coauthor.person.name}
-                        </Link>
-                    </li>)}
-            </ul>
-        </div>
     )
 }

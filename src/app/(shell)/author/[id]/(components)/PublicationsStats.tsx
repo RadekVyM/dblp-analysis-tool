@@ -2,14 +2,14 @@
 
 import HorizontalBarChart, { HorizontalBarChartData } from '@/components/data-visualisation/HorizontalBarChart'
 import PieChart, { PieChartData } from '@/components/data-visualisation/PieChart'
-import { VisualDataContainer } from '@/components/data-visualisation/VisualDataContainer'
+import { DataVisualisationSvg } from '@/components/data-visualisation/DataVisualisationSvg'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import Table, { TableData } from '@/components/data-visualisation/Table'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import { useState, useEffect } from 'react'
 import { MdBarChart, MdBubbleChart, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
-import { ZoomTransform } from '@/components/data-visualisation/VisualDataContainer'
+import { ZoomTransform } from '@/components/data-visualisation/DataVisualisationSvg'
 
 type Publ = {
     id: string,
@@ -92,7 +92,7 @@ function PublicationTypesStatsBubblesChart() {
     const [zoomTransform, setZoomTransform] = useState<ZoomTransform>({ scale: 1, x: 0, y: 0 });
 
     return (
-        <VisualDataContainer
+        <DataVisualisationSvg
             className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)]'
             onZoomChange={(transform) => setZoomTransform(transform)}
             zoomScaleExtent={{ max: 8 }}>
@@ -100,7 +100,7 @@ function PublicationTypesStatsBubblesChart() {
                 transform={`translate(${zoomTransform.x},${zoomTransform.y}) scale(${zoomTransform.scale})`}>
                 <text x={0} y={20}>Hello Bubbles</text>
             </g>
-        </VisualDataContainer>
+        </DataVisualisationSvg>
     )
 }
 

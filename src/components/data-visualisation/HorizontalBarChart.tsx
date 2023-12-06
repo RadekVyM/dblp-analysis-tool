@@ -1,6 +1,6 @@
 'use client'
 
-import { VisualDataContainer } from './VisualDataContainer'
+import { DataVisualisationSvg } from './DataVisualisationSvg'
 import { useEffect, useState, useMemo } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
@@ -97,7 +97,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
     return (
         <div
             className={cn(className, 'flex flex-col')}>
-            <VisualDataContainer
+            <DataVisualisationSvg
                 innerClassName={innerClassName}
                 onDimensionsChange={(width, height) => setDimensions({ width, height })}>
                 {
@@ -130,7 +130,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
                             barTitle={data.barTitle} />
                     </>
                 }
-            </VisualDataContainer>
+            </DataVisualisationSvg>
             <Tabs
                 className='mx-auto mt-6 w-fit'
                 size='xs'

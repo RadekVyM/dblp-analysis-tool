@@ -1,6 +1,6 @@
 'use client'
 
-import { VisualDataContainer } from './VisualDataContainer'
+import { DataVisualisationSvg } from './DataVisualisationSvg'
 import { useEffect, useState, useMemo } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
@@ -96,7 +96,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
                 hoveredSlice={hoveredSlice}
                 onSliceHover={(arc) => setHoveredSlice(arc)} />
 
-            <VisualDataContainer
+            <DataVisualisationSvg
                 innerClassName={cn('overflow-visible', innerClassName)}
                 onDimensionsChange={(width, height) => setDimensions({ width, height })}>
                 {
@@ -117,7 +117,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
                             hoveredSlice={hoveredSlice} />
                     </g>
                 }
-            </VisualDataContainer>
+            </DataVisualisationSvg>
         </div>
     )
 }

@@ -1,5 +1,6 @@
 import { cn } from '@/utils/tailwindUtils'
 import Tabs from '../Tabs'
+import DataVisualisationContainer from './DataVisualisationContainer'
 
 type StatsScaffoldParams = {
     items: Array<StatsScaffoldItem>,
@@ -38,10 +39,10 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 })}
                 selectedId={selectedKey}
                 setSelectedId={(id) => onKeySelected(id)} />
-            <div
-                className='@container bg-surface-container rounded-lg border border-outline overflow-x-auto sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
+            <DataVisualisationContainer
+                className='overflow-x-auto sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
                 {items.find((item) => item.key == selectedKey)?.content}
-            </div>
+            </DataVisualisationContainer>
         </div>
     )
 }

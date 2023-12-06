@@ -1,27 +1,31 @@
 'use client'
 
-import { RefObject, forwardRef, useEffect, useRef, useImperativeHandle } from 'react'
+import { RefObject, forwardRef, useEffect, useRef, useImperativeHandle, useState } from 'react'
 import { cn } from '@/utils/tailwindUtils'
 import * as d3 from 'd3'
 import useDimensions from '@/hooks/useDimensions'
 
 export type ZoomTransform = { scale: number, x: number, y: number }
 
+export type ZoomScaleExtent = { min?: number, max?: number }
+
 type OnZoomChangeCallback = (param: ZoomTransform) => void
 
-type ZoomScaleExtent = { min?: number, max?: number }
-
-type VisualDataContainerParams = {
+type DataVisualisationSvgParams = {
     children: React.ReactNode,
     className?: string,
+    before?: React.ReactNode,
+    after?: React.ReactNode,
     innerClassName?: string,
     zoomScaleExtent?: ZoomScaleExtent,
     onDimensionsChange?: (width: number, height: number) => void,
     onZoomChange?: OnZoomChangeCallback,
 }
 
-export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainerParams>(({
+export const DataVisualisationSvg = forwardRef<SVGSVGElement, DataVisualisationSvgParams>(({
     children,
+    before,
+    after,
     zoomScaleExtent,
     onDimensionsChange,
     onZoomChange,
@@ -46,7 +50,8 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
     return (
         <div
             ref={outerRef}
-            className={cn('w-full h-full overflow-x-auto', className)}>
+            className={cn('relative isolate w-full h-full overflow-x-auto', className)}>
+            {before}
             <svg
                 ref={innerRef}
                 width={dimensions.width} height={dimensions.height}
@@ -54,17 +59,20 @@ export const VisualDataContainer = forwardRef<SVGSVGElement, VisualDataContainer
                 role='img'>
                 {children}
             </svg>
+            {after}
         </div>
     )
 });
 
-VisualDataContainer.displayName = 'VisualDataContainer';
+DataVisualisationSvg.displayName = 'DataVisualisationSvg';
 
 function useZoom(
     dimensions: { width: number, height: number },
     svgRef: RefObject<SVGSVGElement | null>,
     scaleExtent?: ZoomScaleExtent,
     onZoomChange?: OnZoomChangeCallback) {
+    const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
     useEffect(() => {
         if (!svgRef.current || !onZoomChange) {
             return;
@@ -72,7 +80,7 @@ function useZoom(
 
         const svg = d3.select(svgRef.current);
 
-        const zoom = d3.zoom<SVGSVGElement, unknown>()
+        const currentZoom = (zoomRef.current || d3.zoom<SVGSVGElement, unknown>())
             .extent([[0, 0], [dimensions.width, dimensions.height]])
             .scaleExtent([scaleExtent?.min || 1, scaleExtent?.max || 2])
             .on('zoom', (event) => {
@@ -83,6 +91,8 @@ function useZoom(
                 }
             });
 
-        svg.call(zoom);
-    }, [dimensions, svgRef]);
+        zoomRef.current = currentZoom;
+
+        svg.call(currentZoom);
+    }, [dimensions, svgRef, scaleExtent]);
 }
