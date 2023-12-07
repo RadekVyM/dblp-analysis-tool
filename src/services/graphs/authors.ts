@@ -10,8 +10,8 @@ export function convertToCoauthorsGraph(
     ignoredAuthorIds: Array<string> = [],
     primaryColoredAuthorIds: Array<string> = []) {
     const authorsMap = new Map<string, PublicationPersonNodeDatum>();
+    const edgesMap = new Map<string, PublicationPersonLinkDatum>();
 
-    const edgesSet = new Set<string>();
     publications.forEach(p => p.authors.forEach(a => {
         if (ignoredAuthorIds.includes(a.id)) {
             return;
@@ -33,23 +33,38 @@ export function convertToCoauthorsGraph(
         p.authors.forEach(co => {
             if (co.id !== a.id) {
                 const t = co.id < a.id;
-                edgesSet.add(JSON.stringify({ source: t ? a.id : co.id, target: t ? co.id : a.id } as PublicationPersonLinkDatum));
+                const sourceTarget = { source: t ? a.id : co.id, target: t ? co.id : a.id };
+                const key = JSON.stringify(sourceTarget);
+                const existingEdge = edgesMap.get(key);
+
+                if (existingEdge) {
+                    existingEdge.publicationsCount += 1;
+                }
+                else {
+                    edgesMap.set(key, {
+                        ...sourceTarget,
+                        publicationsCount: 1
+                    });
+                }
             }
         });
     }));
-    const coauthors = [...authorsMap.values()];
-    const edges = [...edgesSet.values()].map(e => JSON.parse(e) as PublicationPersonLinkDatum);
-    coauthors.sort((a, b) => b.count - a.count);
+    const nodes = [...authorsMap.values()];
+    const links = [...edgesMap.values()];
+    nodes.sort((a, b) => b.count - a.count);
+
+    const childrenStats = setChildren(links, authorsMap);
 
     return {
-        nodes: coauthors,
-        links: edges,
+        nodes,
+        links,
         authorsMap,
-        ...getCoauthorCountsLimits(edges, authorsMap)
+        ...childrenStats,
+        ...getLinksLimits(links)
     }
 }
 
-function getCoauthorCountsLimits(
+function setChildren(
     links: Array<PublicationPersonLinkDatum>,
     authorsMap: Map<string, PublicationPersonNodeDatum>) {
     let minCoauthorsCount = 0;
@@ -76,5 +91,25 @@ function getCoauthorCountsLimits(
     return {
         minCoauthorsCount,
         maxCoauthorsCount
+    }
+}
+
+function getLinksLimits(links: Array<PublicationPersonLinkDatum>) {
+    let minCoauthoredPublicationsCount = 0;
+    let maxCoauthoredPublicationsCount = 0;
+
+    links.forEach((e) => {
+        if (minCoauthoredPublicationsCount > e.publicationsCount) {
+            minCoauthoredPublicationsCount = e.publicationsCount;
+        }
+
+        if (maxCoauthoredPublicationsCount < e.publicationsCount) {
+            maxCoauthoredPublicationsCount = e.publicationsCount;
+        }
+    });
+
+    return {
+        minCoauthoredPublicationsCount,
+        maxCoauthoredPublicationsCount
     }
 }

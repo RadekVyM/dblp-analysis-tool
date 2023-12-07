@@ -1,5 +1,33 @@
 import { FetchError } from '@/dtos/FetchError'
 
+export async function withCache<T>(
+    cache: (value: T) => Promise<void>,
+    tryGetFromCache: () => Promise<T | null>,
+    fetch: () => Promise<T>
+) {
+    try {
+        const cachedValue = await tryGetFromCache();
+
+        if (cachedValue) {
+            return cachedValue
+        }
+    }
+    catch (e) {
+        console.log(`Value could not be resolved from cache.\nError:\n${e}'`)
+    }
+
+    const fetchedValue = await fetch();
+
+    try {
+        await cache(fetchedValue);
+    }
+    catch (e) {
+        console.log(`Value could not be cached.\nError:\n${e}'`)
+    }
+
+    return fetchedValue
+}
+
 export async function fetchXml(url: string) {
     return fetchWithErrorHandling(url, 'application/xml').then((res) => res.text());
 }

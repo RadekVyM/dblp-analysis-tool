@@ -7,7 +7,7 @@ import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import Table, { TableData } from '@/components/data-visualisation/Table'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { MdBarChart, MdBubbleChart, MdIncompleteCircle, MdTableChart, MdViewComfy } from 'react-icons/md'
 import { ZoomTransform } from '@/components/data-visualisation/DataVisualisationSvg'
 
@@ -105,10 +105,8 @@ function PublicationTypesStatsBubblesChart() {
 }
 
 function PublicationTypesStatsTable({ publications }: PublicationTypesStatsParams) {
-    const [rows, setRows] = useState<Array<Array<TableData>>>([]);
-
-    useEffect(() => {
-        const newRows = Object.values(PublicationType).map((type, index) => {
+    const rows = useMemo(() =>
+        Object.values(PublicationType).map((type, index) => {
             const count = publications.filter((publ) => publ.type == type).length;
             const percentage = count / publications.length;
 
@@ -117,10 +115,8 @@ function PublicationTypesStatsTable({ publications }: PublicationTypesStatsParam
                 { value: count, presentedContent: count },
                 { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
             ]
-        });
-
-        setRows(newRows);
-    }, [publications]);
+        }),
+        [publications]);
 
     return (
         <Table

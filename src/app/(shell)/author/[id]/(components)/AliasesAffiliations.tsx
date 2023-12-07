@@ -3,13 +3,15 @@ import { cn } from '@/utils/tailwindUtils'
 
 type AliasesAffiliationsParams = {
     info: DblpAuthorInfo,
-    compact?: boolean
+    compact?: boolean,
+    className?: string
 }
 
-export default function AliasesAffiliations({ info, compact }: AliasesAffiliationsParams) {
+export default function AliasesAffiliations({ info, compact, className }: AliasesAffiliationsParams) {
     return (
         (info.aliases.length > 0 || info.affiliations.length > 0) &&
-        <div>
+        <div
+            className={className}>
             {
                 info.aliases.length > 0 &&
                 <dl className='inline'>

@@ -1,18 +1,16 @@
-import { fetchXml } from '@/services/fetch'
-import { fetchItemsIndexHtml, queryItemsJson } from '@/services/items/items'
-import { DBLP_AUTHORS_INDEX_HTML, DBLP_SEARCH_AUTHOR_API, DBLP_URL } from '@/constants/urls'
+'use server'
+
+import 'server-only'
+import { fetchXml, withCache } from '@/services/fetch'
+import { fetchItemsIndexHtml } from '@/services/items/items'
+import { DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
-import { DblpAuthorSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
-import { BaseSearchItemsParams, SearchAuthorsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
+import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
 import { extractAuthor, extractAuthorsIndex, extractAuthorsIndexLength } from './parsing'
 import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { MAX_QUERYABLE_ITEMS_COUNT } from '@/constants/search'
-import { SearchType } from '@/enums/SearchType'
-
-export async function queryAuthors(params: SearchAuthorsParams) {
-    return queryItemsJson(`${DBLP_URL}${DBLP_SEARCH_AUTHOR_API}`, params).then(data => data as RawDblpBaseSearchResult);
-}
+import { cacheAuthor, tryGetCachedAuthor } from '../cache/authors'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
 
 export async function fetchAuthorsIndex(params: BaseSearchItemsParams) {
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, params);
@@ -28,25 +26,14 @@ export async function fetchAuthorsIndexLength() {
 }
 
 export async function fetchAuthor(id: string) {
-    const xml = await fetchAuthorXml(id);
-    return extractAuthor(xml, id);
-}
-
-export async function getSearchResultWithQuery(params: SearchItemsParams, getAdditionalInfo: (author: DblpAuthorSearchHit) => string) {
-    const response = await queryAuthors(params);
-    const authors = new DblpSearchResult<DblpAuthorSearchHit>(response, SearchType.Author);
-    const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
-    const result = new SimpleSearchResult(
-        count,
-        authors.hits.items.map((item) => {
-            return {
-                title: item.info.author,
-                localUrl: item.info.localUrl,
-                additionalInfo: getAdditionalInfo(item.info)
-            }
-        }));
-
-    return result;
+    return await withCache<DblpAuthor>(
+        async (value: DblpAuthor) => await cacheAuthor(id, value),
+        async () => await tryGetCachedAuthor(id),
+        async () => {
+            const xml = await fetchAuthorXml(id);
+            return extractAuthor(xml, id);
+        }
+    )
 }
 
 export async function getSearchResultWithoutQuery(params: SearchItemsParams, itemsCount: number) {

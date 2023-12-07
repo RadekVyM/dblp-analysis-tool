@@ -1,6 +1,6 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { fetchAuthor } from '@/services/authors/authors'
+import { fetchAuthor } from '@/services/authors/fetch-server'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { Section, SectionTitle } from '../(components)/Section'
 import GroupedPublicationsList from '../(components)/GroupedPublicationsList'

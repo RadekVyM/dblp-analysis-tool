@@ -1,10 +1,12 @@
 'use client'
 
+import useLazyListCount from '@/hooks/useLazyListCount'
 import { cn } from '@/utils/tailwindUtils'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 
 type TableParams = {
+    className?: string,
     rows: Array<Array<TableData>>,
     columnHeaders: Array<TableColumnHeader>
 }
@@ -43,9 +45,15 @@ export type TableData = {
     presentedContent: React.ReactNode
 }
 
-export default function Table({ rows, columnHeaders }: TableParams) {
+const DISPLAYED_COUNT_INCREASE = 50
+
+export default function Table({ rows, columnHeaders, className }: TableParams) {
     const [sortedRows, setSortedRows] = useState<Array<Array<any>>>([]);
     const [sorting, setSorting] = useState<TableColumnItemsOrder | undefined>(undefined);
+    const observerTarget = useRef<HTMLDivElement>(null);
+    const outerDivRef = useRef<HTMLDivElement>(null);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(rows.length, DISPLAYED_COUNT_INCREASE, observerTarget);
+    const displayedSortedRows = useMemo(() => sortedRows.slice(0, displayedCount), [sortedRows, displayedCount]);
 
     useEffect(() => {
         const newRows = [...rows];
@@ -61,6 +69,8 @@ export default function Table({ rows, columnHeaders }: TableParams) {
         });
 
         setSortedRows(newRows);
+        resetDisplayedCount();
+        outerDivRef.current?.scrollTo({ top: 0, behavior: 'instant' })
     }, [rows, sorting]);
 
     function updateSorting(column: TableColumn) {
@@ -78,10 +88,15 @@ export default function Table({ rows, columnHeaders }: TableParams) {
     }
 
     return (
-        <div className='grid content-stretch'>
-            <table className='border-collapse table-auto'>
-                <thead className='border-b border-outline'>
-                    <tr>
+        <div
+            ref={outerDivRef}
+            className={cn('grid content-stretch overflow-auto', className)}>
+            <table
+                className='border-collapse table-auto'>
+                <thead
+                    className='sticky top-0'>
+                    <tr
+                        className='border-b border-outline bg-surface-container'>
                         {columnHeaders.map((header) =>
                             <TableColumnHeader
                                 key={header.column}
@@ -95,7 +110,7 @@ export default function Table({ rows, columnHeaders }: TableParams) {
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedRows.map((row, index) => {
+                    {displayedSortedRows.map((row, index) => {
                         return (
                             <tr key={`row-${row.map(d => d.value).join('-')}`} className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
                                 {row.map((col, index) => index === 0 ?
@@ -106,6 +121,8 @@ export default function Table({ rows, columnHeaders }: TableParams) {
                     })}
                 </tbody>
             </table>
+
+            <div ref={observerTarget}></div>
         </div>
     )
 }

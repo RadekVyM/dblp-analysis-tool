@@ -13,6 +13,7 @@ import { PublicationFiltersDialog } from '@/components/dialogs/PublicationFilter
 import ItemsStats from '@/components/ItemsStats'
 import Button from '@/components/Button'
 import ListLink from '@/components/ListLink'
+import useLazyListCount from '@/hooks/useLazyListCount'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -66,9 +67,9 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const [selectedTypes, setSelectedTypes] = useState(new Set<PublicationType>([]));
     const [selectedVenues, setSelectedVenues] = useState(new Set<string | undefined>([]));
-    const [displayedCount, setDisplayedCount] = useState(DISPLAYED_COUNT_INCREASE);
     const [totalCount, setTotalCount] = useState(publications.length);
     const observerTarget = useRef<HTMLDivElement>(null);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
 
     const venuesMap = useMemo(() => {
         const map = new Map<string | undefined, string>();
@@ -81,35 +82,11 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     }, [publications]);
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting) {
-                    setDisplayedCount((oldCount) => {
-                        const newCount = oldCount + DISPLAYED_COUNT_INCREASE;
-                        return totalCount > oldCount ? newCount : oldCount;
-                    });
-                }
-            },
-            { threshold: 0 }
-        );
-
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
-        }
-
-        return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
-            }
-        }
-    }, [observerTarget]);
-
-    useEffect(() => {
         const publs = publications.filter((publ) =>
             (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
-        setDisplayedCount(DISPLAYED_COUNT_INCREASE);
+        resetDisplayedCount();
     }, [publications, groupedBy, selectedTypes, selectedVenues]);
 
     const displayedPublications = useMemo(() => {

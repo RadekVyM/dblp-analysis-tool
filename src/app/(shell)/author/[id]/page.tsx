@@ -1,6 +1,6 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { fetchAuthor } from '@/services/authors/authors'
+import { fetchAuthor } from '@/services/authors/fetch-server'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import LinksList from './(components)/LinksList'
 import { DblpAuthorHomonym, DblpAuthorInfo } from '@/dtos/DblpAuthor'
@@ -87,7 +87,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                         maxDisplayedCount={5} />
 
                     <AuthorCoauthors
-                        author={author} />
+                        authors={[author]} />
                 </>
             }
 

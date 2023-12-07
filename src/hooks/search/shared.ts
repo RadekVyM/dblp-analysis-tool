@@ -2,7 +2,7 @@
 
 import { BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
-import { queryAuthors } from '@/services/authors/authors'
+import { queryAuthors } from '@/services/authors/fetch'
 import { queryVenues } from '@/services/venues/venues'
 import { SearchItemsParams } from '@/dtos/searchItemsParams'
 

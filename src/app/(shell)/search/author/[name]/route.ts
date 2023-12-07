@@ -2,7 +2,7 @@ import { BaseDblpSearchHit, DblpSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
-import { queryAuthors } from '@/services/authors/authors'
+import { queryAuthors } from '@/services/authors/fetch'
 
 export async function GET(request: Request, { params }: { params: { name: string } }) {
     let localUrl = createLocalSearchPath(SearchType.Author, { query: params.name });

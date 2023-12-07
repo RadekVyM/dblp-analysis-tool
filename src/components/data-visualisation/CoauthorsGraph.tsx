@@ -4,7 +4,7 @@ import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { DataVisualisationSvg, ZoomScaleExtent, ZoomTransform } from './DataVisualisationSvg'
 import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
 import * as d3 from 'd3'
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import ZoomContainer from './ZoomContainer'
 import LoadingWheel from '../LoadingWheel'
 import { cn } from '@/utils/tailwindUtils'
@@ -18,11 +18,20 @@ const DEFAULT_GRAPH_WIDTH = 400;
 const DEFAULT_GRAPH_HEIGHT = 300;
 const MAX_SCALE_EXTENT = 10;
 
+export type GraphOptions = {
+    originalLinksDisplayed: boolean
+}
+
 type CoauthorsGraphParams = {
     nodes: Array<PublicationPersonNodeDatum>,
     links: Array<PublicationPersonLinkDatum>,
     onAuthorClick: (id: string) => void,
+    onHoverChange: (id: string, isHovered: boolean) => void,
     selectedAuthorId: string | null,
+    hoveredAuthorId: string | null,
+    minCoauthoredPublicationsCount: number,
+    maxCoauthoredPublicationsCount: number,
+    options: GraphOptions,
     ignoredNodeIds?: Array<string>,
     ignoredLinksNodeIds?: Array<string>,
     className?: string
@@ -32,22 +41,38 @@ type LinksCanvasParams = {
     zoomTransform: ZoomTransform,
     links: Array<PublicationPersonLinkDatum>,
     dimensions: { width: number, height: number },
+    minCoauthoredPublicationsCount: number,
+    maxCoauthoredPublicationsCount: number,
     ignoredNodeIds?: Array<string>
 }
 
 type NodeParams = {
-    person: DblpPublicationPerson,
+    personNode: PublicationPersonNodeDatum,
+    selectedAuthorId: string | null,
+    hoveredAuthorId: string | null,
     colorClass?: string,
     color?: string,
     x: number,
     y: number,
     labelsContainerRef: RefObject<SVGGElement | null>,
     zoomScale: number,
-    isSelected: boolean,
+    onHoverChange: (isHovered: boolean) => void,
     onClick: () => void
 }
 
-export default function CoauthorsGraph({ nodes, links, ignoredNodeIds, ignoredLinksNodeIds, className, selectedAuthorId, onAuthorClick }: CoauthorsGraphParams) {
+export default function CoauthorsGraph({
+    nodes,
+    links,
+    ignoredNodeIds,
+    ignoredLinksNodeIds,
+    className,
+    selectedAuthorId,
+    hoveredAuthorId,
+    minCoauthoredPublicationsCount,
+    maxCoauthoredPublicationsCount,
+    onAuthorClick,
+    onHoverChange
+}: CoauthorsGraphParams) {
     const [computedNodes, setComputedNodes] = useState<Array<PublicationPersonNodeDatum>>([]);
     const [computedLinks, setComputedLinks] = useState<Array<PublicationPersonLinkDatum>>([]);
     const [zoomTransform, setZoomTransform] = useState<ZoomTransform>({ scale: 1, x: 0, y: 0 });
@@ -84,8 +109,6 @@ export default function CoauthorsGraph({ nodes, links, ignoredNodeIds, ignoredLi
             dimensions.height / rect.height
         );
 
-        console.log(min)
-
         setZoomScaleExtent({
             min: min,
             max: MAX_SCALE_EXTENT
@@ -114,6 +137,8 @@ export default function CoauthorsGraph({ nodes, links, ignoredNodeIds, ignoredLi
                         links={computedLinks}
                         zoomTransform={zoomTransform}
                         dimensions={dimensions}
+                        minCoauthoredPublicationsCount={minCoauthoredPublicationsCount}
+                        maxCoauthoredPublicationsCount={maxCoauthoredPublicationsCount}
                         ignoredNodeIds={ignoredLinksNodeIds} />
                 }>
                 {
@@ -130,9 +155,11 @@ export default function CoauthorsGraph({ nodes, links, ignoredNodeIds, ignoredLi
                                     colorClass={n.colorClass}
                                     labelsContainerRef={labelsContainerRef}
                                     zoomScale={zoomTransform.scale}
-                                    person={n.person}
-                                    isSelected={n.person.id === selectedAuthorId}
-                                    onClick={() => onAuthorClick(n.person.id)} />)}
+                                    personNode={n}
+                                    hoveredAuthorId={hoveredAuthorId}
+                                    selectedAuthorId={selectedAuthorId}
+                                    onClick={() => onAuthorClick(n.person.id)}
+                                    onHoverChange={(isHovered) => onHoverChange(n.person.id, isHovered)} />)}
                         </ZoomContainer>
                         <g
                             ref={labelsContainerRef}
@@ -149,35 +176,60 @@ export default function CoauthorsGraph({ nodes, links, ignoredNodeIds, ignoredLi
     )
 }
 
-function Node({ x, y, person, color, colorClass, labelsContainerRef, zoomScale, isSelected, onClick: onNodeClick }: NodeParams) {
+function Node({
+    x,
+    y,
+    personNode,
+    hoveredAuthorId,
+    selectedAuthorId,
+    color,
+    colorClass,
+    labelsContainerRef,
+    zoomScale,
+    onClick: onNodeClick,
+    onHoverChange
+}: NodeParams) {
     const ref = useRef(null);
     const isHovered = useHover(ref);
+    const isDim = useMemo(() => !isHighlighted(personNode, hoveredAuthorId, selectedAuthorId),
+        [personNode, hoveredAuthorId, selectedAuthorId]);
+    const isOuterHovered = personNode.person.id === hoveredAuthorId;
+    const isSelected = personNode.person.id === selectedAuthorId;
+
+    useEffect(() => onHoverChange(isHovered), [isHovered]);
 
     return (
         <g
             onClick={() => onNodeClick()}>
             <circle
                 ref={ref}
-                className={cn('z-0 fill-on-surface-container', colorClass)}
+                className={cn('z-0 fill-on-surface-container', isDim && 'opacity-75', colorClass)}
                 fill={color}
                 cx={x}
                 cy={y}
-                r={isHovered ? 10 : 5} />
-            {(isSelected || isHovered) && labelsContainerRef.current &&
+                r={isDim ? 1.5 : (isSelected || isHovered || isOuterHovered) ? 10 : 4} />
+            {(isSelected || isHovered || isOuterHovered) && labelsContainerRef.current &&
                 createPortal(
                     <OutlinedText
-                        className='pointer-events-none'
+                        className='pointer-events-none font-semibold'
                         textAnchor='middle'
                         alignmentBaseline='middle'
                         x={x * zoomScale}
                         y={y * zoomScale}>
-                        {person.name}
+                        {personNode.person.name}
                     </OutlinedText>, labelsContainerRef.current)}
         </g>
     )
 }
 
-function LinksCanvas({ zoomTransform, links, ignoredNodeIds, dimensions }: LinksCanvasParams) {
+function LinksCanvas({
+    zoomTransform,
+    links,
+    ignoredNodeIds,
+    dimensions,
+    minCoauthoredPublicationsCount,
+    maxCoauthoredPublicationsCount
+}: LinksCanvasParams) {
     const ref = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -207,11 +259,14 @@ function LinksCanvas({ zoomTransform, links, ignoredNodeIds, dimensions }: Links
                 continue
             }
 
-            drawLine(source, target, context, zoomTransform, dimensions);
+            const intensity = (link.publicationsCount - minCoauthoredPublicationsCount) /
+                (maxCoauthoredPublicationsCount - minCoauthoredPublicationsCount);
+
+            drawLine(source, target, intensity, context, zoomTransform, dimensions);
         }
 
         context.restore();
-    }, [zoomTransform, links, dimensions]);
+    }, [zoomTransform, links, dimensions, ignoredNodeIds]);
 
     return (
         <canvas
@@ -225,13 +280,14 @@ function LinksCanvas({ zoomTransform, links, ignoredNodeIds, dimensions }: Links
 function drawLine(
     source: PublicationPersonNodeDatum,
     target: PublicationPersonNodeDatum,
+    intensity: number,
     context: CanvasRenderingContext2D,
     zoomTransform: ZoomTransform,
     dimensions: { width: number; height: number }) {
     if (source.x && source.y && target.x && target.y) {
         context.save()
 
-        context.strokeStyle = 'gray'
+        context.strokeStyle = `rgba(155, 155, 155, ${0.7 + 0.3 * intensity})`
         context.lineWidth = Math.max(0.5, 1 / (Math.max(1, zoomTransform.scale)))
 
         context.beginPath()
@@ -249,6 +305,14 @@ function accountDimensionsX(x: number, dimensions: { width: number, height: numb
 
 function accountDimensionsY(y: number, dimensions: { width: number, height: number }) {
     return y + ((dimensions.height - DEFAULT_GRAPH_HEIGHT) / 2)
+}
+
+function isHighlighted(n: PublicationPersonNodeDatum, hoveredAuthorId: string | null, selectedAuthorId: string | null) {
+    return !(hoveredAuthorId || selectedAuthorId) ||
+        (n.person.id === hoveredAuthorId) ||
+        (n.person.id === selectedAuthorId) ||
+        (hoveredAuthorId && n.coauthorIds.has(hoveredAuthorId)) ||
+        (selectedAuthorId && n.coauthorIds.has(selectedAuthorId))
 }
 
 function getGraphRect(nodes: Array<PublicationPersonNodeDatum>) {
