@@ -183,6 +183,7 @@ function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
     return (
         <li>
             <CheckListButton
+                className='w-full'
                 isSelected={isSelected}
                 onClick={onClick}>
                 {children}

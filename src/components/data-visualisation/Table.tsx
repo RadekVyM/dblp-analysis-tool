@@ -122,7 +122,10 @@ export default function Table({ rows, columnHeaders, className }: TableParams) {
                 </tbody>
             </table>
 
-            <div ref={observerTarget}></div>
+            <div
+                className='h-[1px]'
+                ref={observerTarget}
+                aria-hidden />
         </div>
     )
 }

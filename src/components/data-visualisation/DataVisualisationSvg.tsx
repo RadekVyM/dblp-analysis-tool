@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, forwardRef, useEffect, useRef, useImperativeHandle, useState } from 'react'
+import { RefObject, forwardRef, useEffect, useRef, useImperativeHandle, useState, useCallback } from 'react'
 import { cn } from '@/utils/tailwindUtils'
 import * as d3 from 'd3'
 import useDimensions from '@/hooks/useDimensions'
@@ -22,7 +22,12 @@ type DataVisualisationSvgParams = {
     onZoomChange?: OnZoomChangeCallback,
 }
 
-export const DataVisualisationSvg = forwardRef<SVGSVGElement, DataVisualisationSvgParams>(({
+export type DataVisualisationSvgRef = {
+    element: SVGSVGElement,
+    zoomTo: (zoomTransform: ZoomTransform) => void
+}
+
+export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisualisationSvgParams>(({
     children,
     before,
     after,
@@ -37,9 +42,12 @@ export const DataVisualisationSvg = forwardRef<SVGSVGElement, DataVisualisationS
     // ResizeObserver does not work on SVG elements. The outer div reference has to be used
     const dimensions = useDimensions(outerRef);
 
-    useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
+    const { zoomTo } = useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
 
-    useImperativeHandle(ref, () => innerRef.current!);
+    useImperativeHandle(ref, () => ({
+        element: innerRef.current!,
+        zoomTo
+    }), [innerRef.current, zoomTo]);
 
     useEffect(() => {
         if (dimensions && onDimensionsChange) {
@@ -73,6 +81,23 @@ function useZoom(
     onZoomChange?: OnZoomChangeCallback) {
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
+    const zoomTo = useCallback((zoomTransform: ZoomTransform) => {
+        if (!zoomRef.current || !svgRef.current) {
+            return
+        }
+
+        console.log('hello')
+
+        const svg = d3.select(svgRef.current);
+
+        svg.transition().duration(750).call(
+            zoomRef.current.transform,
+            d3.zoomIdentity
+                .translate(zoomTransform.x, zoomTransform.y)
+                .scale(zoomTransform.scale)
+        );
+    }, [zoomRef, svgRef]);
+
     useEffect(() => {
         if (!svgRef.current || !onZoomChange) {
             return;
@@ -95,4 +120,8 @@ function useZoom(
 
         svg.call(currentZoom);
     }, [dimensions, svgRef, scaleExtent]);
+
+    return {
+        zoomTo
+    }
 }

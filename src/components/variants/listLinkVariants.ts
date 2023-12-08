@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
 
 export const listLinkVariants = cva(
-    `relative flex flex-col rounded-md transition-colors
+    `relative flex flex-col items-start rounded-md transition-colors text-start
      before:hidden before:absolute before:left-0 before:top-1/2 before:translate-y-[-50%]
      before:bg-primary before:w-1 before:rounded-sm`,
     {

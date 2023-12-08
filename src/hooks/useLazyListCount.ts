@@ -25,7 +25,7 @@ export default function useLazyListCount(totalCount: number, countIncrease: numb
                 observer.unobserve(observerTarget.current);
             }
         }
-    }, [observerTarget.current]);
+    }, [observerTarget.current, totalCount]);
 
     const reset = useCallback(() => setDisplayedCount(countIncrease), [setDisplayedCount]);
 

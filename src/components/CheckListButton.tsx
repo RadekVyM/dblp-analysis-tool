@@ -16,7 +16,7 @@ export default function CheckListButton({ children, isSelected, className, ...pr
             marker='none'
             size='sm'
             surface='container'
-            className={cn('w-full flex-row items-center gap-2 text-start', className)}>
+            className={cn('flex-row items-center gap-2 text-start', className)}>
             {
                 isSelected ?
                     <ImCheckboxChecked

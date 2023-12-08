@@ -2,7 +2,7 @@ import 'server-only'
 import DblpAuthorCache, { DblpAuthorCacheSchema } from '@/db/models/DblpAuthorCache'
 import connectDb from '@/db/mongodb'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { CACHED_AUTHOR_MAX_AGE } from '@/constants/cache';
+import { CACHED_AUTHOR_MAX_AGE } from '@/constants/cache'
 
 export async function cacheAuthor(authorId: string, author: DblpAuthor) {
     await connectDb();

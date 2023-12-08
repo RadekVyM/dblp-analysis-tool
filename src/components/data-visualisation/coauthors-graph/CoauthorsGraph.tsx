@@ -1,26 +1,22 @@
 'use client'
 
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
-import { DataVisualisationSvg, ZoomScaleExtent, ZoomTransform } from './DataVisualisationSvg'
+import { DataVisualisationSvg, DataVisualisationSvgRef, ZoomScaleExtent, ZoomTransform } from '../DataVisualisationSvg'
 import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
 import * as d3 from 'd3'
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import ZoomContainer from './ZoomContainer'
-import LoadingWheel from '../LoadingWheel'
+import ZoomContainer from '../ZoomContainer'
+import LoadingWheel from '../../LoadingWheel'
 import { cn } from '@/utils/tailwindUtils'
 import { Rect } from '@/dtos/Rect'
-import { DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { useHover } from 'usehooks-ts'
-import OutlinedText from './OutlinedText'
+import OutlinedText from '../OutlinedText'
 import { createPortal } from 'react-dom'
+import { GraphOptions } from '@/dtos/GraphOptions'
 
 const DEFAULT_GRAPH_WIDTH = 400;
 const DEFAULT_GRAPH_HEIGHT = 300;
 const MAX_SCALE_EXTENT = 10;
-
-export type GraphOptions = {
-    originalLinksDisplayed: boolean
-}
 
 type CoauthorsGraphParams = {
     nodes: Array<PublicationPersonNodeDatum>,
@@ -73,6 +69,7 @@ export default function CoauthorsGraph({
     onAuthorClick,
     onHoverChange
 }: CoauthorsGraphParams) {
+    const graphRef = useRef<DataVisualisationSvgRef | null>(null);
     const [computedNodes, setComputedNodes] = useState<Array<PublicationPersonNodeDatum>>([]);
     const [computedLinks, setComputedLinks] = useState<Array<PublicationPersonLinkDatum>>([]);
     const [zoomTransform, setZoomTransform] = useState<ZoomTransform>({ scale: 1, x: 0, y: 0 });
@@ -81,6 +78,9 @@ export default function CoauthorsGraph({
     const labelsContainerRef = useRef<SVGGElement | null>(null);
 
     useEffect(() => {
+        setComputedNodes([]);
+        setComputedLinks([]);
+
         const filteredNodes = (ignoredNodeIds?.length || 0) > 0 ?
             nodes.filter((n) => !ignoredNodeIds?.some(id => n.person.id === id)) :
             nodes;
@@ -115,6 +115,10 @@ export default function CoauthorsGraph({
         });
     }, [dimensions, computedNodes]);
 
+    useEffect(() => {
+        graphRef.current?.zoomTo({ scale: zoomScaleExtent.min || 1, x: 0, y: 0 });
+    }, [graphRef.current, zoomScaleExtent]);
+
     function ticked() {
     }
 
@@ -127,12 +131,13 @@ export default function CoauthorsGraph({
         <div
             className={cn(className, 'grid')}>
             <DataVisualisationSvg
+                ref={graphRef}
                 className='w-full h-full row-start-1 row-end-2 col-start-1 col-end-2'
                 zoomScaleExtent={zoomScaleExtent}
                 onZoomChange={(transform) => setZoomTransform(transform)}
                 onDimensionsChange={(width, height) => setDimensions({ width, height })}
                 before={
-                    dimensions &&
+                    computedLinks && computedLinks.length > 0 && dimensions &&
                     <LinksCanvas
                         links={computedLinks}
                         zoomTransform={zoomTransform}

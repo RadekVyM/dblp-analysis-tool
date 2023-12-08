@@ -153,6 +153,7 @@ function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupCli
                 return (<li
                     key={group.id}>
                     <CheckListButton
+                        className='w-full'
                         disabled={isMutating}
                         isSelected={containsAuthor}
                         onClick={async () => await onAuthorGroupClick(group.id, !containsAuthor)}>

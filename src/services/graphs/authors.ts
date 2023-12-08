@@ -1,9 +1,27 @@
-import { DblpPublication } from '@/dtos/DblpPublication'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
+import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { prependDashedPrefix } from '@/utils/tailwindUtils'
 
 const PRIMARY_FILL_CLASS = prependDashedPrefix('fill', 'primary');
+
+export function getUniqueCoauthors(author: DblpAuthor, skip?: (author: DblpPublicationPerson) => boolean) {
+    const map = new Map<string, DblpPublicationPerson>();
+
+    author.publications.forEach((p) => p.authors.forEach((a) => {
+        if (skip && skip(a)) {
+            return
+        }
+        if (map.has(a.id)) {
+            return
+        }
+
+        map.set(a.id, a);
+    }));
+
+    return [...map.values()]
+}
 
 export function convertToCoauthorsGraph(
     publications: Array<DblpPublication>,
