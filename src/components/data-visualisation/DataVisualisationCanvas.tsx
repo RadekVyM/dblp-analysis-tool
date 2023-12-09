@@ -1,11 +1,11 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react'
+import { forwardRef, useEffect, useRef, useImperativeHandle, DOMAttributes } from 'react'
 import { cn } from '@/utils/tailwindUtils'
 import useDimensions from '@/hooks/useDimensions'
 import useZoom, { OnZoomChangeCallback, ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
 
-type DataVisualisationSvgParams = {
+type DataVisualisationCanvasParams = {
     children: React.ReactNode,
     className?: string,
     before?: React.ReactNode,
@@ -14,14 +14,14 @@ type DataVisualisationSvgParams = {
     zoomScaleExtent?: ZoomScaleExtent,
     onDimensionsChange?: (width: number, height: number) => void,
     onZoomChange?: OnZoomChangeCallback,
-}
+} & DOMAttributes<HTMLCanvasElement>
 
-export type DataVisualisationSvgRef = {
-    element: SVGSVGElement,
+export type DataVisualisationCanvasRef = {
+    element: HTMLCanvasElement,
     zoomTo: (zoomTransform: ZoomTransform) => void
 }
 
-export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisualisationSvgParams>(({
+export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, DataVisualisationCanvasParams>(({
     children,
     before,
     after,
@@ -29,11 +29,11 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     onDimensionsChange,
     onZoomChange,
     className,
-    innerClassName },
+    innerClassName,
+    ...rest },
     ref) => {
-    const innerRef = useRef<SVGSVGElement>(null);
+    const innerRef = useRef<HTMLCanvasElement | null>(null);
     const outerRef = useRef<HTMLDivElement>(null);
-    // ResizeObserver does not work on SVG elements. The outer div reference has to be used
     const dimensions = useDimensions(outerRef);
 
     const { zoomTo } = useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
@@ -54,16 +54,16 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
             ref={outerRef}
             className={cn('relative isolate w-full h-full overflow-x-auto', className)}>
             {before}
-            <svg
+            <canvas
+                {...rest}
                 ref={innerRef}
                 width={dimensions.width} height={dimensions.height}
                 className={cn('w-full h-full', innerClassName)}
                 role='img'>
-                {children}
-            </svg>
+            </canvas>
             {after}
         </div>
     )
 });
 
-DataVisualisationSvg.displayName = 'DataVisualisationSvg';
+DataVisualisationCanvas.displayName = 'DataVisualisationCanvas';

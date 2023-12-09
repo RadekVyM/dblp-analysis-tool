@@ -1,4 +1,4 @@
-import { ZoomTransform } from './DataVisualisationSvg'
+import { ZoomTransform } from "@/hooks/useZoom"
 
 type ZoomContainerParams = {
     children: React.ReactNode,
