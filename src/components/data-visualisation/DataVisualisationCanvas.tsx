@@ -6,7 +6,6 @@ import useDimensions from '@/hooks/useDimensions'
 import useZoom, { OnZoomChangeCallback, ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
 
 type DataVisualisationCanvasParams = {
-    children: React.ReactNode,
     className?: string,
     before?: React.ReactNode,
     after?: React.ReactNode,

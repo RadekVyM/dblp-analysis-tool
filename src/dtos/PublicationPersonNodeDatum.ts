@@ -5,6 +5,6 @@ export type PublicationPersonNodeDatum = {
     person: DblpPublicationPerson,
     count: number,
     color?: string,
-    colorClass?: string,
+    colorCssProperty?: string,
     coauthorIds: Set<string>
 } & d3.SimulationNodeDatum

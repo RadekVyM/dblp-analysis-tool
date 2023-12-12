@@ -17,7 +17,7 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 className='w-auto'
                 isSelected={options.originalLinksDisplayed}
                 onClick={() => setOptions({ originalLinksDisplayed: !options.originalLinksDisplayed })}>
-                Show OG links
+                Show original links
             </CheckListButton>
             <div
                 className='flex-1 flex justify-end mr-2'>

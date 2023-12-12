@@ -10,6 +10,10 @@ import { Rect } from '@/dtos/Rect'
 import { GraphOptions } from '@/dtos/GraphOptions'
 import { ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
+import { Inter } from 'next/font/google'
+import { DblpPublicationPerson } from '@/dtos/DblpPublication'
+
+const inter = Inter({ subsets: ['latin'] })
 
 const DEFAULT_GRAPH_WIDTH = 400;
 const DEFAULT_GRAPH_HEIGHT = 300;
@@ -96,7 +100,7 @@ export default function CoauthorsGraph({
         graphWorker.postMessage({
             nodes: nodes,
             links: links,
-            ignoredNodeIds: ignoredLinksNodeIds,
+            ignoredNodeIds: ignoredNodeIds,
             graphWidth: DEFAULT_GRAPH_WIDTH,
             graphHeight: DEFAULT_GRAPH_HEIGHT
         } as CoauthorsGraphWorkerData);
@@ -139,7 +143,8 @@ export default function CoauthorsGraph({
         options,
         onAuthorClick,
         onHoverChange,
-        ignoredNodeIds);
+        ignoredNodeIds,
+        ignoredLinksNodeIds);
 
     return (
         <div
@@ -153,8 +158,7 @@ export default function CoauthorsGraph({
                     onZoomChange={(transform) => setZoomTransform(transform)}
                     onDimensionsChange={(width, height) => setDimensions({ width, height })}
                     onClick={onCanvasClick}
-                    onPointerMove={onCanvasPointerMove}>
-                </DataVisualisationCanvas>
+                    onPointerMove={onCanvasPointerMove} />
             }
             {
                 !(computedNodes && computedNodes.length > 0) &&
@@ -183,6 +187,7 @@ function useCanvas(
     onNodeClick: (id: string) => void,
     onNodeHoverChange: (id: string, isHovered: boolean) => void,
     ignoredNodeIds?: Array<string>,
+    ignoredLinksNodeIds?: Array<string>
 ) {
     const canvas = ref.current?.element;
     const simulation = useMemo(() => d3.forceSimulation(nodes).stop(), [nodes]);
@@ -202,13 +207,28 @@ function useCanvas(
         context.translate(zoomTransform.x, zoomTransform.y);
         context.scale(zoomTransform.scale, zoomTransform.scale);
 
-        // TODO: options does not work
-        drawLines(links, ignoredNodeIds, minCoauthoredPublicationsCount, maxCoauthoredPublicationsCount, context, zoomTransform, dimensions);
-        // TODO: Labels, colors, semitransparency...
-        drawNodes(nodes, dimensions, context, selectedAuthorId, hoveredAuthorId, hoveredId);
+        drawLinks(
+            links,
+            ignoredLinksNodeIds,
+            minCoauthoredPublicationsCount,
+            maxCoauthoredPublicationsCount,
+            context,
+            zoomTransform,
+            dimensions,
+            selectedAuthorId,
+            hoveredId,
+            hoveredAuthorId);
+        drawNodes(
+            nodes,
+            dimensions,
+            context,
+            selectedAuthorId,
+            hoveredAuthorId,
+            hoveredId,
+            zoomTransform.scale);
 
         context.restore();
-    }, [options, zoomTransform, links, nodes, dimensions, ignoredNodeIds, selectedAuthorId, hoveredAuthorId, hoveredId]);
+    }, [options, zoomTransform, links, nodes, dimensions, ignoredLinksNodeIds, selectedAuthorId, hoveredAuthorId, hoveredId]);
 
     function onClick(event: MouseEvent) {
         const node = findNode(event);
@@ -251,9 +271,16 @@ function drawNodes(
     context: CanvasRenderingContext2D,
     selectedAuthorId: string | null,
     outerHoveredAuthorId: string | null,
-    hoveredAuthorId: string | null
+    hoveredAuthorId: string | null,
+    scale: number
 ) {
+    const selectedNodes: Array<PublicationPersonNodeDatum> = [];
+    const coloredNodes = new Map<string, Array<{ x: number, y: number, radius: number }>>();
+    const computedStyle = getComputedStyle(context.canvas);
+
     context.save();
+
+    context.beginPath();
 
     for (const node of nodes) {
         if (!node.x || !node.y) {
@@ -263,21 +290,98 @@ function drawNodes(
         const x = toDimensionsX(node.x, dimensions);
         const y = toDimensionsY(node.y, dimensions);
 
-        const isSelected = node.person.id === selectedAuthorId;
-        const isDim = !isHighlighted(node, hoveredAuthorId, selectedAuthorId);
-        const isOuterHovered = node.person.id === outerHoveredAuthorId;
-        const isHovered = node.person.id === hoveredAuthorId;
+        const isDim = !isNodeHighlighted(node, outerHoveredAuthorId, selectedAuthorId);
+        const isSelected = isNodeHoveredOrSelected(node.person, hoveredAuthorId, outerHoveredAuthorId, selectedAuthorId);
+
+        if (isSelected) {
+            selectedNodes.push(node);
+        }
+
+        const radius = isDim ? 1.5 : isSelected ? 10 : 4;
+        const color = node.color || (node.colorCssProperty && computedStyle.getPropertyValue(node.colorCssProperty));
+
+        if (color) {
+            const existingNodes = coloredNodes.get(color);
+            if (existingNodes) {
+                coloredNodes.set(color, [{ x: x, y: y, radius: radius }, ...existingNodes]);
+            }
+            else {
+                coloredNodes.set(color, [{ x: x, y: y, radius: radius }]);
+            }
+            continue
+        }
 
         context.moveTo(x, y);
-        context.arc(x, y, isDim ? 1.5 : (isSelected || isHovered || isOuterHovered) ? 10 : 4, 0, 2 * Math.PI);
+        context.arc(x, y, radius, 0, 2 * Math.PI);
     }
-    context.fillStyle = 'black';
+
+    context.closePath();
+
+    context.fillStyle = computedStyle.getPropertyValue('--on-surface-container');
     context.fill();
+
+    for (const color of coloredNodes.keys()) {
+        const nodes = coloredNodes.get(color);
+
+        if (!nodes) {
+            continue
+        }
+
+        context.beginPath();
+
+        for (const node of nodes) {
+
+            context.moveTo(node.x, node.y);
+            context.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+        }
+
+        context.closePath();
+
+        context.fillStyle = color;
+        context.fill();
+    }
+
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.strokeStyle = 'white';
+    context.fillStyle = 'black';
+    context.lineWidth = 4 / scale;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+    context.font = `bold ${16 / scale}px ${inter.style.fontFamily}`;
+
+    for (const node of selectedNodes) {
+        if (!node.x || !node.y) {
+            continue
+        }
+
+        const x = toDimensionsX(node.x, dimensions);
+        const y = toDimensionsY(node.y, dimensions);
+
+        context.moveTo(x, y);
+        context.strokeText(node.person.name, x, y);
+        context.fillText(node.person.name, x, y);
+    }
 
     context.restore();
 }
 
-function drawLines(links: PublicationPersonLinkDatum[], ignoredNodeIds: string[] | undefined, minCoauthoredPublicationsCount: number, maxCoauthoredPublicationsCount: number, context: CanvasRenderingContext2D, zoomTransform: ZoomTransform, dimensions: { width: number; height: number }) {
+function drawLinks(
+    links: PublicationPersonLinkDatum[],
+    ignoredNodeIds: string[] | undefined,
+    minCoauthoredPublicationsCount: number,
+    maxCoauthoredPublicationsCount: number,
+    context: CanvasRenderingContext2D,
+    zoomTransform: ZoomTransform,
+    dimensions: { width: number; height: number },
+    selectedAuthorId: string | null,
+    outerHoveredAuthorId: string | null,
+    hoveredAuthorId: string | null
+) {
+    const defaultColor = getComputedStyle(context.canvas).getPropertyValue('--on-surface-container-muted');
+
+    context.save();
+
     for (const link of links) {
         if (typeof link.source !== 'object' || typeof link.target !== 'object') {
             // The simulation is not finished yet 
@@ -291,32 +395,39 @@ function drawLines(links: PublicationPersonLinkDatum[], ignoredNodeIds: string[]
             continue
         }
 
+        const isHighlighted = isNodeHoveredOrSelected(source.person, hoveredAuthorId, outerHoveredAuthorId, selectedAuthorId) ||
+            isNodeHoveredOrSelected(target.person, hoveredAuthorId, outerHoveredAuthorId, selectedAuthorId);
+        const isDim = !isHighlighted && !!(outerHoveredAuthorId || hoveredAuthorId || selectedAuthorId);
         const intensity = (link.publicationsCount - minCoauthoredPublicationsCount) /
             (maxCoauthoredPublicationsCount - minCoauthoredPublicationsCount)
 
-        drawLine(source, target, intensity, context, zoomTransform, dimensions)
+        drawLine(source, target, intensity, defaultColor, context, zoomTransform, isHighlighted, isDim, dimensions)
     }
+
+    context.restore();
 }
 
 function drawLine(
     source: PublicationPersonNodeDatum,
     target: PublicationPersonNodeDatum,
     intensity: number,
+    color: string,
     context: CanvasRenderingContext2D,
     zoomTransform: ZoomTransform,
-    dimensions: { width: number; height: number }) {
+    isHighlighted: boolean,
+    isDim: boolean,
+    dimensions: { width: number; height: number }
+) {
     if (source.x && source.y && target.x && target.y) {
-        context.save()
+        context.globalAlpha = isDim ? 0.1 : isHighlighted ? 0.6 : 0.2 + 0.2 * intensity;
+        context.strokeStyle = color;
+        context.lineWidth = Math.max(0.5, (isHighlighted ? 2 : 1) / (Math.max(0.9, zoomTransform.scale)));
 
-        context.strokeStyle = `rgba(155, 155, 155, ${0.7 + 0.3 * intensity})`
-        context.lineWidth = Math.max(0.5, 1 / (Math.max(1, zoomTransform.scale)))
-
-        context.beginPath()
-        context.moveTo(toDimensionsX(source.x, dimensions), toDimensionsY(source.y, dimensions))
-        context.lineTo(toDimensionsX(target.x, dimensions), toDimensionsY(target.y, dimensions))
-        context.stroke()
-
-        context.restore()
+        context.beginPath();
+        context.moveTo(toDimensionsX(source.x, dimensions), toDimensionsY(source.y, dimensions));
+        context.lineTo(toDimensionsX(target.x, dimensions), toDimensionsY(target.y, dimensions));
+        context.stroke();
+        context.closePath();
     }
 }
 
@@ -344,12 +455,24 @@ function toDefaultY(y: number, dimensions: { width: number, height: number }) {
     return y - ((dimensions.height - DEFAULT_GRAPH_HEIGHT) / 2)
 }
 
-function isHighlighted(n: PublicationPersonNodeDatum, hoveredAuthorId: string | null, selectedAuthorId: string | null) {
+function isNodeHighlighted(node: PublicationPersonNodeDatum, hoveredAuthorId: string | null, selectedAuthorId: string | null) {
     return !(hoveredAuthorId || selectedAuthorId) ||
-        (n.person.id === hoveredAuthorId) ||
-        (n.person.id === selectedAuthorId) ||
-        (hoveredAuthorId && n.coauthorIds.has(hoveredAuthorId)) ||
-        (selectedAuthorId && n.coauthorIds.has(selectedAuthorId))
+        (node.person.id === hoveredAuthorId) ||
+        (node.person.id === selectedAuthorId) ||
+        (hoveredAuthorId && node.coauthorIds.has(hoveredAuthorId)) ||
+        (selectedAuthorId && node.coauthorIds.has(selectedAuthorId))
+}
+
+function isNodeHoveredOrSelected(
+    person: DblpPublicationPerson,
+    hoveredAuthorId: string | null,
+    outerHoveredAuthorId: string | null,
+    selectedAuthorId: string | null
+) {
+    return (
+        person.id === selectedAuthorId ||
+        person.id === outerHoveredAuthorId ||
+        person.id === hoveredAuthorId)
 }
 
 function getGraphRect(nodes: Array<PublicationPersonNodeDatum>) {

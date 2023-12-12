@@ -43,7 +43,7 @@ export function convertToCoauthorsGraph(
             authorsMap.set(a.id, {
                 person: a,
                 count: 1,
-                colorClass: primaryColoredAuthorIds.includes(a.id) ? PRIMARY_FILL_CLASS : undefined,
+                colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
                 coauthorIds: new Set()
             });
         }
