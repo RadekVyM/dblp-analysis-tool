@@ -5,7 +5,7 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import signUpValidator from '@/validation/signUpValidator'
 import bcrypt from 'bcrypt'
 import 'server-only'
-import hasPassword from './hashPassword'
+import hashPassword from './hashPassword'
 
 const SALT_ROUNDS = 10;
 
@@ -30,7 +30,7 @@ export async function signUp(email: string, username: string, password: string, 
         throw new Error('Passwords do not match.');
     }
 
-    const passwordHash = await hasPassword(password);
+    const passwordHash = await hashPassword(password);
 
     const newUser = await User.create<UserSchema>({
         email: email.trim(),

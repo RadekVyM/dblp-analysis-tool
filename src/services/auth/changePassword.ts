@@ -3,7 +3,7 @@ import changePasswordValidator from '@/validation/changePasswordValidator'
 import getCurrentUser from './getCurrentUser'
 import bcrypt from 'bcrypt'
 import 'server-only'
-import hasPassword from './hashPassword'
+import hashPassword from './hashPassword'
 import connectDb from '@/db/mongodb'
 import User, { UserSchema } from '@/db/models/User'
 
@@ -30,7 +30,7 @@ export default async function changePassword(currentPassword: string, newPasswor
         throw new Error('Passwords do not match.');
     }
 
-    const passwordHash = await hasPassword(newPassword);
+    const passwordHash = await hashPassword(newPassword);
     
     await connectDb();
 
