@@ -34,7 +34,7 @@ export const authOptions: AuthOptions = {
                     throw new Error('An account matching the e-mail and password you entered couldn\'t be found. Please check your e-mail and password and try again.');
                 }
             },
-        }),  
+        }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
     session: {

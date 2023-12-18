@@ -16,24 +16,6 @@ export default function useZoom(
     onZoomChange?: OnZoomChangeCallback) {
     const zoomRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
 
-    const zoomTo = useCallback((zoomTransform: ZoomTransform) => {
-        if (!zoomRef.current || !elementRef.current) {
-            return
-        }
-
-        const element = d3.select(elementRef.current);
-
-        const width = elementRef.current.clientWidth / 2;
-        const height = elementRef.current.clientHeight / 2;
-
-        element.transition().duration(750).call(
-            zoomRef.current.transform,
-            d3.zoomIdentity
-                .translate(zoomTransform.x + width - (width * zoomTransform.scale), zoomTransform.y + height - (height * zoomTransform.scale))
-                .scale(zoomTransform.scale)
-        );
-    }, [zoomRef, elementRef]);
-
     useEffect(() => {
         if (!elementRef.current || !onZoomChange) {
             return;
@@ -56,6 +38,24 @@ export default function useZoom(
 
         element.call(currentZoom);
     }, [dimensions, elementRef, scaleExtent]);
+
+    function zoomTo(zoomTransform: ZoomTransform) {
+        if (!zoomRef.current || !elementRef.current) {
+            return
+        }
+
+        const element = d3.select(elementRef.current);
+
+        const width = elementRef.current.clientWidth / 2;
+        const height = elementRef.current.clientHeight / 2;
+
+        element.transition().duration(750).call(
+            zoomRef.current.transform,
+            d3.zoomIdentity
+                .translate(zoomTransform.x + width - (width * zoomTransform.scale), zoomTransform.y + height - (height * zoomTransform.scale))
+                .scale(zoomTransform.scale)
+        );
+    }
 
     return {
         zoomTo

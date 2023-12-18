@@ -17,6 +17,7 @@ type CoauthorsGraphShellParams = {
 }
 
 export default function CoauthorsGraphShell({ authors, className }: CoauthorsGraphShellParams) {
+    // Additional authors are authors whose all coauthors are included in the graph
     const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
     const allAuthors = useMemo(() => ({
         publications: authors
@@ -42,6 +43,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
         [allAuthors]);
     const [graphOptions, setGraphOptions] = useGraphOptions();
     const [hoveredAuthorId, setHoveredAuthorId] = useState<string | null>(null);
+    // Selected authors are saved to a stack to enable back navigation
     const [selectedCoauthorIdsStack, setSelectedCoauthorIdsStack] = useState<Array<string>>([]);
     const selectedAuthorId = useMemo(() =>
         selectedCoauthorIdsStack.length > 0 ?
@@ -51,6 +53,8 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     const selectedAuthor = useMemo(() =>
         selectedAuthorId ? authorsMap.get(selectedAuthorId) : undefined,
         [selectedAuthorId, authorsMap]);
+    // Nodes that are passed to the list that is displayed at the side
+    // Original authors are excluded
     const nodesList = useMemo(() => nodes.filter((a) => !authors.some((aa) => aa.id === a.person.id)), [nodes, authors]);
 
     function setSelectedAuthorId(id: string | null) {
@@ -73,23 +77,23 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
         setSelectedAuthorId(null);
     }
 
-    function onCoauthorHoverChange(id: string, isHovered: boolean) {
+    function onCoauthorHoverChange(id: string | null, isHovered: boolean) {
         setHoveredAuthorId((oldId) => {
-            if (isHovered) {
+            if (isHovered || !id) {
                 return id
             }
             return id === oldId ? null : oldId
         });
     }
 
-    function addAuthor(author: DblpAuthor) {
+    function addAdditionalAuthor(author: DblpAuthor) {
         if (additionalAuthors.some((a) => a.id === author.id)) {
             return
         }
         setAdditionalAuthors((old) => [...old, author]);
     }
 
-    function removeAuthor(id: string) {
+    function removeAdditionalAuthor(id: string) {
         setAdditionalAuthors((old) => old.filter((a) => a.id !== id));
     }
 
@@ -135,8 +139,8 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             selectedAuthor={selectedAuthor}
                             authorsMap={authorsMap}
                             allAuthorIds={allAuthors.ids}
-                            addAuthor={addAuthor}
-                            removeAuthor={removeAuthor}
+                            addAuthor={addAdditionalAuthor}
+                            removeAuthor={removeAdditionalAuthor}
                             onCoauthorClick={setSelectedAuthorId}
                             onBackClick={onBackClick}
                             ignoredAuthorIds={authors.map((a) => a.id)}

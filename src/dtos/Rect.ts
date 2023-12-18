@@ -4,3 +4,10 @@ export type Rect = {
     width: number,
     height: number,
 }
+
+export type EdgeRect = {
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+}

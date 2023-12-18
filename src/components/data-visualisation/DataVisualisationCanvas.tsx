@@ -40,7 +40,7 @@ export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, Da
     useImperativeHandle(ref, () => ({
         element: innerRef.current!,
         zoomTo
-    }), [innerRef.current, zoomTo]);
+    }), [zoomTo]);
 
     useEffect(() => {
         if (dimensions && onDimensionsChange) {
