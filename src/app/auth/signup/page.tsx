@@ -1,6 +1,3 @@
-import { signUp } from '@/services/auth/signUp'
-import { isNullOrWhiteSpace } from '@/utils/strings'
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import SignUpForm from '../(components)/SignUpForm'
 import PageContainer from '@/components/shell/PageContainer'
@@ -14,31 +11,6 @@ export default async function SignUpPage({ }) {
         redirect('/profile');
     }
 
-    async function submit(prevState: any, formData: FormData) {
-        'use server'
-
-        const email = formData.get('email')?.toString() || '';
-        const username = formData.get('username')?.toString() || '';
-        const password = formData.get('password')?.toString() || '';
-        const confirmPassword = formData.get('confirmPassword')?.toString() || '';
-
-        if (isNullOrWhiteSpace(email) || isNullOrWhiteSpace(username) || isNullOrWhiteSpace(password) || isNullOrWhiteSpace(confirmPassword)) {
-            revalidatePath('auth');
-            return
-        }
-
-        try {
-            await signUp(email, username, password, confirmPassword);
-            return { success: true }
-        }
-        catch (e) {
-            if (e instanceof Error) {
-                return { error: e.message }
-            }
-            return { error: 'Registration was not successful.' }
-        }
-    }
-
     return (
         <PageContainer
             className='justify-center items-center py-6'>
@@ -47,8 +19,7 @@ export default async function SignUpPage({ }) {
                 <h2 className='font-extrabold text-3xl text-on-surface mb-6'>Sign Up</h2>
 
                 <SignUpForm
-                    className='w-full mb-8'
-                    submit={submit} />
+                    className='w-full mb-8' />
 
                 <span className='text-center mx-auto block'>Already have an account? <Link href='/auth/signin' className='underline' prefetch={false}>Sign in</Link></span>
             </div>

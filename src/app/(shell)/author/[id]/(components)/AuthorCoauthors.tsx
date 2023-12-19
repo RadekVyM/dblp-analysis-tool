@@ -5,6 +5,8 @@ import DataVisualisationContainer from '@/components/data-visualisation/DataVisu
 import { Section, SectionTitle } from './Section'
 import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph/CoauthorsGraphShell'
 import CoauthorsTable from '@/components/data-visualisation/CoauthorsTable'
+import ItemsStats from '@/components/ItemsStats'
+import { getUniqueCoauthors } from '@/services/graphs/authors'
 
 type AuthorCoauthorsParams = {
     authors: Array<DblpAuthor>,
@@ -18,6 +20,10 @@ export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
                 className='text-xl'>
                 Coauthors
             </SectionTitle>
+
+            <ItemsStats
+                className='mb-6'
+                totalCount={getUniqueCoauthors(authors).length} />
 
             <CoauthorsGraphShell
                 authors={authors} />

@@ -11,10 +11,11 @@ import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchR
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { cacheAuthor, tryGetCachedAuthor } from '../cache/authors'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
+import { serverError } from '@/utils/errors'
 
 export async function fetchAuthorsIndex(params: BaseSearchItemsParams) {
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, params);
-    return extractAuthorsIndex(html, params.count);
+    return extractAuthorsIndex(html, params.count)
 }
 
 export async function fetchAuthorsIndexLength() {
@@ -22,7 +23,7 @@ export async function fetchAuthorsIndexLength() {
     // There is a posibility that this will be a source of problems in the future
     // It is not a critical feature however
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, { prefix: 'zzzzzzzzzzzzz' });
-    return extractAuthorsIndexLength(html);
+    return extractAuthorsIndexLength(html)
 }
 
 export async function fetchAuthor(id: string) {
@@ -31,7 +32,7 @@ export async function fetchAuthor(id: string) {
         async () => await tryGetCachedAuthor(id),
         async () => {
             const xml = await fetchAuthorXml(id);
-            return extractAuthor(xml, id);
+            return extractAuthor(xml, id)
         }
     )
 }
@@ -48,20 +49,22 @@ export async function getSearchResultWithoutQuery(params: SearchItemsParams, ite
 
     if (!authors) {
         const error = getRejectedValueAt<Error>(results, 0);
-        throw error?.cause as Error;
+        console.error(error);
+        throw serverError('Authors could not be fetched.');
     }
 
     if (!count && count != 0) {
         const error = getRejectedValueAt<Error>(results, 1);
-        throw error?.cause as Error;
+        console.error(error);
+        throw serverError('Authors count could not be fetched.');
     }
 
     const result = new SimpleSearchResult(count, authors);
 
-    return result;
+    return result
 }
 
 async function fetchAuthorXml(id: string) {
     const url = `${DBLP_URL}${convertNormalizedIdToDblpPath(id)}.xml`;
-    return fetchXml(url);
+    return fetchXml(url)
 }

@@ -7,7 +7,7 @@ import { getAuthorGroup } from '@/services/saves/authorGroups'
 import { createLocalPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
 import { RemoveAuthorGroupButton } from './(components)/RemoveAuthorGroupButton'
-import { unauthorized } from '@/utils/errors'
+import { unauthorizedError } from '@/utils/errors'
 
 type AuthorGroupPageParams = {
     params: {
@@ -25,7 +25,7 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
     const authorGroup = await getAuthorGroup(id, user);
 
     if (!authorGroup) {
-        throw unauthorized('You cannot access this author group.');
+        throw unauthorizedError('You cannot access this author group.');
     }
 
     return (

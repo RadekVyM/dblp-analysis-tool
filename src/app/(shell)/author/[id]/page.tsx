@@ -84,7 +84,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                     <AuthorPublications
                         publicationsUrl={`/author/${id}/publications`}
                         publications={author.publications}
-                        maxDisplayedCount={5} />
+                        maxDisplayedCount={3} />
 
                     <AuthorCoauthors
                         authors={[author]} />

@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { PasswordSchema } from './PasswordSchema'
-import { UsernameSchema } from './UsernameSchema';
+import { UsernameSchema } from './UsernameSchema'
 
+/** Schema for validating user sign up form inputs. */
 export const SignUpSchema = z.object({
     email: z.string().min(1).email(),
     username: UsernameSchema,
@@ -13,4 +14,5 @@ export const SignUpSchema = z.object({
     path: ['confirmPassword'],
 });
 
+/** User sign up form inputs. */
 export type SignUpInputs = z.infer<typeof SignUpSchema>

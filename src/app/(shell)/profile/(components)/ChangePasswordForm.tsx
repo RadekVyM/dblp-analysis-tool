@@ -6,6 +6,7 @@ import Input from '@/components/forms/Input'
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
+import { submitChangePasswordForm } from '@/services/auth/forms'
 import { anyKeys } from '@/utils/objects'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import changePasswordValidator from '@/validation/changePasswordValidator'
@@ -15,16 +16,15 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 type ChangePasswordFormParams = {
-    submit: (prevState: any, formData: FormData) => void,
 }
 
-export default function ChangePasswordForm({ submit }: ChangePasswordFormParams) {
+export default function ChangePasswordForm({ }: ChangePasswordFormParams) {
     const [formValues, setFormValues] = useState<ChangePasswordInputs>({
         currentPassword: '',
         newPassword: '',
         confirmNewPassword: ''
     });
-    const [formState, formAction] = useFormState(submit, {});
+    const [formState, formAction] = useFormState(submitChangePasswordForm, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
     const { pushNotification } = useNotifications();

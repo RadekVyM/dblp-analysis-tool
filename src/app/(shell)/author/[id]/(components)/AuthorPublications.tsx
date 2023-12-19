@@ -9,6 +9,7 @@ import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { PublicationType } from '@/enums/PublicationType'
 import LinkArrow from '@/components/LinkArrow'
+import ItemsStats from '@/components/ItemsStats'
 
 type PublicationsParams = {
     className?: string,
@@ -34,9 +35,13 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
                 Publications
             </SectionTitle>
 
+            <ItemsStats
+                className='mb-6'
+                totalCount={publications.length} />
+
             <h4
-                className='sr-only'>
-                {maxDisplayedCount ? `${maxDisplayedCount} most recent publications` : 'All publications'}
+                className='font-semibold mb-5'>
+                Last Added
             </h4>
             <ul
                 className='flex flex-col gap-5 pl-4 mb-10'>

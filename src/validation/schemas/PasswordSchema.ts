@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+/** Schema for validating password form input. */
 export const PasswordSchema = z
     .string()
     .min(8)

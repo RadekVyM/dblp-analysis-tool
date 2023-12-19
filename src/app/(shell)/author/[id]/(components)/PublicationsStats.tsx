@@ -100,6 +100,11 @@ function PublicationTypesStatsTable({ publications }: PublicationTypesStatsParam
             ]
         }),
         [publications]);
+    const footer = [
+        { value: 'Totals', presentedContent: 'Totals' },
+        { value: publications.length, presentedContent: publications.length },
+        { value: 1, presentedContent: (1).toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
+    ]
 
     return (
         <Table
@@ -121,6 +126,8 @@ function PublicationTypesStatsTable({ publications }: PublicationTypesStatsParam
                     sortingTitle: 'Sort by percentage',
                     title: 'Percentage'
                 }
-            ]} />
+            ]}
+            footer={footer}
+            isFirstColumnHeader />
     )
 }

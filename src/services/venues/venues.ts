@@ -11,6 +11,7 @@ import { BaseSearchItemsParams, SearchItemsParams, SearchVenuesParams } from '@/
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { SearchType } from '@/enums/SearchType'
+import { serverError } from '@/utils/errors'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -20,14 +21,14 @@ const DBLP_HTML_INDEX_PATHS = {
 
 export async function queryVenues(params: SearchVenuesParams, type?: VenueType) {
     const query = type ? `${getQueryPrefix(type)}${params.query || ''}` : params.query;
-    return queryItemsJson(`${DBLP_URL}${DBLP_SEARCH_VENUE_API}`, {...params, query: query }).then(data => data as RawDblpBaseSearchResult);
+    return queryItemsJson(`${DBLP_URL}${DBLP_SEARCH_VENUE_API}`, {...params, query: query }).then(data => data as RawDblpBaseSearchResult)
 }
 
 export async function fetchVenuesIndex(type: VenueType, params: BaseSearchItemsParams) {
     const path = DBLP_HTML_INDEX_PATHS[type];
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, params);
     
-    return extractVenuesIndex(html, type, params.count);
+    return extractVenuesIndex(html, type, params.count)
 }
 
 export async function fetchVenuesIndexLength(type: VenueType) {
@@ -37,12 +38,12 @@ export async function fetchVenuesIndexLength(type: VenueType) {
     // It is not a critical feature however
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, { prefix: 'za' });
 
-    return extractVenuesIndexLength(html, type);
+    return extractVenuesIndexLength(html, type)
 }
 
 export async function fetchVenue(id: string) {
     const xml = await fetchVenueXml(id);
-    return extractVenue(xml, id);
+    return extractVenue(xml, id)
 }
 
 export async function getSearchResultWithQuery(type: VenueType, params: SearchItemsParams) {
@@ -58,7 +59,7 @@ export async function getSearchResultWithQuery(type: VenueType, params: SearchIt
             }
         }));
 
-    return result;
+    return result
 }
 
 export async function getSearchResultWithoutQuery(type: VenueType, params: SearchItemsParams, itemsCount: number) {
@@ -73,27 +74,29 @@ export async function getSearchResultWithoutQuery(type: VenueType, params: Searc
 
     if (!venues) {
         const error = getRejectedValueAt<Error>(results, 0);
-        throw error?.cause as Error;
+        console.error(error);
+        throw serverError('Venues could not be fetched.');
     }
 
     if (!count && count != 0) {
         const error = getRejectedValueAt<Error>(results, 1);
-        throw error?.cause as Error;
+        console.error(error);
+        throw serverError('Venues count could not be fetched.');
     }
 
     const result = new SimpleSearchResult(count, venues);
 
-    return result;
+    return result
 }
 
 async function fetchVenueXml(id: string) {
     const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/index.xml`;
-    return fetchXml(url);
+    return fetchXml(url)
 }
 
 async function fetchVenueVolumeXml(id: string, volume: string) {
     const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/${volume}.xml`;
-    return fetchXml(url);
+    return fetchXml(url)
 }
 
 function getQueryPrefix(type: VenueType) {
@@ -103,5 +106,5 @@ function getQueryPrefix(type: VenueType) {
         [VenueType.Series]: SERIES_DBLP_SEARCH_TYPE,
     }[type];
     
-    return `type:${searchType}:`;
+    return `type:${searchType}:`
 }

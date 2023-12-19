@@ -43,6 +43,7 @@ export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
                     sortingTitle: 'Sort by common publications count',
                     title: 'Common publications count'
                 }
-            ]} />
+            ]}
+            isFirstColumnHeader />
     )
 }

@@ -1,10 +1,11 @@
 'use client'
 
-import { FetchError } from '@/dtos/FetchError'
+import { DefaultError, FetchError } from '@/dtos/Errors'
 import PageContainer from './PageContainer'
 import PageTitle from './PageTitle'
 import Button from '../Button'
 import { MdAutorenew } from 'react-icons/md'
+import { unpackDefaultError, unpackFetchError } from '@/utils/errors'
 
 export type ErrorParams = {
     error: Error,
@@ -20,13 +21,12 @@ type FetchErrorContentParams = {
     reset: () => void
 }
 
-type TypeErrorContentParams = {
-    error: TypeError,
+type ErrorObjectContentParams = {
+    error: DefaultError,
     reset: () => void
 }
 
 type DefaultErrorContentParams = {
-    error: Error,
     reset: () => void
 }
 
@@ -39,25 +39,31 @@ type TryAgainButtonParams = {
 }
 
 export default function ErrorPage({ params: { error, reset } }: ErrorPageParams) {
-    // TODO: Next.js sends just plain Error so this does not work
+    const errorObject = unpackDefaultError(error);
 
     return (
         <PageContainer>
             {
-                (error instanceof FetchError) ?
-                    <FetchErrorContent
-                        error={error}
+                (errorObject) ?
+                    <ErrorObjectContent
+                        error={errorObject}
                         reset={reset} /> :
-                    (error instanceof TypeError) ?
-                        <TypeErrorContent
-                            error={error}
-                            reset={reset} /> :
-                        <DefaultErrorContent
-                            error={error}
-                            reset={reset} />
+                    <DefaultErrorContent
+                        reset={reset} />
             }
         </PageContainer>
     )
+}
+
+function ErrorObjectContent({ error, reset }: ErrorObjectContentParams) {
+    const fetchError = unpackFetchError(error);
+
+    return fetchError ?
+        <FetchErrorContent
+            error={fetchError}
+            reset={reset} /> :
+        <DefaultErrorContent
+            reset={reset} />
 }
 
 function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
@@ -72,7 +78,7 @@ function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
             case 429:
                 return 'Too many requests'
             default:
-                return 'Content could not be loaded'
+                return 'Something went wrong'
         }
     }
 
@@ -104,25 +110,11 @@ function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
     )
 }
 
-function TypeErrorContent({ error, reset }: TypeErrorContentParams) {
+function DefaultErrorContent({ reset }: DefaultErrorContentParams) {
     return (
         <>
             <ErrorPageTitle
-                title='Something went wrong on the server' />
-
-            <p>Something went wrong on the server. Please try again later.</p>
-
-            <TryAgainButton
-                reset={reset} />
-        </>
-    )
-}
-
-function DefaultErrorContent({ error, reset }: DefaultErrorContentParams) {
-    return (
-        <>
-            <ErrorPageTitle
-                title='Content could not be loaded' />
+                title='Something went wrong' />
 
             <p>Content could not be loaded. Please try again later.</p>
 

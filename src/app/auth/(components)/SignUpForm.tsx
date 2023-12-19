@@ -13,20 +13,20 @@ import Form from '@/components/forms/Form'
 import { useRouter } from 'next/navigation'
 import useNotifications from '@/hooks/useNotifications'
 import { NotificationType } from '@/enums/NotificationType'
+import { submitSignUpForm } from '@/services/auth/forms'
 
 type RegisterFormParams = {
-    submit: (prevState: any, formData: FormData) => void,
     className?: string
 }
 
-export default function SignUpForm({ submit, className }: RegisterFormParams) {
+export default function SignUpForm({ className }: RegisterFormParams) {
     const [formValues, setFormValues] = useState<SignUpInputs>({
         email: '',
         username: '',
         password: '',
         confirmPassword: ''
     });
-    const [formState, formAction] = useFormState(submit, {});
+    const [formState, formAction] = useFormState(submitSignUpForm, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
     const { pushNotification } = useNotifications();

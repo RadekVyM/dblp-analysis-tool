@@ -38,7 +38,7 @@ export default function SignInForm({ className }: SignInFormParams) {
             setErrors(err);
 
             if (anyKeys(err)) {
-                return;
+                return
             }
 
             await signIn(formValues.email, formValues.password, callbackUrl);

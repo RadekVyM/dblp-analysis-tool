@@ -42,10 +42,10 @@ type SegmentOrientation = keyof typeof SegmentOrientation
  * 
  * Based on: https://www.tutorialspoint.com/Check-if-two-line-segments-intersect
  * 
- * @param {[number, number]} first - First end point of the first segment
- * @param {[number, number]} second - Second end point of the first segment
- * @param {[number, number]} third - First end point of the second segment
- * @param {[number, number]} fourth - Second end point of the second segment
+ * @param first - First end point of the first segment
+ * @param second - Second end point of the first segment
+ * @param third - First end point of the second segment
+ * @param fourth - Second end point of the second segment
  */
 export function intersect(first: [number, number], second: [number, number], third: [number, number], fourth: [number, number]) {
     const o1 = orientation(first, second, third);

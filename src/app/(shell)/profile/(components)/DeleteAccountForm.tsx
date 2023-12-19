@@ -3,6 +3,7 @@
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
+import { submitDeleteAccountForm } from '@/services/auth/forms'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -10,11 +11,10 @@ import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 
 type DeleteAccountFormParams = {
-    submit: (prevState: any, formData: FormData) => void,
 }
 
-export default function DeleteAccountForm({ submit }: DeleteAccountFormParams) {
-    const [formState, formAction] = useFormState(submit, {});
+export default function DeleteAccountForm({ }: DeleteAccountFormParams) {
+    const [formState, formAction] = useFormState(submitDeleteAccountForm, {});
     const { pushNotification } = useNotifications();
     const router = useRouter();
 

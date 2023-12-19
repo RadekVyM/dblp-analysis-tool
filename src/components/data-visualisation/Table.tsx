@@ -8,7 +8,9 @@ import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 type TableParams = {
     className?: string,
     rows: Array<Array<TableData>>,
-    columnHeaders: Array<TableColumnHeader>
+    columnHeaders: Array<TableColumnHeader>,
+    footer?: Array<TableData>,
+    isFirstColumnHeader?: boolean
 }
 
 type SortButtonParams = {
@@ -47,7 +49,7 @@ export type TableData = {
 
 const DISPLAYED_COUNT_INCREASE = 50
 
-export default function Table({ rows, columnHeaders, className }: TableParams) {
+export default function Table({ rows, columnHeaders, footer, className, isFirstColumnHeader }: TableParams) {
     const [sortedRows, setSortedRows] = useState<Array<Array<any>>>([]);
     const [sorting, setSorting] = useState<TableColumnItemsOrder | undefined>(undefined);
     const observerTarget = useRef<HTMLDivElement>(null);
@@ -113,13 +115,24 @@ export default function Table({ rows, columnHeaders, className }: TableParams) {
                     {displayedSortedRows.map((row, index) => {
                         return (
                             <tr key={`row-${row.map(d => d.value).join('-')}`} className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
-                                {row.map((col, index) => index === 0 ?
-                                    <th key={index} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
-                                    <td key={index} className='px-3 py-2 border-l border-outline'>{col.presentedContent}</td>)}
+                                {row.map((col, index) => isFirstColumnHeader && index === 0 ?
+                                    <th key={`row-value-${index}`} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
+                                    <td key={`row-value-${index}`} className='px-3 py-2 border-l border-outline'>{col.presentedContent}</td>)}
                             </tr>
                         )
                     })}
                 </tbody>
+                {
+                    footer &&
+                    <tfoot>
+                        <tr
+                            className='border-t border-outline bg-surface-container'>
+                            {footer.map((col, index) => isFirstColumnHeader && index === 0 ?
+                                <th key={`footer-value-${index}`} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
+                                <td key={`footer-value-${index}`} className='px-3 py-2 font-bold'>{col.presentedContent}</td>)}
+                        </tr>
+                    </tfoot>
+                }
             </table>
 
             <div

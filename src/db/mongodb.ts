@@ -1,5 +1,6 @@
 import 'server-only'
 import mongoose from 'mongoose'
+import { serverError } from '@/utils/errors'
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -26,14 +27,16 @@ async function connectDb() {
             return cached.connection = await cached.promise;
         } catch (e) {
             cached.promise = null;
-            throw e;
+            console.error(e);
+            throw serverError();
         }
     }
     else {
         try {
             return await mongoose.connect(MONGODB_URI!, options);
         } catch (e) {
-            throw e;
+            console.error(e);
+            throw serverError();
         }
     }
 }

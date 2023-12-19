@@ -6,6 +6,7 @@ import Input from '@/components/forms/Input'
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
+import { submitChangeUserInfoForm } from '@/services/auth/forms'
 import updatedSession from '@/services/auth/updateSession'
 import { anyKeys } from '@/utils/objects'
 import changeUserInfoValidator from '@/validation/changeUserInfoValidator'
@@ -17,15 +18,14 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 
 type YourInfoFormParams = {
-    submit: (prevState: any, formData: FormData) => void,
 }
 
-export default function YourInfoForm({ submit }: YourInfoFormParams) {
+export default function YourInfoForm({ }: YourInfoFormParams) {
     const [formValues, setFormValues] = useState<ChangeUserInfoInputs>({
         email: '',
         username: ''
     });
-    const [formState, formAction] = useFormState(submit, {});
+    const [formState, formAction] = useFormState(submitChangeUserInfoForm, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
     const { data: session, update: updateSession } = useSession();

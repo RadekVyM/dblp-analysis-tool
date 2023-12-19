@@ -1,18 +1,10 @@
-import Button from '@/components/Button'
-import Input from '@/components/forms/Input'
 import PageContainer from '@/components/shell/PageContainer'
-import PageTitle from '@/components/shell/PageTitle'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import YourInfoForm from './(components)/YourInfoForm'
-import { isNullOrWhiteSpace } from '@/utils/strings'
-import { revalidatePath } from 'next/cache'
-import { changeUserInfo } from '@/services/auth/changeUserInfo'
 import ProfileHeader from './(components)/ProfileHeader'
 import ChangePasswordForm from './(components)/ChangePasswordForm'
-import changePassword from '@/services/auth/changePassword'
 import DeleteAccountForm from './(components)/DeleteAccountForm'
-import deleteCurrentUser from '@/services/auth/deleteUser'
 
 type YourInfoParams = {
 }
@@ -43,100 +35,28 @@ export default async function ProfilePage() {
 }
 
 function YourInfo({ }: YourInfoParams) {
-    async function submit(prevState: any, formData: FormData) {
-        'use server'
-
-        const email = formData.get('email')?.toString() || '';
-        const username = formData.get('username')?.toString() || '';
-
-        if (isNullOrWhiteSpace(email) || isNullOrWhiteSpace(username)) {
-            revalidatePath('profile');
-            return
-        }
-
-        try {
-            const user = await changeUserInfo(email, username);
-            // Send the updated data back to the client to update the current session
-            return { email: user?.email, username: user?.username, success: true }
-        }
-        catch (e) {
-            const handled = handleError(e)
-            if (handled) {
-                return handled
-            }
-        }
-
-        revalidatePath('profile');
-    }
-
     return (
         <Section
             title='Your Info'>
-            <YourInfoForm
-                submit={submit} />
+            <YourInfoForm />
         </Section>
     )
 }
 
 function ChangePassword() {
-    async function submit(prevState: any, formData: FormData) {
-        'use server'
-
-        const currentPassword = formData.get('currentPassword')?.toString() || '';
-        const newPassword = formData.get('newPassword')?.toString() || '';
-        const confirmNewPassword = formData.get('confirmNewPassword')?.toString() || '';
-
-        if (isNullOrWhiteSpace(currentPassword) || isNullOrWhiteSpace(newPassword) || isNullOrWhiteSpace(confirmNewPassword)) {
-            revalidatePath('profile');
-            return
-        }
-
-        try {
-            await changePassword(currentPassword, newPassword, confirmNewPassword);
-            return { success: true }
-        }
-        catch (e) {
-            const handled = handleError(e)
-            if (handled) {
-                return handled
-            }
-        }
-
-        revalidatePath('profile');
-    }
-
     return (
         <Section
             title='Change Password'>
-            <ChangePasswordForm
-                submit={submit} />
+            <ChangePasswordForm />
         </Section>
     )
 }
 
 function DeleteAccount() {
-    async function submit(prevState: any, formData: FormData) {
-        'use server'
-
-        try {
-            await deleteCurrentUser();
-            return { success: true }
-        }
-        catch (e) {
-            const handled = handleError(e)
-            if (handled) {
-                return handled
-            }
-        }
-
-        revalidatePath('profile');
-    }
-
     return (
         <Section
             title='Delete Account'>
-            <DeleteAccountForm
-                submit={submit} />
+            <DeleteAccountForm />
         </Section>
     )
 }
@@ -149,14 +69,4 @@ function Section({ title, children }: SectionParams) {
             {children}
         </section>
     )
-}
-
-function handleError(e: any) {
-    if (e instanceof Error) {
-        if (e instanceof TypeError) {
-            return { error: 'Operation could not be finished.' }
-        }
-
-        return { error: e.message }
-    }
 }

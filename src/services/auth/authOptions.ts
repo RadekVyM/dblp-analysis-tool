@@ -7,6 +7,7 @@ import User, { UserSchema } from '@/db/models/User'
 import bcrypt from 'bcrypt'
 import signInValidator from '@/validation/signInValidator'
 import { anyKeys } from '@/utils/objects'
+import { error, unauthorizedError } from '@/utils/errors'
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -18,20 +19,20 @@ export const authOptions: AuthOptions = {
             },
             async authorize(credentials, req) {
                 if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.password) || !credentials) {
-                    throw new Error('Please enter an e-mail and password.');
+                    throw unauthorizedError('Please enter an e-mail and password.');
                 }
 
                 const err = signInValidator({ email: credentials?.email || '', password: credentials?.password || '' });
 
                 if (anyKeys(err)) {
-                    throw new Error('The values you entered are not valid.');
+                    throw unauthorizedError('The values you entered are not valid.');
                 }
 
                 try {
                     return await findMatchingUser(credentials?.email, credentials.password);
                 }
-                catch (error) {
-                    throw new Error('An account matching the e-mail and password you entered couldn\'t be found. Please check your e-mail and password and try again.');
+                catch (err) {
+                    throw unauthorizedError('An account matching the e-mail and password you entered couldn\'t be found. Please check your e-mail and password and try again.');
                 }
             },
         }),
@@ -69,13 +70,13 @@ async function findMatchingUser(email: string, password: string) {
     const user = await User.findOne<UserSchema>({ email: email });
 
     if (!user?.passwordHash) {
-        throw new Error('A user matching the e-mail and password couldn\'t be found.');
+        throw unauthorizedError('A user matching the e-mail and password couldn\'t be found.');
     }
 
     const passwordMatch = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatch) {
-        throw new Error('A user matching the e-mail and password couldn\'t be found.');
+        throw unauthorizedError('A user matching the e-mail and password couldn\'t be found.');
     }
 
     return { id: user._id.toString(), name: user.username, username: user.username, email: user.email }

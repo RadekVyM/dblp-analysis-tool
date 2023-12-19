@@ -98,7 +98,7 @@ function SelectedAuthorContent({
             return []
         }
 
-        return getUniqueCoauthors(fetchedAuthor, (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id))
+        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id))
     }, [fetchedAuthor, selectedAuthor, authorsMap]);
     const isSelected = allAuthorIds.some((id) => id === selectedAuthor.person.id);
 

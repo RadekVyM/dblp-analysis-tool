@@ -1,4 +1,4 @@
-import { FetchError } from '@/dtos/FetchError'
+import { fetchError, error } from '@/utils/errors'
 
 export async function withCache<T>(
     cache: (value: T) => Promise<void>,
@@ -29,22 +29,22 @@ export async function withCache<T>(
 }
 
 export async function fetchXml(url: string) {
-    return fetchWithErrorHandling(url, 'application/xml').then((res) => res.text());
+    return fetchWithErrorHandling(url, 'application/xml').then((res) => res.text())
 }
 
 export async function fetchHtml(url: string) {
-    return fetchWithErrorHandling(url, 'text/html').then((res) => res.text());
+    return fetchWithErrorHandling(url, 'text/html').then((res) => res.text())
 }
 
 export async function fetchJson(url: string) {
-    return fetchWithErrorHandling(url, 'application/json').then((res) => res.json());
+    return fetchWithErrorHandling(url, 'application/json').then((res) => res.json())
 }
 
 export async function sendPost(url: string, data: any) {
     const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify(data)
-    })
+    });
 
     await throwIfNotOk(response);
 
@@ -54,7 +54,7 @@ export async function sendPost(url: string, data: any) {
 export async function sendDelete(url: string) {
     const response = await fetch(url, {
         method: 'DELETE'
-    })
+    });
     
     await throwIfNotOk(response);
 
@@ -79,14 +79,12 @@ async function throwIfNotOk(response: Response) {
     }
 
     const retryAfter = response.headers.get('Retry-After') || '60';
-    const cause = await response.text();
 
-    throw new FetchError(
+    throw fetchError(
         'An error occurred while fetching the data.',
+        response.status,
+        response.statusText,
         {
-            cause: cause,
-            status: response.status,
-            statusText: response.statusText,
             retryAfter: response.status === 429 ? parseInt(retryAfter) : undefined
         });
 }
@@ -95,6 +93,6 @@ function throwIfWrongContentType(response: Response, type: string) {
     const contentType = response.headers.get('content-type');
 
     if (!contentType || !contentType.includes(type)) {
-        throw new TypeError('Response contains content of an incorrect type.');
+        throw error('Response contains content of an incorrect type.');
     }
 }

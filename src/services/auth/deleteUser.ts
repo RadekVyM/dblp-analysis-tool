@@ -6,12 +6,13 @@ import SavedVenue from '@/db/models/SavedVenue'
 import VisitedAuthor from '@/db/models/VisitedAuthor'
 import VisitedVenue from '@/db/models/VisitedVenue'
 import AuthorGroup from '@/db/models/AuthorGroup'
+import { unauthorizedError } from '@/utils/errors'
 
 export default async function deleteCurrentUser() {
     const user = await getCurrentUser();
 
     if (!user) {
-        throw new Error('Current user could not be found.');
+        throw unauthorizedError('Current user could not be found.');
     }
 
     await connectDb();
