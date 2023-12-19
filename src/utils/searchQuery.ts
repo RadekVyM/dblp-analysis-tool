@@ -1,7 +1,13 @@
 import { SearchQueryOptions } from '@/dtos/SearchQueryOptions'
-import { isNullOrWhiteSpace } from './strings';
+import { isNullOrWhiteSpace } from './strings'
 
-export function normalizeQuery(query: string, options?: SearchQueryOptions) {
+/**
+ * Normalizes a search query according to defined options.
+ * @param query Search query
+ * @param options Search query options
+ * @returns Normalized search query
+ */
+export function normalizeQuery(query: string, options?: SearchQueryOptions): string {
     const separator = options?.useOr ? '|' : ' ';
 
     if (isNullOrWhiteSpace(query)) {

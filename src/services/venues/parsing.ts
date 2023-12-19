@@ -1,7 +1,7 @@
 import { VenueType } from '@/enums/VenueType'
 import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import * as cheerio from 'cheerio'
-import { convertDblpUrlToLocalPath, getVenueTypeFromString } from '@/utils/urls'
+import { convertDblpUrlToLocalPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { isNumber } from '@/utils/strings'
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '@/constants/html'
@@ -23,7 +23,7 @@ export function extractVenue(xml: string, id: string) {
     const venue = createDblpVenue(
         id,
         he.decode(title),
-        key ? getVenueTypeFromString(key) || undefined : undefined
+        key ? getVenueTypeFromDblpString(key) || undefined : undefined
     );
 
     return venue;

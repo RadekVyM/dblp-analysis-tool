@@ -4,10 +4,10 @@ import { urlWithParams } from '@/utils/urls'
 import Button from '@/components/Button'
 import { cn } from '@/utils/tailwindUtils'
 import { MdChevronLeft, MdChevronRight, MdSkipNext, MdSkipPrevious } from 'react-icons/md'
-import { repeat } from '@/utils/numbers'
 import { useElementSize } from 'usehooks-ts'
 import { useEffect, useState } from 'react'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
+import { repeat } from '@/utils/array'
 
 type PaginationParams = {
     className?: string,

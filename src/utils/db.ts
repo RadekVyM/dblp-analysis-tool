@@ -7,5 +7,5 @@ import 'server-only'
  * @returns ObjectId
  */
 export function objectId(id: string) {
-    return new mongoose.Types.ObjectId(id)
+    return new mongoose.Types.ObjectId(id);
 }

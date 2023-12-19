@@ -6,6 +6,7 @@
  */
 export function group<KeyT, ItemT>(items: Array<ItemT>, by: (item: ItemT) => any): Map<KeyT, Array<ItemT>> {
     const map = new Map<KeyT, Array<ItemT>>();
+    
     items.forEach((item) => {
         const key = by(item);
         const collection = map.get(key);
@@ -15,5 +16,22 @@ export function group<KeyT, ItemT>(items: Array<ItemT>, by: (item: ItemT) => any
             collection.push(item);
         }
     });
+
     return map;
+}
+
+/**
+ * Returns an array of a certain length that contains elements returned from a specified function.
+ * @param count Length of the array
+ * @param action Function that returns an element based on its index in the array.
+ * @returns Array of elements
+ */
+export function repeat<T>(count: number, action: (index: number) => T) {
+    const values: Array<T> = [];
+
+    for (let i = 0; i < count; i++) {
+        values.push(action(i));
+    }
+
+    return values;
 }

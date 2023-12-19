@@ -141,7 +141,7 @@ function TryAgainButton({ reset }: TryAgainButtonParams) {
             variant='outline'>
             <MdAutorenew
                 className='w-4 h-4' />
-            Let&apos;s try again
+            Try again
         </Button>
     )
 }

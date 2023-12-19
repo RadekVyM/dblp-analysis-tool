@@ -1,7 +1,7 @@
 import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
 import { SearchParams } from '@/dtos/SearchParams'
-import { dblpUrlContainsItemId, getVenueTypeFromString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath, createLocalSearchPath, createLocalPath, convertDblpUrlToLocalPath, extractParamsFromUrl } from '@/utils/urls'
+import { dblpUrlContainsItemId, getVenueTypeFromDblpString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath, createLocalSearchPath, createLocalPath, convertDblpUrlToLocalPath, extractParamsFromUrl } from '@/utils/urls'
 import { describe, expect, test } from '@jest/globals'
 
 type UrlValue = [
@@ -144,7 +144,7 @@ describe('getVenueTypeFromString function', () => {
 
     for (const [url, expectedVenueType] of values) {
         test(`"${url}" is of type ${expectedVenueType}`, () => {
-            expect(getVenueTypeFromString(url)).toEqual(expectedVenueType);
+            expect(getVenueTypeFromDblpString(url)).toEqual(expectedVenueType);
         });
     }
 });

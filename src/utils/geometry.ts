@@ -1,6 +1,20 @@
 import { Rect } from '@/dtos/Rect'
 
-export function scaleToLength(vec: [number, number], length: number) {
+const SegmentOrientation = {
+    Colinear: 'Colinear',
+    Clockwise: 'Clockwise',
+    AntiClockwise: 'AntiClockwise',
+} as const
+
+type SegmentOrientation = keyof typeof SegmentOrientation
+
+/**
+ * Scales the vector to a certain length.
+ * @param vec Vector
+ * @param length New length of the vector
+ * @returns Scaled vector
+ */
+export function scaleToLength(vec: [number, number], length: number): [number, number] {
     if (length < 0) {
         throw new Error('Length of a vector cannot be negative');
     }
@@ -13,41 +27,48 @@ export function scaleToLength(vec: [number, number], length: number) {
     }
 
     const scale = length / oldLength;
-    return [x * scale, y * scale]
+    return [x * scale, y * scale];
 }
 
-export function overlapArea(first: Rect, second: Rect) {
+/**
+ * Returns size of the overlapping area of the rectangles.
+ * @param first First rectangle
+ * @param second Second rectangle
+ * @returns Size of the overlapping area of the rectangles
+ */
+export function overlapArea(first: Rect, second: Rect): number {
     const overlapWidth = Math.max(0, Math.min(first.x + first.width, second.x + second.width) - Math.max(first.x, second.x));
     const overlapHeight = Math.max(0, Math.min(first.y + first.height, second.y + second.height) - Math.max(first.y, second.y));
     return overlapWidth * overlapHeight;
 }
 
-export function distance(first: [number, number], second: [number, number]) {
+/**
+ * Returns a distance between two points.
+ * @param first First point
+ * @param second Second point
+ * @returns Distance between two points
+ */
+export function distance(first: [number, number], second: [number, number]): number {
     const x = second[0] - first[0];
     const y = second[1] - first[1];
 
-    return Math.sqrt(x * x + y * y)
+    return Math.sqrt(x * x + y * y);
 }
-
-const SegmentOrientation = {
-    Colinear: 'Colinear',
-    Clockwise: 'Clockwise',
-    AntiClockwise: 'AntiClockwise',
-} as const
-
-type SegmentOrientation = keyof typeof SegmentOrientation
 
 /**
  * Returns whether two line segments intersect.
  * 
- * Based on: https://www.tutorialspoint.com/Check-if-two-line-segments-intersect
+ * Based on:
+ * - https://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
+ * - https://www.tutorialspoint.com/Check-if-two-line-segments-intersect
  * 
  * @param first - First end point of the first segment
  * @param second - Second end point of the first segment
  * @param third - First end point of the second segment
  * @param fourth - Second end point of the second segment
+ * @returns Boolean value expressing whether two line segments intersect
  */
-export function intersect(first: [number, number], second: [number, number], third: [number, number], fourth: [number, number]) {
+export function intersect(first: [number, number], second: [number, number], third: [number, number], fourth: [number, number]): boolean {
     const o1 = orientation(first, second, third);
     const o2 = orientation(first, second, fourth);
     const o3 = orientation(third, fourth, first);
@@ -55,12 +76,13 @@ export function intersect(first: [number, number], second: [number, number], thi
 
     return (o1 != o2 && o3 != o4) ||
         (o1 === SegmentOrientation.Colinear && isPointOnSegment(first, second, third)) ||
-        (o1 === SegmentOrientation.Colinear && isPointOnSegment(first, second, fourth)) ||
-        (o1 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, first)) ||
-        (o1 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, second));
+        (o2 === SegmentOrientation.Colinear && isPointOnSegment(first, second, fourth)) ||
+        (o3 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, first)) ||
+        (o4 === SegmentOrientation.Colinear && isPointOnSegment(third, fourth, second));
 }
 
-function orientation(first: [number, number], second: [number, number], third: [number, number]) {
+/** Returns an oritentation of three points. */
+function orientation(first: [number, number], second: [number, number], third: [number, number]): SegmentOrientation {
     const [x1, y1] = first;
     const [x2, y2] = second;
     const [x3, y3] = third;
@@ -68,6 +90,7 @@ function orientation(first: [number, number], second: [number, number], third: [
     const val = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2);
     
     if (val === 0) {
+        // third point lies on the line that goes through the segment formed by the first and second point
         return SegmentOrientation.Colinear;
     }
     else if (val < 0) {
@@ -78,7 +101,8 @@ function orientation(first: [number, number], second: [number, number], third: [
     }
 }
 
-function isPointOnSegment(first: [number, number], second: [number, number], third: [number, number]) {
+/** Returns whether the third point lies on the segment formed by the first two points. */
+function isPointOnSegment(first: [number, number], second: [number, number], third: [number, number]): boolean {
     const [x1, y1] = first;
     const [x2, y2] = second;
     const [x3, y3] = third;

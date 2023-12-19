@@ -9,15 +9,27 @@ import { isNullOrWhiteSpace } from './strings'
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 
-const ID_LOCAL_SEPARATOR = '___'; // Cannot use single '-', PIDs can contain '-'
+// This tool works with normalized author and venue IDs, also referred to as local IDs.
+// These have slashes replaced by three underscores.
+const ID_LOCAL_SEPARATOR = '___'; // Single '-' cannot be used, PIDs can contain '-'
 const ID_DBLP_SEPARATOR = '/';
 
-export function dblpUrlContainsItemId(stringUrl: string) {
-    const path = getPath(stringUrl);
+/**
+ * Returns whether the URL contains an ID of an author or venue.
+ * @param dblpUrl dblp URL
+ * @returns Whether the URL contains an ID of an author or venue
+ */
+export function dblpUrlContainsItemId(dblpUrl: string): boolean {
+    const path = getPath(dblpUrl);
     return idContainingUrlSegments.some((w) => path.includes(w));
 }
 
-export function getVenueTypeFromString(str: string) {
+/**
+ * Finds out a venue type from a string. This string is typically a URL. If the type cannot be found out, null is returned.
+ * @param str String containing a venue type identifier
+ * @returns Venue type or null
+ */
+export function getVenueTypeFromDblpString(str: string): VenueType | null {
     for (const key of Object.keys(VenueType)) {
         const segment = VENUE_PATH_SEGMENTS[key as keyof typeof VenueType];
 
@@ -28,12 +40,22 @@ export function getVenueTypeFromString(str: string) {
     return null;
 }
 
-export function extractNormalizedIdFromDblpUrl(dblpUrl: string) {
+/**
+ * Extracts a normalized author or venue ID from the URL. If the URL contains both venue and volume ID, both are returned. If no ID is found, null is returned.
+ * @param dblpUrl dblp URL
+ * @returns Array of IDs or null
+ */
+export function extractNormalizedIdFromDblpUrl(dblpUrl: string): [string, string | null] | null {
     const path = getPath(dblpUrl);
     return extractNormalizedIdFromDblpUrlPath(path);
 }
 
-export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
+/**
+ * Extracts a normalized author or venue ID from the URL path. If the URL contains both venue and volume ID, both are returned. If no ID is found, null is returned.
+ * @param dblpUrlPath dblp URL path
+ * @returns Array of normalized IDs or null
+ */
+export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string): [string, string | null] | null {
     const segments = dblpUrlPath.split(ID_DBLP_SEPARATOR);
     const typeSegment = idContainingUrlSegments.find((w) => segments.includes(w));
     if (!typeSegment) {
@@ -44,21 +66,38 @@ export function extractNormalizedIdFromDblpUrlPath(dblpUrlPath: string) {
     return convertDblpIdSegmentsToNormalizedId(reducedSegments);
 }
 
+/**
+ * Normalizes an author or venue ID used in dblp.
+ * @param dblpId Author or venue ID used in dblp
+ * @returns Array of normalized IDs or null
+ */
 export function convertDblpIdToNormalizedId(dblpId: string): [string, string | null] | null {
     return convertDblpIdSegmentsToNormalizedId(dblpId.split(ID_DBLP_SEPARATOR));
 }
 
-export function convertNormalizedIdToDblpPath(normalizedId: string, followingNormalizedId: string | undefined | null = undefined) {
-    const firstPart = `/${normalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`
+/**
+ * Converts a normalized author or venue ID to the format used in dblp.
+ * @param normalizedId Normalized author or venue ID
+ * @param followingNormalizedId Potential normalized venue volume ID
+ * @returns ID in the format used in dblp
+ */
+export function convertNormalizedIdToDblpPath(normalizedId: string, followingNormalizedId: string | undefined | null = undefined): string {
+    const firstPart = `/${normalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`;
 
     if (followingNormalizedId) {
-        return `${firstPart}/${followingNormalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`
+        return `${firstPart}/${followingNormalizedId.replaceAll(ID_LOCAL_SEPARATOR, ID_DBLP_SEPARATOR)}`;
     }
 
     return firstPart;
 }
 
-export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams) {
+/**
+ * Creates a URL path to a local search page.
+ * @param searchType Type of searched item - author or venue
+ * @param searchParams Search parameters
+ * @returns URL path to a local search page
+ */
+export function createLocalSearchPath(searchType: SearchType, searchParams: SearchParams): string {
     if (searchParams.query) {
         searchParams.query = normalizeQuery(searchParams.query);
     }
@@ -72,7 +111,14 @@ export function createLocalSearchPath(searchType: SearchType, searchParams: Sear
     }
 }
 
-export function createLocalPath(normalizedId: string, searchType: SearchType, followingNormalizedId: string | undefined | null = undefined) {
+/**
+ * Creates a local URL path leading to a specific author, venue or venue volume.
+ * @param normalizedId Normalized ID of an author or venue
+ * @param searchType Type of the target item - author or venue
+ * @param followingNormalizedId Potential normalized venue volume ID
+ * @returns Local URL path to a specific author, venue or venue volume
+ */
+export function createLocalPath(normalizedId: string, searchType: SearchType, followingNormalizedId: string | undefined | null = undefined): string {
     const following = followingNormalizedId ?
         `/${followingNormalizedId}` :
         '';
@@ -85,7 +131,13 @@ export function createLocalPath(normalizedId: string, searchType: SearchType, fo
     }
 }
 
-export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchType) {
+/**
+ * Converts a dblp URL of an author, venue or venue volume to a local URL path.
+ * @param dblpUrl dblp URL
+ * @param searchType Type of the target item - author or venue
+ * @returns Local URL path to a specific author, venue or venue volume
+ */
+export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchType): string | null {
     const [firstId, secondId] = extractNormalizedIdFromDblpUrl(dblpUrl) || [null, null];
 
     if (!firstId) {
@@ -95,20 +147,13 @@ export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchTyp
     return createLocalPath(firstId, searchType, secondId);
 }
 
-export function extractParamsFromUrl(inputUrl: string) {
-    const [url, inputStringParams] = inputUrl.split('?');
-    const params: { [key: string]: any } = {};
-
-    if (inputStringParams) {
-        inputStringParams.split('&').map((w) => {
-            const [key, value] = w.split('=');
-            params[key] = value;
-        })
-    }
-
-    return params;
-}
-
+/**
+ * Append some search parameters to a URL.
+ * @param inputUrl URL
+ * @param inputParams Search parameters
+ * @param ignoreExistingUrlParams Whether existing parameters of the URL should be ignored and removed
+ * @returns URL with the specified search parameters
+ */
 export function urlWithParams(inputUrl: string, inputParams: { [key: string]: any }, ignoreExistingUrlParams: boolean = false) {
     const [url] = inputUrl.split('?');
     const params: { [key: string]: any } = ignoreExistingUrlParams ? {} : extractParamsFromUrl(inputUrl);
@@ -130,13 +175,33 @@ export function urlWithParams(inputUrl: string, inputParams: { [key: string]: an
         `${url}?${paramsString}`;
 }
 
+/**
+ * Extracts search parameters from a URL.
+ * @param inputUrl URL
+ * @returns Search parameters
+ */
+export function extractParamsFromUrl(inputUrl: string) {
+    const [url, inputStringParams] = inputUrl.split('?');
+    const params: { [key: string]: any } = {};
+
+    if (inputStringParams) {
+        inputStringParams.split('&').map((w) => {
+            const [key, value] = w.split('=');
+            params[key] = value;
+        })
+    }
+
+    return params;
+}
+
+/** Selects only IDs from path segments and normalizes them. */
 function convertDblpIdSegmentsToNormalizedId(segments: Array<string>): [string, string | null] | null {
     let split = segments
         .map((w) => removeWords(['.html', '.bht', '.xml'], w))
         .filter((w) => w != 'index' && w.length > 0);
     let third: null | string = null;
 
-    // If dblpId is a venue ID, take just first two segments (ignore volume ID)
+    // If dblpId is a venue ID, take just first two segments
     if (split.some((s) => venueIdContainingUrlSegments.includes(s.toLowerCase()))) {
         third = split.length > 2 ? split[2] : null;
         split = split.slice(0, 2);
@@ -149,11 +214,13 @@ function convertDblpIdSegmentsToNormalizedId(segments: Array<string>): [string, 
     return [split.join(ID_LOCAL_SEPARATOR), third];
 }
 
+/** Returns just a path from a URL. */
 function getPath(stringUrl: string) {
     const url = new URL(stringUrl);
     return url.pathname;
 }
 
+/** Removes specified words from the text. */
 function removeWords(words: Array<string>, text: string) {
     let result = text;
 

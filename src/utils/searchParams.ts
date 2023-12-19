@@ -2,7 +2,13 @@ import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { isNumber } from './strings'
 import { SearchParams } from '@/dtos/SearchParams'
 
-export function searchToItemsParams(searchParams: SearchParams, count: number) {
+/**
+ * Converts search parameters obtained from the URL to search items parameters that can be used to query items from DBLP.
+ * @param searchParams Search parameters obtained from the URL
+ * @param count How many items should be queried
+ * @returns Search items parameters
+ */
+export function searchToItemsParams(searchParams: SearchParams, count: number): SearchItemsParams {
     const query = searchParams.query;
     const type = searchParams.type;
     const page = getPageFromSearchParams(searchParams);
@@ -12,21 +18,15 @@ export function searchToItemsParams(searchParams: SearchParams, count: number) {
         first: (page - 1) * count,
         count: count,
         type: type
-    } as SearchItemsParams
+    } as SearchItemsParams;
 }
 
-export function getPageFromSearchParams(searchParams: SearchParams) {
+/**
+ * Gets a page number from search parameters obtained from the URL. If no page is found in the parameters, returns 1. 
+ * @param searchParams Search parameters obtained from the URL
+ * @returns Page number
+ */
+export function getPageFromSearchParams(searchParams: SearchParams): number {
     const page = searchParams.page || '1';
     return page && isNumber(page) ? parseInt(page) : 1;
-}
-
-export function searchToItemsCountParams(searchParams: SearchParams) {
-    const query = searchParams.query;
-
-    return {
-        query: query,
-        first: 1,
-        count: 0,
-        completionsCount: 0
-    } as SearchItemsParams
 }
