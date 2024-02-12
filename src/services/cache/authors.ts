@@ -4,7 +4,12 @@ import connectDb from '@/db/mongodb'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { CACHED_AUTHOR_MAX_AGE } from '@/constants/cache'
 
-export async function cacheAuthor(authorId: string, author: DblpAuthor) {
+/**
+ * Saves an author to the cache (database).
+ * @param authorId Normalized ID of the author
+ * @param author Object representing the author
+ */
+export async function cacheAuthor(authorId: string, author: DblpAuthor): Promise<void> {
     await connectDb();
 
     const cachedAuthor = await DblpAuthorCache.findOne<DblpAuthorCacheSchema>({ authorId: authorId });
@@ -18,7 +23,7 @@ export async function cacheAuthor(authorId: string, author: DblpAuthor) {
             });
     }
     else {
-        const newUser = await DblpAuthorCache.create<DblpAuthorCacheSchema>(
+        const newAuthor = await DblpAuthorCache.create<DblpAuthorCacheSchema>(
             {
                 authorId: authorId,
                 jsonObject: JSON.stringify(author)
@@ -26,14 +31,19 @@ export async function cacheAuthor(authorId: string, author: DblpAuthor) {
     }
 }
 
-export async function tryGetCachedAuthor(authorId: string) {
+/**
+ * Tries to retreive an author from the cache (database).
+ * @param authorId Normalized ID of the author
+ * @returns Object representing the author or null if no author was found
+ */
+export async function tryGetCachedAuthor(authorId: string): Promise<DblpAuthor | null> {
     await connectDb();
 
     const cachedAuthor = await DblpAuthorCache.findOne<DblpAuthorCacheSchema>({ authorId: authorId });
 
     if (cachedAuthor && cachedAuthor.updatedAt >= new Date(new Date().getDate() - CACHED_AUTHOR_MAX_AGE)) {
-        return JSON.parse(cachedAuthor.jsonObject) as DblpAuthor
+        return JSON.parse(cachedAuthor.jsonObject) as DblpAuthor;
     }
 
-    return null
+    return null;
 }

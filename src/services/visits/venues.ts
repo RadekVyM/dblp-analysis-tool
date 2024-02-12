@@ -1,10 +1,16 @@
+import 'server-only'
 import { UserSchema } from '@/db/models/User'
 import VisitedVenue, { VisitedVenueSchema } from '@/db/models/VisitedVenue'
 import connectDb from '@/db/mongodb'
 import { SavedVenue as SavedVenueDto, VisitedVenue as VisitedVenueDto } from '@/dtos/SavedVenues'
-import 'server-only'
 
-export async function visitedVenue(dto: SavedVenueDto, user: UserSchema): Promise<VisitedVenueDto> {
+/**
+ * Updates a visited venue by the current user.
+ * @param dto Visited venue
+ * @param user Current user
+ * @returns Visited venue
+ */
+export async function updateVisitedVenue(dto: SavedVenueDto, user: UserSchema): Promise<VisitedVenueDto> {
     await connectDb();
 
     let venue = await VisitedVenue.findOne<VisitedVenueSchema>({ venueId: dto.id, user: user._id });
@@ -30,9 +36,15 @@ export async function visitedVenue(dto: SavedVenueDto, user: UserSchema): Promis
         id: venue?.venueId || '',
         title: venue?.name || '',
         visitsCount: venue?.visitsCount
-    }
+    };
 }
 
+/**
+ * Returns all the visited venues by the current user.
+ * @param user Current user
+ * @param limit Max number of returned venues
+ * @returns List of visited venues
+ */
 export async function getVisitedVenues(user: UserSchema, limit?: number): Promise<Array<VisitedVenueDto>> {
     await connectDb();
 
@@ -51,7 +63,12 @@ export async function getVisitedVenues(user: UserSchema, limit?: number): Promis
     }));
 }
 
+/**
+ * Removes a visited venue from the database.
+ * @param venueId Normalized ID of the venue
+ * @param user Current user
+ */
 export async function removeVisitedVenue(venueId: string, user: UserSchema): Promise<void> {
     await connectDb();
-    const a = await VisitedVenue.findOneAndDelete<VisitedVenueSchema>({ venueId: venueId, user: user._id });
+    await VisitedVenue.findOneAndDelete<VisitedVenueSchema>({ venueId: venueId, user: user._id });
 }

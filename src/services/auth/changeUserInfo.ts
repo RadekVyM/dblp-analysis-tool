@@ -1,15 +1,21 @@
+import 'server-only'
 import { anyKeys } from '@/utils/objects'
 import changeUserInfoValidator from '@/validation/changeUserInfoValidator'
-import 'server-only'
-import getCurrentUser from './getCurrentUser'
+import { getCurrentUser } from '.'
 import connectDb from '@/db/mongodb'
 import User, { UserSchema } from '@/db/models/User'
 import { badRequestError, unauthorizedError } from '@/utils/errors'
 
-export async function changeUserInfo(email: string, username: string) : Promise<UserSchema | null> {
-    const err = changeUserInfoValidator({ email, username });
+/**
+ * Tries to change the current user's email and username.
+ * @param email New email of the user
+ * @param username New username of the user
+ * @returns Updated user database object
+ */
+export default async function changeUserInfo(email: string, username: string): Promise<UserSchema | null> {
+    const error = changeUserInfoValidator({ email, username });
 
-    if (anyKeys(err)) {
+    if (anyKeys(error)) {
         throw badRequestError('The values you entered are not valid.');
     }
 
@@ -26,7 +32,7 @@ export async function changeUserInfo(email: string, username: string) : Promise<
     if (user && user._id.toString() !== currentUser._id.toString()) {
         throw unauthorizedError('Invalid e-mail address.');
     }
-    
+
     const updatedUser = await User.findByIdAndUpdate<UserSchema>(currentUser._id, {
         email: email.trim(),
         username: username.trim()
@@ -36,5 +42,5 @@ export async function changeUserInfo(email: string, username: string) : Promise<
         throw unauthorizedError('User could not be updated.');
     }
 
-    return await User.findById<UserSchema>(updatedUser._id)
+    return await User.findById<UserSchema>(updatedUser._id);
 }

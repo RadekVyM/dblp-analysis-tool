@@ -1,8 +1,6 @@
-'use server'
-
 import 'server-only'
 import { fetchXml, withCache } from '@/services/fetch'
-import { fetchItemsIndexHtml } from '@/services/items/items'
+import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
@@ -13,31 +11,57 @@ import { cacheAuthor, tryGetCachedAuthor } from '../cache/authors'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { serverError } from '@/utils/errors'
 
-export async function fetchAuthorsIndex(params: BaseSearchItemsParams) {
+/**
+ * Requests a part of the authors index.
+ * @param params Parameters which affect what part of the index is returned
+ * @returns List of all authors in that part of the index
+ */
+export async function fetchAuthorsIndex(params: BaseSearchItemsParams): Promise<Array<SimpleSearchResultItem>> {
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, params);
-    return extractAuthorsIndex(html, params.count)
+    return extractAuthorsIndex(html, params.count);
 }
 
-export async function fetchAuthorsIndexLength() {
-    // With that prefix, I get to the last page of the index
+/**
+ * Requests the authors index length.
+ * @returns Authors index length
+ */
+export async function fetchAuthorsIndexLength(): Promise<number> {
+    // With the 'zzzzzzzzzzzzz' prefix, I get the last page of the index
     // There is a posibility that this will be a source of problems in the future
     // It is not a critical feature however
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${DBLP_AUTHORS_INDEX_HTML}`, { prefix: 'zzzzzzzzzzzzz' });
-    return extractAuthorsIndexLength(html)
+    return extractAuthorsIndexLength(html);
 }
 
-export async function fetchAuthor(id: string) {
+/**
+ * Requests all the author information with a specified ID.
+ * Results are cached.
+ * @param id Normalized ID of the author
+ * @returns Object containing all the author information
+ */
+export async function fetchAuthor(id: string): Promise<DblpAuthor> {
     return await withCache<DblpAuthor>(
         async (value: DblpAuthor) => await cacheAuthor(id, value),
         async () => await tryGetCachedAuthor(id),
         async () => {
             const xml = await fetchAuthorXml(id);
-            return extractAuthor(xml, id)
+            return extractAuthor(xml, id);
         }
-    )
+    );
 }
 
-export async function getSearchResultWithoutQuery(params: SearchItemsParams, itemsCount: number) {
+/**
+ * Requests a part of the authors index and returns its entire length.
+ * It is not possible to search by an author's name.
+ * 
+ * @param params Parameters which affect what items are returned
+ * @param itemsCount Max number of authors that can be returned
+ * @returns Processed search result containg a list of found authors
+ */
+export async function fetchSearchResultWithoutQuery(
+    params: SearchItemsParams,
+    itemsCount: number
+): Promise<SimpleSearchResult> {
     const promises = [
         fetchAuthorsIndex({ first: params.first, count: itemsCount }),
         fetchAuthorsIndexLength()
@@ -61,10 +85,11 @@ export async function getSearchResultWithoutQuery(params: SearchItemsParams, ite
 
     const result = new SimpleSearchResult(count, authors);
 
-    return result
+    return result;
 }
 
-async function fetchAuthorXml(id: string) {
+/** Fetches a raw XML object containing all the author information. */
+async function fetchAuthorXml(id: string): Promise<string> {
     const url = `${DBLP_URL}${convertNormalizedIdToDblpPath(id)}.xml`;
-    return fetchXml(url)
+    return fetchXml(url);
 }

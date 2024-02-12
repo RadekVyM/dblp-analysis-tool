@@ -1,5 +1,7 @@
 export const DEFAULT_ITEMS_COUNT_PER_PAGE = 50;
 export const MAX_QUERYABLE_ITEMS_COUNT = 10000;
+export const AUTHORS_COUNT_PER_DBLP_INDEX_PAGE = 300;
+export const VENUES_COUNT_PER_DBLP_INDEX_PAGE = 100;
 
 export const JOURNALS_DBLP_KEY = 'journals';
 export const CONF_DBLP_KEY = 'conf';

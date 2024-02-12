@@ -3,7 +3,7 @@ import { cn } from '@/utils/tailwindUtils'
 import SignInButton from '../SignInButton'
 import SiteLogo from './SiteLogo'
 import { SavedItemsMenuIntegration } from './SavedItemsMenuIntegration'
-import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
+import { isAuthorizedOnServer } from '@/services/auth'
 import Search from './Search'
 
 type SiteHeaderParams = {

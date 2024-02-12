@@ -1,3 +1,4 @@
+import 'server-only'
 import * as cheerio from 'cheerio'
 import { DBLP_URL, SEARCH_AUTHOR } from '@/constants/urls'
 import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/utils/urls'
@@ -7,7 +8,14 @@ import { isNumber } from '@/utils/strings'
 import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import { extractPublicationsFromXml } from '../publications/parsing'
 import he from 'he'
+import { AUTHORS_COUNT_PER_DBLP_INDEX_PAGE } from '@/constants/search'
 
+/**
+ * Extracts all the author information from a XML string using Cheerio.
+ * @param xml XML string
+ * @param id Normalized ID of the author
+ * @returns Object containing all the author information
+ */
 export function extractAuthor(xml: string, id: string) {
     const $ = cheerio.load(xml, { xmlMode: true });
 
@@ -23,9 +31,14 @@ export function extractAuthor(xml: string, id: string) {
         extractPersonInfo($, person, id, title),
         homonyms,
         publications
-    )
+    );
 }
 
+/**
+ * Extracts the authors index length from the last index HTML page.
+ * @param html HTML string
+ * @returns The authors index length
+ */
 export function extractAuthorsIndexLength(html: string) {
     const $ = cheerio.load(html);
     const links = $(`#${DBLP_AUTHORS_INDEX_ELEMENT_ID} ul li a`);
@@ -36,17 +49,22 @@ export function extractAuthorsIndexLength(html: string) {
         return links.length;
     }
 
-    const str = href.replace('?pos=', '');
+    const previousPageFirstItemPosition = href.replace('?pos=', '');
 
-    if (!isNumber(str)) {
+    if (!isNumber(previousPageFirstItemPosition)) {
         return links.length;
     }
 
-    const itemsCountPerDblpIndexPage = 300;
-    const count = parseInt(str) - 1 + itemsCountPerDblpIndexPage + links.length;
-    return count
+    const count = parseInt(previousPageFirstItemPosition) - 1 + AUTHORS_COUNT_PER_DBLP_INDEX_PAGE + links.length;
+    return count;
 }
 
+/**
+ * Extracts all the items from a part of the authors index HTML page.
+ * @param html HTML string
+ * @param count Max number of returned items
+ * @returns List of found authors
+ */
 export function extractAuthorsIndex(html: string, count?: number) {
     const $ = cheerio.load(html);
     const links = $(`#${DBLP_AUTHORS_INDEX_ELEMENT_ID} ul li a`);
@@ -67,9 +85,10 @@ export function extractAuthorsIndex(html: string, count?: number) {
         authors = authors.slice(0, count);
     }
 
-    return authors
+    return authors;
 }
 
+/** Extracts all the homonyms of a person from a Cheerio object. */
 function extractPersonHomonyms($: cheerio.Root) {
     const homonyms: Array<DblpAuthorHomonym> = [];
 
@@ -91,6 +110,7 @@ function extractPersonHomonyms($: cheerio.Root) {
     return homonyms;
 }
 
+/** Extracts all the person information from a Cheerio object. */
 function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string, title: string) {
     const date = person.attr('mdate');
     const personPubltype = person.attr('publtype');
@@ -143,5 +163,5 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
             affiliations: affiliations,
             awards: awards
         }
-    )
+    );
 }

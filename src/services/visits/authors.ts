@@ -1,10 +1,16 @@
+import 'server-only'
 import { UserSchema } from '@/db/models/User'
 import VisitedAuthor, { VisitedAuthorSchema } from '@/db/models/VisitedAuthor'
 import connectDb from '@/db/mongodb'
 import { SavedAuthor as SavedAuthorDto, VisitedAuthor as VisitedAuthorDto } from '@/dtos/SavedAuthors'
-import 'server-only'
 
-export async function visitedAuthor(dto: SavedAuthorDto, user: UserSchema): Promise<VisitedAuthorDto> {
+/**
+ * Updates a visited author by the current user.
+ * @param dto Visited author
+ * @param user Current user
+ * @returns Visited author
+ */
+export async function updateVisitedAuthor(dto: SavedAuthorDto, user: UserSchema): Promise<VisitedAuthorDto> {
     await connectDb();
 
     let author = await VisitedAuthor.findOne<VisitedAuthorSchema>({ authorId: dto.id, user: user._id });
@@ -30,9 +36,15 @@ export async function visitedAuthor(dto: SavedAuthorDto, user: UserSchema): Prom
         id: author?.authorId || '',
         title: author?.name || '',
         visitsCount: author?.visitsCount
-    }
+    };
 }
 
+/**
+ * Returns all the visited authors by the current user.
+ * @param user Current user
+ * @param limit Max number of returned authors
+ * @returns List of visited authors
+ */
 export async function getVisitedAuthors(user: UserSchema, limit?: number): Promise<Array<VisitedAuthorDto>> {
     await connectDb();
 
@@ -50,7 +62,12 @@ export async function getVisitedAuthors(user: UserSchema, limit?: number): Promi
     }));
 }
 
+/**
+ * Removes a visited author from the database.
+ * @param venueId Normalized ID of the author
+ * @param user Current user
+ */
 export async function removeVisitedAuthor(authorId: string, user: UserSchema): Promise<void> {
     await connectDb();
-    const a = await VisitedAuthor.findOneAndDelete<VisitedAuthorSchema>({ authorId: authorId, user: user._id });
+    await VisitedAuthor.findOneAndDelete<VisitedAuthorSchema>({ authorId: authorId, user: user._id });
 }

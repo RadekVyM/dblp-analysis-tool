@@ -3,7 +3,18 @@ import { urlWithParams } from '@/utils/urls'
 import { fetchHtml, fetchJson } from '@/services/fetch'
 import { ItemsIndexParams, SearchItemsParams } from '@/dtos/searchItemsParams'
 
-export async function queryItemsJson(url: string, params: SearchItemsParams) {
+/**
+ * Requests items from a JSON dblp endpoint.
+ * Used mainly for searching the database.
+ * 
+ * It is not possible to get more than first 10000 satisfactory results.
+ * This is a limit set by dblp.
+ * 
+ * @param url URL of the endpoint
+ * @param params Parameters of the request
+ * @returns The response containing a deserialized JSON object
+ */
+export async function fetchItemsJson(url: string, params: SearchItemsParams) {
     params.first ??= 0;
     params.count ??= 10;
     params.completionsCount ??= 0;
@@ -19,6 +30,12 @@ export async function queryItemsJson(url: string, params: SearchItemsParams) {
     return fetchJson(completeUrl);
 }
 
+/**
+ * Requests a page of a dblp index.
+ * @param url URL of the index
+ * @param params Parameters of the request
+ * @returns The response containing a HTML string
+ */
 export async function fetchItemsIndexHtml(url: string, params: ItemsIndexParams) {
     const completeUrl = urlWithParams(url, {
         pos: (params.first || 0) + 1,

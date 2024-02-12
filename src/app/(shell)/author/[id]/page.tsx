@@ -10,10 +10,8 @@ import ListLink from '@/components/ListLink'
 import AuthorPublications from './(components)/AuthorPublications'
 import { Section, SectionTitle } from './(components)/Section'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
-import { Suspense } from 'react'
-import isAuthorizedOnServer from '@/services/auth/isAuthorizedOnServer'
+import { isAuthorizedOnServer } from '@/services/auth'
 import AuthorCoauthors from './(components)/AuthorCoauthors'
-import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 
 type AuthorPageParams = {
     params: {

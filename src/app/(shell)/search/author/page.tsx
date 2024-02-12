@@ -1,5 +1,5 @@
 import { DblpAuthorSearchHit, getAuthorsNotes } from '@/dtos/DblpSearchResult'
-import { getSearchResultWithoutQuery } from '@/services/authors/fetch-server'
+import { fetchSearchResultWithoutQuery } from '@/services/authors/fetch-server'
 import { SearchParams } from '@/dtos/SearchParams'
 import { searchToItemsParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
@@ -7,7 +7,7 @@ import SearchResultList from '../(components)/SearchResultList'
 import { SearchItemsParams } from '@/dtos/searchItemsParams'
 import { SEARCH_AUTHOR } from '@/constants/urls'
 import he from 'he'
-import { getSearchResultWithQuery } from '@/services/authors/fetch'
+import { fetchSearchResultWithQuery } from '@/services/authors/fetch'
 
 type SearchAuthorPageParams = {
     searchParams: SearchParams
@@ -27,10 +27,10 @@ export default async function SearchAuthorPage({ searchParams }: SearchAuthorPag
 
 async function getSearchResult(params: SearchItemsParams) {
     if (params.query && params.query.length > 0) {
-        return await getSearchResultWithQuery(params, getAdditionalInfo);
+        return await fetchSearchResultWithQuery(params, getAdditionalInfo);
     }
     else {
-        return await getSearchResultWithoutQuery(params, DEFAULT_ITEMS_COUNT_PER_PAGE);
+        return await fetchSearchResultWithoutQuery(params, DEFAULT_ITEMS_COUNT_PER_PAGE);
     }
 }
 

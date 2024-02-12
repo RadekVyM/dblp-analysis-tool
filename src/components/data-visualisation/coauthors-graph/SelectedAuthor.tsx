@@ -2,10 +2,8 @@
 
 import CheckListButton from '@/components/CheckListButton'
 import AuthorListItem from './AuthorListItem'
-import Button from '@/components/Button'
 import LoadingWheel from '@/components/LoadingWheel'
 import { useEffect, useMemo, useState } from 'react'
-import { fetchAuthor } from '@/services/authors/fetch-server'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import LinkArrow from '@/components/LinkArrow'
 import Link from 'next/link'
@@ -86,6 +84,7 @@ function SelectedAuthorContent({
     onCoauthorClick,
     onCoauthorHoverChange
 }: SelectedAuthorContentParams) {
+    // TODO: Create a useUser() hook for fetching the author
     const commonCoauthors = useMemo(() =>
         [...selectedAuthor.coauthorIds.values()]
             .map((id) => authorsMap.get(id))
@@ -105,6 +104,7 @@ function SelectedAuthorContent({
     useEffect(() => {
         setIsLoading(true);
         setFetchedAuthor(null);
+        /*
         fetchAuthor(selectedAuthor.person.id)
             .then((data) => {
                 setFetchedAuthor(data);
@@ -115,6 +115,7 @@ function SelectedAuthorContent({
             .finally(() => {
                 setIsLoading(false);
             })
+         */
     }, [selectedAuthor.person.id]);
 
     function onIncludeAllClick() {

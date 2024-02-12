@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { authorDto, authorizedRequest } from '../../shared'
-import { getVisitedAuthors, visitedAuthor } from '@/services/visits/authors'
+import { getVisitedAuthors, updateVisitedAuthor } from '@/services/visits/authors'
 import { DISPLAYED_VISITED_AUTHORS_COUNT } from '@/constants/visits'
 
 export async function GET(request: Request) {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
             return dto
         }
 
-        const author = await visitedAuthor(dto, user);
+        const author = await updateVisitedAuthor(dto, user);
         return NextResponse.json(author)
     },
     'Visited author could not be saved.')

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { venueDto, authorizedRequest } from '../../shared'
-import { getVisitedVenues, visitedVenue } from '@/services/visits/venues'
+import { getVisitedVenues, updateVisitedVenue } from '@/services/visits/venues'
 import { DISPLAYED_VISITED_AUTHORS_COUNT } from '@/constants/visits'
 
 export async function GET(request: Request) {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
             return dto
         }
 
-        const venue = await visitedVenue(dto, user);
+        const venue = await updateVisitedVenue(dto, user);
         return NextResponse.json(venue)
     },
     'Visited venue could not be saved.')

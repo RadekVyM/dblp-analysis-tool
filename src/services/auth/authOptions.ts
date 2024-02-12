@@ -9,6 +9,7 @@ import signInValidator from '@/validation/signInValidator'
 import { anyKeys } from '@/utils/objects'
 import { error, unauthorizedError } from '@/utils/errors'
 
+/** Auth options for next-auth. */
 export const authOptions: AuthOptions = {
     providers: [
         CredentialsProvider({
@@ -18,7 +19,7 @@ export const authOptions: AuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials, req) {
-                if(isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.password) || !credentials) {
+                if (isNullOrWhiteSpace(credentials?.email) || isNullOrWhiteSpace(credentials?.password) || !credentials) {
                     throw unauthorizedError('Please enter an e-mail and password.');
                 }
 
@@ -54,7 +55,7 @@ export const authOptions: AuthOptions = {
             if (trigger === 'update' && session) {
                 return { ...token, ...session.user }
             }
-            
+
             return { ...token, ...user }
         },
         async session({ session, token, user }) {
@@ -64,6 +65,7 @@ export const authOptions: AuthOptions = {
     },
 };
 
+/** Returns a user that matches the email and password. */
 async function findMatchingUser(email: string, password: string) {
     await connectDb();
 

@@ -1,9 +1,15 @@
+import 'server-only'
 import SavedAuthor, { SavedAuthorSchema } from '@/db/models/SavedAuthor'
 import { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
 import { SavedAuthor as SavedAuthorDto } from '@/dtos/SavedAuthors'
-import 'server-only'
 
+/**
+ * Saves an author for the current user.
+ * @param dto Author
+ * @param user Current user
+ * @returns Updated author
+ */
 export async function saveAuthor(dto: SavedAuthorDto, user: UserSchema): Promise<SavedAuthorDto> {
     await connectDb();
 
@@ -30,6 +36,11 @@ export async function saveAuthor(dto: SavedAuthorDto, user: UserSchema): Promise
     }
 }
 
+/**
+ * Returns all the saved authors of the current user.
+ * @param user Current user
+ * @returns List of saved authors
+ */
 export async function getSavedAuthors(user: UserSchema): Promise<Array<SavedAuthorDto>> {
     await connectDb();
 
@@ -43,6 +54,11 @@ export async function getSavedAuthors(user: UserSchema): Promise<Array<SavedAuth
     }));
 }
 
+/**
+ * Removes a specified saved author from the database.
+ * @param authorId Saved author ID
+ * @param user Current user
+ */
 export async function removeSavedAuthor(authorId: string, user: UserSchema): Promise<void> {
     await connectDb();
     const a = await SavedAuthor.findOneAndDelete<SavedAuthorSchema>({ authorId: authorId, user: user._id });

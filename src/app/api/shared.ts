@@ -1,7 +1,7 @@
 import { UserSchema } from '@/db/models/User'
 import { SavedAuthor } from '@/dtos/SavedAuthors'
 import { SavedVenue } from '@/dtos/SavedVenues'
-import getCurrentUser from '@/services/auth/getCurrentUser'
+import { getCurrentUser } from '@/services/auth'
 import { NextResponse } from 'next/server'
 
 export async function noUser() {
@@ -57,7 +57,7 @@ export async function deleteItem(
         await remove(id, user);
         return new NextResponse(null, { status: 204 })
     },
-    errorMessage)
+        errorMessage)
 }
 
 export async function authorizedRequest(

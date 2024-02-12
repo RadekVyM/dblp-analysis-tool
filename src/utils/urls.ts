@@ -148,7 +148,7 @@ export function convertDblpUrlToLocalPath(dblpUrl: string, searchType: SearchTyp
 }
 
 /**
- * Append some search parameters to a URL.
+ * Appends search parameters to a URL.
  * @param inputUrl URL
  * @param inputParams Search parameters
  * @param ignoreExistingUrlParams Whether existing parameters of the URL should be ignored and removed

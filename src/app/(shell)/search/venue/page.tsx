@@ -4,8 +4,9 @@ import SearchResultList from '../(components)/SearchResultList'
 import { searchToItemsParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import { SearchItemsParams } from '@/dtos/searchItemsParams'
-import { getSearchResultWithQuery, getSearchResultWithoutQuery } from '@/services/venues/venues'
+import { fetchSearchResultWithQuery } from '@/services/venues/fetch'
 import { SEARCH_VENUE } from '@/constants/urls'
+import { fetchSearchResultWithoutQuery } from '@/services/venues/fetch-server'
 
 type SearchVenuePageParams = {
     searchParams: SearchParams
@@ -26,9 +27,9 @@ export default async function SearchVenuePage({ searchParams }: SearchVenuePageP
 
 async function getSearchResult(type: VenueType, params: SearchItemsParams) {
     if (params.query && params.query.length > 0) {
-        return await getSearchResultWithQuery(type, params);
+        return await fetchSearchResultWithQuery(type, params);
     }
     else {
-        return await getSearchResultWithoutQuery(type, params, DEFAULT_ITEMS_COUNT_PER_PAGE);
+        return await fetchSearchResultWithoutQuery(type, params, DEFAULT_ITEMS_COUNT_PER_PAGE);
     }
 }

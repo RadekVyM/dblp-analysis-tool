@@ -1,8 +1,14 @@
+import 'server-only'
 import { PublicationType } from '@/enums/PublicationType'
 import { DblpPublication, DblpPublicationPerson, createDblpPublication } from '@/dtos/DblpPublication'
 import { convertDblpIdToNormalizedId, extractNormalizedIdFromDblpUrlPath } from '@/utils/urls'
 
-export function extractPublicationsFromXml($: cheerio.Root) {
+/**
+ * Extracts publications information from a XML string using Cheerio.
+ * @param $ Cheerio object with a loaded XML string
+ * @returns List of all publications in the XML string
+ */
+export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublication> {
     const publications: Array<DblpPublication> = [];
 
     $('r > *').each((index, el) => {
@@ -66,6 +72,7 @@ export function extractPublicationsFromXml($: cheerio.Root) {
     return publications;
 }
 
+/** Gets a list of all people found in the passed elements. */
 function getPeople($: cheerio.Root, children: cheerio.Cheerio) {
     return (children
         .map((index, el) => {

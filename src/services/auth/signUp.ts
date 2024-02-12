@@ -1,13 +1,21 @@
+import 'server-only'
 import User, { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
 import { anyKeys } from '@/utils/objects'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import signUpValidator from '@/validation/signUpValidator'
-import 'server-only'
 import hashPassword from './hashPassword'
 import { badRequestError } from '@/utils/errors'
 
-export async function signUp(email: string, username: string, password: string, confirmPassword: string) : Promise<UserSchema> {
+/**
+ * Signs a new user up. Can be called only on the server.
+ * @param email User's email
+ * @param username Username
+ * @param password User's password
+ * @param confirmPassword Confirmation of the password
+ * @returns User database object
+ */
+export default async function signUp(email: string, username: string, password: string, confirmPassword: string): Promise<UserSchema> {
     const err = signUpValidator({ email, username, password, confirmPassword });
 
     if (anyKeys(err)) {
@@ -36,5 +44,5 @@ export async function signUp(email: string, username: string, password: string, 
         passwordHash: passwordHash
     });
 
-    return newUser
+    return newUser;
 }

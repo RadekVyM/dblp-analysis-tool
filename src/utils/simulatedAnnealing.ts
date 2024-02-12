@@ -26,12 +26,13 @@ type BaseLabel = {
     idealY: number
 }
 
+/** An area in which all labels have to be placed. */
 type OccupiableArea = { x1: number, y1: number, x2: number, y2: number, }
 
 /**
  * Ensures that labels do not overlap using simulated annealing. This function modifies the input array and returns it.
  * 
- * The implementation is based on this paper:
+ * The implementation is based on the following paper:
  * - http://vis.berkeley.edu/courses/cs294-10-fa13/wiki/images/5/55/FP_EvanWang_paper.pdf
  * @param labels Array of labels
  * @param options Options of the simulated annealing
@@ -65,6 +66,7 @@ function executeMove(
     area?: OccupiableArea,
     moveBy?: (label: BaseLabel) => [number, number],
     linesIntersect?: (first: BaseLabel, second: BaseLabel) => boolean) {
+    // Selecting a random label that will be moved
     const label = labels[Math.floor(Math.random() * labels.length)];
     const oldX = label.x;
     const oldY = label.y;
@@ -72,12 +74,13 @@ function executeMove(
 
     const [relX, relY] = moveBy ?
         moveBy(label) :
-        [(Math.random() - 0.5) * MAX_MOVE_DISTANCE, (Math.random() - 0.5) * MAX_MOVE_DISTANCE];
+        defaultMoveBy();
 
     label.x += relX;
     label.y += relY;
 
     if (area) {
+        // Adjust the position of the label to fit the area
         if (label.x < area.x1 || label.x > area.x2) {
             label.x = oldX;
         }
@@ -94,6 +97,10 @@ function executeMove(
         label.x = oldX;
         label.y = oldY;
     }
+}
+
+function defaultMoveBy(): [number, number] {
+    return [(Math.random() - 0.5) * MAX_MOVE_DISTANCE, (Math.random() - 0.5) * MAX_MOVE_DISTANCE];
 }
 
 function computeEnergy(label: BaseLabel, labels: Array<BaseLabel>, linesIntersect?: (first: BaseLabel, second: BaseLabel) => boolean) {

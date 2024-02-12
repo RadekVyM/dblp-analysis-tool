@@ -1,5 +1,5 @@
 import { AuthorGroup } from '@/dtos/SavedAuthors'
-import { getAuthorGroups, createOrUpdateAuthorGroup } from '@/services/saves/authorGroups'
+import { getAuthorGroups, saveAuthorGroup } from '@/services/saves/authorGroups'
 import { NextResponse } from 'next/server'
 import { authorizedRequest, noUser } from '../../shared'
 
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
         const authorGroups = await getAuthorGroups(user);
         return NextResponse.json(authorGroups)
     },
-    'Author groups could not be fetched.')
+        'Author groups could not be fetched.')
 }
 
 export async function POST(request: Request) {
@@ -18,10 +18,10 @@ export async function POST(request: Request) {
             return dto
         }
 
-        const authorGroup = await createOrUpdateAuthorGroup(dto, user);
+        const authorGroup = await saveAuthorGroup(dto, user);
         return NextResponse.json(authorGroup)
     },
-    'Author group could not be saved.')
+        'Author group could not be saved.')
 }
 
 async function authorGroupDto(request: Request) {

@@ -2,11 +2,8 @@
 import 'server-only'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { revalidatePath } from 'next/cache'
-import { signUp } from './signUp'
 import { unpackDefaultError } from '@/utils/errors'
-import { changeUserInfo } from './changeUserInfo'
-import deleteCurrentUser from './deleteUser'
-import changePassword from './changePassword'
+import { changePassword, changeUserInfo, deleteCurrentUser, signUp } from '.'
 
 export async function submitSignUpForm(prevState: any, formData: FormData) {
     const email = formData.get('email')?.toString() || '';

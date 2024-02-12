@@ -3,26 +3,43 @@ import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 
-export function getUniqueCoauthors(authors: Array<DblpAuthor>, skip?: (author: DblpPublicationPerson) => boolean) {
+/**
+ * Returns all the unique coauthors of authors in a list.
+ * @param authors List of coauthors
+ * @param skip Whether an author should be skipped
+ * @returns List of authors
+ */
+export function getUniqueCoauthors(
+    authors: Array<DblpAuthor>,
+    skip?: (author: DblpPublicationPerson) => boolean
+): Array<DblpPublicationPerson> {
     const map = new Map<string, DblpPublicationPerson>();
 
     authors.forEach((author) => {
         author.publications.forEach((p) => p.authors.forEach((a) => {
             if ((skip && skip(a)) || map.has(a.id)) {
-                return
+                return;
             }
     
             map.set(a.id, a);
         }));
     });
 
-    return [...map.values()]
+    return [...map.values()];
 }
 
+/**
+ * Creates a graph from a list of publications.
+ * @param publications Publications
+ * @param ignoredAuthorIds IDs of authors that are not included in the graph
+ * @param primaryColoredAuthorIds IDs of authors that are colored using the primary color
+ * @returns Nodes, links and other statistics or parts of the graph
+ */
 export function convertToCoauthorsGraph(
     publications: Array<DblpPublication>,
     ignoredAuthorIds: Array<string> = [],
-    primaryColoredAuthorIds: Array<string> = []) {
+    primaryColoredAuthorIds: Array<string> = []
+) {
     const authorsMap = new Map<string, PublicationPersonNodeDatum>();
     const edgesMap = new Map<string, PublicationPersonLinkDatum>();
 
@@ -75,12 +92,14 @@ export function convertToCoauthorsGraph(
         authorsMap,
         ...childrenStats,
         ...getLinksLimits(links)
-    }
+    };
 }
 
+/** Sets up children collections of all graph nodes. */
 function setChildren(
     links: Array<PublicationPersonLinkDatum>,
-    authorsMap: Map<string, PublicationPersonNodeDatum>) {
+    authorsMap: Map<string, PublicationPersonNodeDatum>
+) {
     let minCoauthorsCount = 0;
     let maxCoauthorsCount = 0;
 
@@ -105,9 +124,10 @@ function setChildren(
     return {
         minCoauthorsCount,
         maxCoauthorsCount
-    }
+    };
 }
 
+/** Returns min and max publications count of a link. */
 function getLinksLimits(links: Array<PublicationPersonLinkDatum>) {
     let minCoauthoredPublicationsCount = 0;
     let maxCoauthoredPublicationsCount = 0;
@@ -125,5 +145,5 @@ function getLinksLimits(links: Array<PublicationPersonLinkDatum>) {
     return {
         minCoauthoredPublicationsCount,
         maxCoauthoredPublicationsCount
-    }
+    };
 }

@@ -1,17 +1,27 @@
+import 'server-only'
 import { anyKeys } from '@/utils/objects'
 import changePasswordValidator from '@/validation/changePasswordValidator'
-import getCurrentUser from './getCurrentUser'
+import { getCurrentUser } from '.'
 import bcrypt from 'bcrypt'
-import 'server-only'
 import hashPassword from './hashPassword'
 import connectDb from '@/db/mongodb'
 import User, { UserSchema } from '@/db/models/User'
 import { unauthorizedError } from '@/utils/errors'
 
-export default async function changePassword(currentPassword: string, newPassword: string, confirmNewPassword: string) {
-    const err = changePasswordValidator({ currentPassword, newPassword, confirmNewPassword });
+/**
+ * Tries to change the current user's password. 
+ * @param currentPassword Current password of the user
+ * @param newPassword New password of the user
+ * @param confirmNewPassword Confirmation of the new password
+ */
+export default async function changePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmNewPassword: string
+): Promise<void> {
+    const error = changePasswordValidator({ currentPassword, newPassword, confirmNewPassword });
 
-    if (anyKeys(err)) {
+    if (anyKeys(error)) {
         throw unauthorizedError('The values you entered are not valid.');
     }
 
@@ -32,7 +42,7 @@ export default async function changePassword(currentPassword: string, newPasswor
     }
 
     const passwordHash = await hashPassword(newPassword);
-    
+
     await connectDb();
 
     const result = await User.findByIdAndUpdate<UserSchema>(currentUser._id, {

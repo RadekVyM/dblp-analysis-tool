@@ -1,9 +1,15 @@
+import 'server-only'
 import SavedVenue, { SavedVenueSchema } from '@/db/models/SavedVenue'
 import { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
 import { SavedVenue as SavedVenueDto } from '@/dtos/SavedVenues'
-import 'server-only'
 
+/**
+ * Saves a venue for the current user.
+ * @param dto Venue
+ * @param user Current user
+ * @returns Updated venue
+ */
 export async function saveVenue(dto: SavedVenueDto, user: UserSchema): Promise<SavedVenueDto> {
     await connectDb();
 
@@ -30,6 +36,11 @@ export async function saveVenue(dto: SavedVenueDto, user: UserSchema): Promise<S
     }
 }
 
+/**
+ * Returns all the saved venues of the current user.
+ * @param user Current user
+ * @returns List of saved venues
+ */
 export async function getSavedVenues(user: UserSchema): Promise<Array<SavedVenueDto>> {
     await connectDb();
 
@@ -43,6 +54,11 @@ export async function getSavedVenues(user: UserSchema): Promise<Array<SavedVenue
     }));
 }
 
+/**
+ * Removes a specified saved venue from the database.
+ * @param venueId Saved venue ID
+ * @param user Current user
+ */
 export async function removeSavedVenue(venueId: string, user: UserSchema): Promise<void> {
     await connectDb();
     const a = await SavedVenue.findOneAndDelete<SavedVenueSchema>({ venueId: venueId, user: user._id });

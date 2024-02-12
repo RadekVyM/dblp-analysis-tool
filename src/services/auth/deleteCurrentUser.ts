@@ -1,5 +1,5 @@
 import User, { UserSchema } from '@/db/models/User'
-import getCurrentUser from './getCurrentUser'
+import { getCurrentUser } from '.'
 import connectDb from '@/db/mongodb'
 import SavedAuthor from '@/db/models/SavedAuthor'
 import SavedVenue from '@/db/models/SavedVenue'
@@ -8,6 +8,7 @@ import VisitedVenue from '@/db/models/VisitedVenue'
 import AuthorGroup from '@/db/models/AuthorGroup'
 import { unauthorizedError } from '@/utils/errors'
 
+/** Deletes the current user. */
 export default async function deleteCurrentUser() {
     const user = await getCurrentUser();
 

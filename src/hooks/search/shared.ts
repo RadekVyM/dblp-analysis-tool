@@ -2,8 +2,8 @@
 
 import { BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
 import { SearchType } from '@/enums/SearchType'
-import { queryAuthors } from '@/services/authors/fetch'
-import { queryVenues } from '@/services/venues/venues'
+import { fetchAuthors } from '@/services/authors/fetch'
+import { fetchVenues } from '@/services/venues/fetch'
 import { SearchItemsParams } from '@/dtos/searchItemsParams'
 
 // https://swr.vercel.app/docs/api#options
@@ -27,10 +27,10 @@ export function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: 
 
     switch (searchType) {
         case SearchType.Author:
-            fetchItems = queryAuthors;
+            fetchItems = fetchAuthors;
             break;
         case SearchType.Venue:
-            fetchItems = queryVenues;
+            fetchItems = fetchVenues;
             break;
     }
 

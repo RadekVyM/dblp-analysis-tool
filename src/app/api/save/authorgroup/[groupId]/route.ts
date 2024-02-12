@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { authorDto, authorizedRequest, noUser } from '../../../shared'
-import getCurrentUser from '@/services/auth/getCurrentUser'
 import { removeAuthorGroup, addAuthorsToAuthorGroup } from '@/services/saves/authorGroups'
 
 export async function POST(request: Request, { params }: { params: { groupId: string } }) {
@@ -14,7 +13,7 @@ export async function POST(request: Request, { params }: { params: { groupId: st
 
         return NextResponse.json(authorGroup)
     },
-    'Author could not be added to the group.')
+        'Author could not be added to the group.')
 }
 
 export async function DELETE(request: Request, { params }: { params: { groupId: string } }) {
@@ -22,5 +21,5 @@ export async function DELETE(request: Request, { params }: { params: { groupId: 
         await removeAuthorGroup(params.groupId, user);
         return new NextResponse(null, { status: 204 })
     },
-    'Author group could not be removed.')
+        'Author group could not be removed.')
 }

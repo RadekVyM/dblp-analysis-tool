@@ -1,3 +1,4 @@
+import 'server-only'
 import { VenueType } from '@/enums/VenueType'
 import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
 import * as cheerio from 'cheerio'
@@ -7,6 +8,7 @@ import { isNumber } from '@/utils/strings'
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '@/constants/html'
 import { createDblpVenue } from '@/dtos/DblpVenue'
 import he from 'he'
+import { VENUES_COUNT_PER_DBLP_INDEX_PAGE } from '@/constants/search'
 
 const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
@@ -14,6 +16,12 @@ const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Series]: DBLP_SERIES_INDEX_ELEMENT_ID,
 } as const
 
+/**
+ * Extracts all the venue information from a XML string using Cheerio.
+ * @param xml XML string
+ * @param id Normalized ID of the venue
+ * @returns Object containing all the venue information
+ */
 export function extractVenue(xml: string, id: string) {
     const $ = cheerio.load(xml, { xmlMode: true });
 
@@ -29,6 +37,13 @@ export function extractVenue(xml: string, id: string) {
     return venue;
 }
 
+/**
+ * Extracts all the items from a part of the venues index HTML page.
+ * @param html HTML string
+ * @param type Venue type
+ * @param count Max number of returned items
+ * @returns List of found venues
+ */
 export function extractVenuesIndex(html: string, type: VenueType, count?: number) {
     const $ = cheerio.load(html);
     const links = $(`#${DBLP_INDEX_ELEMENT_IDS[type]} ul li a`);
@@ -53,6 +68,12 @@ export function extractVenuesIndex(html: string, type: VenueType, count?: number
     return authors;
 }
 
+/**
+ * Extracts the venues index length from the last index HTML page.
+ * @param html HTML string
+ * @param type Venue type
+ * @returns The venues index length
+ */
 export function extractVenuesIndexLength(html: string, type: VenueType) {
     const id = DBLP_INDEX_ELEMENT_IDS[type];
     const $ = cheerio.load(html);
@@ -64,13 +85,12 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
         return links.length;
     }
 
-    const str = href.replace('?pos=', '');
+    const previousPageFirstItemPosition = href.replace('?pos=', '');
 
-    if (!isNumber(str)) {
+    if (!isNumber(previousPageFirstItemPosition)) {
         return links.length;
     }
 
-    const itemsCountPerDblpIndexPage = 100;
-    const count = parseInt(str) - 1 + itemsCountPerDblpIndexPage + links.length;
+    const count = parseInt(previousPageFirstItemPosition) - 1 + VENUES_COUNT_PER_DBLP_INDEX_PAGE + links.length;
     return count;
 }
