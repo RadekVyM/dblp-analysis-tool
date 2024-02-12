@@ -3,7 +3,7 @@
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
-import { submitDeleteAccountForm } from '@/services/auth/forms'
+import { submitDeleteAccountForm } from '@/services/auth/server/forms'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'

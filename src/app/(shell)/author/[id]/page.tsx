@@ -10,7 +10,7 @@ import ListLink from '@/components/ListLink'
 import AuthorPublications from './(components)/AuthorPublications'
 import { Section, SectionTitle } from './(components)/Section'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
-import { isAuthorizedOnServer } from '@/services/auth'
+import { isAuthorizedOnServer } from '@/services/auth/server'
 import AuthorCoauthors from './(components)/AuthorCoauthors'
 
 type AuthorPageParams = {

@@ -172,6 +172,7 @@ input::selection {
 
 .thin-scrollbar {
   scrollbar-color: var(--outline) transparent;
+  scrollbar-width: thin;
 }
 
 .thin-scrollbar::-webkit-scrollbar {

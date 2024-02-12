@@ -12,6 +12,7 @@ import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { getUniqueCoauthors } from '@/services/graphs/authors'
+import useAuthor from '@/hooks/authors/useAuthor'
 
 
 type SelectedAuthorParams = {
@@ -84,14 +85,12 @@ function SelectedAuthorContent({
     onCoauthorClick,
     onCoauthorHoverChange
 }: SelectedAuthorContentParams) {
-    // TODO: Create a useUser() hook for fetching the author
+    const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
     const commonCoauthors = useMemo(() =>
         [...selectedAuthor.coauthorIds.values()]
             .map((id) => authorsMap.get(id))
             .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
         [selectedAuthor, authorsMap, ignoredAuthorIds]);
-    const [fetchedAuthor, setFetchedAuthor] = useState<DblpAuthor | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const uncommonCoauthors = useMemo(() => {
         if (!fetchedAuthor?.publications) {
             return []
@@ -100,23 +99,6 @@ function SelectedAuthorContent({
         return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id))
     }, [fetchedAuthor, selectedAuthor, authorsMap]);
     const isSelected = allAuthorIds.some((id) => id === selectedAuthor.person.id);
-
-    useEffect(() => {
-        setIsLoading(true);
-        setFetchedAuthor(null);
-        /*
-        fetchAuthor(selectedAuthor.person.id)
-            .then((data) => {
-                setFetchedAuthor(data);
-            })
-            .catch((e) => {
-                // TODO: Error
-            })
-            .finally(() => {
-                setIsLoading(false);
-            })
-         */
-    }, [selectedAuthor.person.id]);
 
     function onIncludeAllClick() {
         if (!fetchedAuthor) {

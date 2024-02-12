@@ -3,7 +3,7 @@
 import Input from '../../../components/forms/Input'
 import { ChangeEvent, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from '@/services/auth'
+import { signIn } from '@/services/auth/client'
 import signInValidator from '@/validation/signInValidator'
 import { SignInInputs } from '@/validation/schemas/SignInSchema'
 import ErrorMessage from '../../../components/forms/ErrorMessage'

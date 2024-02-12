@@ -1,3 +1,4 @@
+import 'server-only'
 import User, { UserSchema } from '@/db/models/User'
 import { getCurrentUser } from '.'
 import connectDb from '@/db/mongodb'
