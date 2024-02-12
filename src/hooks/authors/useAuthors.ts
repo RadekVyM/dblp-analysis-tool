@@ -1,21 +1,19 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { useEffect, useState } from 'react'
-import authorFetcher from './authorFetcher'
-import { delay } from '@/utils/promises'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, authorIds: Array<string>) {
-    const [authors, setAuthors] = useState([...alreadyAvailableAuthors]);
+    const [authors, setAuthors] = useState<Array<DblpAuthor>>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        setAuthors([]);
         setIsLoading(true);
-        const authorIdsToDownload = authorIds.filter((id) => !alreadyAvailableAuthors.some((a) => a.id === id));
         const controller = new AbortController();
         const signal = controller.signal;
 
-        fetchAuthorsSequentially(
-            authorIdsToDownload,
-            (author) => setAuthors((oldAuthors) => [...oldAuthors, author]),
+        fetchAuthors(
+            authorIds,
+            (authors) => setAuthors((oldAuthors) => [...oldAuthors, ...authors]),
             signal)
             .then()
             .finally(() => {
@@ -31,23 +29,50 @@ export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, a
     }
 }
 
-async function fetchAuthorsSequentially(
+async function fetchAuthors(
     authorIds: Array<string>,
-    onAuthorFetched: (author: DblpAuthor) => void,
+    onAuthorFetched: (authors: Array<DblpAuthor>) => void,
     signal: AbortSignal
 ) {
-    let lastFetchInitiationTime = new Date().getTime();
+    const response = await fetch(`/api/authors?authorIds=${JSON.stringify(authorIds)}`, { signal: signal });
 
-    for (const id of authorIds) {
-        const author = await authorFetcher(id, signal);
-        onAuthorFetched(author);
+    if (!response.body) {
+        return;
+    }
 
-        const now = new Date().getTime();
-        const difference = now - lastFetchInitiationTime;
+    const reader = response.body.getReader();
+    // One chunk can contain just a part of a object
+    // So I pile up the content to a buffer
+    let stringBuffer = '';
+    let isDone = true;
 
-        // I want every fetch to be at least 1.2 second long
-        if (difference > 1200) {
-            await delay(difference);
+    do {
+        const readerResult = await reader.read();
+        isDone = readerResult.done;
+
+        if (!isDone && readerResult.value) {
+            const newChunk = Buffer.from(readerResult.value).toString('utf8');
+            stringBuffer += newChunk;
+            const separator = stringBuffer.lastIndexOf('\n');
+
+            if (separator !== -1) {
+                const completeData = stringBuffer.substring(0, separator);
+                const jsonObjects = completeData.split('\n');
+                stringBuffer = stringBuffer.substring(separator + 1);
+                const authors: Array<DblpAuthor> = [];
+
+                for (const jsonObject of jsonObjects) {
+                    if (!jsonObject) {
+                        continue;
+                    }
+
+                    const author = JSON.parse(jsonObject) as DblpAuthor;
+                    authors.push(author);
+                }
+
+                onAuthorFetched(authors);
+            }
         }
     }
+    while (!isDone);
 }

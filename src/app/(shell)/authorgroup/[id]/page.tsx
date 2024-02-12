@@ -8,6 +8,7 @@ import { createLocalPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
 import { RemoveAuthorGroupButton } from './(components)/RemoveAuthorGroupButton'
 import { unauthorizedError } from '@/utils/errors'
+import FetchedAuthors from './(components)/FetchedAuthors'
 
 type AuthorGroupPageParams = {
     params: {
@@ -49,6 +50,9 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
                         </ListLink>
                     </li>)}
             </ul>
+
+            <FetchedAuthors
+                authorGroup={authorGroup} />
         </PageContainer>
     )
-} 
+}
