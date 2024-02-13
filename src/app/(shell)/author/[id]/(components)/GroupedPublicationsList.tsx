@@ -9,7 +9,7 @@ import { MdCancel, MdFilterListAlt } from 'react-icons/md'
 import { group } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import useDialog from '@/hooks/useDialog'
-import { FilterCategory, PublicationFiltersDialog } from '@/components/dialogs/PublicationFiltersDialog'
+import FiltersDialog from '@/components/dialogs/FiltersDialog'
 import ItemsStats from '@/components/ItemsStats'
 import Button from '@/components/Button'
 import ListLink from '@/components/ListLink'
@@ -54,6 +54,13 @@ const GROUPED_BY_FUNC = {
     'venue': byVenue,
 } as const
 
+const FilterCategory = {
+    Type: 'Type',
+    Venue: 'Venue',
+} as const
+
+type FilterCategory = keyof typeof FilterCategory
+
 const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
 const DISPLAYED_COUNT_INCREASE = 25;
 
@@ -69,17 +76,47 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     }>(
         () => ({
             [FilterCategory.Type]: {
+                title: 'Types',
                 allSelectableItems: getAllPublicationTypes(publications),
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    return new Map(state[FilterCategory.Type].selectableItems);
+                    if (state[FilterCategory.Venue].selectedItems.size === 0) {
+                        return new Map(state[FilterCategory.Type].allSelectableItems);
+                    }
+
+                    const selectedTypes = state[FilterCategory.Type].selectedItems;
+                    const selectedVenues = state[FilterCategory.Venue].selectedItems;
+                    const map = new Map<any, any>();
+
+                    for (const publication of publications) {
+                        if (selectedVenues.has(publication.venueId) || selectedTypes.has(publication.type)) {
+                            map.set(publication.type, PUBLICATION_TYPE_TITLE[publication.type]);
+                        }
+                    }
+
+                    return map;
                 }
             },
             [FilterCategory.Venue]: {
+                title: 'Venues',
                 allSelectableItems: getAllPublicationVenues(publications),
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    return new Map(state[FilterCategory.Venue].selectableItems);
+                    if (state[FilterCategory.Type].selectedItems.size === 0) {
+                        return new Map(state[FilterCategory.Venue].allSelectableItems);
+                    }
+
+                    const selectedTypes = state[FilterCategory.Type].selectedItems;
+                    const selectedVenues = state[FilterCategory.Venue].selectedItems;
+                    const map = new Map<any, any>();
+
+                    for (const publication of publications) {
+                        if (selectedTypes.has(publication.type) || selectedVenues.has(publication.venueId)) {
+                            map.set(publication.venueId, getVenueTitle(publication));
+                        }
+                    }
+
+                    return map;
                 }
             },
         }),
@@ -135,7 +172,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
 
     return (
         <>
-            <PublicationFiltersDialog
+            <FiltersDialog
                 filtersMap={filtersMap}
                 clear={clear}
                 switchSelection={switchSelection}
@@ -323,9 +360,13 @@ function getAllPublicationTypes(publications: Array<DblpPublication>) {
 function getAllPublicationVenues(publications: Array<DblpPublication>) {
     const map = new Map<string | undefined, string>();
 
-    for (const publ of publications) {
-        map.set(publ.venueId, publ.venueId ? publ.journal || publ.booktitle || 'undefined' : 'Not Listed Publications');
+    for (const publication of publications) {
+        map.set(publication.venueId, getVenueTitle(publication));
     }
 
     return map;
+}
+
+function getVenueTitle(publ: DblpPublication): string {
+    return publ.venueId ? publ.journal || publ.booktitle || 'undefined' : 'Not Listed Publications'
 }

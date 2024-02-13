@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 export type Filter = {
+    title: string,
     allSelectableItems: Map<any, any>,
     updateSelectableItems: (filtersState: FilterStatesMap) => Map<any, any>,
     itemTitleSelector: (item: any) => any,
@@ -8,6 +9,8 @@ export type Filter = {
 
 type FilterState = {
     key: string,
+    title: string,
+    allSelectableItems: Map<any, any>,
     selectableItems: Map<any, any>,
     selectedItems: Map<any, any>,
     itemTitleSelector: (item: any) => any,
@@ -34,8 +37,10 @@ export default function usePublicationsFilters(filters: { [key: string]: Filter 
 
             map[key] = {
                 key: key,
+                title: filter.title,
                 selectedItems: new Map<any, any>(),
                 selectableItems: new Map<any, any>(filter.allSelectableItems),
+                allSelectableItems: new Map<any, any>(filter.allSelectableItems),
                 itemTitleSelector: filter.itemTitleSelector,
             };
         });
