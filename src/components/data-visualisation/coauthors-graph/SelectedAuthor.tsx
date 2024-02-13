@@ -127,7 +127,7 @@ function SelectedAuthorContent({
     useEffect(() => {
         resetDisplayedCount();
         listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [selectedAuthor, ignoredAuthorIds, fetchedAuthor]);
+    }, [selectedAuthor.person.id]);
 
     return isLoading ?
         <div
