@@ -1,3 +1,4 @@
+import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import { tryGetCachedAuthor } from '@/services/cache/authors'
@@ -51,5 +52,5 @@ async function* fetchAuthors(authorIds: Array<string>) {
 }
 
 function authorToJson(author: DblpAuthor) {
-    return `${JSON.stringify(author, null, 0)}\n`;
+    return `${JSON.stringify(author, null, 0)}${STREAMED_OBJECTS_SEPARATOR}`;
 }

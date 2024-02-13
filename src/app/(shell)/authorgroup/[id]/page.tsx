@@ -1,14 +1,12 @@
-import ListLink from '@/components/ListLink'
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { SearchType } from '@/enums/SearchType'
 import { getCurrentUser } from '@/services/auth/server'
 import { getAuthorGroup } from '@/services/saves/authorGroups'
-import { createLocalPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
 import { RemoveAuthorGroupButton } from './(components)/RemoveAuthorGroupButton'
 import { unauthorizedError } from '@/utils/errors'
-import FetchedAuthors from './(components)/FetchedAuthors'
+import PageContent from './(components)/PageContent'
+import { tryGetCachedAuthors } from '@/services/cache/authors'
 
 type AuthorGroupPageParams = {
     params: {
@@ -29,6 +27,8 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
         throw unauthorizedError('You cannot access this author group.');
     }
 
+    const cachedAuthors = await tryGetCachedAuthors(authorGroup.authors.map((a) => a.id));
+
     return (
         <PageContainer>
             <header>
@@ -40,19 +40,9 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
                     authorGroupId={authorGroup.id} />
             </header>
 
-            <ul>
-                {authorGroup.authors.map((author) =>
-                    <li
-                        key={author.id}>
-                        <ListLink
-                            href={createLocalPath(author.id, SearchType.Author)}>
-                            {author.title}
-                        </ListLink>
-                    </li>)}
-            </ul>
-
-            <FetchedAuthors
-                authorGroup={authorGroup} />
+            <PageContent
+                authorGroup={authorGroup}
+                cachedAuthors={cachedAuthors} />
         </PageContainer>
     )
 }

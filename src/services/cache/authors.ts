@@ -47,3 +47,22 @@ export async function tryGetCachedAuthor(authorId: string): Promise<DblpAuthor |
 
     return null;
 }
+
+/**
+ * Tries to retreive some authors from the cache (database).
+ * @param authorId Normalized IDs of the authors
+ * @returns Array of found authors
+ */
+export async function tryGetCachedAuthors(authorIds: Array<string>): Promise<Array<DblpAuthor>> {
+    const authors: Array<DblpAuthor> = [];
+
+    for (const id of authorIds) {
+        const author = await tryGetCachedAuthor(id);
+
+        if (author) {
+            authors.push(author);
+        }
+    }
+
+    return authors;
+}

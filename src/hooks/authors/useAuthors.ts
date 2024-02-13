@@ -1,31 +1,51 @@
+import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useEffect, useMemo, useState } from 'react'
 
 export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, authorIds: Array<string>) {
-    const [authors, setAuthors] = useState<Array<DblpAuthor>>([]);
+    const authorIdsToFetch = useMemo(
+        () => authorIds.filter((id) => !alreadyAvailableAuthors.some((a) => a.id === id)),
+        [alreadyAvailableAuthors, authorIds]);
+    const [fetchedAuthors, setFetchedAuthors] = useState<Array<DblpAuthor>>([]);
+    const authors = useMemo(() => [...alreadyAvailableAuthors, ...fetchedAuthors], [alreadyAvailableAuthors, fetchedAuthors]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
-        setAuthors([]);
+        if (authorIdsToFetch.length === 0) {
+            setError(null);
+            setFetchedAuthors([]);
+            setIsLoading(false);
+            return;
+        }
+
+        setError(null);
+        setFetchedAuthors([]);
         setIsLoading(true);
         const controller = new AbortController();
         const signal = controller.signal;
 
         fetchAuthors(
-            authorIds,
-            (authors) => setAuthors((oldAuthors) => [...oldAuthors, ...authors]),
+            authorIdsToFetch,
+            (authors) => setFetchedAuthors((oldAuthors) => [...oldAuthors, ...authors]),
             signal)
             .then()
+            .catch((error) => {
+                if (!(error instanceof DOMException) || error.name !== 'AbortError') {
+                    setError(error);
+                }
+            })
             .finally(() => {
                 setIsLoading(false);
             });
 
         return () => controller.abort();
-    }, [authorIds]);
+    }, [authorIdsToFetch]);
 
     return {
         authors,
-        isLoading
+        isLoading,
+        error
     }
 }
 
@@ -41,6 +61,7 @@ async function fetchAuthors(
     }
 
     const reader = response.body.getReader();
+
     // One chunk can contain just a part of a object
     // So I pile up the content to a buffer
     let stringBuffer = '';
@@ -53,11 +74,11 @@ async function fetchAuthors(
         if (!isDone && readerResult.value) {
             const newChunk = Buffer.from(readerResult.value).toString('utf8');
             stringBuffer += newChunk;
-            const separator = stringBuffer.lastIndexOf('\n');
+            const separator = stringBuffer.lastIndexOf(STREAMED_OBJECTS_SEPARATOR);
 
             if (separator !== -1) {
                 const completeData = stringBuffer.substring(0, separator);
-                const jsonObjects = completeData.split('\n');
+                const jsonObjects = completeData.split(STREAMED_OBJECTS_SEPARATOR);
                 stringBuffer = stringBuffer.substring(separator + 1);
                 const authors: Array<DblpAuthor> = [];
 

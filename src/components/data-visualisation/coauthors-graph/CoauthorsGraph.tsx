@@ -7,7 +7,7 @@ import { MouseEvent, RefObject, useEffect, useMemo, useRef, useState } from 'rea
 import LoadingWheel from '../../LoadingWheel'
 import { cn } from '@/utils/tailwindUtils'
 import { EdgeRect } from '@/dtos/Rect'
-import { GraphOptions } from '@/dtos/GraphOptions'
+import { CoauthorsGraph } from '@/dtos/CoauthorsGraph'
 import { ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
@@ -20,15 +20,10 @@ const DEFAULT_GRAPH_HEIGHT = 300;
 const MAX_SCALE_EXTENT = 10;
 
 type CoauthorsGraphParams = {
-    nodes: Array<PublicationPersonNodeDatum>,
-    links: Array<PublicationPersonLinkDatum>,
     onAuthorClick: (id: string) => void,
     onHoverChange: (id: string | null, isHovered: boolean) => void,
-    selectedAuthorId: string | null,
-    hoveredAuthorId: string | null,
-    minCoauthoredPublicationsCount: number,
-    maxCoauthoredPublicationsCount: number,
-    options: GraphOptions,
+    onSimulationRunningChange: (isRunning: boolean) => void,
+    graph: CoauthorsGraph,
     ignoredNodeIds?: Array<string>,
     ignoredLinksNodeIds?: Array<string>,
     className?: string
@@ -38,8 +33,7 @@ export type CoauthorsGraphWorkerData = {
     nodes: Array<PublicationPersonNodeDatum>,
     links: Array<PublicationPersonLinkDatum>,
     graphWidth: number,
-    graphHeight: number,
-    ignoredNodeIds?: Array<string>
+    graphHeight: number
 }
 
 export type CoauthorsGraphWorkerResult = {
@@ -51,18 +45,13 @@ export type CoauthorsGraphWorkerResult = {
 }>
 
 export default function CoauthorsGraph({
-    nodes,
-    links,
+    graph,
     ignoredNodeIds,
     ignoredLinksNodeIds,
     className,
-    selectedAuthorId,
-    hoveredAuthorId,
-    minCoauthoredPublicationsCount,
-    maxCoauthoredPublicationsCount,
-    options,
     onAuthorClick,
-    onHoverChange
+    onHoverChange,
+    onSimulationRunningChange
 }: CoauthorsGraphParams) {
     const graphRef = useRef<DataVisualisationCanvasRef | null>(null);
     const [computedNodes, setComputedNodes] = useState<Array<PublicationPersonNodeDatum>>([]);
@@ -76,6 +65,11 @@ export default function CoauthorsGraph({
         setComputedNodes([]);
         setComputedLinks([]);
         setProgress(0);
+        onSimulationRunningChange(true);
+
+        const filteredNodes = (ignoredNodeIds?.length || 0) > 0 ?
+            graph.nodes.filter((n) => !ignoredNodeIds?.some(id => n.person.id === id)) :
+            graph.nodes;
 
         const graphWorker = new Worker(new URL('./graphSimulationWorker', import.meta.url));
 
@@ -86,8 +80,27 @@ export default function CoauthorsGraph({
                     setProgress(event.data.progress || 0);
                     break;
                 case 'end':
-                    setComputedNodes([...(event.data.nodes || [])]);
-                    setComputedLinks([...(event.data.links || [])]);
+                    // Different instances are sent back from the web worker
+                    // I need to map their computed values to my instances
+                    const eventNodes = event.data.nodes || [];
+                    const eventLinks = event.data.links || [];
+                    filteredNodes.forEach((node, index) => {
+                        node.x = eventNodes[index].x;
+                        node.y = eventNodes[index].y;
+                        node.index = eventNodes[index].index;
+                        node.fx = eventNodes[index].fx;
+                        node.fy = eventNodes[index].fy;
+                        node.vx = eventNodes[index].vx;
+                        node.vy = eventNodes[index].vy;
+                    });
+                    graph.links.forEach((link, index) => {
+                        link.index = eventLinks[index].index;
+                        link.source = eventLinks[index].source;
+                        link.target = eventLinks[index].target;
+                    });
+                    setComputedNodes([...filteredNodes]);
+                    setComputedLinks([...graph.links]);
+                    onSimulationRunningChange(false);
                     break;
             }
         };
@@ -98,17 +111,19 @@ export default function CoauthorsGraph({
             }
         };
 
-        // Start the simulation in a web worker
+        // Start the simulation in the web worker
         graphWorker.postMessage({
-            nodes: nodes,
-            links: links,
-            ignoredNodeIds: ignoredNodeIds,
+            nodes: filteredNodes,
+            links: graph.links,
             graphWidth: DEFAULT_GRAPH_WIDTH,
             graphHeight: DEFAULT_GRAPH_HEIGHT
         } as CoauthorsGraphWorkerData);
 
-        return () => { graphWorker.terminate() }
-    }, [nodes, links, ignoredNodeIds]);
+        return () => {
+            graphWorker.terminate();
+            onSimulationRunningChange(false);
+        };
+    }, [graph.nodes, graph.links, ignoredNodeIds]);
 
     useEffect(() => {
         if (!dimensions || dimensions.width == 0 || dimensions.height == 0 || computedNodes.length <= 0) {
@@ -137,14 +152,10 @@ export default function CoauthorsGraph({
     const { onCanvasClick, onCanvasPointerMove, onCanvasPointerLeave } = useCanvas(
         graphRef,
         zoomTransform,
+        graph,
         computedLinks,
         computedNodes,
         dimensions || { width: 0, height: 0 },
-        minCoauthoredPublicationsCount,
-        maxCoauthoredPublicationsCount,
-        hoveredAuthorId,
-        selectedAuthorId,
-        options,
         onAuthorClick,
         onHoverChange,
         ignoredNodeIds,
@@ -182,14 +193,10 @@ export default function CoauthorsGraph({
 function useCanvas(
     ref: RefObject<DataVisualisationCanvasRef | null>,
     zoomTransform: ZoomTransform,
+    graph: CoauthorsGraph,
     links: Array<PublicationPersonLinkDatum>,
     nodes: Array<PublicationPersonNodeDatum>,
     dimensions: { width: number, height: number },
-    minCoauthoredPublicationsCount: number,
-    maxCoauthoredPublicationsCount: number,
-    hoveredAuthorId: string | null,
-    selectedAuthorId: string | null,
-    options: GraphOptions,
     onNodeClick: (id: string) => void,
     onNodeHoverChange: (id: string | null, isHovered: boolean) => void,
     ignoredNodeIds?: Array<string>,
@@ -216,25 +223,23 @@ function useCanvas(
         drawLinks(
             links,
             ignoredLinksNodeIds,
-            minCoauthoredPublicationsCount,
-            maxCoauthoredPublicationsCount,
             context,
             zoomTransform,
             dimensions,
-            selectedAuthorId,
+            graph.selectedAuthorId,
             hoveredId,
-            hoveredAuthorId);
+            graph.hoveredAuthorId);
         drawNodes(
             nodes,
             dimensions,
             context,
-            selectedAuthorId,
-            hoveredAuthorId,
+            graph.selectedAuthorId,
+            graph.hoveredAuthorId,
             hoveredId,
             zoomTransform.scale);
 
         context.restore();
-    }, [options, zoomTransform, links, nodes, dimensions, ignoredLinksNodeIds, selectedAuthorId, hoveredAuthorId, hoveredId]);
+    }, [zoomTransform, links, nodes, dimensions, ignoredLinksNodeIds, graph, hoveredId]);
 
     function onClick(event: MouseEvent) {
         const node = findNode(event);
@@ -383,8 +388,6 @@ function drawNodes(
 function drawLinks(
     links: PublicationPersonLinkDatum[],
     ignoredNodeIds: string[] | undefined,
-    minCoauthoredPublicationsCount: number,
-    maxCoauthoredPublicationsCount: number,
     context: CanvasRenderingContext2D,
     zoomTransform: ZoomTransform,
     dimensions: { width: number; height: number },
@@ -405,17 +408,17 @@ function drawLinks(
         const source = link.source as PublicationPersonNodeDatum;
         const target = link.target as PublicationPersonNodeDatum;
 
-        if (ignoredNodeIds?.some((id) => source.person.id === id || target.person.id === id)) {
-            continue
+        console.log(link.isVisible);
+
+        if (!link.isVisible) {
+            continue;
         }
 
         const isHighlighted = isNodeHoveredOrSelected(source.person, hoveredAuthorId, outerHoveredAuthorId, selectedAuthorId) ||
             isNodeHoveredOrSelected(target.person, hoveredAuthorId, outerHoveredAuthorId, selectedAuthorId);
         const isDim = !isHighlighted && !!(outerHoveredAuthorId || hoveredAuthorId || selectedAuthorId);
-        const intensity = (link.publicationsCount - minCoauthoredPublicationsCount) /
-            (maxCoauthoredPublicationsCount - minCoauthoredPublicationsCount);
 
-        drawLine(source, target, intensity, defaultColor, context, zoomTransform, isHighlighted, isDim, dimensions);
+        drawLine(source, target, link.intensity, defaultColor, context, zoomTransform, isHighlighted, isDim, dimensions);
     }
 
     context.restore();

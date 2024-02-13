@@ -6,11 +6,7 @@ import * as d3 from 'd3'
 import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
 
 const onmessage = (event: MessageEvent<CoauthorsGraphWorkerData>) => {
-    const filteredNodes = (event.data.ignoredNodeIds?.length || 0) > 0 ?
-        event.data.nodes.filter((n) => !event.data.ignoredNodeIds?.some(id => n.person.id === id)) :
-        event.data.nodes;
-
-    const simulation = d3.forceSimulation<PublicationPersonNodeDatum>(filteredNodes)
+    const simulation = d3.forceSimulation<PublicationPersonNodeDatum>(event.data.nodes)
         .force('link', d3.forceLink<PublicationPersonNodeDatum, PublicationPersonLinkDatum>()
             .id((d) => d.person.id)
             .links(event.data.links))
@@ -25,7 +21,7 @@ const onmessage = (event: MessageEvent<CoauthorsGraphWorkerData>) => {
         simulation.tick();
     }
 
-    postMessage({ type: 'end', nodes: filteredNodes, links: event.data.links });
+    postMessage({ type: 'end', nodes: event.data.nodes, links: event.data.links });
 
     self.close();
 };

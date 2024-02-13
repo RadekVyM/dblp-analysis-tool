@@ -1,0 +1,1 @@
+export const STREAMED_OBJECTS_SEPARATOR = '\n';

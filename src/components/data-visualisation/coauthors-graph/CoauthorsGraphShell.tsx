@@ -5,11 +5,10 @@ import DataVisualisationContainer from '../DataVisualisationContainer'
 import CoauthorsGraph from './CoauthorsGraph'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useMemo, useState } from 'react'
-import { convertToCoauthorsGraph } from '@/services/graphs/authors'
-import useGraphOptions from '@/hooks/useGraphOptions'
 import SelectedAuthor from './SelectedAuthor'
 import AuthorsList from './AuthorsList'
 import GraphOptionsSelection from './GraphOptionsSelection'
+import useCoauthorsGraph from '@/hooks/useCoauthorsGraph'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -20,6 +19,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     // Additional authors are authors whose all coauthors are included in the graph
     const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
     const allAuthors = useMemo(() => ({
+        originalAuthors: authors,
         publications: authors
             .flatMap((a) => a.publications)
             .concat(additionalAuthors.flatMap((a) => a.publications)),
@@ -27,62 +27,36 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
             .map((a) => a.id)
             .concat(additionalAuthors.map((a) => a.id))
     }), [authors, additionalAuthors]);
-    const {
-        nodes,
-        links,
-        authorsMap,
-        minCoauthorsCount,
-        maxCoauthorsCount,
-        minCoauthoredPublicationsCount,
-        maxCoauthoredPublicationsCount
-    } = useMemo(() =>
-        convertToCoauthorsGraph(
-            allAuthors.publications,
-            [],
-            allAuthors.ids),
-        [allAuthors]);
-    const [graphOptions, setGraphOptions] = useGraphOptions();
-    const [hoveredAuthorId, setHoveredAuthorId] = useState<string | null>(null);
-    // Selected authors are saved to a stack to enable back navigation
-    const [selectedCoauthorIdsStack, setSelectedCoauthorIdsStack] = useState<Array<string>>([]);
-    const selectedAuthorId = useMemo(() =>
-        selectedCoauthorIdsStack.length > 0 ?
-            selectedCoauthorIdsStack[selectedCoauthorIdsStack.length - 1] :
-            null,
-        [selectedCoauthorIdsStack]);
-    const selectedAuthor = useMemo(() =>
-        selectedAuthorId ? authorsMap.get(selectedAuthorId) : undefined,
-        [selectedAuthorId, authorsMap]);
+    const [graph, updateGraph] = useCoauthorsGraph(allAuthors);
+    const selectedAuthor = useMemo(
+        () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
+        [graph.selectedAuthorId, graph.authorsMap]);
     // Nodes that are passed to the list that is displayed at the side
     // Original authors are excluded
-    const nodesList = useMemo(() => nodes.filter((a) => !authors.some((aa) => aa.id === a.person.id)), [nodes, authors]);
+    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, authors]);
 
     function setSelectedAuthorId(id: string | null) {
-        if (authors.some((a) => a.id === id) || selectedAuthorId === id) {
-            return
-        }
-
-        setSelectedCoauthorIdsStack((old) => {
-            if (id === null) {
-                old.pop();
-            }
-            else {
-                old.push(id);
-            }
-            return [...old]
-        });
+        updateGraph({ selectedAuthorId: id });
     }
 
     function onBackClick() {
-        setSelectedAuthorId(null);
+        updateGraph({ selectedAuthorId: null });
     }
 
     function onCoauthorHoverChange(id: string | null, isHovered: boolean) {
-        setHoveredAuthorId((oldId) => {
+        updateGraph((oldGraph) => {
+            let newHoverId: string | null = null;
+
             if (isHovered || !id) {
-                return id
+                newHoverId = id;
             }
-            return id === oldId ? null : oldId
+            else {
+                newHoverId = id === oldGraph.hoveredAuthorId ? null : oldGraph.hoveredAuthorId;
+            }
+
+            return {
+                hoveredAuthorId: newHoverId
+            }
         });
     }
 
@@ -105,31 +79,26 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                 'sm:grid-rows-[1fr_auto] sm:grid-cols-[1fr_minmax(auto,18rem)] sm:h-[100vh] sm:min-h-[30rem] sm:max-h-[min(80vh,40rem)]',
                 className)}>
             {
-                (nodes && nodes.length > 0) ?
+                (graph.nodes && graph.nodes.length > 0) ?
                     <DataVisualisationContainer
                         className='overflow-hidden w-full h-full'>
                         <CoauthorsGraph
                             className='w-full h-full'
-                            options={graphOptions}
-                            selectedAuthorId={selectedAuthorId}
-                            hoveredAuthorId={hoveredAuthorId}
-                            minCoauthoredPublicationsCount={minCoauthoredPublicationsCount}
-                            maxCoauthoredPublicationsCount={maxCoauthoredPublicationsCount}
+                            graph={graph}
                             onAuthorClick={setSelectedAuthorId}
                             onHoverChange={onCoauthorHoverChange}
-                            nodes={nodes}
-                            links={links}
-                            ignoredLinksNodeIds={graphOptions.originalLinksDisplayed ? [] : allAuthors.ids} />
+                            onSimulationRunningChange={(isRunning) => updateGraph({ isSimulationRunning: isRunning })}
+                            ignoredLinksNodeIds={graph.originalLinksDisplayed ? [] : allAuthors.ids} />
                     </DataVisualisationContainer> :
                     <span>Loading graph...</span>
             }
             <DataVisualisationContainer
                 className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-2 py-3 flex'>
                 <GraphOptionsSelection
-                    nodesCount={nodes.length}
-                    linksCount={links.length}
-                    options={graphOptions}
-                    setOptions={setGraphOptions} />
+                    nodesCount={graph.nodes.length}
+                    linksCount={graph.links.length}
+                    options={graph}
+                    setOptions={updateGraph} />
             </DataVisualisationContainer>
             <DataVisualisationContainer
                 className='h-full overflow-hidden sm:row-start-1 sm:row-end-3 sm:col-start-2 sm:col-end-3'>
@@ -137,7 +106,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                     selectedAuthor ?
                         <SelectedAuthor
                             selectedAuthor={selectedAuthor}
-                            authorsMap={authorsMap}
+                            authorsMap={graph.authorsMap}
                             allAuthorIds={allAuthors.ids}
                             addAuthor={addAdditionalAuthor}
                             removeAuthor={removeAdditionalAuthor}
@@ -146,7 +115,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             ignoredAuthorIds={authors.map((a) => a.id)}
                             onCoauthorHoverChange={onCoauthorHoverChange} /> :
                         <AuthorsList
-                            nodes={nodesList}
+                            nodes={displayedNodesList}
                             onAuthorClick={setSelectedAuthorId}
                             title={`All Coauthors`}
                             onAuthorHoverChange={onCoauthorHoverChange} />

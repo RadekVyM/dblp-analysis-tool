@@ -3,7 +3,7 @@
 import CheckListButton from '@/components/CheckListButton'
 import AuthorListItem from './AuthorListItem'
 import LoadingWheel from '@/components/LoadingWheel'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import LinkArrow from '@/components/LinkArrow'
 import Link from 'next/link'

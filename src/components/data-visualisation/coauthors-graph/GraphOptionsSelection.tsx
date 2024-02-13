@@ -1,13 +1,13 @@
 'use client'
 
 import CheckListButton from '@/components/CheckListButton'
-import { GraphOptions } from '@/dtos/GraphOptions'
+import { CoauthorsGraphOptions } from '@/dtos/CoauthorsGraph'
 
 type GraphOptionsSelectionParams = {
-    options: GraphOptions,
+    options: CoauthorsGraphOptions,
     nodesCount: number,
     linksCount: number,
-    setOptions: (options: Partial<GraphOptions>) => void
+    setOptions: (options: Partial<CoauthorsGraphOptions>) => void
 }
 
 export default function GraphOptionsSelection({ options, nodesCount, linksCount, setOptions }: GraphOptionsSelectionParams) {

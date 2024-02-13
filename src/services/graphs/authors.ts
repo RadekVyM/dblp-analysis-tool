@@ -1,7 +1,13 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
+import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/PublicationPersonLinkDatum'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+
+const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
+    publicationsCount: 1,
+    intensity: 1,
+    isVisible: true
+} as const;
 
 /**
  * Returns all the unique coauthors of authors in a list.
@@ -20,7 +26,7 @@ export function getUniqueCoauthors(
             if ((skip && skip(a)) || map.has(a.id)) {
                 return;
             }
-    
+
             map.set(a.id, a);
         }));
     });
@@ -74,7 +80,7 @@ export function convertToCoauthorsGraph(
                 else {
                     edgesMap.set(key, {
                         ...sourceTarget,
-                        publicationsCount: 1
+                        ...DEFAULT_LINK_VALUES
                     });
                 }
             }
