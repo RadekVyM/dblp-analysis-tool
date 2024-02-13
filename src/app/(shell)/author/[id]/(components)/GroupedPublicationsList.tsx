@@ -9,11 +9,12 @@ import { MdCancel, MdFilterListAlt } from 'react-icons/md'
 import { group } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import useDialog from '@/hooks/useDialog'
-import { PublicationFiltersDialog } from '@/components/dialogs/PublicationFiltersDialog'
+import { FilterCategory, PublicationFiltersDialog } from '@/components/dialogs/PublicationFiltersDialog'
 import ItemsStats from '@/components/ItemsStats'
 import Button from '@/components/Button'
 import ListLink from '@/components/ListLink'
 import useLazyListCount from '@/hooks/useLazyListCount'
+import usePublicationsFilters, { Filter, FiltersState } from '@/hooks/filters/usePublicationsFilter'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -31,13 +32,8 @@ type FilterItemParams = {
 
 type FiltersListParams = {
     className?: string,
-    selectedTypes: Array<PublicationType>,
-    selectedVenues: Array<string | undefined>,
-    venuesMap: Map<string | undefined, string>,
-    deselectType: (type: PublicationType) => void,
-    deselectVenue: (venueId: string | undefined) => void,
     showFiltersDialog: () => void
-}
+} & FiltersState
 
 type PublicationsListParams = {
     className?: string,
@@ -65,29 +61,52 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
     const [groupedBy, setGroupedBy] = useState<GroupedBy>('year');
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
-    const [selectedTypes, setSelectedTypes] = useState(new Set<PublicationType>([]));
-    const [selectedVenues, setSelectedVenues] = useState(new Set<string | undefined>([]));
     const [totalCount, setTotalCount] = useState(publications.length);
     const observerTarget = useRef<HTMLDivElement>(null);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
+    const filters = useMemo<{
+        [key: string]: Filter;
+    }>(
+        () => ({
+            [FilterCategory.Type]: {
+                allSelectableItems: getAllPublicationTypes(publications),
+                itemTitleSelector: (item) => item,
+                updateSelectableItems: (state) => {
+                    return new Map(state[FilterCategory.Type].selectableItems);
+                }
+            },
+            [FilterCategory.Venue]: {
+                allSelectableItems: getAllPublicationVenues(publications),
+                itemTitleSelector: (item) => item,
+                updateSelectableItems: (state) => {
+                    return new Map(state[FilterCategory.Venue].selectableItems);
+                }
+            },
+        }),
+        [publications]);
+    const { filtersMap, switchSelection, clear } = usePublicationsFilters(filters);
 
-    const venuesMap = useMemo(() => {
-        const map = new Map<string | undefined, string>();
+    function filterItems() {
+        const typesFilter = filtersMap[FilterCategory.Type];
+        const venuesFilter = filtersMap[FilterCategory.Venue];
 
-        for (const publ of publications) {
-            map.set(publ.venueId, publ.venueId ? publ.journal || publ.booktitle || 'undefined' : 'Not Listed Publications');
+        if (!typesFilter || !venuesFilter) {
+            return;
         }
 
-        return map;
-    }, [publications]);
+        const selectedTypes = typesFilter.selectedItems;
+        const selectedVenues = venuesFilter.selectedItems;
 
-    useEffect(() => {
         const publs = publications.filter((publ) =>
             (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
         resetDisplayedCount();
-    }, [publications, groupedBy, selectedTypes, selectedVenues]);
+    }
+
+    useEffect(() => {
+        filterItems();
+    }, [publications, groupedBy, filtersMap]);
 
     const displayedPublications = useMemo(() => {
         let count = displayedCount;
@@ -114,28 +133,12 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
         return newDisplayedPublications;
     }, [groupedPublications, displayedCount]);
 
-    function deselectType(type: PublicationType) {
-        setSelectedTypes(types => new Set([...types].filter((t) => t != type)));
-        const venues = new Set(publications.filter((p) => p.type == type).map((p) => p.venueId));
-        setSelectedVenues((currentlySelected) =>
-            new Set([...currentlySelected].filter((v) => !venues.has(v))));
-    }
-
-    function deselectVenue(venue: string | undefined) {
-        setSelectedVenues(venues => new Set([...venues].filter((v) => v != venue)))
-    }
-
     return (
         <>
             <PublicationFiltersDialog
-                publications={publications}
-                selectedTypes={selectedTypes}
-                selectedVenues={selectedVenues}
-                venuesMap={venuesMap}
-                onSubmit={(types, venues) => {
-                    setSelectedTypes(types);
-                    setSelectedVenues(venues);
-                }}
+                filtersMap={filtersMap}
+                clear={clear}
+                switchSelection={switchSelection}
                 hide={hideFiltersDialog}
                 animation={filtersDialogAnimation}
                 isOpen={isFiltersDialogOpen}
@@ -148,12 +151,10 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
 
             <FiltersList
                 className='mb-8'
-                deselectType={deselectType}
-                deselectVenue={deselectVenue}
-                selectedTypes={[...selectedTypes.values()]}
-                selectedVenues={[...selectedVenues.values()]}
                 showFiltersDialog={showFiltersDialog}
-                venuesMap={venuesMap} />
+                filtersMap={filtersMap}
+                switchSelection={switchSelection}
+                clear={clear} />
 
             <PublicationsList
                 groupedBy={groupedBy}
@@ -164,7 +165,14 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     )
 }
 
-function FiltersList({ className, selectedTypes, selectedVenues, venuesMap, deselectType, deselectVenue, showFiltersDialog }: FiltersListParams) {
+function FiltersList({ className, filtersMap, clear, switchSelection, showFiltersDialog }: FiltersListParams) {
+    const typesFilter = filtersMap[FilterCategory.Type];
+    const venuesFilter = filtersMap[FilterCategory.Venue];
+
+    if (!typesFilter || !venuesFilter) {
+        return;
+    }
+
     return (
         <ul
             className={cn('flex gap-2 flex-wrap mb-8', className)}>
@@ -177,17 +185,17 @@ function FiltersList({ className, selectedTypes, selectedVenues, venuesMap, dese
                     Add Filters
                 </Button>
             </li>
-            {selectedTypes.map((type) =>
+            {[...typesFilter.selectedItems].map(([key, value]) =>
                 <FilterItem
-                    key={`type-filter-${type}`}
-                    onClick={() => deselectType(type)}>
-                    {PUBLICATION_TYPE_TITLE[type]}
+                    key={`type-filter-${key}`}
+                    onClick={() => switchSelection(FilterCategory.Type, key)}>
+                    {typesFilter.itemTitleSelector(value)}
                 </FilterItem>)}
-            {selectedVenues.map((venue) =>
+            {[...venuesFilter.selectedItems].map(([key, value]) =>
                 <FilterItem
-                    key={`venue-filter-${venue}`}
-                    onClick={() => deselectVenue(venue)}>
-                    {venuesMap.get(venue)}
+                    key={`venue-filter-${key}`}
+                    onClick={() => switchSelection(FilterCategory.Venue, key)}>
+                    {typesFilter.itemTitleSelector(value)}
                 </FilterItem>)}
         </ul>
     )
@@ -300,4 +308,24 @@ function getTitleFromKey(key: any, groupedBy: GroupedBy) {
 
 function getElementId(key: any) {
     return `${key}_section`
+}
+
+function getAllPublicationTypes(publications: Array<DblpPublication>) {
+    const map = new Map<PublicationType, string>();
+
+    for (const publication of publications) {
+        map.set(publication.type, PUBLICATION_TYPE_TITLE[publication.type]);
+    }
+
+    return map;
+}
+
+function getAllPublicationVenues(publications: Array<DblpPublication>) {
+    const map = new Map<string | undefined, string>();
+
+    for (const publ of publications) {
+        map.set(publ.venueId, publ.venueId ? publ.journal || publ.booktitle || 'undefined' : 'Not Listed Publications');
+    }
+
+    return map;
 }

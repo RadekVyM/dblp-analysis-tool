@@ -1,7 +1,7 @@
 'use client'
 
-import { DblpPublication } from '@/dtos/DblpPublication'
-import { CoauthorsGraph, CoauthorsGraphOptions } from '@/dtos/CoauthorsGraph'
+import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
+import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/CoauthorsGraph'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -13,12 +13,17 @@ const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     hoveredAuthorId: null
 } as const;
 
-type UpdateGraph = Partial<CoauthorsGraph> | ((oldOptions: CoauthorsGraph) => Partial<CoauthorsGraph>)
+type UpdateGraph = Partial<CoauthorsGraphOptions> | ((oldOptions: CoauthorsGraphOptions) => Partial<CoauthorsGraphOptions>)
 type AllAuthors = { originalAuthors: Array<DblpAuthor>, publications: Array<DblpPublication>, ids: Array<string> }
 
+/**
+ * Hook that creates a coauthors graph state object from a collection of authors.
+ * @param allAuthors Lists of authors, their publications and IDs
+ * @returns The coauthors graph state object and a function that can modify it 
+ */
 export default function useCoauthorsGraph(
     allAuthors: AllAuthors
-): [CoauthorsGraph, (newOptions: UpdateGraph) => void] {
+): [CoauthorsGraphState, (newOptions: UpdateGraph) => void] {
     const graph = useMemo(() =>
         convertToCoauthorsGraph(
             allAuthors.publications,
@@ -26,8 +31,9 @@ export default function useCoauthorsGraph(
             allAuthors.ids),
         [allAuthors]);
     const [coauthorsGraph, updateCoauthorsGraph] = useReducer(
-        (oldGraph: CoauthorsGraph, newGraph: Partial<CoauthorsGraph>) => {
+        (oldGraph: CoauthorsGraphState, newGraph: Partial<CoauthorsGraphState>) => {
             if (Object.keys(newGraph).every((key) => (newGraph as any)[key] === (oldGraph as any)[key])) {
+                // Do not create a new object if the new values are same as the old ones
                 return oldGraph;
             }
 
@@ -35,21 +41,25 @@ export default function useCoauthorsGraph(
                 ...oldGraph,
                 ...newGraph,
             };
-            let shouldUpdateLinksAndNodesState = false;
-
-            if (newGraph.selectedAuthorId !== undefined) {
-                setSelectedAuthorId(newGraph.selectedAuthorId, oldGraph, updatedGraph);
-                shouldUpdateLinksAndNodesState = true;
-            }
-
-            shouldUpdateLinksAndNodesState = !!(
+            const shouldUpdateLinksAndNodesVisualState = !!(
                 newGraph.maxCoauthoredPublicationsCount ||
                 newGraph.minCoauthoredPublicationsCount ||
-                newGraph.isSimulationRunning === false ||
-                newGraph.originalLinksDisplayed !== undefined
+                newGraph.originalLinksDisplayed !== undefined ||
+                newGraph.selectedAuthorId !== undefined ||
+                newGraph.hoveredAuthorId !== undefined
             );
 
-            if (shouldUpdateLinksAndNodesState) {
+            // Do not update selection if the graph is recreated (authorsMap is changed)
+            if (newGraph.selectedAuthorId !== undefined && !newGraph.authorsMap) {
+                setSelectedAuthorId(newGraph.selectedAuthorId, oldGraph, updatedGraph);
+            }
+            if (newGraph.selectedAuthorId === null && newGraph.authorsMap) {
+                // The entire graph has been recreated but I want to keep the stack and selected author
+                updatedGraph.selectedCoauthorIdsStack = [...oldGraph.selectedCoauthorIdsStack];
+                updatedGraph.selectedAuthorId = oldGraph.selectedAuthorId;
+            }
+
+            if (shouldUpdateLinksAndNodesVisualState) {
                 updateLinksAndNodesVisualState(updatedGraph, allAuthors);
             }
 
@@ -64,7 +74,6 @@ export default function useCoauthorsGraph(
             maxCoauthorsCount: 0,
             authorsMap: new Map<string, PublicationPersonNodeDatum>(),
             selectedCoauthorIdsStack: [],
-            isSimulationRunning: false,
             ...DEFAULT_GRAPH_OPTIONS
         }
     );
@@ -85,7 +94,7 @@ export default function useCoauthorsGraph(
         });
     }, [graph]);
 
-    function setSelectedAuthorId(id: string | null, oldGraph: CoauthorsGraph, updatedGraph: CoauthorsGraph) {
+    function setSelectedAuthorId(id: string | null, oldGraph: CoauthorsGraphState, updatedGraph: CoauthorsGraphState) {
         if (allAuthors.originalAuthors.some((a) => a.id === id) || oldGraph.selectedAuthorId === id) {
             return;
         }
@@ -108,7 +117,7 @@ export default function useCoauthorsGraph(
     return [coauthorsGraph, publicUpdateCoauthorsGraph];
 }
 
-function updateLinksAndNodesVisualState(graph: CoauthorsGraph, allAuthors: AllAuthors) {
+function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
     const ignoredLinksNodeIds = graph.originalLinksDisplayed ? [] : allAuthors.ids;
 
     for (const link of graph.links) {
@@ -127,6 +136,45 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraph, allAuthors: AllAu
         }
 
         const isVisible = ignoredLinksNodeIds.some((id) => source.person.id == id || target.person.id == id);
+        const isHighlighted = isNodeHoveredOrSelected(source.person, graph.hoveredAuthorId, graph.selectedAuthorId) ||
+            isNodeHoveredOrSelected(target.person, graph.hoveredAuthorId, graph.selectedAuthorId);
+        const isDim = !isHighlighted && !!(graph.hoveredAuthorId || graph.selectedAuthorId);
+
         link.isVisible = !isVisible;
+        link.isHighlighted = isHighlighted;
+        link.isDim = isDim;
     }
+
+    for (const node of graph.nodes) {
+        if (!node.x || !node.y) {
+            continue;
+        }
+
+        const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
+        const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
+
+        node.isHighlighted = isSelected;
+        node.isDim = isDim;
+    }
+}
+
+
+/** Determines whether the node should be highlighted in the graph. */
+function isNodeHighlighted(node: PublicationPersonNodeDatum, hoveredAuthorId: string | null, selectedAuthorId: string | null) {
+    return !(hoveredAuthorId || selectedAuthorId) ||
+        (node.person.id === hoveredAuthorId) ||
+        (node.person.id === selectedAuthorId) ||
+        (hoveredAuthorId && node.coauthorIds.has(hoveredAuthorId)) ||
+        (selectedAuthorId && node.coauthorIds.has(selectedAuthorId));
+}
+
+
+function isNodeHoveredOrSelected(
+    person: DblpPublicationPerson,
+    hoveredAuthorId: string | null,
+    selectedAuthorId: string | null
+) {
+    return (
+        person.id === selectedAuthorId ||
+        person.id === hoveredAuthorId);
 }

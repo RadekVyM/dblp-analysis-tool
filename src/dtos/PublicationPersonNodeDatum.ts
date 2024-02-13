@@ -6,5 +6,11 @@ export type PublicationPersonNodeDatum = {
     count: number,
     color?: string,
     colorCssProperty?: string,
-    coauthorIds: Set<string>
-} & d3.SimulationNodeDatum
+    coauthorIds: Set<string>,
+} & PublicationPersonNodeDatumExtension & d3.SimulationNodeDatum
+
+export type PublicationPersonNodeDatumExtension = {
+    isVisible: boolean,
+    isHighlighted: boolean,
+    isDim: boolean
+}

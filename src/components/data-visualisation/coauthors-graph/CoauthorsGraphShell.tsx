@@ -2,9 +2,9 @@
 
 import { cn } from '@/utils/tailwindUtils'
 import DataVisualisationContainer from '../DataVisualisationContainer'
-import CoauthorsGraph from './CoauthorsGraph'
+import CoauthorsGraph, { CoauthorsGraphRef } from './CoauthorsGraph'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import SelectedAuthor from './SelectedAuthor'
 import AuthorsList from './AuthorsList'
 import GraphOptionsSelection from './GraphOptionsSelection'
@@ -31,9 +31,9 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     const selectedAuthor = useMemo(
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
-    // Nodes that are passed to the list that is displayed at the side
     // Original authors are excluded
     const displayedNodesList = useMemo(() => graph.nodes.filter((a) => !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, authors]);
+    const graphRef = useRef<CoauthorsGraphRef | null>(null);
 
     function setSelectedAuthorId(id: string | null) {
         updateGraph({ selectedAuthorId: id });
@@ -62,7 +62,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
 
     function addAdditionalAuthor(author: DblpAuthor) {
         if (additionalAuthors.some((a) => a.id === author.id)) {
-            return
+            return;
         }
         setAdditionalAuthors((old) => [...old, author]);
     }
@@ -78,27 +78,23 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                 'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[100vh] max-h-[max(100vh,40rem)]',
                 'sm:grid-rows-[1fr_auto] sm:grid-cols-[1fr_minmax(auto,18rem)] sm:h-[100vh] sm:min-h-[30rem] sm:max-h-[min(80vh,40rem)]',
                 className)}>
-            {
-                (graph.nodes && graph.nodes.length > 0) ?
-                    <DataVisualisationContainer
-                        className='overflow-hidden w-full h-full'>
-                        <CoauthorsGraph
-                            className='w-full h-full'
-                            graph={graph}
-                            onAuthorClick={setSelectedAuthorId}
-                            onHoverChange={onCoauthorHoverChange}
-                            onSimulationRunningChange={(isRunning) => updateGraph({ isSimulationRunning: isRunning })}
-                            ignoredLinksNodeIds={graph.originalLinksDisplayed ? [] : allAuthors.ids} />
-                    </DataVisualisationContainer> :
-                    <span>Loading graph...</span>
-            }
             <DataVisualisationContainer
-                className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-2 py-3 flex'>
+                className='overflow-hidden w-full h-full'>
+                <CoauthorsGraph
+                    ref={graphRef}
+                    className='w-full h-full'
+                    graph={graph}
+                    onAuthorClick={setSelectedAuthorId}
+                    onHoverChange={onCoauthorHoverChange} />
+            </DataVisualisationContainer>
+            <DataVisualisationContainer
+                className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-3 py-3 flex gap-x-2'>
                 <GraphOptionsSelection
                     nodesCount={graph.nodes.length}
                     linksCount={graph.links.length}
                     options={graph}
-                    setOptions={updateGraph} />
+                    setOptions={updateGraph}
+                    zoomToCenter={() => graphRef.current?.zoomToCenter()} />
             </DataVisualisationContainer>
             <DataVisualisationContainer
                 className='h-full overflow-hidden sm:row-start-1 sm:row-end-3 sm:col-start-2 sm:col-end-3'>

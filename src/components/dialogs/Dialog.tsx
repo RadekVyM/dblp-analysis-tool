@@ -5,16 +5,15 @@ import { forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useIsClient } from 'usehooks-ts'
 
-interface DialogParams extends
-    React.HTMLAttributes<HTMLDialogElement> {
+type DialogParams = {
     hide: () => void,
     animation: string,
     children: React.ReactNode,
     className?: string
-}
+} & React.HTMLAttributes<HTMLDialogElement>
 
 type DialogContentParams = {
-    children: React.ReactNode,
+    children?: React.ReactNode,
     className?: string
 }
 

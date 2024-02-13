@@ -3,7 +3,7 @@
 import CheckListButton from '@/components/CheckListButton'
 import AuthorListItem from './AuthorListItem'
 import LoadingWheel from '@/components/LoadingWheel'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import LinkArrow from '@/components/LinkArrow'
 import Link from 'next/link'
@@ -13,7 +13,9 @@ import { SearchType } from '@/enums/SearchType'
 import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { getUniqueCoauthors } from '@/services/graphs/authors'
 import useAuthor from '@/hooks/authors/useAuthor'
+import useLazyListCount from '@/hooks/useLazyListCount'
 
+const COUNT_INCREASE = 60;
 
 type SelectedAuthorParams = {
     onBackClick: () => void,
@@ -85,6 +87,8 @@ function SelectedAuthorContent({
     onCoauthorClick,
     onCoauthorHoverChange
 }: SelectedAuthorContentParams) {
+    const targerObserver = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
     const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
     const commonCoauthors = useMemo(() =>
         [...selectedAuthor.coauthorIds.values()]
@@ -93,12 +97,19 @@ function SelectedAuthorContent({
         [selectedAuthor, authorsMap, ignoredAuthorIds]);
     const uncommonCoauthors = useMemo(() => {
         if (!fetchedAuthor?.publications) {
-            return []
+            return [];
         }
 
-        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id))
+        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
     }, [fetchedAuthor, selectedAuthor, authorsMap]);
     const isSelected = allAuthorIds.some((id) => id === selectedAuthor.person.id);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
+    const displayedCommonCoauthors = useMemo(
+        () => commonCoauthors.slice(0, displayedCount),
+        [commonCoauthors, displayedCount]);
+    const displayedUncommonCoauthors = useMemo(
+        () => displayedCount > commonCoauthors.length ? uncommonCoauthors.slice(0, displayedCount) : [],
+        [uncommonCoauthors, commonCoauthors, displayedCount]);
 
     function onIncludeAllClick() {
         if (!fetchedAuthor) {
@@ -113,6 +124,11 @@ function SelectedAuthorContent({
         }
     }
 
+    useEffect(() => {
+        resetDisplayedCount();
+        listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, [selectedAuthor, ignoredAuthorIds, fetchedAuthor]);
+
     return isLoading ?
         <div
             className='flex-1 grid place-content-center'>
@@ -120,6 +136,7 @@ function SelectedAuthorContent({
                 className='text-on-surface-container-muted w-8 h-8' />
         </div> :
         <div
+            ref={listRef}
             className='flex-1 h-full pb-2 mt-2 overflow-auto thin-scrollbar'>
             {
                 (fetchedAuthor?.info?.affiliations.length || 0) > 0 &&
@@ -146,12 +163,12 @@ function SelectedAuthorContent({
                 </div>
             }
             {
-                commonCoauthors.length > 0 &&
+                displayedCommonCoauthors.length > 0 &&
                 <section>
                     <h5 className='font-bold mx-4 mt-4 text-sm'>Common Coauthors</h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
-                        {commonCoauthors.map((a) =>
+                        {displayedCommonCoauthors.map((a) =>
                             a &&
                             <AuthorListItem
                                 key={a.person.id}
@@ -162,12 +179,12 @@ function SelectedAuthorContent({
                 </section>
             }
             {
-                uncommonCoauthors.length > 0 &&
+                displayedUncommonCoauthors.length > 0 &&
                 <section>
                     <h5 className='font-bold mx-4 mt-4 text-sm'>Uncommon Coauthors</h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
-                        {uncommonCoauthors.map((a) =>
+                        {displayedUncommonCoauthors.map((a) =>
                             a &&
                             <AuthorListItem
                                 key={a.id}
@@ -177,5 +194,9 @@ function SelectedAuthorContent({
                     </ul>
                 </section>
             }
+            <div
+                ref={targerObserver}
+                className='h-[10px]'
+                aria-hidden />
         </div>
 }

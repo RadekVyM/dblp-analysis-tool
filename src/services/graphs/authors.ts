@@ -1,12 +1,20 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/PublicationPersonLinkDatum'
-import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/PublicationPersonNodeDatum'
 
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     publicationsCount: 1,
     intensity: 1,
-    isVisible: true
+    isVisible: true,
+    isHighlighted: false,
+    isDim: false
+} as const;
+
+const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension = {
+    isVisible: true,
+    isHighlighted: false,
+    isDim: false
 } as const;
 
 /**
@@ -63,7 +71,8 @@ export function convertToCoauthorsGraph(
                 person: a,
                 count: 1,
                 colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
-                coauthorIds: new Set()
+                coauthorIds: new Set(),
+                ...DEFAULT_NODE_VALUES
             });
         }
 

@@ -7,5 +7,7 @@ export type PublicationPersonLinkDatum = {
 export type PublicationPersonLinkDatumExtension = {
     publicationsCount: number,
     isVisible: boolean,
-    intensity: number
+    intensity: number,
+    isHighlighted: boolean,
+    isDim: boolean
 }
