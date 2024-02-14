@@ -82,10 +82,6 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
     }, [groupedPublications, displayedCount]);
 
     useEffect(() => {
-        filterItems();
-    }, [publications, groupedBy, filtersMap]);
-
-    function filterItems() {
         if (!typesFilter || !venuesFilter) {
             return;
         }
@@ -98,7 +94,7 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
         resetDisplayedCount();
-    }
+    }, [publications, groupedBy, typesFilter, venuesFilter]);
 
     return (
         <>

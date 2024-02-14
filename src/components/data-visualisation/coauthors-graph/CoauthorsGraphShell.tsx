@@ -4,12 +4,13 @@ import { cn } from '@/utils/tailwindUtils'
 import DataVisualisationContainer from '../DataVisualisationContainer'
 import CoauthorsGraph, { CoauthorsGraphRef } from './CoauthorsGraph'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SelectedAuthor from './SelectedAuthor'
 import AuthorsList from './AuthorsList'
 import GraphOptionsSelection from './GraphOptionsSelection'
 import useCoauthorsGraph from '@/hooks/useCoauthorsGraph'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
+import { DblpPublication } from '@/dtos/DblpPublication'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -18,46 +19,19 @@ type CoauthorsGraphShellParams = {
 
 export default function CoauthorsGraphShell({ authors, className }: CoauthorsGraphShellParams) {
     // Additional authors are authors whose all coauthors are included in the graph
-    const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
-    const allAuthors = useMemo(() => ({
-        originalAuthors: authors,
-        publications: authors
-            .flatMap((a) => a.publications)
-            .concat(additionalAuthors.flatMap((a) => a.publications)),
-        ids: authors
-            .map((a) => a.id)
-            .concat(additionalAuthors.map((a) => a.id))
-    }), [authors, additionalAuthors]);
+    const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors);
+    const graphRef = useRef<CoauthorsGraphRef | null>(null);
     const [graph, updateGraph] = useCoauthorsGraph(allAuthors);
     const selectedAuthor = useMemo(
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
     // Original authors are excluded
-    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, authors]);
-    const graphRef = useRef<CoauthorsGraphRef | null>(null);
-    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(allAuthors.publications);
-
-    useEffect(() => {
-        filterAuthors();
-    }, [allAuthors.publications, filtersMap]);
-
-    function filterAuthors() {
-        if (!typesFilter || !venuesFilter) {
-            return;
-        }
-
-        const selectedTypes = typesFilter.selectedItems;
-        const selectedVenues = venuesFilter.selectedItems;
-        const publs = allAuthors.publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
-        const authorsIds = new Set<string>();
-
-        publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {
-            authorsIds.add(a.id);
-        }));
-
-        updateGraph({ filteredAuthorsIds: authorsIds });
-    }
+    const displayedNodes = useMemo(
+        () => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)),
+        [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, authors]);
+    const { filtersMap, switchSelection, clear } = useFilters(
+        allAuthors.publications,
+        (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
 
     function setSelectedAuthorId(id: string | null) {
         updateGraph({ selectedAuthorId: id });
@@ -69,30 +43,19 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
 
     function onCoauthorHoverChange(id: string | null, isHovered: boolean) {
         updateGraph((oldGraph) => {
-            let newHoverId: string | null = null;
+            let newHoveredId: string | null = null;
 
             if (isHovered || !id) {
-                newHoverId = id;
+                newHoveredId = id;
             }
             else {
-                newHoverId = id === oldGraph.hoveredAuthorId ? null : oldGraph.hoveredAuthorId;
+                newHoveredId = id === oldGraph.hoveredAuthorId ? null : oldGraph.hoveredAuthorId;
             }
 
             return {
-                hoveredAuthorId: newHoverId
+                hoveredAuthorId: newHoveredId
             }
         });
-    }
-
-    function addAdditionalAuthor(author: DblpAuthor) {
-        if (additionalAuthors.some((a) => a.id === author.id)) {
-            return;
-        }
-        setAdditionalAuthors((old) => [...old, author]);
-    }
-
-    function removeAdditionalAuthor(id: string) {
-        setAdditionalAuthors((old) => old.filter((a) => a.id !== id));
     }
 
     return (
@@ -135,7 +98,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             ignoredAuthorIds={authors.map((a) => a.id)}
                             onCoauthorHoverChange={onCoauthorHoverChange} /> :
                         <AuthorsList
-                            nodes={displayedNodesList}
+                            nodes={displayedNodes}
                             filteredAuthorsIds={graph.filteredAuthorsIds}
                             filtersMap={filtersMap}
                             switchSelection={switchSelection}
@@ -149,4 +112,56 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
             </DataVisualisationContainer>
         </div>
     )
+}
+
+/** Hook that handles processed authors. */
+function useAuthors(authors: Array<DblpAuthor>) {
+    const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
+    const allAuthors = useMemo(() => ({
+        originalAuthors: authors,
+        publications: authors
+            .flatMap((a) => a.publications)
+            .concat(additionalAuthors.flatMap((a) => a.publications)),
+        ids: authors
+            .map((a) => a.id)
+            .concat(additionalAuthors.map((a) => a.id))
+    }), [authors, additionalAuthors]);
+
+    const addAdditionalAuthor = useCallback((author: DblpAuthor) => {
+        if (additionalAuthors.some((a) => a.id === author.id)) {
+            return;
+        }
+        setAdditionalAuthors((old) => [...old, author]);
+    }, [additionalAuthors, setAdditionalAuthors]);
+
+    const removeAdditionalAuthor = useCallback((id: string) => {
+        setAdditionalAuthors((old) => old.filter((a) => a.id !== id));
+    }, [setAdditionalAuthors]);
+
+    return { additionalAuthors, allAuthors, addAdditionalAuthor, removeAdditionalAuthor };
+}
+
+/** Hook that handles filtering of nodes. */
+function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsChange: (ids: Set<string>) => void) {
+    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(publications);
+
+    useEffect(() => {
+        if (!typesFilter || !venuesFilter) {
+            return;
+        }
+
+        const selectedTypes = typesFilter.selectedItems;
+        const selectedVenues = venuesFilter.selectedItems;
+        const publs = publications.filter((publ) =>
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
+        const authorsIds = new Set<string>();
+
+        publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {
+            authorsIds.add(a.id);
+        }));
+
+        onFilteredAuthorsIdsChange(authorsIds);
+    }, [publications, typesFilter, venuesFilter]);
+
+    return { filtersMap, switchSelection, clear };
 }
