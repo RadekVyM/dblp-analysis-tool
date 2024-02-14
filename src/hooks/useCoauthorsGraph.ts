@@ -6,12 +6,15 @@ import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
+import { removeAccents } from '@/utils/strings'
 
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
+    justDimInvisibleNodes: false,
     selectedAuthorId: null,
     hoveredAuthorId: null,
-    filteredAuthorsIds: new Set()
+    filteredAuthorsIds: new Set(),
+    searchQuery: ''
 } as const;
 
 type UpdateGraph = Partial<CoauthorsGraphOptions> | ((oldOptions: CoauthorsGraphOptions) => Partial<CoauthorsGraphOptions>)
@@ -46,9 +49,11 @@ export default function useCoauthorsGraph(
                 newGraph.maxCoauthoredPublicationsCount ||
                 newGraph.minCoauthoredPublicationsCount ||
                 newGraph.originalLinksDisplayed !== undefined ||
+                newGraph.justDimInvisibleNodes !== undefined ||
                 newGraph.selectedAuthorId !== undefined ||
                 newGraph.hoveredAuthorId !== undefined ||
-                newGraph.filteredAuthorsIds !== undefined
+                newGraph.filteredAuthorsIds !== undefined ||
+                newGraph.searchQuery !== undefined
             );
 
             // Do not update selection if the graph is recreated (authorsMap is changed)
@@ -122,6 +127,9 @@ export default function useCoauthorsGraph(
 
 function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
     const ignoredLinksNodeIds = graph.originalLinksDisplayed ? [] : allAuthors.ids;
+    const searchQuery = removeAccents(graph.searchQuery.trim())
+        .split(' ')
+        .filter((s) => s);
 
     for (const link of graph.links) {
         link.intensity = (link.publicationsCount - graph.minCoauthoredPublicationsCount) /
@@ -153,9 +161,12 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
             continue;
         }
 
+        const matchesSearchQuery = searchQuery.length === 0 ||
+            searchQuery.some((s) => node.normalizedPersonName.toLowerCase().includes(s));
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
-        const isVisible = graph.filteredAuthorsIds.has(node.person.id) || !!allAuthors.ids.find((id) => node.person.id === id);
+        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery) ||
+            !!allAuthors.ids.find((id) => node.person.id === id);
 
         node.isHighlighted = isSelected;
         node.isDim = isDim;

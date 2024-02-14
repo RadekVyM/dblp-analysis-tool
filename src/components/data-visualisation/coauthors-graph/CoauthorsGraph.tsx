@@ -214,12 +214,14 @@ function useCanvas(
             links,
             context,
             zoomTransform,
-            dimensions);
+            dimensions,
+            graph.justDimInvisibleNodes);
         drawNodes(
             nodes,
             dimensions,
             context,
-            zoomTransform.scale);
+            zoomTransform.scale,
+            graph.justDimInvisibleNodes);
 
         context.restore();
     }, [zoomTransform, links, nodes, dimensions, graph]);
@@ -235,7 +237,7 @@ function useCanvas(
     function onPointerMove(event: MouseEvent) {
         const node = findNode(event);
 
-        if (node) {
+        if (node && (node.isVisible || graph.justDimInvisibleNodes)) {
             onNodeHoverChange(node.person.id, true);
         }
         else {
@@ -266,10 +268,13 @@ function drawNodes(
     nodes: Array<PublicationPersonNodeDatum>,
     dimensions: { width: number; height: number },
     context: CanvasRenderingContext2D,
-    scale: number
+    scale: number,
+    justDimInvisibleNodes: boolean
 ) {
-    const highlightedNodes: Array<PublicationPersonNodeDatum> = [];
-    const coloredNodes = new Map<string, Array<{ x: number, y: number, radius: number }>>();
+    const labeledNodes: Array<PublicationPersonNodeDatum> = [];
+    const coloredNodes = new Map<string, Array<PublicationPersonNodeDatum>>();
+    const normalNodes: Array<PublicationPersonNodeDatum> = [];
+    const semitransparentNormalNodes: Array<PublicationPersonNodeDatum> = [];
     const computedStyle = getComputedStyle(context.canvas);
 
     context.save();
@@ -277,40 +282,65 @@ function drawNodes(
     context.beginPath();
 
     for (const node of nodes) {
-        if (!node.isVisible || !node.x || !node.y) {
+        const isCompletelyInvisible = !justDimInvisibleNodes && !node.isVisible;
+
+        if (isCompletelyInvisible || !node.x || !node.y) {
             continue;
         }
 
-        const x = toDimensionsX(node.x, dimensions);
-        const y = toDimensionsY(node.y, dimensions);
+        node.canvasX = toDimensionsX(node.x, dimensions);
+        node.canvasY = toDimensionsY(node.y, dimensions);
+        node.canvasRadius = node.isHighlighted ? 10 : isSemivisible(justDimInvisibleNodes, node) || node.isDim ? 2 : 4;
+        const color = node.color || (node.colorCssProperty && computedStyle.getPropertyValue(node.colorCssProperty));
+
+        addNodeToPath(context, node, node.canvasRadius + 1.3);
 
         if (node.isHighlighted) {
-            highlightedNodes.push(node);
+            labeledNodes.push(node);
         }
-
-        const radius = node.isDim ? 1.5 : node.isHighlighted ? 10 : 4;
-        const color = node.color || (node.colorCssProperty && computedStyle.getPropertyValue(node.colorCssProperty));
 
         if (color) {
             const existingNodes = coloredNodes.get(color);
             if (existingNodes) {
-                coloredNodes.set(color, [{ x: x, y: y, radius: radius }, ...existingNodes]);
+                existingNodes.push(node);
+                coloredNodes.set(color, existingNodes);
             }
             else {
-                coloredNodes.set(color, [{ x: x, y: y, radius: radius }]);
+                coloredNodes.set(color, [node]);
             }
             continue;
         }
 
-        context.moveTo(x, y);
-        context.arc(x, y, radius, 0, 2 * Math.PI);
+        if (node.isVisible) {
+            normalNodes.push(node);
+        }
+        else {
+            semitransparentNormalNodes.push(node);
+        }
     }
 
     context.closePath();
-
-    context.fillStyle = computedStyle.getPropertyValue('--on-surface-container');
+    context.fillStyle = computedStyle.getPropertyValue('--surface-container');
     context.fill();
 
+    drawNormalNodes(context, normalNodes, computedStyle);
+
+    context.globalAlpha = 0.5;
+    drawNormalNodes(context, semitransparentNormalNodes, computedStyle);
+    context.globalAlpha = 1;
+
+    drawColoredNodes(context, coloredNodes);
+
+    drawNodeLabels(context, scale, labeledNodes);
+
+    context.restore();
+}
+
+function isSemivisible(justDimInvisibleNodes: boolean, node: PublicationPersonNodeDatum) {
+    return justDimInvisibleNodes && !node.isVisible;
+}
+
+function drawColoredNodes(context: CanvasRenderingContext2D, coloredNodes: Map<string, PublicationPersonNodeDatum[]>) {
     for (const color of coloredNodes.keys()) {
         const nodes = coloredNodes.get(color);
 
@@ -321,8 +351,7 @@ function drawNodes(
         context.beginPath();
 
         for (const node of nodes) {
-            context.moveTo(node.x, node.y);
-            context.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+            addNodeToPath(context, node);
         }
 
         context.closePath();
@@ -330,7 +359,29 @@ function drawNodes(
         context.fillStyle = color;
         context.fill();
     }
+}
 
+function drawNormalNodes(
+    context: CanvasRenderingContext2D,
+    nodes: Array<PublicationPersonNodeDatum>,
+    computedStyle: CSSStyleDeclaration
+) {
+    context.beginPath();
+
+    for (const node of nodes) {
+        addNodeToPath(context, node);
+    }
+
+    context.closePath();
+    context.fillStyle = computedStyle.getPropertyValue('--on-surface-container');
+    context.fill();
+}
+
+function drawNodeLabels(
+    context: CanvasRenderingContext2D,
+    scale: number,
+    nodes: Array<PublicationPersonNodeDatum>
+) {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.strokeStyle = 'white';
@@ -340,20 +391,19 @@ function drawNodes(
     context.lineJoin = 'round';
     context.font = `bold ${16 / scale}px ${inter.style.fontFamily}`;
 
-    for (const node of highlightedNodes) {
-        if (!node.x || !node.y) {
-            continue;
-        }
-
-        const x = toDimensionsX(node.x, dimensions);
-        const y = toDimensionsY(node.y, dimensions);
+    for (const node of nodes) {
+        const x = node.canvasX;
+        const y = node.canvasY;
 
         context.moveTo(x, y);
         context.strokeText(node.person.name, x, y);
         context.fillText(node.person.name, x, y);
     }
+}
 
-    context.restore();
+function addNodeToPath(context: CanvasRenderingContext2D, node: PublicationPersonNodeDatum, radius?: number) {
+    context.moveTo(node.canvasX, node.canvasY);
+    context.arc(node.canvasX, node.canvasY, radius || node.canvasRadius, 0, 2 * Math.PI);
 }
 
 /** Draws all links onto the canvas context. This function decides which links should be drawn highlighted or dim. */
@@ -361,7 +411,8 @@ function drawLinks(
     links: PublicationPersonLinkDatum[],
     context: CanvasRenderingContext2D,
     zoomTransform: ZoomTransform,
-    dimensions: { width: number; height: number }
+    dimensions: { width: number; height: number },
+    justDimInvisibleNodes: boolean
 ) {
     const defaultColor = getComputedStyle(context.canvas).getPropertyValue('--on-surface-container-muted');
 
@@ -376,11 +427,11 @@ function drawLinks(
         const source = link.source as PublicationPersonNodeDatum;
         const target = link.target as PublicationPersonNodeDatum;
 
-        if (!link.isVisible || !source.isVisible || !target.isVisible) {
+        if (!link.isVisible || (!justDimInvisibleNodes && (!source.isVisible || !target.isVisible))) {
             continue;
         }
 
-        drawLine(source, target, link.intensity, defaultColor, context, zoomTransform, link.isHighlighted, link.isDim, dimensions);
+        drawLine(source, target, link.intensity, defaultColor, context, zoomTransform, link.isHighlighted, link.isDim, justDimInvisibleNodes, dimensions);
     }
 
     context.restore();
@@ -396,10 +447,14 @@ function drawLine(
     zoomTransform: ZoomTransform,
     isHighlighted: boolean,
     isDim: boolean,
+    justDimInvisibleNodes: boolean,
     dimensions: { width: number; height: number }
 ) {
     if (source.x && source.y && target.x && target.y) {
-        context.globalAlpha = isDim ? 0.1 : isHighlighted ? 0.6 : 0.2 + 0.2 * intensity;
+        const defaultAlpha = isDim ? 0.1 : isHighlighted ? 0.6 : 0.2 + 0.2 * intensity;
+        context.globalAlpha = isSemivisible(justDimInvisibleNodes, target) || isSemivisible(justDimInvisibleNodes, source) ?
+            defaultAlpha * 0.5 :
+            defaultAlpha;
         context.strokeStyle = color;
         context.lineWidth = Math.max(0.5, (isHighlighted ? 2 : 1) / (Math.max(0.9, zoomTransform.scale)));
 

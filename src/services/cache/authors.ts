@@ -41,7 +41,7 @@ export async function tryGetCachedAuthor(authorId: string): Promise<DblpAuthor |
 
     const cachedAuthor = await DblpAuthorCache.findOne<DblpAuthorCacheSchema>({ authorId: authorId });
 
-    if (cachedAuthor && cachedAuthor.updatedAt >= new Date(new Date().getDate() - CACHED_AUTHOR_MAX_AGE)) {
+    if (cachedAuthor && cachedAuthor.updatedAt >= new Date(new Date().getTime() - CACHED_AUTHOR_MAX_AGE)) {
         return JSON.parse(cachedAuthor.jsonObject) as DblpAuthor;
     }
 

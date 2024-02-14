@@ -1,7 +1,8 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/PublicationPersonLinkDatum'
-import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/PublicationPersonNodeDatum'
+import { PublicationPersonNodeDatum, PublicationPersonNodeDatumCanvasExtension, PublicationPersonNodeDatumExtension } from '@/dtos/PublicationPersonNodeDatum'
+import { removeAccents } from '@/utils/strings';
 
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     publicationsCount: 1,
@@ -11,10 +12,13 @@ const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     isDim: false
 } as const;
 
-const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension = {
+const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & PublicationPersonNodeDatumCanvasExtension = {
     isVisible: true,
     isHighlighted: false,
-    isDim: false
+    isDim: false,
+    canvasRadius: 0,
+    canvasX: 0,
+    canvasY: 0
 } as const;
 
 /**
@@ -69,6 +73,7 @@ export function convertToCoauthorsGraph(
         else {
             authorsMap.set(a.id, {
                 person: a,
+                normalizedPersonName: removeAccents(a.name),
                 count: 1,
                 colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
                 coauthorIds: new Set(),

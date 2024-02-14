@@ -3,9 +3,11 @@ import { PublicationPersonNodeDatum } from './PublicationPersonNodeDatum'
 
 export type CoauthorsGraphOptions = {
     originalLinksDisplayed: boolean,
+    justDimInvisibleNodes: boolean,
     hoveredAuthorId: string | null,
     selectedAuthorId: string | null,
     filteredAuthorsIds: Set<string>,
+    searchQuery: string,
 }
 
 export type CoauthorsGraphState = {

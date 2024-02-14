@@ -20,6 +20,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         const ee = elem.find('ee').first().text();
         const pages = elem.find('pages').first().text();
         const journal = elem.find('journal').first().text();
+        const series = elem.find('series').first().text();
         const volume = elem.find('volume').first().text();
         const number = elem.find('number').first().text();
         const url = elem.find('url').first().text();
@@ -61,6 +62,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             booktitle === '' ? undefined : booktitle,
             pages,
             journal,
+            series,
             volume,
             number,
             venueUrl ? (extractNormalizedIdFromDblpUrlPath(venueUrl) || [null, null])[0] || undefined : undefined,

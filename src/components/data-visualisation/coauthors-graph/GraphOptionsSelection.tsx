@@ -109,6 +109,12 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
                         onClick={() => setOptions({ originalLinksDisplayed: !options.originalLinksDisplayed })}>
                         Show the original links
                     </CheckListButton>
+                    <CheckListButton
+                        className='w-full'
+                        isSelected={options.justDimInvisibleNodes}
+                        onClick={() => setOptions({ justDimInvisibleNodes: !options.justDimInvisibleNodes })}>
+                        Just dim invisible nodes
+                    </CheckListButton>
                 </DialogBody>
             </DialogContent>
         </Dialog>

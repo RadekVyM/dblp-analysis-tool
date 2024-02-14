@@ -1,4 +1,4 @@
-import { isNullOrWhiteSpace, isNumber } from '@/utils/strings'
+import { isNullOrWhiteSpace, isNumber, removeAccents } from '@/utils/strings'
 import { describe, expect, test } from '@jest/globals'
 
 describe('isNullOrWhiteSpace function', () => {
@@ -53,6 +53,19 @@ describe('isNumber function', () => {
     for (const value of falsyValues) {
         test(`is "${value}" a number`, () => {
             expect(isNumber(value)).toBeFalsy();
+        });
+    }
+});
+
+describe('removeAccents function', () => {
+    const values = [
+        ['Vymětalík', 'Vymetalik'],
+        ['ěščřžýáíéůúťň', 'escrzyaieuutn'],
+    ];
+
+    for (const [value, expectedValue] of values) {
+        test(`removes accents from "${value}" => "${expectedValue}"`, () => {
+            expect(removeAccents(value)).toEqual(expectedValue);
         });
     }
 });

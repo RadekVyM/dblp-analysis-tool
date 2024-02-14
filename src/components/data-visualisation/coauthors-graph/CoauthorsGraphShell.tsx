@@ -33,7 +33,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
     // Original authors are excluded
-    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, graph.filteredAuthorsIds, authors]);
+    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, authors]);
     const graphRef = useRef<CoauthorsGraphRef | null>(null);
     const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(allAuthors.publications);
 
@@ -142,7 +142,9 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             clear={clear}
                             onAuthorClick={setSelectedAuthorId}
                             title={`All Coauthors`}
-                            onAuthorHoverChange={onCoauthorHoverChange} />
+                            onAuthorHoverChange={onCoauthorHoverChange}
+                            searchQuery={graph.searchQuery}
+                            onSearchQueryChange={(newQuery) => updateGraph({ searchQuery: newQuery })} />
                 }
             </DataVisualisationContainer>
         </div>

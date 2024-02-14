@@ -89,5 +89,5 @@ function getAllPublicationVenues(publications: Array<DblpPublication>) {
 }
 
 function getVenueTitle(publication: DblpPublication): string {
-    return publication.venueId ? publication.journal || publication.booktitle || 'undefined' : 'Not Listed Publications'
+    return publication.venueId ? publication.journal || publication.series || publication.booktitle || 'undefined' : 'Not Listed Publications'
 }
