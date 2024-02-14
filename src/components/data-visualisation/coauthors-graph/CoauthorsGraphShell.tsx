@@ -4,11 +4,12 @@ import { cn } from '@/utils/tailwindUtils'
 import DataVisualisationContainer from '../DataVisualisationContainer'
 import CoauthorsGraph, { CoauthorsGraphRef } from './CoauthorsGraph'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import SelectedAuthor from './SelectedAuthor'
 import AuthorsList from './AuthorsList'
 import GraphOptionsSelection from './GraphOptionsSelection'
 import useCoauthorsGraph from '@/hooks/useCoauthorsGraph'
+import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -32,8 +33,31 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
     // Original authors are excluded
-    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, authors]);
+    const displayedNodesList = useMemo(() => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)), [graph.nodes, graph.filteredAuthorsIds, authors]);
     const graphRef = useRef<CoauthorsGraphRef | null>(null);
+    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(allAuthors.publications);
+
+    useEffect(() => {
+        filterAuthors();
+    }, [allAuthors.publications, filtersMap]);
+
+    function filterAuthors() {
+        if (!typesFilter || !venuesFilter) {
+            return;
+        }
+
+        const selectedTypes = typesFilter.selectedItems;
+        const selectedVenues = venuesFilter.selectedItems;
+        const publs = allAuthors.publications.filter((publ) =>
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
+        const authorsIds = new Set<string>();
+
+        publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {
+            authorsIds.add(a.id);
+        }));
+
+        updateGraph({ filteredAuthorsIds: authorsIds });
+    }
 
     function setSelectedAuthorId(id: string | null) {
         updateGraph({ selectedAuthorId: id });
@@ -112,6 +136,10 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             onCoauthorHoverChange={onCoauthorHoverChange} /> :
                         <AuthorsList
                             nodes={displayedNodesList}
+                            filteredAuthorsIds={graph.filteredAuthorsIds}
+                            filtersMap={filtersMap}
+                            switchSelection={switchSelection}
+                            clear={clear}
                             onAuthorClick={setSelectedAuthorId}
                             title={`All Coauthors`}
                             onAuthorHoverChange={onCoauthorHoverChange} />

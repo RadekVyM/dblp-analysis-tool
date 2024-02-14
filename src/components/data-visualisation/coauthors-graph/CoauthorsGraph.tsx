@@ -277,7 +277,7 @@ function drawNodes(
     context.beginPath();
 
     for (const node of nodes) {
-        if (!node.x || !node.y) {
+        if (!node.isVisible || !node.x || !node.y) {
             continue;
         }
 
@@ -376,7 +376,7 @@ function drawLinks(
         const source = link.source as PublicationPersonNodeDatum;
         const target = link.target as PublicationPersonNodeDatum;
 
-        if (!link.isVisible) {
+        if (!link.isVisible || !source.isVisible || !target.isVisible) {
             continue;
         }
 

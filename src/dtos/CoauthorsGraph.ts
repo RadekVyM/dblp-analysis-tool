@@ -5,6 +5,7 @@ export type CoauthorsGraphOptions = {
     originalLinksDisplayed: boolean,
     hoveredAuthorId: string | null,
     selectedAuthorId: string | null,
+    filteredAuthorsIds: Set<string>,
 }
 
 export type CoauthorsGraphState = {
@@ -16,5 +17,5 @@ export type CoauthorsGraphState = {
     maxCoauthorsCount: number,
     authorsMap: Map<string, PublicationPersonNodeDatum>,
     // Selected authors are saved to a stack to enable back navigation
-    selectedCoauthorIdsStack: Array<string>
+    selectedCoauthorIdsStack: Array<string>,
 } & CoauthorsGraphOptions

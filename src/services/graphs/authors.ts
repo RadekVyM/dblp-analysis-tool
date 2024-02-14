@@ -57,7 +57,7 @@ export function convertToCoauthorsGraph(
     const authorsMap = new Map<string, PublicationPersonNodeDatum>();
     const edgesMap = new Map<string, PublicationPersonLinkDatum>();
 
-    publications.forEach(p => p.authors.forEach(a => {
+    publications.forEach(p => [...p.authors, ...p.editors].forEach(a => {
         if (ignoredAuthorIds.includes(a.id)) {
             return;
         }
@@ -76,7 +76,7 @@ export function convertToCoauthorsGraph(
             });
         }
 
-        p.authors.forEach(co => {
+        [...p.authors, ...p.editors].forEach(co => {
             if (co.id !== a.id) {
                 const t = co.id < a.id;
                 const sourceTarget = { source: t ? a.id : co.id, target: t ? co.id : a.id };

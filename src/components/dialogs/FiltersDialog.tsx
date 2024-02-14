@@ -6,9 +6,9 @@ import Tabs from '../Tabs'
 import CheckListButton from '../CheckListButton'
 import DialogHeader from './DialogHeader'
 import DialogBody from './DialogBody'
-import { FiltersState } from '@/hooks/filters/usePublicationsFilter'
 import Button from '../Button'
 import { MdFilterAltOff } from 'react-icons/md'
+import { FiltersState } from '@/dtos/Filters'
 
 type FiltersDialogParams = {
     hide: () => void,

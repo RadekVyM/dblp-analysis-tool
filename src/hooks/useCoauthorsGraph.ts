@@ -10,7 +10,8 @@ import { DblpAuthor } from '@/dtos/DblpAuthor'
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
     selectedAuthorId: null,
-    hoveredAuthorId: null
+    hoveredAuthorId: null,
+    filteredAuthorsIds: new Set()
 } as const;
 
 type UpdateGraph = Partial<CoauthorsGraphOptions> | ((oldOptions: CoauthorsGraphOptions) => Partial<CoauthorsGraphOptions>)
@@ -46,7 +47,8 @@ export default function useCoauthorsGraph(
                 newGraph.minCoauthoredPublicationsCount ||
                 newGraph.originalLinksDisplayed !== undefined ||
                 newGraph.selectedAuthorId !== undefined ||
-                newGraph.hoveredAuthorId !== undefined
+                newGraph.hoveredAuthorId !== undefined ||
+                newGraph.filteredAuthorsIds !== undefined
             );
 
             // Do not update selection if the graph is recreated (authorsMap is changed)
@@ -90,7 +92,8 @@ export default function useCoauthorsGraph(
     useEffect(() => {
         updateCoauthorsGraph({
             ...graph,
-            ...DEFAULT_GRAPH_OPTIONS
+            ...DEFAULT_GRAPH_OPTIONS,
+            filteredAuthorsIds: new Set(graph.nodes.map((n) => n.person.id))
         });
     }, [graph]);
 
@@ -152,9 +155,11 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
 
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
+        const isVisible = graph.filteredAuthorsIds.has(node.person.id) || !!allAuthors.ids.find((id) => node.person.id === id);
 
         node.isHighlighted = isSelected;
         node.isDim = isDim;
+        node.isVisible = isVisible;
     }
 }
 

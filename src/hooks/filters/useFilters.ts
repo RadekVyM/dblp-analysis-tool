@@ -1,39 +1,19 @@
+import { FilterStatesMap, FiltersConfiguration, FiltersState } from '@/dtos/Filters'
 import { useEffect, useState } from 'react'
 
-export type Filter = {
-    title: string,
-    allSelectableItems: Map<any, any>,
-    updateSelectableItems: (filtersState: FilterStatesMap) => Map<any, any>,
-    itemTitleSelector: (item: any) => any,
-}
-
-type FilterState = {
-    key: string,
-    title: string,
-    allSelectableItems: Map<any, any>,
-    selectableItems: Map<any, any>,
-    selectedItems: Map<any, any>,
-    itemTitleSelector: (item: any) => any,
-}
-
-export type FilterStatesMap = {
-    [key: string]: FilterState
-}
-
-export type FiltersState = {
-    filtersMap: FilterStatesMap,
-    switchSelection: (filterKey: string, itemKey: any) => void,
-    clear: (filterKey: string) => void,
-}
-
-export default function usePublicationsFilters(filters: { [key: string]: Filter }): FiltersState {
+/**
+ * Hook that creates a data structure for managing item filters and related operations.
+ * @param filtersConfiguration Configuration of the filters
+ * @returns Data structure for managing item filters and related operations
+ */
+export default function useFilters(filtersConfiguration: FiltersConfiguration): FiltersState {
     const [filtersMap, setFiltersMap] = useState<FilterStatesMap>({});
 
     useEffect(() => {
         const map: FilterStatesMap = {};
 
-        Object.keys(filters).forEach((key) => {
-            const filter = filters[key];
+        Object.keys(filtersConfiguration).forEach((key) => {
+            const filter = filtersConfiguration[key];
 
             map[key] = {
                 key: key,
@@ -46,7 +26,7 @@ export default function usePublicationsFilters(filters: { [key: string]: Filter 
         });
 
         setFiltersMap(map);
-    }, [filters]);
+    }, [filtersConfiguration]);
 
     function switchSelection(filterKey: string, itemKey: any) {
         setFiltersMap((oldMap) => {
@@ -89,8 +69,8 @@ export default function usePublicationsFilters(filters: { [key: string]: Filter 
     }
 
     function updateSelectableItems(map: FilterStatesMap) {
-        Object.keys(filters).forEach((key) => {
-            const filter = filters[key];
+        Object.keys(filtersConfiguration).forEach((key) => {
+            const filter = filtersConfiguration[key];
             const state = map[key];
 
             state.selectableItems = filter.updateSelectableItems(map);
