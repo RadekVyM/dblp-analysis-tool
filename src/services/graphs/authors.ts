@@ -16,6 +16,7 @@ const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & PublicationPers
     isVisible: true,
     isHighlighted: false,
     isDim: false,
+    isLabelVisible: false,
     canvasRadius: 0,
     canvasX: 0,
     canvasY: 0
@@ -72,12 +73,12 @@ export function convertToCoauthorsGraph(
         }
         else {
             authorsMap.set(a.id, {
+                ...DEFAULT_NODE_VALUES,
                 person: a,
                 normalizedPersonName: removeAccents(a.name),
                 count: 1,
                 colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
                 coauthorIds: new Set(),
-                ...DEFAULT_NODE_VALUES
             });
         }
 

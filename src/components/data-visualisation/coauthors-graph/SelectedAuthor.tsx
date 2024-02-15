@@ -22,6 +22,7 @@ type SelectedAuthorParams = {
 } & SelectedAuthorContentParams
 
 type SelectedAuthorContentParams = {
+    originalAuthorIds: Array<string>,
     allAuthorIds: Array<string>,
     ignoredAuthorIds?: Array<string>,
     selectedAuthor: PublicationPersonNodeDatum,
@@ -37,6 +38,7 @@ export default function SelectedAuthor({
     authorsMap,
     ignoredAuthorIds,
     allAuthorIds,
+    originalAuthorIds,
     addAuthor,
     removeAuthor,
     onBackClick,
@@ -66,6 +68,7 @@ export default function SelectedAuthor({
 
             <SelectedAuthorContent
                 allAuthorIds={allAuthorIds}
+                originalAuthorIds={originalAuthorIds}
                 selectedAuthor={selectedAuthor}
                 authorsMap={authorsMap}
                 ignoredAuthorIds={ignoredAuthorIds}
@@ -82,6 +85,7 @@ function SelectedAuthorContent({
     authorsMap,
     ignoredAuthorIds,
     allAuthorIds,
+    originalAuthorIds,
     addAuthor,
     removeAuthor,
     onCoauthorClick,
@@ -151,7 +155,7 @@ function SelectedAuthorContent({
                 </ul>
             }
             {
-                fetchedAuthor &&
+                fetchedAuthor && !originalAuthorIds.some((id) => fetchedAuthor.id === id) &&
                 <div
                     className='px-3'>
                     <CheckListButton

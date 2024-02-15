@@ -91,6 +91,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             selectedAuthor={selectedAuthor}
                             authorsMap={graph.authorsMap}
                             allAuthorIds={allAuthors.ids}
+                            originalAuthorIds={allAuthors.originalAuthorsIds}
                             addAuthor={addAdditionalAuthor}
                             removeAuthor={removeAdditionalAuthor}
                             onCoauthorClick={setSelectedAuthorId}
@@ -119,6 +120,7 @@ function useAuthors(authors: Array<DblpAuthor>) {
     const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
     const allAuthors = useMemo(() => ({
         originalAuthors: authors,
+        originalAuthorsIds: authors.map((a) => a.id),
         publications: authors
             .flatMap((a) => a.publications)
             .concat(additionalAuthors.flatMap((a) => a.publications)),

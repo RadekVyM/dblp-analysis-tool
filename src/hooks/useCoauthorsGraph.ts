@@ -11,6 +11,7 @@ import { removeAccents } from '@/utils/strings'
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
     justDimInvisibleNodes: false,
+    showNeighborLabelsOfHighlightedNodes: false,
     selectedAuthorId: null,
     hoveredAuthorId: null,
     filteredAuthorsIds: new Set(),
@@ -45,11 +46,12 @@ export default function useCoauthorsGraph(
                 ...oldGraph,
                 ...newGraph,
             };
-            const shouldUpdateLinksAndNodesVisualState = !!(
+            let shouldUpdateLinksAndNodesVisualState = !!(
                 newGraph.maxCoauthoredPublicationsCount ||
                 newGraph.minCoauthoredPublicationsCount ||
                 newGraph.originalLinksDisplayed !== undefined ||
                 newGraph.justDimInvisibleNodes !== undefined ||
+                newGraph.showNeighborLabelsOfHighlightedNodes !== undefined ||
                 newGraph.selectedAuthorId !== undefined ||
                 newGraph.hoveredAuthorId !== undefined ||
                 newGraph.filteredAuthorsIds !== undefined ||
@@ -60,10 +62,18 @@ export default function useCoauthorsGraph(
             if (newGraph.selectedAuthorId !== undefined && !newGraph.authorsMap) {
                 setSelectedAuthorId(newGraph.selectedAuthorId, oldGraph, updatedGraph);
             }
-            if (newGraph.selectedAuthorId === null && newGraph.authorsMap) {
+            if (newGraph.authorsMap) {
                 // The entire graph has been recreated but I want to keep the stack and selected author
-                updatedGraph.selectedCoauthorIdsStack = [...oldGraph.selectedCoauthorIdsStack];
-                updatedGraph.selectedAuthorId = oldGraph.selectedAuthorId;
+                if (newGraph.selectedAuthorId === null) {
+                    updatedGraph.selectedCoauthorIdsStack = [...oldGraph.selectedCoauthorIdsStack];
+                    updatedGraph.selectedAuthorId = oldGraph.selectedAuthorId;
+                }
+
+                updatedGraph.justDimInvisibleNodes = oldGraph.justDimInvisibleNodes;
+                updatedGraph.originalLinksDisplayed = oldGraph.originalLinksDisplayed;
+                updatedGraph.showNeighborLabelsOfHighlightedNodes = oldGraph.showNeighborLabelsOfHighlightedNodes;
+
+                shouldUpdateLinksAndNodesVisualState = true;
             }
 
             if (shouldUpdateLinksAndNodesVisualState) {
@@ -157,23 +167,21 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
     }
 
     for (const node of graph.nodes) {
-        if (!node.x || !node.y) {
-            continue;
-        }
-
         const matchesSearchQuery = searchQuery.length === 0 ||
             searchQuery.some((s) => node.normalizedPersonName.toLowerCase().includes(s));
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery) ||
             !!allAuthors.ids.find((id) => node.person.id === id);
+        const isSemiVisible = graph.justDimInvisibleNodes && !isVisible;
+        const showNeighborLabel = graph.showNeighborLabelsOfHighlightedNodes && (!!(graph.hoveredAuthorId || graph.selectedAuthorId) && !isDim);
 
+        node.isLabelVisible = isSelected || showNeighborLabel;
         node.isHighlighted = isSelected;
-        node.isDim = isDim;
+        node.isDim = isDim || (!graph.hoveredAuthorId && !graph.selectedAuthorId && isSemiVisible);
         node.isVisible = isVisible;
     }
 }
-
 
 /** Determines whether the node should be highlighted in the graph. */
 function isNodeHighlighted(node: PublicationPersonNodeDatum, hoveredAuthorId: string | null, selectedAuthorId: string | null) {
@@ -183,7 +191,6 @@ function isNodeHighlighted(node: PublicationPersonNodeDatum, hoveredAuthorId: st
         (hoveredAuthorId && node.coauthorIds.has(hoveredAuthorId)) ||
         (selectedAuthorId && node.coauthorIds.has(selectedAuthorId));
 }
-
 
 function isNodeHoveredOrSelected(
     person: DblpPublicationPerson,

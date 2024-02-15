@@ -13,7 +13,8 @@ export type PublicationPersonNodeDatum = {
 export type PublicationPersonNodeDatumExtension = {
     isVisible: boolean,
     isHighlighted: boolean,
-    isDim: boolean
+    isDim: boolean,
+    isLabelVisible: boolean,
 }
 
 export type PublicationPersonNodeDatumCanvasExtension = {

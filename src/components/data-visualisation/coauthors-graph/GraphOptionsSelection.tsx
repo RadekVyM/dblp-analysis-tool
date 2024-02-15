@@ -45,7 +45,7 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 variant='outline'
                 onClick={() => showOptionsDialog()}>
                 <MdSettings />
-                Graph Options
+                Display Options
             </Button>
             <Button
                 className='items-center gap-x-2'
@@ -93,7 +93,7 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
                 className='max-h-[40rem] flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
-                    heading={'Graph Options'} />
+                    heading={'Display Options'} />
 
                 <DialogBody
                     className='flex flex-col gap-3 items-start'>
@@ -114,6 +114,12 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
                         isSelected={options.justDimInvisibleNodes}
                         onClick={() => setOptions({ justDimInvisibleNodes: !options.justDimInvisibleNodes })}>
                         Just dim invisible nodes
+                    </CheckListButton>
+                    <CheckListButton
+                        className='w-full'
+                        isSelected={options.showNeighborLabelsOfHighlightedNodes}
+                        onClick={() => setOptions({ showNeighborLabelsOfHighlightedNodes: !options.showNeighborLabelsOfHighlightedNodes })}>
+                        Show labels of neighbors of highlighted nodes
                     </CheckListButton>
                 </DialogBody>
             </DialogContent>

@@ -4,6 +4,7 @@ import { PublicationPersonNodeDatum } from './PublicationPersonNodeDatum'
 export type CoauthorsGraphOptions = {
     originalLinksDisplayed: boolean,
     justDimInvisibleNodes: boolean,
+    showNeighborLabelsOfHighlightedNodes: boolean,
     hoveredAuthorId: string | null,
     selectedAuthorId: string | null,
     filteredAuthorsIds: Set<string>,
