@@ -15,6 +15,7 @@ export type PublicationPersonNodeDatumExtension = {
     isHighlighted: boolean,
     isDim: boolean,
     isLabelVisible: boolean,
+    isOriginalAuthorNode: boolean,
 }
 
 export type PublicationPersonNodeDatumCanvasExtension = {

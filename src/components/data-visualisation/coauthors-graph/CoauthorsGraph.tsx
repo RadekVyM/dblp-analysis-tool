@@ -317,7 +317,7 @@ function drawNodes(
 
     drawColoredNodes(context, coloredNodes);
 
-    drawNodeLabels(context, scale, labeledNodes);
+    drawNodeLabels(context, scale, labeledNodes, computedStyle);
 
     context.restore();
 }
@@ -330,7 +330,7 @@ function placeNodeToRightGroup(
     normalNodes: Array<PublicationPersonNodeDatum>,
     semitransparentNormalNodes: Array<PublicationPersonNodeDatum>
 ) {
-    const color = node.color || (node.colorCssProperty && computedStyle.getPropertyValue(node.colorCssProperty));
+    const color = getColor(node, computedStyle);
 
     if (node.isLabelVisible) {
         labeledNodes.push(node);
@@ -396,26 +396,41 @@ function drawNormalNodes(
 function drawNodeLabels(
     context: CanvasRenderingContext2D,
     scale: number,
-    nodes: Array<PublicationPersonNodeDatum>
+    nodes: Array<PublicationPersonNodeDatum>,
+    computedStyle: CSSStyleDeclaration
 ) {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.strokeStyle = 'white';
-    context.fillStyle = 'black';
+    context.strokeStyle = computedStyle.getPropertyValue('--surface');
+    context.fillStyle = computedStyle.getPropertyValue('--on-surface');
     context.lineWidth = 4 / scale;
     context.lineCap = 'round';
     context.lineJoin = 'round';
+    context.font = `bold ${13 / scale}px ${inter.style.fontFamily}`;
+
+    const highlightedNodes: Array<PublicationPersonNodeDatum> = [];
 
     for (const node of nodes) {
-        const x = node.canvasX;
-        const y = node.canvasY;
-        const size = node.isHighlighted ? 15 : 12;
+        if (node.isHighlighted) {
+            highlightedNodes.push(node);
+            continue;
+        }
 
-        context.font = `bold ${size / scale}px ${inter.style.fontFamily}`;
-        context.moveTo(x, y);
-        context.strokeText(node.person.name, x, y);
-        context.fillText(node.person.name, x, y);
+        drawLabel(node, context);
     }
+
+    context.fillStyle = computedStyle.getPropertyValue('--primary');
+    context.font = `bold ${15 / scale}px ${inter.style.fontFamily}`;
+
+    for (const node of highlightedNodes) {
+        drawLabel(node, context);
+    }
+}
+
+function drawLabel(node: PublicationPersonNodeDatum, context: CanvasRenderingContext2D) {
+    context.moveTo(node.canvasX, node.canvasY);
+    context.strokeText(node.person.name, node.canvasX, node.canvasY);
+    context.fillText(node.person.name, node.canvasX, node.canvasY);
 }
 
 function addNodeToPath(context: CanvasRenderingContext2D, node: PublicationPersonNodeDatum, radius?: number) {
@@ -584,4 +599,9 @@ function mapComputedNodesAndLinks(
             graph.authorsMap.get((computedNode as PublicationPersonNodeDatum).person.id) || computedNode :
             computedNode;
     }
+}
+
+/** Extracts a color of a node if it exists. */
+function getColor(node: PublicationPersonNodeDatum, computedStyle: CSSStyleDeclaration) {
+    return node.color || (node.colorCssProperty && computedStyle.getPropertyValue(node.colorCssProperty));
 }

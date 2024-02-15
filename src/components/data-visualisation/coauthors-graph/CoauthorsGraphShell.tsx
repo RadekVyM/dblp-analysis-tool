@@ -90,7 +90,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                         <SelectedAuthor
                             selectedAuthor={selectedAuthor}
                             authorsMap={graph.authorsMap}
-                            allAuthorIds={allAuthors.ids}
+                            allIncludedAuthorIds={allAuthors.ids}
                             originalAuthorIds={allAuthors.originalAuthorsIds}
                             addAuthor={addAdditionalAuthor}
                             removeAuthor={removeAdditionalAuthor}

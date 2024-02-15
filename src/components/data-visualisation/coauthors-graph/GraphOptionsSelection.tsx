@@ -88,7 +88,7 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog z-20 max-w-sm w-full flex-dialog overflow-y-hidden'>
+            className='dialog z-20 max-w-md w-full flex-dialog overflow-y-hidden'>
             <DialogContent
                 className='max-h-[40rem] flex-1 flex flex-col'>
                 <DialogHeader
@@ -120,6 +120,12 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
                         isSelected={options.showNeighborLabelsOfHighlightedNodes}
                         onClick={() => setOptions({ showNeighborLabelsOfHighlightedNodes: !options.showNeighborLabelsOfHighlightedNodes })}>
                         Show labels of neighbors of highlighted nodes
+                    </CheckListButton>
+                    <CheckListButton
+                        className='w-full'
+                        isSelected={options.alwaysShowLabelsOfOriginalAuthorsNodes}
+                        onClick={() => setOptions({ alwaysShowLabelsOfOriginalAuthorsNodes: !options.alwaysShowLabelsOfOriginalAuthorsNodes })}>
+                        Always show labels of nodes of original authors
                     </CheckListButton>
                 </DialogBody>
             </DialogContent>

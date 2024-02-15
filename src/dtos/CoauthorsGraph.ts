@@ -5,6 +5,7 @@ export type CoauthorsGraphOptions = {
     originalLinksDisplayed: boolean,
     justDimInvisibleNodes: boolean,
     showNeighborLabelsOfHighlightedNodes: boolean,
+    alwaysShowLabelsOfOriginalAuthorsNodes: boolean,
     hoveredAuthorId: string | null,
     selectedAuthorId: string | null,
     filteredAuthorsIds: Set<string>,

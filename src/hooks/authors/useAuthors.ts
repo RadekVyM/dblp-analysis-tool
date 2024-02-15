@@ -2,6 +2,12 @@ import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useEffect, useMemo, useState } from 'react'
 
+/**
+ * Hook that downloads information about all specified authors. 
+ * @param alreadyAvailableAuthors Already available authors that were pulled from the cache 
+ * @param authorIds IDs of required authors
+ * @returns List of authors and state of loading
+ */
 export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, authorIds: Array<string>) {
     const authorIdsToFetch = useMemo(
         () => authorIds.filter((id) => !alreadyAvailableAuthors.some((a) => a.id === id)),

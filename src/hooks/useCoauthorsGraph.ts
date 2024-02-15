@@ -12,6 +12,7 @@ const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
     justDimInvisibleNodes: false,
     showNeighborLabelsOfHighlightedNodes: false,
+    alwaysShowLabelsOfOriginalAuthorsNodes: false,
     selectedAuthorId: null,
     hoveredAuthorId: null,
     filteredAuthorsIds: new Set(),
@@ -52,6 +53,7 @@ export default function useCoauthorsGraph(
                 newGraph.originalLinksDisplayed !== undefined ||
                 newGraph.justDimInvisibleNodes !== undefined ||
                 newGraph.showNeighborLabelsOfHighlightedNodes !== undefined ||
+                newGraph.alwaysShowLabelsOfOriginalAuthorsNodes !== undefined ||
                 newGraph.selectedAuthorId !== undefined ||
                 newGraph.hoveredAuthorId !== undefined ||
                 newGraph.filteredAuthorsIds !== undefined ||
@@ -171,15 +173,16 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
             searchQuery.some((s) => node.normalizedPersonName.toLowerCase().includes(s));
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
-        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery) ||
-            !!allAuthors.ids.find((id) => node.person.id === id);
-        const isSemiVisible = graph.justDimInvisibleNodes && !isVisible;
+        const isOriginalAuthorNode = allAuthors.ids.some((id) => node.person.id === id);
+        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery);
+        const isSemiVisible = (!isVisible && isOriginalAuthorNode) || graph.justDimInvisibleNodes && !isVisible;
         const showNeighborLabel = graph.showNeighborLabelsOfHighlightedNodes && (!!(graph.hoveredAuthorId || graph.selectedAuthorId) && !isDim);
 
-        node.isLabelVisible = isSelected || showNeighborLabel;
+        node.isLabelVisible = (graph.alwaysShowLabelsOfOriginalAuthorsNodes && isOriginalAuthorNode) || isSelected || showNeighborLabel;
         node.isHighlighted = isSelected;
         node.isDim = isDim || (!graph.hoveredAuthorId && !graph.selectedAuthorId && isSemiVisible);
         node.isVisible = isVisible;
+        node.isOriginalAuthorNode = isOriginalAuthorNode;
     }
 }
 

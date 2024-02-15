@@ -11,7 +11,7 @@ import AuthorPublications from './(components)/AuthorPublications'
 import { Section, SectionTitle } from './(components)/Section'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import { isAuthorizedOnServer } from '@/services/auth/server'
-import AuthorCoauthors from './(components)/AuthorCoauthors'
+import AuthorCoauthors from '@/components/data-visualisation/AuthorCoauthors'
 
 type AuthorPageParams = {
     params: {

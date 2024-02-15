@@ -17,6 +17,7 @@ const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & PublicationPers
     isHighlighted: false,
     isDim: false,
     isLabelVisible: false,
+    isOriginalAuthorNode: false,
     canvasRadius: 0,
     canvasX: 0,
     canvasY: 0
@@ -35,7 +36,7 @@ export function getUniqueCoauthors(
     const map = new Map<string, DblpPublicationPerson>();
 
     authors.forEach((author) => {
-        author.publications.forEach((p) => p.authors.forEach((a) => {
+        author.publications.forEach((p) => [...p.authors, ...p.editors].forEach((a) => {
             if ((skip && skip(a)) || map.has(a.id)) {
                 return;
             }

@@ -2,7 +2,7 @@
 
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import DataVisualisationContainer from '@/components/data-visualisation/DataVisualisationContainer'
-import { Section, SectionTitle } from './Section'
+import { Section, SectionTitle } from '../../app/(shell)/author/[id]/(components)/Section'
 import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph/CoauthorsGraphShell'
 import CoauthorsTable from '@/components/data-visualisation/CoauthorsTable'
 import ItemsStats from '@/components/ItemsStats'

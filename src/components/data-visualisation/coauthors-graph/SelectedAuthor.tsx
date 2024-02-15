@@ -23,7 +23,7 @@ type SelectedAuthorParams = {
 
 type SelectedAuthorContentParams = {
     originalAuthorIds: Array<string>,
-    allAuthorIds: Array<string>,
+    allIncludedAuthorIds: Array<string>,
     ignoredAuthorIds?: Array<string>,
     selectedAuthor: PublicationPersonNodeDatum,
     authorsMap: Map<string, PublicationPersonNodeDatum>,
@@ -37,7 +37,7 @@ export default function SelectedAuthor({
     selectedAuthor,
     authorsMap,
     ignoredAuthorIds,
-    allAuthorIds,
+    allIncludedAuthorIds,
     originalAuthorIds,
     addAuthor,
     removeAuthor,
@@ -67,7 +67,7 @@ export default function SelectedAuthor({
             </Link>
 
             <SelectedAuthorContent
-                allAuthorIds={allAuthorIds}
+                allIncludedAuthorIds={allIncludedAuthorIds}
                 originalAuthorIds={originalAuthorIds}
                 selectedAuthor={selectedAuthor}
                 authorsMap={authorsMap}
@@ -84,7 +84,7 @@ function SelectedAuthorContent({
     selectedAuthor,
     authorsMap,
     ignoredAuthorIds,
-    allAuthorIds,
+    allIncludedAuthorIds,
     originalAuthorIds,
     addAuthor,
     removeAuthor,
@@ -94,19 +94,30 @@ function SelectedAuthorContent({
     const targerObserver = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
     const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
+    const isIncludedAuthor = useMemo(() => allIncludedAuthorIds.some((id) => id === selectedAuthor.person.id), [allIncludedAuthorIds, selectedAuthor]);
     const commonCoauthors = useMemo(() =>
-        [...selectedAuthor.coauthorIds.values()]
-            .map((id) => authorsMap.get(id))
-            .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
-        [selectedAuthor, authorsMap, ignoredAuthorIds]);
+        isIncludedAuthor ?
+            [...selectedAuthor.coauthorIds.values()]
+                .map((id) => authorsMap.get(id))
+                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id) && allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && a.coauthorIds.has(id))) :
+            [...selectedAuthor.coauthorIds.values()]
+                .map((id) => authorsMap.get(id))
+                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
+        [selectedAuthor, authorsMap, ignoredAuthorIds, allIncludedAuthorIds, isIncludedAuthor]);
     const uncommonCoauthors = useMemo(() => {
         if (!fetchedAuthor?.publications) {
             return [];
         }
 
+        if (isIncludedAuthor) {
+            return getUniqueCoauthors([fetchedAuthor], (a) => {
+                const author = authorsMap.get(a.id);
+                return ignoredAuthorIds?.includes(a.id) || allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && author?.coauthorIds.has(id));
+            });
+        }
+
         return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
-    }, [fetchedAuthor, selectedAuthor, authorsMap]);
-    const isSelected = allAuthorIds.some((id) => id === selectedAuthor.person.id);
+    }, [fetchedAuthor, selectedAuthor, authorsMap, isIncludedAuthor]);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
     const displayedCommonCoauthors = useMemo(
         () => commonCoauthors.slice(0, displayedCount),
@@ -120,7 +131,7 @@ function SelectedAuthorContent({
             return
         }
 
-        if (isSelected) {
+        if (isIncludedAuthor) {
             removeAuthor(fetchedAuthor.id);
         }
         else {
@@ -159,7 +170,7 @@ function SelectedAuthorContent({
                 <div
                     className='px-3'>
                     <CheckListButton
-                        isSelected={isSelected}
+                        isSelected={isIncludedAuthor}
                         onClick={onIncludeAllClick}
                         className='w-full'>
                         <span className='leading-4'>Include all {selectedAuthor.person.name}&apos;s coauthors in the graph</span>
@@ -192,9 +203,9 @@ function SelectedAuthorContent({
                             a &&
                             <AuthorListItem
                                 key={a.id}
-                                onAuthorClick={(id) => { }}
+                                onAuthorClick={(id) => id && authorsMap.has(id) && onCoauthorClick(id)}
                                 person={a}
-                                onHoverChange={(id) => { }} />)}
+                                onHoverChange={onCoauthorHoverChange} />)}
                     </ul>
                 </section>
             }
