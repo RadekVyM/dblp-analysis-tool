@@ -2,6 +2,8 @@ import * as d3 from 'd3'
 
 /** Represents a node of a graph. */
 export type NodeDatum = {
+    id: string,
+    label: string,
     color?: string,
     colorCssProperty?: string,
 } & d3.SimulationNodeDatum

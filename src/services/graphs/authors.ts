@@ -98,6 +98,8 @@ function saveNode(a: DblpPublicationPerson, primaryColoredAuthorIds: string[], a
         authorsMap.set(a.id, {
             ...DEFAULT_NODE_VALUES,
             person: a,
+            id: a.id,
+            label: a.name,
             normalizedPersonName: removeAccents(a.name).toLowerCase(),
             personOccurrenceCount: 1,
             colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,

@@ -80,6 +80,8 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                 <GraphOptionsSelection
                     nodesCount={graph.nodes.length}
                     linksCount={graph.links.length}
+                    nodes={graph.nodes}
+                    links={graph.links}
                     options={graph}
                     setOptions={updateGraph}
                     zoomToCenter={() => graphRef.current?.zoomToCenter()} />

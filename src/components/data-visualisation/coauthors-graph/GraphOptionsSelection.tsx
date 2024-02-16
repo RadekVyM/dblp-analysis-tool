@@ -5,7 +5,10 @@ import CheckListButton from '@/components/CheckListButton'
 import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
 import DialogBody from '@/components/dialogs/DialogBody'
 import DialogHeader from '@/components/dialogs/DialogHeader'
+import GraphExportDialog from '@/components/dialogs/GraphExportDialog'
 import { CoauthorsGraphOptions } from '@/dtos/graphs/CoauthorsGraph'
+import { LinkDatum, LinkDatumExtension } from '@/dtos/graphs/LinkDatum'
+import { NodeDatum, NodeDatumExtension } from '@/dtos/graphs/NodeDatum'
 import useDialog from '@/hooks/useDialog'
 import { forwardRef } from 'react'
 import { MdGetApp, MdSettings } from 'react-icons/md'
@@ -14,6 +17,8 @@ type GraphOptionsSelectionParams = {
     options: CoauthorsGraphOptions,
     nodesCount: number,
     linksCount: number,
+    nodes: Array<NodeDatum & NodeDatumExtension>,
+    links: Array<LinkDatum & LinkDatumExtension>,
     zoomToCenter: () => void,
     setOptions: (options: Partial<CoauthorsGraphOptions>) => void
 }
@@ -27,13 +32,7 @@ type GraphOptionsDialogParams = {
     isOpen: boolean,
 }
 
-type GraphExportDialogParams = {
-    hide: () => void,
-    animation: string,
-    isOpen: boolean,
-}
-
-export default function GraphOptionsSelection({ options, nodesCount, linksCount, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
+export default function GraphOptionsSelection({ options, nodesCount, linksCount, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
     const [optionsDialogRef, isOptionsDialogOpen, optionsDialogAnimationClass, showOptionsDialog, hideOptionsDialog] = useDialog();
     const [exportDialogRef, isExportDialogOpen, exportDialogAnimationClass, showExportDialog, hideExportDialog] = useDialog();
 
@@ -77,7 +76,9 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 ref={exportDialogRef}
                 hide={hideExportDialog}
                 animation={exportDialogAnimationClass}
-                isOpen={isExportDialogOpen} />
+                isOpen={isExportDialogOpen}
+                nodes={nodes}
+                links={links} />
         </>
     )
 }
@@ -134,27 +135,3 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
 });
 
 GraphOptionsDialog.displayName = 'GraphOptionsDialog';
-
-const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen }, ref) => {
-    return (
-        <Dialog
-            ref={ref}
-            animation={animation}
-            hide={hide}
-            className='dialog z-20 max-w-sm w-full flex-dialog overflow-y-hidden'>
-            <DialogContent
-                className='max-h-[40rem] flex-1 flex flex-col'>
-                <DialogHeader
-                    hide={hide}
-                    heading={'Export Data'} />
-
-                <DialogBody
-                    className='flex flex-col gap-3 items-start'>
-
-                </DialogBody>
-            </DialogContent>
-        </Dialog>
-    )
-});
-
-GraphExportDialog.displayName = 'GraphExportDialog';
