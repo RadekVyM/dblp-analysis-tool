@@ -1,10 +1,10 @@
-import { DblpAuthorSearchHit, getAuthorsNotes } from '@/dtos/DblpSearchResult'
+import { AuthorSearchHit, getAuthorsNotes } from '@/dtos/search/SearchResult'
 import { fetchSearchResultWithoutQuery } from '@/services/authors/fetch-server'
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 import { searchToItemsParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import SearchResultList from '../(components)/SearchResultList'
-import { SearchItemsParams } from '@/dtos/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { SEARCH_AUTHOR } from '@/constants/urls'
 import he from 'he'
 import { fetchSearchResultWithQuery } from '@/services/authors/fetch'
@@ -34,7 +34,7 @@ async function getSearchResult(params: SearchItemsParams) {
     }
 }
 
-function getAdditionalInfo(author: DblpAuthorSearchHit) {
+function getAdditionalInfo(author: AuthorSearchHit) {
     const notes = getAuthorsNotes(author);
 
     return notes

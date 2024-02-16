@@ -1,11 +1,11 @@
 'use client'
 
 import useSWR, { Fetcher } from 'swr'
-import { DblpAuthorSearchHit, DblpSearchResult } from '@/dtos/DblpSearchResult'
+import { AuthorSearchHit, SearchResult } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { SWR_CONFIG, SearchItemsArgs, createArgs, createSearchFetcher } from './shared'
 
-const authorsSearchFetcher: Fetcher<DblpSearchResult<DblpAuthorSearchHit> | null, SearchItemsArgs> = createSearchFetcher<DblpAuthorSearchHit>(SearchType.Author);
+const authorsSearchFetcher: Fetcher<SearchResult<AuthorSearchHit> | null, SearchItemsArgs> = createSearchFetcher<AuthorSearchHit>(SearchType.Author);
 
 /**
  * Hook that performs an authors search based on a query string.

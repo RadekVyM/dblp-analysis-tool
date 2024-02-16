@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema<UserSchema>({
 
 export default mongoose.models.User || mongoose.model<UserSchema>('User', userSchema);
 
+/** Registered user of the system. */
 export type UserSchema = {
     email: string,
     passwordHash: string,

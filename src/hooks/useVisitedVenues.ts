@@ -1,11 +1,12 @@
 'use client'
 
-import { SavedVenue, VisitedVenue } from '@/dtos/SavedVenues'
+import { SavedVenue, } from '@/dtos/saves/SavedVenue'
 import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { sendDeleteRequest, sendPostRequest } from './saves/shared'
+import { VisitedVenue } from '@/dtos/saves/VisitedVenue'
 
 const visitedAuthorsFetcher: Fetcher<Array<VisitedVenue> | null, string> = (key) =>
     fetchJson(key);

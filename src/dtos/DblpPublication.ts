@@ -1,5 +1,6 @@
 import { PublicationType } from '@/enums/PublicationType'
 
+/** Publication stored in dblp. */
 export type DblpPublication = {
     readonly id: string,
     readonly title: string,
@@ -19,6 +20,7 @@ export type DblpPublication = {
     readonly editors: Array<DblpPublicationPerson>
 }
 
+/** Author or editor of a publication stored in dblp. */
 export type DblpPublicationPerson = {
     id: string,
     url: string,
@@ -26,6 +28,7 @@ export type DblpPublicationPerson = {
     orcid?: string
 }
 
+/** Creates an object of a publication stored in dblp. */
 export function createDblpPublication(
     id: string,
     title: string,

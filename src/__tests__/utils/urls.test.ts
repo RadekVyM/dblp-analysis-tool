@@ -1,6 +1,6 @@
 import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 import { dblpUrlContainsItemId, getVenueTypeFromDblpString, extractNormalizedIdFromDblpUrl, convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath, createLocalSearchPath, createLocalPath, convertDblpUrlToLocalPath, extractParamsFromUrl } from '@/utils/urls'
 import { describe, expect, test } from '@jest/globals'
 
@@ -131,7 +131,7 @@ describe('dblpUrlContainsItemId function', () => {
             expect(dblpUrlContainsItemId(value)).toBeTruthy();
         });
     }
-    
+
     for (const value of falsyValues) {
         test(`"${value}" does not contain an ID`, () => {
             expect(dblpUrlContainsItemId(value)).toBeFalsy();
@@ -157,7 +157,7 @@ describe('extractNormalizedIdFromDblpUrl function', () => {
             expect(extractNormalizedIdFromDblpUrl(url)).toEqual(normalizedId);
         });
     }
-    
+
     for (const url of [...invalidIdUrls]) {
         test(`"${url}" does not contain any ID`, () => {
             expect(extractNormalizedIdFromDblpUrl(url)).toBe(null);

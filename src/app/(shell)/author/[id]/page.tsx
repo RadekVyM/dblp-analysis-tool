@@ -8,7 +8,7 @@ import SaveButtons from './(components)/SaveButtons'
 import { cn } from '@/utils/tailwindUtils'
 import ListLink from '@/components/ListLink'
 import AuthorPublications from './(components)/AuthorPublications'
-import { Section, SectionTitle } from './(components)/Section'
+import { PageSection, PageSectionTitle } from '../../../../components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import { isAuthorizedOnServer } from '@/services/auth/server'
 import AuthorCoauthors from '@/components/data-visualisation/AuthorCoauthors'
@@ -119,8 +119,8 @@ async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoP
 
 function Awards({ awards }: AwardsParams) {
     return (
-        <Section>
-            <SectionTitle className='text-xl'>Awards</SectionTitle>
+        <PageSection>
+            <PageSectionTitle className='text-xl'>Awards</PageSectionTitle>
             <ul className='flex flex-col gap-2 pl-4'>
                 {awards.map((award) =>
                     <li
@@ -129,14 +129,14 @@ function Awards({ awards }: AwardsParams) {
                         {award.title}
                     </li>)}
             </ul>
-        </Section>
+        </PageSection>
     )
 }
 
 function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
     return (
-        <Section>
-            <SectionTitle className='text-xl'>Authors with the same name</SectionTitle>
+        <PageSection>
+            <PageSectionTitle className='text-xl'>Authors with the same name</PageSectionTitle>
             <ul className='flex flex-col gap-2'>
                 {homonyms.map((homonym) =>
                     <ListLink
@@ -148,6 +148,6 @@ function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
                             info={homonym.info} />
                     </ListLink>)}
             </ul>
-        </Section>
+        </PageSection>
     )
 }

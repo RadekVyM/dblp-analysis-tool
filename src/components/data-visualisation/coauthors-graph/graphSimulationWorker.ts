@@ -1,9 +1,9 @@
 'use client'
 
-import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+import { PublicationPersonNodeDatum } from '@/dtos/graphs/PublicationPersonNodeDatum'
 import { CoauthorsGraphWorkerData } from './CoauthorsGraph'
 import * as d3 from 'd3'
-import { PublicationPersonLinkDatum } from '@/dtos/PublicationPersonLinkDatum'
+import { PublicationPersonLinkDatum } from '@/dtos/graphs/PublicationPersonLinkDatum'
 
 /*
 Web worker that runs a simulation on the passed graph.

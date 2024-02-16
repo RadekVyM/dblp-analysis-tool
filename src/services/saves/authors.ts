@@ -2,7 +2,7 @@ import 'server-only'
 import SavedAuthor, { SavedAuthorSchema } from '@/db/models/SavedAuthor'
 import { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
-import { SavedAuthor as SavedAuthorDto } from '@/dtos/SavedAuthors'
+import { SavedAuthor as SavedAuthorDto } from '@/dtos/saves/SavedAuthor'
 
 /**
  * Saves an author for the current user.

@@ -13,16 +13,20 @@ const options = {
     bufferCommands: false,
 };
 
+/**
+ * Opens Mongoose's default connection to our MongoDB database.
+ * @returns 
+ */
 async function connectDb() {
     if (process.env.NODE_ENV === 'development') {
         if (cached.connection) {
             return cached.connection;
         }
-    
+
         if (!cached.promise) {
             cached.promise = mongoose.connect(MONGODB_URI!, options);
         }
-    
+
         try {
             return cached.connection = await cached.promise;
         } catch (e) {

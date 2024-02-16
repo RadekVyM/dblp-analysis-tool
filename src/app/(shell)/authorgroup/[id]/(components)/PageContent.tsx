@@ -2,7 +2,7 @@
 
 import ListLink from '@/components/ListLink'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { AuthorGroup } from '@/dtos/SavedAuthors'
+import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import { SearchType } from '@/enums/SearchType'
 import useAuthors from '@/hooks/authors/useAuthors'
 import { createLocalPath } from '@/utils/urls'
@@ -44,7 +44,7 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
                 !isLoading && !error && authors.length > 0 &&
                 <>
                     <AuthorPublications
-                        publicationsUrl={`/`}
+                        publicationsUrl={`/authorgroup/${authorGroup.id}/publications`}
                         publications={allPublications}
                         maxDisplayedCount={3} />
                     <AuthorCoauthors

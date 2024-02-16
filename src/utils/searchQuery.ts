@@ -1,4 +1,4 @@
-import { SearchQueryOptions } from '@/dtos/SearchQueryOptions'
+import { SearchQueryOptions } from '@/dtos/search/SearchQueryOptions'
 import { isNullOrWhiteSpace } from './strings'
 
 /**

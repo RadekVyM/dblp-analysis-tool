@@ -1,4 +1,4 @@
-import { BaseDblpSearchHit, DblpSearchResult } from '@/dtos/DblpSearchResult'
+import { BaseSearchHit, SearchResult, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: { name: string
 
     try {
         const response = await fetchAuthors({ query: params.name, queryOptions: { exactWords: true }, completionsCount: 0, count: 2 });
-        const authors = new DblpSearchResult<BaseDblpSearchHit>(response, SearchType.Author);
+        const authors = createSearchResultFromRaw<BaseSearchHit>(response, SearchType.Author);
 
         if (authors.hits.total == 1) {
             const author = authors.hits.items[0];

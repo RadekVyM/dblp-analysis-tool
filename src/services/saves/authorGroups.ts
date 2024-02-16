@@ -2,7 +2,8 @@ import 'server-only'
 import AuthorGroup, { AuthorGroupSchema } from '@/db/models/AuthorGroup'
 import { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
-import { AuthorGroup as AuthorGroupDto, SavedAuthor as SavedAuthorDto } from '@/dtos/SavedAuthors'
+import { AuthorGroup as AuthorGroupDto } from '@/dtos/saves/AuthorGroup'
+import { SavedAuthor as SavedAuthorDto } from '@/dtos/saves/SavedAuthor'
 import { objectId } from '@/utils/db'
 
 /**

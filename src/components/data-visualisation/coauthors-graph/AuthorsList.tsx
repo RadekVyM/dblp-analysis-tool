@@ -1,6 +1,6 @@
 'use client'
 
-import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+import { PublicationPersonNodeDatum } from '@/dtos/graphs/PublicationPersonNodeDatum'
 import AuthorListItem from './AuthorListItem'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import { useEffect, useMemo, useRef, useState } from 'react'

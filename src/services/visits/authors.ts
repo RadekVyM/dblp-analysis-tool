@@ -2,7 +2,8 @@ import 'server-only'
 import { UserSchema } from '@/db/models/User'
 import VisitedAuthor, { VisitedAuthorSchema } from '@/db/models/VisitedAuthor'
 import connectDb from '@/db/mongodb'
-import { SavedAuthor as SavedAuthorDto, VisitedAuthor as VisitedAuthorDto } from '@/dtos/SavedAuthors'
+import { SavedAuthor as SavedAuthorDto } from '@/dtos/saves/SavedAuthor'
+import { VisitedAuthor as VisitedAuthorDto } from '@/dtos/saves/VisitedAuthor'
 
 /**
  * Updates a visited author by the current user.

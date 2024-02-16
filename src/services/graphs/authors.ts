@@ -1,8 +1,9 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/PublicationPersonLinkDatum'
-import { PublicationPersonNodeDatum, PublicationPersonNodeDatumCanvasExtension, PublicationPersonNodeDatumExtension } from '@/dtos/PublicationPersonNodeDatum'
-import { removeAccents } from '@/utils/strings';
+import { NodeDatumCanvasExtension } from '@/dtos/graphs/NodeDatum'
+import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/graphs/PublicationPersonLinkDatum'
+import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/graphs/PublicationPersonNodeDatum'
+import { removeAccents } from '@/utils/strings'
 
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     publicationsCount: 1,
@@ -12,7 +13,7 @@ const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     isDim: false
 } as const;
 
-const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & PublicationPersonNodeDatumCanvasExtension = {
+const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & NodeDatumCanvasExtension = {
     isVisible: true,
     isHighlighted: false,
     isDim: false,
@@ -61,50 +62,19 @@ export function convertToCoauthorsGraph(
     primaryColoredAuthorIds: Array<string> = []
 ) {
     const authorsMap = new Map<string, PublicationPersonNodeDatum>();
-    const edgesMap = new Map<string, PublicationPersonLinkDatum>();
+    const linksMap = new Map<string, PublicationPersonLinkDatum>();
 
     publications.forEach(p => [...p.authors, ...p.editors].forEach(a => {
         if (ignoredAuthorIds.includes(a.id)) {
             return;
         }
 
-        const savedCoauthor = authorsMap.get(a.id);
-        if (savedCoauthor) {
-            savedCoauthor.count += 1;
-        }
-        else {
-            authorsMap.set(a.id, {
-                ...DEFAULT_NODE_VALUES,
-                person: a,
-                normalizedPersonName: removeAccents(a.name),
-                count: 1,
-                colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
-                coauthorIds: new Set(),
-            });
-        }
-
-        [...p.authors, ...p.editors].forEach(co => {
-            if (co.id !== a.id) {
-                const t = co.id < a.id;
-                const sourceTarget = { source: t ? a.id : co.id, target: t ? co.id : a.id };
-                const key = JSON.stringify(sourceTarget);
-                const existingEdge = edgesMap.get(key);
-
-                if (existingEdge) {
-                    existingEdge.publicationsCount += 1;
-                }
-                else {
-                    edgesMap.set(key, {
-                        ...sourceTarget,
-                        ...DEFAULT_LINK_VALUES
-                    });
-                }
-            }
-        });
+        saveNode(a, primaryColoredAuthorIds, authorsMap);
+        extractLinksToAuthor(p, a, linksMap);
     }));
     const nodes = [...authorsMap.values()];
-    const links = [...edgesMap.values()];
-    nodes.sort((a, b) => b.count - a.count);
+    const links = [...linksMap.values()];
+    nodes.sort((a, b) => b.personOccurrenceCount - a.personOccurrenceCount);
 
     const childrenStats = setChildren(links, authorsMap);
 
@@ -115,6 +85,47 @@ export function convertToCoauthorsGraph(
         ...childrenStats,
         ...getLinksLimits(links)
     };
+}
+
+/** Saves a specified author to the nodes map. */
+function saveNode(a: DblpPublicationPerson, primaryColoredAuthorIds: string[], authorsMap: Map<string, PublicationPersonNodeDatum>) {
+    const savedCoauthor = authorsMap.get(a.id);
+
+    if (savedCoauthor) {
+        savedCoauthor.personOccurrenceCount += 1;
+    }
+    else {
+        authorsMap.set(a.id, {
+            ...DEFAULT_NODE_VALUES,
+            person: a,
+            normalizedPersonName: removeAccents(a.name).toLowerCase(),
+            personOccurrenceCount: 1,
+            colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
+            coauthorIds: new Set(),
+        });
+    }
+}
+
+/** Finds all links to a specified author and saves them to the links map. */
+function extractLinksToAuthor(publication: DblpPublication, author: DblpPublicationPerson, linksMap: Map<string, PublicationPersonLinkDatum>) {
+    [...publication.authors, ...publication.editors].forEach(co => {
+        if (co.id !== author.id) {
+            const t = co.id < author.id;
+            const sourceTarget = { source: t ? author.id : co.id, target: t ? co.id : author.id };
+            const key = JSON.stringify(sourceTarget);
+            const existingLink = linksMap.get(key);
+
+            if (existingLink) {
+                existingLink.publicationsCount += 1;
+            }
+            else {
+                linksMap.set(key, {
+                    ...sourceTarget,
+                    ...DEFAULT_LINK_VALUES
+                });
+            }
+        }
+    });
 }
 
 /** Sets up children collections of all graph nodes. */

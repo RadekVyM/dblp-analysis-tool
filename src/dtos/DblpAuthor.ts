@@ -1,5 +1,6 @@
 import { DblpPublication } from '@/dtos/DblpPublication'
 
+/** Author stored in dblp. */
 export type DblpAuthor = {
     readonly id: string,
     readonly name: string,
@@ -8,11 +9,13 @@ export type DblpAuthor = {
     readonly publications: Array<DblpPublication>
 }
 
+/** Homonym of an author stored in dblp. */
 export type DblpAuthorHomonym = {
     url: string,
     info: DblpAuthorInfo
 }
 
+/** Additional information of an author stored in dblp. */
 export type DblpAuthorInfo = {
     readonly disambiguation: boolean,
     readonly date: Date,
@@ -27,6 +30,7 @@ export type DblpAuthorInfo = {
         }>
 }
 
+/** Creates an object of an author stored in dblp. */
 export function createDblpAuthor(
     id: string,
     name: string,
@@ -43,6 +47,7 @@ export function createDblpAuthor(
     }
 }
 
+/** Creates an object of some additional information of an author stored in dblp. */
 export function createDblpAuthorInfo(
     disambiguation: boolean,
     date: string,
@@ -50,7 +55,7 @@ export function createDblpAuthorInfo(
         aliases?: Array<{ title: string, id?: string }>,
         affiliations?: Array<string>,
         awards?: Array<{ title: string, label: string }>,
-        links?: Array<string> 
+        links?: Array<string>
     }
 ): DblpAuthorInfo {
     return {
@@ -61,12 +66,17 @@ export function createDblpAuthorInfo(
         awards: info.awards || [],
         links: info.links?.map((link) => {
             const url = new URL(link);
-            
+
             return {
                 url: link,
                 title: url.hostname,
-                icon: `https://www.google.com/s2/favicons?domain=${url.hostname.split('.').slice(-2).join('.')}&sz=16`
+                icon: getIconUrl(url)
             }
         }) || []
     }
+}
+
+/** Creates an icon URL from a specified URL. */
+function getIconUrl(url: URL): string {
+    return `https://www.google.com/s2/favicons?domain=${url.hostname.split('.').slice(-2).join('.')}&sz=16`;
 }

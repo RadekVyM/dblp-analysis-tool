@@ -1,11 +1,12 @@
 import { VenueType } from '@/enums/VenueType'
 import { DBLP_SEARCH_VENUE_API, DBLP_URL } from '@/constants/urls'
 import { fetchItemsJson } from '@/services/items/fetch'
-import { DblpSearchResult, DblpVenueSearchHit, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
+import { VenueSearchHit, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
 import { CONF_DBLP_SEARCH_TYPE, JOURNALS_DBLP_SEARCH_TYPE, MAX_QUERYABLE_ITEMS_COUNT, SERIES_DBLP_SEARCH_TYPE } from '@/constants/search'
-import { SearchItemsParams, SearchVenuesParams } from '@/dtos/searchItemsParams'
-import { SimpleSearchResult } from '@/dtos/SimpleSearchResult'
+import { SearchItemsParams, SearchVenuesParams } from '@/dtos/search/SearchItemsParams'
+import { SimpleSearchResult, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { SearchType } from '@/enums/SearchType'
+import { RawBaseSearchResult } from '@/dtos/search/RawSearchResult'
 
 /**
  * Requests venues from a JSON dblp endpoint.
@@ -17,9 +18,9 @@ import { SearchType } from '@/enums/SearchType'
  * @param type Venue type
  * @returns Raw deserialized JSON object
  */
-export async function fetchVenues(params: SearchVenuesParams, type?: VenueType): Promise<RawDblpBaseSearchResult> {
+export async function fetchVenues(params: SearchVenuesParams, type?: VenueType): Promise<RawBaseSearchResult> {
     const query = type ? `${getQueryPrefix(type)}${params.query || ''}` : params.query;
-    return fetchItemsJson(`${DBLP_URL}${DBLP_SEARCH_VENUE_API}`, {...params, query: query }).then(data => data as RawDblpBaseSearchResult);
+    return fetchItemsJson(`${DBLP_URL}${DBLP_SEARCH_VENUE_API}`, { ...params, query: query }).then(data => data as RawBaseSearchResult);
 }
 
 /**
@@ -35,9 +36,9 @@ export async function fetchSearchResultWithQuery(
     params: SearchItemsParams
 ): Promise<SimpleSearchResult> {
     const response = await fetchVenues(params, type);
-    const authors = new DblpSearchResult<DblpVenueSearchHit>(response, SearchType.Venue);
+    const authors = createSearchResultFromRaw<VenueSearchHit>(response, SearchType.Venue);
     const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
-    const result = new SimpleSearchResult(
+    const result = createSimpleSearchResult(
         count,
         authors.hits.items.map((item) => ({
             title: item.info.venue,
@@ -54,6 +55,6 @@ function getQueryPrefix(type: VenueType): string {
         [VenueType.Conference]: CONF_DBLP_SEARCH_TYPE,
         [VenueType.Series]: SERIES_DBLP_SEARCH_TYPE,
     }[type];
-    
+
     return `type:${searchType}:`;
 }

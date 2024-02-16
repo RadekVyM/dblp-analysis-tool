@@ -1,7 +1,7 @@
 import { normalizeQuery } from '@/utils/searchQuery'
 import { urlWithParams } from '@/utils/urls'
 import { fetchHtml, fetchJson } from '@/services/fetch'
-import { ItemsIndexParams, SearchItemsParams } from '@/dtos/searchItemsParams'
+import { ItemsIndexParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 
 /**
  * Requests items from a JSON dblp endpoint.

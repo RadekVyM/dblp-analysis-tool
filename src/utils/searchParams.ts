@@ -1,6 +1,6 @@
-import { SearchItemsParams } from '@/dtos/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { isNumber } from './strings'
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 
 /**
  * Converts search parameters obtained from the URL to search items parameters that can be used to query items from DBLP.

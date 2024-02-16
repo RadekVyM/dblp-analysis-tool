@@ -3,14 +3,14 @@
 import CheckListButton from '@/components/CheckListButton'
 import AuthorListItem from './AuthorListItem'
 import LoadingWheel from '@/components/LoadingWheel'
-import { useEffect, useMemo, useRef } from 'react'
+import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import LinkArrow from '@/components/LinkArrow'
 import Link from 'next/link'
 import { HiArrowNarrowLeft } from 'react-icons/hi'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
-import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+import { PublicationPersonNodeDatum } from '@/dtos/graphs/PublicationPersonNodeDatum'
 import { getUniqueCoauthors } from '@/services/graphs/authors'
 import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
@@ -95,40 +95,19 @@ function SelectedAuthorContent({
     const listRef = useRef<HTMLDivElement>(null);
     const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
     const isIncludedAuthor = useMemo(() => allIncludedAuthorIds.some((id) => id === selectedAuthor.person.id), [allIncludedAuthorIds, selectedAuthor]);
-    const commonCoauthors = useMemo(() =>
-        isIncludedAuthor ?
-            [...selectedAuthor.coauthorIds.values()]
-                .map((id) => authorsMap.get(id))
-                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id) && allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && a.coauthorIds.has(id))) :
-            [...selectedAuthor.coauthorIds.values()]
-                .map((id) => authorsMap.get(id))
-                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
-        [selectedAuthor, authorsMap, ignoredAuthorIds, allIncludedAuthorIds, isIncludedAuthor]);
-    const uncommonCoauthors = useMemo(() => {
-        if (!fetchedAuthor?.publications) {
-            return [];
-        }
-
-        if (isIncludedAuthor) {
-            return getUniqueCoauthors([fetchedAuthor], (a) => {
-                const author = authorsMap.get(a.id);
-                return ignoredAuthorIds?.includes(a.id) || allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && author?.coauthorIds.has(id));
-            });
-        }
-
-        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
-    }, [fetchedAuthor, selectedAuthor, authorsMap, isIncludedAuthor]);
-    const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
-    const displayedCommonCoauthors = useMemo(
-        () => commonCoauthors.slice(0, displayedCount),
-        [commonCoauthors, displayedCount]);
-    const displayedUncommonCoauthors = useMemo(
-        () => displayedCount > commonCoauthors.length ? uncommonCoauthors.slice(0, displayedCount) : [],
-        [uncommonCoauthors, commonCoauthors, displayedCount]);
+    const { displayedCommonCoauthors, displayedUncommonCoauthors } = useDisplayedCoauthors(
+        targerObserver,
+        listRef,
+        authorsMap,
+        selectedAuthor,
+        fetchedAuthor,
+        isIncludedAuthor,
+        allIncludedAuthorIds,
+        ignoredAuthorIds);
 
     function onIncludeAllClick() {
         if (!fetchedAuthor) {
-            return
+            return;
         }
 
         if (isIncludedAuthor) {
@@ -138,11 +117,6 @@ function SelectedAuthorContent({
             addAuthor(fetchedAuthor);
         }
     }
-
-    useEffect(() => {
-        resetDisplayedCount();
-        listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [selectedAuthor.person.id]);
 
     return isLoading ?
         <div
@@ -214,4 +188,56 @@ function SelectedAuthorContent({
                 className='h-[10px]'
                 aria-hidden />
         </div>
+}
+
+function useDisplayedCoauthors(
+    targerObserver: RefObject<HTMLDivElement>,
+    listRef: RefObject<HTMLDivElement>,
+    authorsMap: Map<string, PublicationPersonNodeDatum>,
+    selectedAuthor: PublicationPersonNodeDatum,
+    fetchedAuthor: DblpAuthor | undefined,
+    isIncludedAuthor: boolean,
+    allIncludedAuthorIds: Array<string>,
+    ignoredAuthorIds?: Array<string>,
+) {
+    const commonCoauthors = useMemo(() =>
+        isIncludedAuthor ?
+            [...selectedAuthor.coauthorIds.values()]
+                .map((id) => authorsMap.get(id))
+                .filter((a) => a && allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && a.coauthorIds.has(id))) :
+            [...selectedAuthor.coauthorIds.values()]
+                .map((id) => authorsMap.get(id))
+                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
+        [selectedAuthor, authorsMap, ignoredAuthorIds, allIncludedAuthorIds, isIncludedAuthor]);
+    const uncommonCoauthors = useMemo(() => {
+        if (!fetchedAuthor?.publications) {
+            return [];
+        }
+
+        if (isIncludedAuthor) {
+            return getUniqueCoauthors([fetchedAuthor], (a) => {
+                const author = authorsMap.get(a.id);
+                return allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && author?.coauthorIds.has(id));
+            });
+        }
+
+        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
+    }, [fetchedAuthor, selectedAuthor, authorsMap, isIncludedAuthor]);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
+    const displayedCommonCoauthors = useMemo(
+        () => commonCoauthors.slice(0, displayedCount),
+        [commonCoauthors, displayedCount]);
+    const displayedUncommonCoauthors = useMemo(
+        () => displayedCount > commonCoauthors.length ? uncommonCoauthors.slice(0, displayedCount) : [],
+        [uncommonCoauthors, commonCoauthors, displayedCount]);
+
+    useEffect(() => {
+        resetDisplayedCount();
+        listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, [selectedAuthor.person.id]);
+
+    return {
+        displayedCommonCoauthors,
+        displayedUncommonCoauthors
+    };
 }

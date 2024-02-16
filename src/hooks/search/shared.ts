@@ -1,10 +1,11 @@
 'use client'
 
-import { BaseDblpSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
+import { BaseSearchHit, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { fetchAuthors } from '@/services/authors/fetch'
 import { fetchVenues } from '@/services/venues/fetch'
-import { SearchItemsParams } from '@/dtos/searchItemsParams'
+import { SearchItemsParams } from '@/dtos/search/SearchItemsParams'
+import { RawBaseSearchResult } from '@/dtos/search/RawSearchResult'
 
 // https://swr.vercel.app/docs/api#options
 export const SWR_CONFIG = { revalidateIfStale: false, revalidateOnFocus: false };
@@ -22,7 +23,7 @@ export function createArgs(searchType: SearchType, query: string, hitsCount: num
     return { searchType: searchType, params: params };
 }
 
-export function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: SearchType) {
+export function createSearchFetcher<HitT extends BaseSearchHit>(searchType: SearchType) {
     let fetchItems: (params: SearchItemsParams) => Promise<any>;
 
     switch (searchType) {
@@ -41,6 +42,6 @@ export function createSearchFetcher<HitT extends BaseDblpSearchHit>(searchType: 
 
         // TODO: Handle error codes
         return fetchItems(args.params)
-            .then(data => new DblpSearchResult<HitT>(data as RawDblpBaseSearchResult, args.searchType));
+            .then(data => createSearchResultFromRaw<HitT>(data as RawBaseSearchResult, args.searchType));
     }
 }

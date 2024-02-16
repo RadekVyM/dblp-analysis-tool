@@ -8,7 +8,7 @@ import CheckListButton from '@/components/CheckListButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import Input from '@/components/forms/Input'
 import { isNullOrWhiteSpace } from '@/utils/strings'
-import { AuthorGroup } from '@/dtos/SavedAuthors'
+import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 
 type AddToGroupDialogParams = {
     hide: () => void,

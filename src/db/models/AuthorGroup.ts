@@ -15,11 +15,13 @@ const authorGroupSchema = new mongoose.Schema<AuthorGroupSchema>({
 
 export default mongoose.models.AuthorGroup || mongoose.model<AuthorGroupSchema>('AuthorGroup', authorGroupSchema);
 
+/** Member of a group of authors that can be create by a user. */
 export type GroupAuthorSchema = {
     name: string,
     authorId: string
 } & TimestampsDocument
 
+/** A group of authors that can be create by a user. */
 export type AuthorGroupSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     title: string,

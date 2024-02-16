@@ -1,6 +1,6 @@
 import { SearchType } from '@/enums/SearchType'
 import { normalizeQuery } from '@/utils/searchQuery'
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 import { CONF_DBLP_KEY, JOURNALS_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
 import { SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'
@@ -122,7 +122,7 @@ export function createLocalPath(normalizedId: string, searchType: SearchType, fo
     const following = followingNormalizedId ?
         `/${followingNormalizedId}` :
         '';
-    
+
     switch (searchType) {
         case SearchType.Author:
             return `/author/${normalizedId}${following}`;

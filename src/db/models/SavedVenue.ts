@@ -10,6 +10,7 @@ const savedVenueSchema = new mongoose.Schema<SavedVenueSchema>({
 
 export default mongoose.models.SavedVenue || mongoose.model<SavedVenueSchema>('SavedVenue', savedVenueSchema);
 
+/** A venue that user can save for easier access. */
 export type SavedVenueSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     title: string,

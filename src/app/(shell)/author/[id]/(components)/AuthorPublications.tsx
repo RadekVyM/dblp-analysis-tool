@@ -1,5 +1,5 @@
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { Section, SectionTitle } from './Section'
+import { PageSection, PageSectionTitle } from '../../../../../components/shell/PageSection'
 import Link from 'next/link'
 import { PublicationTypesStats } from './PublicationsStats'
 import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/client/publications'
@@ -28,12 +28,12 @@ type PublicationListItemParams = {
 
 export default function AuthorPublications({ publications, publicationsUrl, maxDisplayedCount, className }: PublicationsParams) {
     return (
-        <Section>
-            <SectionTitle
+        <PageSection>
+            <PageSectionTitle
                 href={publicationsUrl}
                 className='text-xl'>
                 Publications
-            </SectionTitle>
+            </PageSectionTitle>
 
             <ItemsStats
                 className='mb-6'
@@ -75,7 +75,7 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
                         date: publ.date
                     }
                 })} />
-        </Section>
+        </PageSection>
     )
 }
 

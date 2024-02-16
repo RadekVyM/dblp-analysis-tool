@@ -2,7 +2,7 @@ import 'server-only'
 import SavedVenue, { SavedVenueSchema } from '@/db/models/SavedVenue'
 import { UserSchema } from '@/db/models/User'
 import connectDb from '@/db/mongodb'
-import { SavedVenue as SavedVenueDto } from '@/dtos/SavedVenues'
+import { SavedVenue as SavedVenueDto } from '@/dtos/saves/SavedVenue'
 
 /**
  * Saves a venue for the current user.

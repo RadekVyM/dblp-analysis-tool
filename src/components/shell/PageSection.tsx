@@ -13,13 +13,13 @@ type HeadingParams = {
     children: React.ReactNode
 }
 
-export function Section({ children }: { children: React.ReactNode }) {
+export function PageSection({ children }: { children: React.ReactNode }) {
     return (
         <section className='mb-12'>{children}</section>
     )
 }
 
-export function SectionTitle({ children, href, className }: SectionTitleParams) {
+export function PageSectionTitle({ children, href, className }: SectionTitleParams) {
     return (
         href ?
             <Link

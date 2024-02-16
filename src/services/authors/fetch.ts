@@ -1,10 +1,11 @@
 import { DBLP_SEARCH_AUTHOR_API, DBLP_URL } from '@/constants/urls'
 import { fetchItemsJson } from '../items/fetch'
-import { SearchAuthorsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
-import { DblpAuthorSearchHit, DblpSearchResult, RawDblpBaseSearchResult } from '@/dtos/DblpSearchResult'
+import { SearchAuthorsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
+import { AuthorSearchHit, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { MAX_QUERYABLE_ITEMS_COUNT } from '@/constants/search'
-import { SimpleSearchResult } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResult, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
+import { RawBaseSearchResult } from '@/dtos/search/RawSearchResult'
 
 /**
  * Requests authors from a JSON dblp endpoint.
@@ -15,8 +16,8 @@ import { SimpleSearchResult } from '@/dtos/SimpleSearchResult'
  * @param params Parameters which affect what items are returned
  * @returns Raw deserialized JSON object
  */
-export async function fetchAuthors(params: SearchAuthorsParams): Promise<RawDblpBaseSearchResult> {
-    return fetchItemsJson(`${DBLP_URL}${DBLP_SEARCH_AUTHOR_API}`, params).then(data => data as RawDblpBaseSearchResult);
+export async function fetchAuthors(params: SearchAuthorsParams): Promise<RawBaseSearchResult> {
+    return fetchItemsJson(`${DBLP_URL}${DBLP_SEARCH_AUTHOR_API}`, params).then(data => data as RawBaseSearchResult);
 }
 
 /**
@@ -29,12 +30,12 @@ export async function fetchAuthors(params: SearchAuthorsParams): Promise<RawDblp
  */
 export async function fetchSearchResultWithQuery(
     params: SearchItemsParams,
-    getAdditionalInfo: (author: DblpAuthorSearchHit) => string
+    getAdditionalInfo: (author: AuthorSearchHit) => string
 ): Promise<SimpleSearchResult> {
     const response = await fetchAuthors(params);
-    const authors = new DblpSearchResult<DblpAuthorSearchHit>(response, SearchType.Author);
+    const authors = createSearchResultFromRaw<AuthorSearchHit>(response, SearchType.Author);
     const count = Math.min(authors.hits.total, MAX_QUERYABLE_ITEMS_COUNT);
-    const result = new SimpleSearchResult(
+    const result = createSimpleSearchResult(
         count,
         authors.hits.items.map((item) => ({
             title: item.info.author,

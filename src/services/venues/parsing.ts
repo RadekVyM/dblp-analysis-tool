@@ -1,6 +1,6 @@
 import 'server-only'
 import { VenueType } from '@/enums/VenueType'
-import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResultItem } from '@/dtos/search/SimpleSearchResult'
 import * as cheerio from 'cheerio'
 import { convertDblpUrlToLocalPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'

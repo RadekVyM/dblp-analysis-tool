@@ -4,7 +4,7 @@ import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, Focu
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdCancel } from 'react-icons/md'
-import { DblpCompletion } from '@/dtos/DblpSearchResult'
+import { SearchCompletion } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import Button from '../Button'
@@ -354,8 +354,8 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
     </li>)
 }
 
-function mergeCompletions(auhorsCompletions: Array<DblpCompletion>, venuesCompletions: Array<DblpCompletion>) {
-    const completions: Array<DblpCompletion> = [];
+function mergeCompletions(auhorsCompletions: Array<SearchCompletion>, venuesCompletions: Array<SearchCompletion>) {
+    const completions: Array<SearchCompletion> = [];
 
     for (let i = 0; i < Math.max(auhorsCompletions.length, venuesCompletions.length); i++) {
         if (i < auhorsCompletions.length)

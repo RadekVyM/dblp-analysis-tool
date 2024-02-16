@@ -3,9 +3,9 @@ import { fetchXml, withCache } from '@/services/fetch'
 import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { DBLP_AUTHORS_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
-import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
+import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { extractAuthor, extractAuthorsIndex, extractAuthorsIndexLength } from './parsing'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { cacheAuthor, tryGetCachedAuthor } from '../cache/authors'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
@@ -83,7 +83,7 @@ export async function fetchSearchResultWithoutQuery(
         throw serverError('Authors count could not be fetched.');
     }
 
-    const result = new SimpleSearchResult(count, authors);
+    const result = createSimpleSearchResult(count, authors);
 
     return result;
 }

@@ -5,9 +5,9 @@ import { convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { extractVenue, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
 import { fetchXml } from '@/services/fetch'
-import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/searchItemsParams'
+import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { serverError } from '@/utils/errors'
 
 const DBLP_HTML_INDEX_PATHS = {
@@ -24,7 +24,7 @@ const DBLP_HTML_INDEX_PATHS = {
 export async function fetchVenuesIndex(type: VenueType, params: BaseSearchItemsParams) {
     const path = DBLP_HTML_INDEX_PATHS[type];
     const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, params);
-    
+
     return extractVenuesIndex(html, type, params.count);
 }
 
@@ -84,7 +84,7 @@ export async function fetchSearchResultWithoutQuery(type: VenueType, params: Sea
         throw serverError('Venues count could not be fetched.');
     }
 
-    const result = new SimpleSearchResult(count, venues);
+    const result = createSimpleSearchResult(count, venues);
 
     return result;
 }

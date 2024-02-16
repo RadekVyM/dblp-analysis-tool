@@ -11,6 +11,7 @@ const visitedAuthorSchema = new mongoose.Schema<VisitedAuthorSchema>({
 
 export default mongoose.models.VisitedAuthor || mongoose.model<VisitedAuthorSchema>('VisitedAuthor', visitedAuthorSchema);
 
+/** An author that user visited and can be saved for easier access. */
 export type VisitedAuthorSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     name: string,

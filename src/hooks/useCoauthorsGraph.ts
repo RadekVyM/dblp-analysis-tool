@@ -1,8 +1,8 @@
 'use client'
 
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/CoauthorsGraph'
-import { PublicationPersonNodeDatum } from '@/dtos/PublicationPersonNodeDatum'
+import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/graphs/CoauthorsGraph'
+import { PublicationPersonNodeDatum } from '@/dtos/graphs/PublicationPersonNodeDatum'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
@@ -43,42 +43,21 @@ export default function useCoauthorsGraph(
                 return oldGraph;
             }
 
-            let updatedGraph = {
+            const updatedGraph = {
                 ...oldGraph,
                 ...newGraph,
             };
-            let shouldUpdateLinksAndNodesVisualState = !!(
-                newGraph.maxCoauthoredPublicationsCount ||
-                newGraph.minCoauthoredPublicationsCount ||
-                newGraph.originalLinksDisplayed !== undefined ||
-                newGraph.justDimInvisibleNodes !== undefined ||
-                newGraph.showNeighborLabelsOfHighlightedNodes !== undefined ||
-                newGraph.alwaysShowLabelsOfOriginalAuthorsNodes !== undefined ||
-                newGraph.selectedAuthorId !== undefined ||
-                newGraph.hoveredAuthorId !== undefined ||
-                newGraph.filteredAuthorsIds !== undefined ||
-                newGraph.searchQuery !== undefined
-            );
 
             // Do not update selection if the graph is recreated (authorsMap is changed)
             if (newGraph.selectedAuthorId !== undefined && !newGraph.authorsMap) {
                 setSelectedAuthorId(newGraph.selectedAuthorId, oldGraph, updatedGraph);
             }
             if (newGraph.authorsMap) {
-                // The entire graph has been recreated but I want to keep the stack and selected author
-                if (newGraph.selectedAuthorId === null) {
-                    updatedGraph.selectedCoauthorIdsStack = [...oldGraph.selectedCoauthorIdsStack];
-                    updatedGraph.selectedAuthorId = oldGraph.selectedAuthorId;
-                }
-
-                updatedGraph.justDimInvisibleNodes = oldGraph.justDimInvisibleNodes;
-                updatedGraph.originalLinksDisplayed = oldGraph.originalLinksDisplayed;
-                updatedGraph.showNeighborLabelsOfHighlightedNodes = oldGraph.showNeighborLabelsOfHighlightedNodes;
-
-                shouldUpdateLinksAndNodesVisualState = true;
+                // The entire graph has been recreated
+                saveValuesAfterRecreation(updatedGraph, oldGraph, newGraph);
             }
 
-            if (shouldUpdateLinksAndNodesVisualState) {
+            if (shouldUpdateLinksAndNodesVisualState(newGraph)) {
                 updateLinksAndNodesVisualState(updatedGraph, allAuthors);
             }
 
@@ -137,11 +116,65 @@ export default function useCoauthorsGraph(
     return [coauthorsGraph, publicUpdateCoauthorsGraph];
 }
 
+/** Ensures that values of an old graph that need to be saved are copied to an updated graph. */
+function saveValuesAfterRecreation(updatedGraph: CoauthorsGraphState, oldGraph: CoauthorsGraphState, newGraph: Partial<CoauthorsGraphState>) {
+    if (newGraph.selectedAuthorId === null) {
+        // I want to keep the stack and selected author
+        updatedGraph.selectedCoauthorIdsStack = [...oldGraph.selectedCoauthorIdsStack];
+        updatedGraph.selectedAuthorId = oldGraph.selectedAuthorId;
+    }
+
+    updatedGraph.justDimInvisibleNodes = oldGraph.justDimInvisibleNodes;
+    updatedGraph.originalLinksDisplayed = oldGraph.originalLinksDisplayed;
+    updatedGraph.showNeighborLabelsOfHighlightedNodes = oldGraph.showNeighborLabelsOfHighlightedNodes;
+    updatedGraph.alwaysShowLabelsOfOriginalAuthorsNodes = oldGraph.alwaysShowLabelsOfOriginalAuthorsNodes;
+}
+
+/** Decides whether the updateLinksAndNodesVisualState() function should be called. */
+function shouldUpdateLinksAndNodesVisualState(newGraph: Partial<CoauthorsGraphState>) {
+    return !!(newGraph.maxCoauthoredPublicationsCount !== undefined ||
+        newGraph.minCoauthoredPublicationsCount !== undefined ||
+        newGraph.originalLinksDisplayed !== undefined ||
+        newGraph.justDimInvisibleNodes !== undefined ||
+        newGraph.showNeighborLabelsOfHighlightedNodes !== undefined ||
+        newGraph.alwaysShowLabelsOfOriginalAuthorsNodes !== undefined ||
+        newGraph.selectedAuthorId !== undefined ||
+        newGraph.hoveredAuthorId !== undefined ||
+        newGraph.filteredAuthorsIds !== undefined ||
+        newGraph.searchQuery !== undefined ||
+        newGraph.authorsMap !== undefined);
+}
+
 function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
-    const ignoredLinksNodeIds = graph.originalLinksDisplayed ? [] : allAuthors.ids;
+    updateLinksVisualState(graph, allAuthors);
+    updateNodesVisualState(graph, allAuthors);
+}
+
+function updateNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
     const searchQuery = removeAccents(graph.searchQuery.trim())
         .split(' ')
         .filter((s) => s);
+
+    for (const node of graph.nodes) {
+        const matchesSearchQuery = searchQuery.length === 0 ||
+            searchQuery.some((s) => node.normalizedPersonName.includes(s));
+        const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
+        const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
+        const isOriginalAuthorNode = allAuthors.ids.some((id) => node.person.id === id);
+        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery);
+        const isSemiVisible = (!isVisible && isOriginalAuthorNode) || graph.justDimInvisibleNodes && !isVisible;
+        const showNeighborLabel = graph.showNeighborLabelsOfHighlightedNodes && (!!(graph.hoveredAuthorId || graph.selectedAuthorId) && !isDim);
+
+        node.isLabelVisible = (graph.alwaysShowLabelsOfOriginalAuthorsNodes && isOriginalAuthorNode) || isSelected || showNeighborLabel;
+        node.isHighlighted = isSelected;
+        node.isDim = isDim || (!graph.hoveredAuthorId && !graph.selectedAuthorId && isSemiVisible);
+        node.isVisible = isVisible;
+        node.isOriginalAuthorNode = isOriginalAuthorNode;
+    }
+}
+
+function updateLinksVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
+    const ignoredLinksNodeIds = graph.originalLinksDisplayed ? [] : allAuthors.ids;
 
     for (const link of graph.links) {
         link.intensity = (link.publicationsCount - graph.minCoauthoredPublicationsCount) /
@@ -166,23 +199,6 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
         link.isVisible = !isVisible;
         link.isHighlighted = isHighlighted;
         link.isDim = isDim;
-    }
-
-    for (const node of graph.nodes) {
-        const matchesSearchQuery = searchQuery.length === 0 ||
-            searchQuery.some((s) => node.normalizedPersonName.toLowerCase().includes(s));
-        const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
-        const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
-        const isOriginalAuthorNode = allAuthors.ids.some((id) => node.person.id === id);
-        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery);
-        const isSemiVisible = (!isVisible && isOriginalAuthorNode) || graph.justDimInvisibleNodes && !isVisible;
-        const showNeighborLabel = graph.showNeighborLabelsOfHighlightedNodes && (!!(graph.hoveredAuthorId || graph.selectedAuthorId) && !isDim);
-
-        node.isLabelVisible = (graph.alwaysShowLabelsOfOriginalAuthorsNodes && isOriginalAuthorNode) || isSelected || showNeighborLabel;
-        node.isHighlighted = isSelected;
-        node.isDim = isDim || (!graph.hoveredAuthorId && !graph.selectedAuthorId && isSemiVisible);
-        node.isVisible = isVisible;
-        node.isOriginalAuthorNode = isOriginalAuthorNode;
     }
 }
 

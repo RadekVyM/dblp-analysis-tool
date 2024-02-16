@@ -1,4 +1,4 @@
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 import { getPageFromSearchParams, searchToItemsParams } from '@/utils/searchParams'
 import { describe, expect, test } from '@jest/globals'
 
@@ -6,7 +6,7 @@ type PageFromSearchParamsValue = [params: SearchParams, expectedPage: number]
 
 describe('getPageFromSearchParams function', () => {
     const values: Array<PageFromSearchParamsValue> = [
-        [{ }, 1],
+        [{}, 1],
         [{ page: '' }, 1],
         [{ page: ' ' }, 1],
         [{ page: 'abc' }, 1],

@@ -2,7 +2,7 @@ import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
-import { Section, SectionTitle } from '../(components)/Section'
+import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import GroupedPublicationsList from '../(components)/GroupedPublicationsList'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 
@@ -33,14 +33,14 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
                 }
             </header>
 
-            <Section>
+            <PageSection>
                 <header
                     className='mb-4 flex gap-3 items-center'>
-                    <SectionTitle className='text-xl mb-0'>Publications</SectionTitle>
+                    <PageSectionTitle className='text-xl mb-0'>Publications</PageSectionTitle>
                 </header>
                 <GroupedPublicationsList
                     publications={author.publications} />
-            </Section>
+            </PageSection>
 
             <ScrollToTopButton />
         </PageContainer>

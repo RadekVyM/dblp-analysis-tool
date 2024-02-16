@@ -2,7 +2,7 @@
 
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import DataVisualisationContainer from '@/components/data-visualisation/DataVisualisationContainer'
-import { Section, SectionTitle } from '../../app/(shell)/author/[id]/(components)/Section'
+import { PageSection, PageSectionTitle } from '../shell/PageSection'
 import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph/CoauthorsGraphShell'
 import CoauthorsTable from '@/components/data-visualisation/CoauthorsTable'
 import ItemsStats from '@/components/ItemsStats'
@@ -15,11 +15,11 @@ type AuthorCoauthorsParams = {
 
 export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
     return (
-        <Section>
-            <SectionTitle
+        <PageSection>
+            <PageSectionTitle
                 className='text-xl'>
                 Coauthors
-            </SectionTitle>
+            </PageSectionTitle>
 
             <ItemsStats
                 className='mb-6'
@@ -33,6 +33,6 @@ export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
                 <CoauthorsTable
                     authors={authors} />
             </DataVisualisationContainer>
-        </Section>
+        </PageSection>
     )
 }

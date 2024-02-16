@@ -1,6 +1,6 @@
 'use client'
 
-import { SavedVenue } from '@/dtos/SavedVenues'
+import { SavedVenue } from '@/dtos/saves/SavedVenue'
 import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'

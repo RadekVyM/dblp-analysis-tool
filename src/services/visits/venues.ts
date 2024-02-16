@@ -2,7 +2,8 @@ import 'server-only'
 import { UserSchema } from '@/db/models/User'
 import VisitedVenue, { VisitedVenueSchema } from '@/db/models/VisitedVenue'
 import connectDb from '@/db/mongodb'
-import { SavedVenue as SavedVenueDto, VisitedVenue as VisitedVenueDto } from '@/dtos/SavedVenues'
+import { SavedVenue as SavedVenueDto } from '@/dtos/saves/SavedVenue'
+import { VisitedVenue as VisitedVenueDto } from '@/dtos/saves/VisitedVenue'
 
 /**
  * Updates a visited venue by the current user.

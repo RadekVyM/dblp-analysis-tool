@@ -25,9 +25,10 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     const selectedAuthor = useMemo(
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
+    const ignoredAuthorIds = useMemo(() => authors.map((a) => a.id), [authors]);
     // Original authors are excluded
     const displayedNodes = useMemo(
-        () => graph.nodes.filter((a) => a.isVisible && !authors.some((aa) => aa.id === a.person.id)),
+        () => graph.nodes.filter((a) => a.isVisible),
         [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, authors]);
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,
@@ -92,11 +93,11 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             authorsMap={graph.authorsMap}
                             allIncludedAuthorIds={allAuthors.ids}
                             originalAuthorIds={allAuthors.originalAuthorsIds}
+                            ignoredAuthorIds={ignoredAuthorIds}
                             addAuthor={addAdditionalAuthor}
                             removeAuthor={removeAdditionalAuthor}
                             onCoauthorClick={setSelectedAuthorId}
                             onBackClick={onBackClick}
-                            ignoredAuthorIds={authors.map((a) => a.id)}
                             onCoauthorHoverChange={onCoauthorHoverChange} /> :
                         <AuthorsList
                             nodes={displayedNodes}

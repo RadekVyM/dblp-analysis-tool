@@ -5,7 +5,7 @@ import { convertDblpIdToNormalizedId, convertNormalizedIdToDblpPath } from '@/ut
 import { DblpAuthorHomonym, createDblpAuthor, createDblpAuthorInfo } from '@/dtos/DblpAuthor'
 import { DBLP_AUTHORS_INDEX_ELEMENT_ID } from '@/constants/html'
 import { isNumber } from '@/utils/strings'
-import { SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResultItem } from '@/dtos/search/SimpleSearchResult'
 import { extractPublicationsFromXml } from '../publications/parsing'
 import he from 'he'
 import { AUTHORS_COUNT_PER_DBLP_INDEX_PAGE } from '@/constants/search'
@@ -135,7 +135,7 @@ function extractPersonInfo($: cheerio.Root, person: cheerio.Cheerio, id: string,
 
     person
         .children('note[type="uname"]')
-        .each((index, el) => aliases.push({title: $(el).text(), id: undefined}));
+        .each((index, el) => aliases.push({ title: $(el).text(), id: undefined }));
 
     const affiliations = person
         .children('note[type="affiliation"]')

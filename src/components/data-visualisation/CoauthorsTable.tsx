@@ -18,7 +18,7 @@ export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
             .map((node, index) => ([
                 { value: node.person.name, presentedContent: node.person.name },
                 { value: node.coauthorIds.size, presentedContent: node.coauthorIds.size },
-                { value: node.count, presentedContent: node.count }
+                { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
             ]))
     }, [authors]);
 

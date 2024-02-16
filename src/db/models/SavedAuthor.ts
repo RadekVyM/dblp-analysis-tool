@@ -10,6 +10,7 @@ const savedAuthorSchema = new mongoose.Schema<SavedAuthorSchema>({
 
 export default mongoose.models.SavedAuthor || mongoose.model<SavedAuthorSchema>('SavedAuthor', savedAuthorSchema);
 
+/** An author that user can save for easier access. */
 export type SavedAuthorSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     name: string,

@@ -1,4 +1,4 @@
-import { AuthorGroup } from '@/dtos/SavedAuthors'
+import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import { getAuthorGroups, saveAuthorGroup } from '@/services/saves/authorGroups'
 import { NextResponse } from 'next/server'
 import { authorizedRequest, noUser } from '../../shared'

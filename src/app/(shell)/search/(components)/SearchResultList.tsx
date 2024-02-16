@@ -1,6 +1,6 @@
-import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/SimpleSearchResult'
+import { SimpleSearchResult, SimpleSearchResultItem } from '@/dtos/search/SimpleSearchResult'
 import Pagination from './Pagination'
-import { SearchParams } from '@/dtos/SearchParams'
+import { SearchParams } from '@/dtos/search/SearchParams'
 import { getPageFromSearchParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import ListLink from '@/components/ListLink'

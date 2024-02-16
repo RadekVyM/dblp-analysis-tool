@@ -9,6 +9,7 @@ const dblpAuthorSchema = new mongoose.Schema<DblpAuthorCacheSchema>({
 
 export default mongoose.models.DblpAuthorCache || mongoose.model<DblpAuthorCacheSchema>('DblpAuthorCache', dblpAuthorSchema);
 
+/** Cached author data. */
 export type DblpAuthorCacheSchema = {
     authorId: string,
     jsonObject: string

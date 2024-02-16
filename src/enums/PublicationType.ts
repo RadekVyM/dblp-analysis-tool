@@ -1,3 +1,4 @@
+/** Type of a publication in dblp. */
 export const PublicationType = {
     BooksAndTheses: 'BooksAndTheses',
     JournalArticles: 'JournalArticles',
@@ -9,4 +10,5 @@ export const PublicationType = {
     InformalAndOther: 'InformalAndOther',
 } as const
 
+/** Type of a publication in dblp. */
 export type PublicationType = keyof typeof PublicationType

@@ -11,6 +11,7 @@ const visitedVenueSchema = new mongoose.Schema<VisitedVenueSchema>({
 
 export default mongoose.models.VisitedVenue || mongoose.model<VisitedVenueSchema>('VisitedVenue', visitedVenueSchema);
 
+/** A venue that user visited and can be saved for easier access. */
 export type VisitedVenueSchema = {
     user: { type: mongoose.Types.ObjectId, ref: 'User' },
     name: string,

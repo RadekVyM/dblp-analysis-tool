@@ -1,7 +1,7 @@
 'use client'
 
 import { DblpPublication } from '@/dtos/DblpPublication'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { PublicationListItem } from './AuthorPublications'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
@@ -14,7 +14,6 @@ import Button from '@/components/Button'
 import ListLink from '@/components/ListLink'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
-import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
 import FiltersList from '@/components/FiltersList'
 
 type GroupedPublicationsListParams = {
@@ -49,59 +48,23 @@ const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
 const DISPLAYED_COUNT_INCREASE = 25;
 
 export default function GroupedPublicationsList({ publications }: GroupedPublicationsListParams) {
-    const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
+    const observerTarget = useRef<HTMLDivElement>(null);
     const [groupedBy, setGroupedBy] = useState<GroupedBy>('year'); // Grouping selection is not used yet
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
-    const [totalCount, setTotalCount] = useState(publications.length);
-    const observerTarget = useRef<HTMLDivElement>(null);
-    const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
-    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(publications);
-    const displayedPublications = useMemo(() => {
-        let count = displayedCount;
-        const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
-
-        for (const [key, publications] of groupedPublications) {
-            if (count <= 0) {
-                break;
-            }
-
-            const newPair: [any, PublicationGroup] = [
-                key,
-                {
-                    publications: publications.slice(0, count > publications.length ? undefined : count),
-                    count: publications.length
-                }
-            ];
-
-            newDisplayedPublications.push(newPair);
-
-            count -= publications.length;
-        }
-
-        return newDisplayedPublications;
-    }, [groupedPublications, displayedCount]);
-
-    useEffect(() => {
-        if (!typesFilter || !venuesFilter) {
-            return;
-        }
-
-        const selectedTypes = typesFilter.selectedItems;
-        const selectedVenues = venuesFilter.selectedItems;
-
-        const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
-        setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
-        setTotalCount(publs.length);
-        resetDisplayedCount();
-    }, [publications, groupedBy, typesFilter, venuesFilter]);
+    const {
+        displayedPublications,
+        displayedPublicationsCount,
+        filtersMap,
+        switchFilterSelection,
+        clearFilters
+    } = useDisplayedPublications(publications, groupedBy, observerTarget);
 
     return (
         <>
             <FiltersDialog
                 filtersMap={filtersMap}
-                clear={clear}
-                switchSelection={switchSelection}
+                clear={clearFilters}
+                switchSelection={switchFilterSelection}
                 hide={hideFiltersDialog}
                 animation={filtersDialogAnimation}
                 isOpen={isFiltersDialogOpen}
@@ -110,14 +73,14 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
             <ItemsStats
                 className='mb-6'
                 totalCount={publications.length}
-                displayedCount={groupedPublications.reduce((prev, current) => prev + current[1].length, 0)} />
+                displayedCount={displayedPublicationsCount} />
 
             <FiltersList
                 className='mb-8'
                 showFiltersDialog={showFiltersDialog}
                 filtersMap={filtersMap}
-                switchSelection={switchSelection}
-                clear={clear} />
+                switchSelection={switchFilterSelection}
+                clear={clearFilters} />
 
             <PublicationsList
                 groupedBy={groupedBy}
@@ -196,6 +159,62 @@ function ContentsTable({ keys, groupedBy }: ContentsTableParams) {
     )
 }
 
+/** Hook that manages currently displayed publications. */
+function useDisplayedPublications(publications: Array<DblpPublication>, groupedBy: GroupedBy, observerTarget: RefObject<HTMLDivElement>) {
+    const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
+    const [totalCount, setTotalCount] = useState(publications.length);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
+    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(publications);
+    const displayedPublications = useMemo(() => {
+        let count = displayedCount;
+        const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
+
+        for (const [key, publications] of groupedPublications) {
+            if (count <= 0) {
+                break;
+            }
+
+            const newPair: [any, PublicationGroup] = [
+                key,
+                {
+                    publications: publications.slice(0, count > publications.length ? undefined : count),
+                    count: publications.length
+                }
+            ];
+
+            newDisplayedPublications.push(newPair);
+
+            count -= publications.length;
+        }
+
+        return newDisplayedPublications;
+    }, [groupedPublications, displayedCount]);
+    const displayedPublicationsCount = useMemo(() => groupedPublications.reduce((prev, current) => prev + current[1].length, 0), [groupedPublications]);
+
+    useEffect(() => {
+        if (!typesFilter || !venuesFilter) {
+            return;
+        }
+
+        const selectedTypes = typesFilter.selectedItems;
+        const selectedVenues = venuesFilter.selectedItems;
+
+        const publs = publications.filter((publ) =>
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
+        setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
+        setTotalCount(publs.length);
+        resetDisplayedCount();
+    }, [publications, groupedBy, typesFilter, venuesFilter]);
+
+    return {
+        displayedPublications,
+        displayedPublicationsCount,
+        filtersMap,
+        switchFilterSelection: switchSelection,
+        clearFilters: clear
+    };
+}
+
 function byYear(publ: DblpPublication) {
     return publ.year
 }
@@ -220,5 +239,5 @@ function getTitleFromKey(key: any, groupedBy: GroupedBy) {
 }
 
 function getElementId(key: any) {
-    return `${key}_section`
+    return `${key}_section`;
 }
