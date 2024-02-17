@@ -15,6 +15,7 @@ type TextContentParams = {
     className?: string
 }
 
+/** Button that looks like a search bar and that opens the search dialog on click. */
 export default function SearchBarButton({ className, ...props }: SearchBarButtonParams) {
     const searchParams = useSearchParams();
     const query = searchParams.get('query');

@@ -2,7 +2,7 @@
 
 import useLazyListCount from '@/hooks/useLazyListCount'
 import { cn } from '@/utils/tailwindUtils'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 
 type TableParams = {
@@ -49,49 +49,13 @@ export type TableData = {
 
 const DISPLAYED_COUNT_INCREASE = 50
 
+/** Table component. */
 export default function Table({ rows, columnHeaders, footer, className, isFirstColumnHeader }: TableParams) {
-    const [sortedRows, setSortedRows] = useState<Array<Array<any>>>([]);
-    const [sorting, setSorting] = useState<TableColumnItemsOrder | undefined>(undefined);
-    const observerTarget = useRef<HTMLDivElement>(null);
-    const outerDivRef = useRef<HTMLDivElement>(null);
-    const [displayedCount, resetDisplayedCount] = useLazyListCount(rows.length, DISPLAYED_COUNT_INCREASE, observerTarget);
-    const displayedSortedRows = useMemo(() => sortedRows.slice(0, displayedCount), [sortedRows, displayedCount]);
-
-    useEffect(() => {
-        const newRows = [...rows];
-
-        newRows.sort((first, second) => {
-            if (!sorting) {
-                return 0;
-            }
-
-            const factor = sorting.descending ? 1 : -1;
-
-            return compare(first[sorting.column].value, second[sorting.column].value) * factor
-        });
-
-        setSortedRows(newRows);
-        resetDisplayedCount();
-        outerDivRef.current?.scrollTo({ top: 0, behavior: 'instant' })
-    }, [rows, sorting]);
-
-    function updateSorting(column: TableColumn) {
-        if (sorting && sorting.column === column) {
-            if (!sorting.descending) {
-                setSorting({ column: column, descending: true });
-            }
-            else {
-                setSorting(undefined);
-            }
-        }
-        else {
-            setSorting({ column: column, descending: false });
-        }
-    }
+    const { displayedSortedRows, sorting, observerTarget, scrollableElement, updateSorting } = useDisplayedSortedRows(rows);
 
     return (
         <div
-            ref={outerDivRef}
+            ref={scrollableElement}
             className={cn('grid content-stretch overflow-auto', className)}>
             <table
                 className='border-collapse table-auto'>
@@ -170,6 +134,56 @@ function SortButton({ onClick, descending, title }: SortButtonParams) {
                 className={cn('mt-[-0.25rem] scale-125', descending === false ? 'text-on-surface-container scale-150' : '')} />
         </button>
     )
+}
+
+/** Hook that manages dislayed rows and their sorting in a table. */
+function useDisplayedSortedRows(rows: Array<Array<TableData>>) {
+    const [sortedRows, setSortedRows] = useState<Array<Array<any>>>([]);
+    const [sorting, setSorting] = useState<TableColumnItemsOrder | undefined>(undefined);
+    const observerTarget = useRef<HTMLDivElement>(null);
+    const scrollableElement = useRef<HTMLDivElement>(null);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(rows.length, DISPLAYED_COUNT_INCREASE, observerTarget);
+    const displayedSortedRows = useMemo(() => sortedRows.slice(0, displayedCount), [sortedRows, displayedCount]);
+
+    useEffect(() => {
+        const newRows = [...rows];
+
+        newRows.sort((first, second) => {
+            if (!sorting) {
+                return 0;
+            }
+
+            const factor = sorting.descending ? 1 : -1;
+
+            return compare(first[sorting.column].value, second[sorting.column].value) * factor;
+        });
+
+        setSortedRows(newRows);
+        resetDisplayedCount();
+        scrollableElement.current?.scrollTo({ top: 0, behavior: 'instant' });
+    }, [rows, sorting]);
+
+    const updateSorting = useCallback((column: TableColumn) => {
+        if (sorting && sorting.column === column) {
+            if (!sorting.descending) {
+                setSorting({ column: column, descending: true });
+            }
+            else {
+                setSorting(undefined);
+            }
+        }
+        else {
+            setSorting({ column: column, descending: false });
+        }
+    }, [sorting]);
+
+    return {
+        displayedSortedRows,
+        observerTarget,
+        scrollableElement,
+        sorting,
+        updateSorting,
+    };
 }
 
 function compare(first: any, second: any) {

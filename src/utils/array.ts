@@ -6,7 +6,7 @@
  */
 export function group<KeyT, ItemT>(items: Array<ItemT>, by: (item: ItemT) => any): Map<KeyT, Array<ItemT>> {
     const map = new Map<KeyT, Array<ItemT>>();
-    
+
     items.forEach((item) => {
         const key = by(item);
         const collection = map.get(key);
@@ -26,7 +26,7 @@ export function group<KeyT, ItemT>(items: Array<ItemT>, by: (item: ItemT) => any
  * @param action Function that returns an element based on its index in the array.
  * @returns Array of elements
  */
-export function repeat<T>(count: number, action: (index: number) => T) {
+export function repeat<T>(count: number, action: (index: number) => T): Array<T> {
     const values: Array<T> = [];
 
     for (let i = 0; i < count; i++) {
@@ -34,4 +34,13 @@ export function repeat<T>(count: number, action: (index: number) => T) {
     }
 
     return values;
+}
+
+/**
+ * Returns whether there are any items passed to the function.
+ * @param items 
+ * @returns True if there are some items passed to the function
+ */
+export function anyItems(...items: Array<any>): boolean {
+    return items.length > 0;
 }

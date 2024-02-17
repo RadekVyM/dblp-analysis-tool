@@ -5,6 +5,7 @@ type DialogBodyParams = {
     className?: string
 }
 
+/** Scrollable body of a dialog. */
 export default function DialogBody({ children, className }: DialogBodyParams) {
     return (
         <div

@@ -8,7 +8,7 @@ import DialogHeader from './DialogHeader'
 import DialogBody from './DialogBody'
 import Button from '../Button'
 import { MdFilterAltOff } from 'react-icons/md'
-import { FiltersState } from '@/dtos/Filters'
+import { FilterState, FilterStatesMap, FiltersState } from '@/dtos/Filters'
 
 type FiltersDialogParams = {
     hide: () => void,
@@ -16,34 +16,25 @@ type FiltersDialogParams = {
     isOpen: boolean
 } & FiltersState
 
+type FiltersDialogBodyParams = {
+    selectedFilter: FilterState,
+    selectedKey: any,
+    switchSelection: (filterKey: string, itemKey: any) => void,
+    clear: (filterKey: string) => void,
+}
+
 type FilterItemParams = {
     children: React.ReactNode,
     isSelected: boolean,
     onClick: () => void
 }
 
+/** Dialog for filtering a collection of items. */
 const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
     { hide, animation, isOpen, filtersMap, clear, switchSelection },
     ref
 ) => {
-    const [selectedKey, setSelectedKey] = useState<any>(Object.keys(filtersMap)[0]);
-    const tabs = useMemo(
-        () => Object.keys(filtersMap).map((key) => {
-            const value = filtersMap[key];
-
-            return {
-                id: key,
-                content: value.title,
-                badgeContent: value.selectedItems.size > 0 ? value.selectedItems.size.toString() : undefined
-            }
-        }),
-        [filtersMap]);
-
-    useEffect(() => {
-        if (isOpen) {
-            setSelectedKey(Object.keys(filtersMap)[0]);
-        }
-    }, [isOpen]);
+    const { tabs, selectedKey, setSelectedKey } = useFiltersDialogState(filtersMap, isOpen);
 
     if (Object.keys(filtersMap).length === 0) {
         return;
@@ -72,41 +63,51 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
                         className='gap-3' />
                 </DialogHeader>
 
-                <DialogBody>
-                    {
-                        selectedFilter &&
-                        <>
-                            <Button
-                                className='mb-5 items-center gap-x-2'
-                                variant='outline'
-                                size='xs'
-                                onClick={() => clear(selectedKey)}
-                                disabled={selectedFilter.selectedItems.size === 0}>
-                                <MdFilterAltOff />
-                                Clear These Filters
-                            </Button>
-                            <ul
-                                role='tabpanel'
-                                aria-labelledby={selectedKey}
-                                className='flex flex-col gap-2'>
-                                {[...selectedFilter.selectableItems].map(([key, value]) =>
-                                    <FilterItem
-                                        key={`${key || 'undefined'}`}
-                                        isSelected={selectedFilter.selectedItems.has(key)}
-                                        onClick={() => switchSelection(selectedKey, key)}>
-                                        {selectedFilter.itemTitleSelector(value)}
-                                    </FilterItem>)}
-                            </ul>
-                        </>
-                    }
-                </DialogBody>
+                <FiltersDialogBody
+                    selectedFilter={selectedFilter}
+                    selectedKey={selectedKey}
+                    clear={clear}
+                    switchSelection={switchSelection} />
             </DialogContent>
-        </Dialog >
+        </Dialog>
     )
 });
 
 FiltersDialog.displayName = 'FiltersDialog';
 export default FiltersDialog;
+
+function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
+    return (
+        <DialogBody>
+            {
+                selectedFilter &&
+                <>
+                    <Button
+                        className='mb-5 items-center gap-x-2'
+                        variant='outline'
+                        size='xs'
+                        onClick={() => clear(selectedKey)}
+                        disabled={selectedFilter.selectedItems.size === 0}>
+                        <MdFilterAltOff />
+                        Clear These Filters
+                    </Button>
+                    <ul
+                        role='tabpanel'
+                        aria-labelledby={selectedKey}
+                        className='flex flex-col gap-2'>
+                        {[...selectedFilter.selectableItems].map(([key, value]) =>
+                            <FilterItem
+                                key={`${key || 'undefined'}`}
+                                isSelected={selectedFilter.selectedItems.has(key)}
+                                onClick={() => switchSelection(selectedKey, key)}>
+                                {selectedFilter.itemTitleSelector(value)}
+                            </FilterItem>)}
+                    </ul>
+                </>
+            }
+        </DialogBody>
+    )
+}
 
 function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
     return (
@@ -119,4 +120,31 @@ function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
             </CheckListButton>
         </li>
     )
+}
+
+function useFiltersDialogState(filtersMap: FilterStatesMap, isDialogOpen: boolean) {
+    const [selectedKey, setSelectedKey] = useState<any>(Object.keys(filtersMap)[0]);
+    const tabs = useMemo(
+        () => Object.keys(filtersMap).map((key) => {
+            const value = filtersMap[key];
+
+            return {
+                id: key,
+                content: value.title,
+                badgeContent: value.selectedItems.size > 0 ? value.selectedItems.size.toString() : undefined
+            };
+        }),
+        [filtersMap]);
+
+    useEffect(() => {
+        if (isDialogOpen) {
+            setSelectedKey(Object.keys(filtersMap)[0]);
+        }
+    }, [isDialogOpen]);
+
+    return {
+        selectedKey,
+        setSelectedKey,
+        tabs
+    };
 }

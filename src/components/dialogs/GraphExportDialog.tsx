@@ -18,6 +18,7 @@ type GraphExportDialogParams = {
     links: Array<LinkDatum & LinkDatumExtension>
 }
 
+/** Dialog for exporting a coauthors graph to different formats. */
 const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen, nodes, links }, ref) => {
     const [exportedGraph, setExportedGraph] = useState('');
 

@@ -74,7 +74,8 @@ type NothingFoundParams = {
     items: string
 }
 
-export const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
+/** Menu that displays all the user's saved items (saved authors/venues, author groups, visited authors/venues). */
+const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
     const isClient = useIsClient();
 
     return (
@@ -93,6 +94,7 @@ export const SavedItemsMenu = forwardRef<HTMLElement, SavedItemsMenuParams>(({ c
 });
 
 SavedItemsMenu.displayName = 'SavedItemsMenu';
+export default SavedItemsMenu;
 
 const MenuContainer = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className, state, savedItemsMenuHoverChanged, hide }, ref) => {
     const containerRef = useRef(null);

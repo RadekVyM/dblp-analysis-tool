@@ -2,27 +2,31 @@
 
 import { MdBookmarks } from 'react-icons/md'
 import ClientButton from '../ClientButton'
-import { SavedItemsMenu } from './SavedItemsMenu'
+import SavedItemsMenu from './SavedItemsMenu'
 import { useEffect, useRef, useState } from 'react'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 import { useDebounce, useHover } from 'usehooks-ts'
 import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import { DOCKED_SIDE_MENU_CLASSES, UNDOCKED_SIDE_MENU_CLASSES } from '@/constants/sideMenu'
 
+/**
+ * Component that renders and manages the saved items menu and button that shows or hides it.
+ * 
+ * This component implements the hovering feature of the saved items menu - the menu is displayed when user hovers the menu with a cursor.
+ */
 export function SavedItemsMenuIntegration() {
     const [savedItemsMenuState, setSavedItemsMenuState] = useState<SavedItemsMenuState>(SavedItemsMenuState.Collapsed);
-    const [isMenuHovered, setIsMenuHovered] = useState(false);
-    const savedItemsMenuButtonRef = useRef(null);
-    const hoverAreaRef = useRef(null);
-    const isTopAuthorGroupsMenuButtonHovered = useHover(savedItemsMenuButtonRef);
-    const isHoverAreaHovered = useHover(hoverAreaRef);
     const isNotMobile = useIsNotMobileSize();
     const savedItemsButtonVariant = savedItemsMenuState === SavedItemsMenuState.Docked && isNotMobile ?
         'icon-default' :
         'icon-outline';
-
-    const isHovered = isNotMobile && (isMenuHovered || isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && savedItemsMenuState != SavedItemsMenuState.Collapsed));
-    const debouncedIsHovered = useDebounce(isHovered, 75);
+    const {
+        hoverAreaRef,
+        savedItemsMenuButtonRef,
+        isHovered,
+        isHoverAreaVisible,
+        onSavedItemsMenuHoverChanged
+    } = useHoverMenu(isNotMobile, savedItemsMenuState);
 
     useEffect(() => {
         // This is probably not the cleanest solution,
@@ -41,11 +45,11 @@ export function SavedItemsMenuIntegration() {
 
     useEffect(() => {
         if (!isNotMobile) {
-            return
+            return;
         }
 
-        changeState(debouncedIsHovered);
-    }, [debouncedIsHovered]);
+        changeState(isHovered);
+    }, [isHovered]);
 
     function changeState(isHovering: boolean) {
         if (savedItemsMenuState != SavedItemsMenuState.Docked) {
@@ -53,11 +57,7 @@ export function SavedItemsMenuIntegration() {
         }
     }
 
-    function savedItemsMenuHoverChanged(isHovering: boolean) {
-        setIsMenuHovered(isHovering);
-    }
-
-    function savedItemsMenuButtonClick() {
+    function onSavedItemsMenuButtonClick() {
         setSavedItemsMenuState(savedItemsMenuState != SavedItemsMenuState.Docked ? SavedItemsMenuState.Docked : SavedItemsMenuState.Collapsed)
     }
 
@@ -67,22 +67,46 @@ export function SavedItemsMenuIntegration() {
                 ref={hoverAreaRef}
                 className={
                     `absolute right-0 bottom-0 w-16 h-[calc(1rem+4px)] mb-[-4px] bg-transparent
-                    ${isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered ? 'hidden md:block' : 'hidden'}`}>
+                    ${isHoverAreaVisible ? 'hidden md:block' : 'hidden'}`}>
             </div>
 
             <ClientButton
                 ref={savedItemsMenuButtonRef}
                 variant={savedItemsButtonVariant}
-                onClick={savedItemsMenuButtonClick}>
+                onClick={onSavedItemsMenuButtonClick}>
                 <MdBookmarks />
             </ClientButton>
 
             <SavedItemsMenu
                 state={savedItemsMenuState}
-                savedItemsMenuHoverChanged={savedItemsMenuHoverChanged}
+                savedItemsMenuHoverChanged={onSavedItemsMenuHoverChanged}
                 hide={() => setSavedItemsMenuState(SavedItemsMenuState.Collapsed)} />
         </>
     )
+}
+
+/** Hook that manages the hovering feature of the saved items menu. */
+function useHoverMenu(isNotMobile: boolean, savedItemsMenuState: SavedItemsMenuState) {
+    const [isMenuHovered, setIsMenuHovered] = useState(false);
+    const savedItemsMenuButtonRef = useRef(null);
+    const hoverAreaRef = useRef(null);
+    const isTopAuthorGroupsMenuButtonHovered = useHover(savedItemsMenuButtonRef);
+    const isHoverAreaHovered = useHover(hoverAreaRef);
+    const isHovered = isNotMobile && (isMenuHovered || isTopAuthorGroupsMenuButtonHovered || (isHoverAreaHovered && savedItemsMenuState != SavedItemsMenuState.Collapsed));
+    const debouncedIsHovered = useDebounce(isHovered, 75);
+    const isHoverAreaVisible = isTopAuthorGroupsMenuButtonHovered || isHoverAreaHovered;
+
+    function onSavedItemsMenuHoverChanged(isHovering: boolean) {
+        setIsMenuHovered(isHovering);
+    }
+
+    return {
+        hoverAreaRef,
+        savedItemsMenuButtonRef,
+        isHovered: debouncedIsHovered,
+        isHoverAreaVisible,
+        onSavedItemsMenuHoverChanged
+    };
 }
 
 function getMainContentContainer() {

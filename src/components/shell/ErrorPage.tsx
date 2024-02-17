@@ -7,6 +7,7 @@ import Button from '../Button'
 import { MdAutorenew } from 'react-icons/md'
 import { unpackDefaultError, unpackFetchError } from '@/utils/errors'
 
+/** Parameters of an error page. */
 export type ErrorParams = {
     error: Error,
     reset: () => void
@@ -38,6 +39,7 @@ type TryAgainButtonParams = {
     reset: () => void
 }
 
+/** Content that is displayed when there is an unhandled error. */
 export default function ErrorPage({ params: { error, reset } }: ErrorPageParams) {
     const errorObject = unpackDefaultError(error);
 

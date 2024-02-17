@@ -1,9 +1,9 @@
 'use client'
 
 import useNotifications, { Notification } from '@/hooks/useNotifications'
-import { useHover, useIsClient, useTimeout } from 'usehooks-ts'
+import { useHover, useIsClient } from 'usehooks-ts'
 import Button from '../Button'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { MdCheckCircle, MdClose, MdReportProblem } from 'react-icons/md'
 import { cn } from '@/utils/tailwindUtils'
 import { NotificationType } from '@/enums/NotificationType'
@@ -14,6 +14,7 @@ type NotificationItemParams = {
     removeNotification: (notification: Notification) => void
 }
 
+/** Container displaying all notifications. */
 export default function Notifications() {
     const { notifications, removeNotification } = useNotifications();
     const isClient = useIsClient();
@@ -120,17 +121,17 @@ function notificationIcon(type: NotificationType) {
 function notificationBgColor(type: NotificationType) {
     switch (type) {
         case NotificationType.Success:
-            return 'bg-primary'
+            return 'bg-primary';
         case NotificationType.Error:
-            return 'bg-danger'
+            return 'bg-danger';
     }
 }
 
 function notificationRole(type: NotificationType) {
     switch (type) {
         case NotificationType.Success:
-            return 'status'
+            return 'status';
         case NotificationType.Error:
-            return 'alert'
+            return 'alert';
     }
 }

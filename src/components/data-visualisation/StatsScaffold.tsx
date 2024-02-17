@@ -18,10 +18,7 @@ type StatsScaffoldItem = {
     content: React.ReactNode,
 }
 
-type StatsScaffoldItemMode = {
-
-}
-
+/** Shell for multiple data visualization components that can be displayed based on the selected tab. */
 export default function StatsScaffold({ className, items, scaffoldId, sideTabsLegend, onKeySelected, selectedKey }: StatsScaffoldParams) {
     return (
         <div

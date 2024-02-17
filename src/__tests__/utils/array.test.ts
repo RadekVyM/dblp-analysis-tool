@@ -1,4 +1,4 @@
-import { group, repeat } from '@/utils/array'
+import { group, repeat, anyItems } from '@/utils/array'
 import { describe, expect, test } from '@jest/globals'
 
 describe('group function', () => {
@@ -80,5 +80,21 @@ describe('repeat function', () => {
         const result = repeat(count, (i) => repeatString);
 
         expect(result).toEqual([repeatString]);
+    });
+});
+
+describe('anyItems function', () => {
+    test('there are no items', () => {
+        const result = anyItems();
+        expect(result).toBeFalsy();
+    });
+    test('there are some items', () => {
+        const result = anyItems(1, 2, 3);
+        expect(result).toBeTruthy();
+    });
+    test('there are some items from array', () => {
+        const array = [1, 2, 3];
+        const result = anyItems(...array);
+        expect(result).toBeTruthy();
     });
 });

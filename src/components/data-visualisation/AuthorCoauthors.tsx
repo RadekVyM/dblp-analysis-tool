@@ -13,6 +13,7 @@ type AuthorCoauthorsParams = {
     className?: string
 }
 
+/** Page section that displays the coauthors graph and table. */
 export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
     return (
         <PageSection>

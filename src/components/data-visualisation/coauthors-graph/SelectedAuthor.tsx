@@ -33,6 +33,7 @@ type SelectedAuthorContentParams = {
     onCoauthorHoverChange: (id: string, isHovered: boolean) => void
 }
 
+/** Displays basic information about currently selected author in the coauthors graph and their coauthors.  */
 export default function SelectedAuthor({
     selectedAuthor,
     authorsMap,

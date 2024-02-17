@@ -3,12 +3,14 @@
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
 import Button from '@/components/Button'
-import { MdClose, MdLibraryAdd } from 'react-icons/md'
+import { MdLibraryAdd } from 'react-icons/md'
 import CheckListButton from '@/components/CheckListButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import Input from '@/components/forms/Input'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
+import DialogHeader from '@/components/dialogs/DialogHeader'
+import DialogBody from '@/components/dialogs/DialogBody'
 
 type AddToGroupDialogParams = {
     hide: () => void,
@@ -31,7 +33,8 @@ type AuthorGroupsListParams = {
     onAuthorGroupClick: (groupId: string, select: boolean) => Promise<void>
 }
 
-export const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogParams>(({ hide, animation, isOpen, authorId, authorName }, ref) => {
+/** Dialog for adding an author to an author group. */
+const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogParams>(({ hide, animation, isOpen, authorId, authorName }, ref) => {
     return (
         <Dialog
             ref={ref}
@@ -40,20 +43,9 @@ export const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogPa
             className='dialog z-20 sm:max-w-lg w-full flex-dialog overflow-y-hidden'>
             <DialogContent
                 className='max-h-[25rem] min-h-[16rem] flex-1 flex flex-col'>
-                <header
-                    className='flex justify-between items-center gap-4 px-6 pt-6 pb-2 bg-inherit'>
-                    <h2
-                        className='text-xl font-semibold'>
-                        Groups
-                    </h2>
-                    <Button
-                        title='Close'
-                        variant='icon-outline'
-                        onClick={() => hide()}>
-                        <MdClose
-                            className='w-5 h-5' />
-                    </Button>
-                </header>
+                <DialogHeader
+                    hide={hide}
+                    heading={'Groups'} />
 
                 <AuthorGroups
                     isOpen={isOpen}
@@ -65,24 +57,11 @@ export const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogPa
 });
 
 AddToGroupDialog.displayName = 'AddToGroupDialog';
+export default AddToGroupDialog;
 
 function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
     const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup, error, isLoading, isMutating } = useAuthorGroups();
-    const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
-    const [newGroupName, setNewGroupName] = useState('');
-    const inputRef = useRef<HTMLInputElement | null>(null);
-
-    useEffect(() => {
-        if (!isOpen) {
-            setIsInputVisible(false);
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
-        if (isInputVisible) {
-            inputRef?.current?.focus();
-        }
-    }, [isInputVisible]);
+    const { inputRef, isInputVisible, newGroupName, setNewGroupName, onNewAuthorGroupClick } = useAuthorGroupInput(isOpen, saveAuthorGroup);
 
     async function onAuthorGroupClick(groupId: string, select: boolean) {
         if (select) {
@@ -93,30 +72,22 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
         }
     }
 
-    async function newAuthorGroupClick() {
-        if (isInputVisible) {
-            await saveAuthorGroup(newGroupName);
-            setNewGroupName('');
-            setIsInputVisible(false);
-        }
-        else {
-            setIsInputVisible(true);
-        }
-    }
-
     return (
         <>
-            {
-                authorGroups && authorGroups.length > 0 ?
-                    <AuthorGroupsList
-                        authorId={authorId}
-                        authorGroups={authorGroups}
-                        isMutating={isMutating}
-                        onAuthorGroupClick={onAuthorGroupClick} /> :
-                    <div className='flex-1 self-center grid place-content-center'>
-                        <span className='text-on-surface-container-muted text-sm'>No groups found</span>
-                    </div>
-            }
+            <DialogBody
+                className='py-2'>
+                {
+                    authorGroups && authorGroups.length > 0 ?
+                        <AuthorGroupsList
+                            authorId={authorId}
+                            authorGroups={authorGroups}
+                            isMutating={isMutating}
+                            onAuthorGroupClick={onAuthorGroupClick} /> :
+                        <div className='flex-1 self-center grid place-content-center'>
+                            <span className='text-on-surface-container-muted text-sm'>No groups found</span>
+                        </div>
+                }
+            </DialogBody>
 
             <footer
                 className='px-6 pt-2 pb-6 flex gap-2 justify-end'>
@@ -134,7 +105,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                     disabled={isMutating || (isInputVisible && isNullOrWhiteSpace(newGroupName))}
                     variant='outline'
                     className='items-center gap-x-2 self-end'
-                    onClick={newAuthorGroupClick}>
+                    onClick={onNewAuthorGroupClick}>
                     <MdLibraryAdd />
                     {isInputVisible ? 'Add' : 'Add new group'}
                 </Button>
@@ -146,7 +117,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
 function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupClick }: AuthorGroupsListParams) {
     return (
         <ul
-            className='flex-1 flex flex-col gap-2 px-6 py-2 overflow-auto thin-scrollbar'>
+            className='flex-1 flex flex-col gap-2'>
             {authorGroups.map((group) => {
                 const containsAuthor = !!group.authors.find((a) => a.id === authorId);
 
@@ -163,4 +134,42 @@ function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupCli
             })}
         </ul>
     )
+}
+
+/** Hook that creates a state and operations for managing an input for adding a new author group. */
+function useAuthorGroupInput(isDialogOpen: boolean, onAddNewAuthorGroup: (newGroupName: string) => Promise<void>) {
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
+    const [newGroupName, setNewGroupName] = useState('');
+
+    useEffect(() => {
+        if (!isDialogOpen) {
+            setIsInputVisible(false);
+        }
+    }, [isDialogOpen]);
+
+    useEffect(() => {
+        if (isInputVisible) {
+            inputRef?.current?.focus();
+        }
+    }, [isInputVisible]);
+
+    async function onNewAuthorGroupClick() {
+        if (isInputVisible) {
+            await onAddNewAuthorGroup(newGroupName);
+            setNewGroupName('');
+            setIsInputVisible(false);
+        }
+        else {
+            setIsInputVisible(true);
+        }
+    }
+
+    return {
+        inputRef,
+        isInputVisible,
+        newGroupName,
+        setNewGroupName,
+        onNewAuthorGroupClick
+    };
 }

@@ -1,5 +1,6 @@
 import { cva } from 'class-variance-authority'
 
+/** All the possible variants of a tab element. */
 export const tabVariants = cva(
     'btn',
     {

@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent } from 'react'
+import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent, useCallback } from 'react'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdCancel } from 'react-icons/md'
@@ -17,6 +17,7 @@ import { useAuthorsSearch } from '@/hooks/search/useAuthorsSearch'
 import { useVenuesSearch } from '@/hooks/search/useVenuesSearch'
 import LoadingWheel from '../LoadingWheel'
 import he from 'he'
+import { anyItems } from '@/utils/array'
 
 const ARROW_DOWN_KEY = 'ArrowDown';
 const ARROW_UP_KEY = 'ArrowUp';
@@ -63,54 +64,32 @@ type ResultsListItemParams = {
     onClick: (url: string) => void,
 }
 
+/** Dialog for searching dblp. */
 export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({ hide, animation, isOpen }, ref) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const searchParams = useSearchParams();
-    const router = useRouter();
     const pathname = usePathname();
-    const [searchQuery, setSearchQuery] = useState('');
-    const [urls, setUrls] = useState<Array<string>>([]);
     const [selectedSearchType, setSelectedSearchType] = useState<SearchType>(SearchType.Author);
-    const [selectedUrl, setSelectedUrl] = useState<string | undefined>(undefined);
-    const debouncedSearchQuery = useDebounce(searchQuery, 750);
+    const {
+        inputRef,
+        searchQuery,
+        debouncedSearchQuery,
+        selectedUrl,
+        setUrls,
+        setSearchQuery,
+        onKeyDown,
+        onSubmit,
+        onBlur,
+        onClear
+    } = useSearchInputState(selectedSearchType, isOpen, hide);
 
     useEffect(() => {
-        setSearchQuery(isOpen ? searchParams.get('query') || '' : '');
         if (isOpen) {
             setSelectedSearchType(pathname.startsWith('/search/venue') ? SearchType.Venue : SearchType.Author);
-            inputRef.current?.focus();
         }
     }, [isOpen]);
 
     useEffect(() => {
-        setSelectedUrl(undefined);
-    }, [urls]);
-
-    useEffect(() => {
         inputRef.current?.focus();
     }, [selectedSearchType]);
-
-    function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-        if (event.key == ARROW_DOWN_KEY || event.key == ARROW_UP_KEY) {
-            event.preventDefault();
-
-            if (!urls)
-                return;
-
-            const index = selectedUrl ? urls.indexOf(selectedUrl) : event.key == ARROW_DOWN_KEY ? -1 : urls.length;
-            const newIndex = (index + (event.key == ARROW_DOWN_KEY ? 1 : -1));
-
-            setSelectedUrl(newIndex < 0 || newIndex >= urls.length ? undefined : urls[newIndex]);
-        }
-    }
-
-    function onSubmit(event: FormEvent) {
-        event.preventDefault();
-        const url = selectedUrl || createLocalSearchPath(selectedSearchType, { query: searchQuery });
-
-        router.push(url);
-        hide();
-    }
 
     return (
         <Dialog
@@ -153,11 +132,8 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                         onSearchQueryChange={(value) => setSearchQuery(value)}
                         onSubmit={onSubmit}
                         onKeyDown={onKeyDown}
-                        onBlur={() => setSelectedUrl(undefined)}
-                        onClear={() => {
-                            setSearchQuery('');
-                            inputRef.current?.focus();
-                        }} />
+                        onBlur={onBlur}
+                        onClear={onClear} />
                 </header>
 
                 <div
@@ -177,7 +153,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
 
 SearchDialog.displayName = 'SearchDialog';
 
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur, onClear }, ref) => {
+const SearchInput = forwardRef<HTMLInputElement, SearchInputParams>(({ searchQuery, onSearchQueryChange, onSubmit, onKeyDown, onBlur, onClear }, ref) => {
     return (
         <form
             className='relative rounded-lg border border-outline bg-surface-container hover:bg-surface-dim-container transition-colors'
@@ -246,10 +222,6 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
 
         setUrls(urls);
     }, [authorsResult.authors, venuesResult.venues]);
-
-    function anyItems(...items: Array<any>) {
-        return items.length > 0;
-    }
 
     return (
         <>
@@ -352,6 +324,71 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
             {he.decode(text)}
         </ListLink>
     </li>)
+}
+
+function useSearchInputState(selectedSearchType: SearchType, isDialogOpen: boolean, hideDialog: () => void) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const [urls, setUrls] = useState<Array<string>>([]);
+    const [selectedUrl, setSelectedUrl] = useState<string | undefined>(undefined);
+    const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearchQuery = useDebounce(searchQuery, 750);
+
+    useEffect(() => {
+        setSearchQuery(isDialogOpen ? searchParams.get('query') || '' : '');
+        if (isDialogOpen) {
+            inputRef.current?.focus();
+        }
+    }, [isDialogOpen]);
+
+    useEffect(() => {
+        setSelectedUrl(undefined);
+    }, [urls]);
+
+    const onKeyDown = useCallback((event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key == ARROW_DOWN_KEY || event.key == ARROW_UP_KEY) {
+            event.preventDefault();
+
+            if (!urls)
+                return;
+
+            const index = selectedUrl ? urls.indexOf(selectedUrl) : event.key == ARROW_DOWN_KEY ? -1 : urls.length;
+            const newIndex = (index + (event.key == ARROW_DOWN_KEY ? 1 : -1));
+
+            setSelectedUrl(newIndex < 0 || newIndex >= urls.length ? undefined : urls[newIndex]);
+        }
+    }, [urls, selectedUrl]);
+
+    const onSubmit = useCallback((event: FormEvent) => {
+        event.preventDefault();
+        const url = selectedUrl || createLocalSearchPath(selectedSearchType, { query: searchQuery });
+        router.push(url);
+        hideDialog();
+    }, [hideDialog, router, selectedUrl, searchQuery, selectedSearchType]);
+
+    const onBlur = useCallback(() => {
+        setSelectedUrl(undefined);
+    }, []);
+
+    const onClear = useCallback(() => {
+        setSearchQuery('');
+        inputRef.current?.focus();
+    }, []);
+
+    return {
+        inputRef,
+        debouncedSearchQuery,
+        searchQuery,
+        selectedUrl,
+        urls,
+        setUrls,
+        setSearchQuery,
+        onKeyDown,
+        onSubmit,
+        onBlur,
+        onClear
+    };
 }
 
 function mergeCompletions(auhorsCompletions: Array<SearchCompletion>, venuesCompletions: Array<SearchCompletion>) {

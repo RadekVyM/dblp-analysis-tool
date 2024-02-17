@@ -11,7 +11,6 @@ import { CoauthorsGraphState } from '@/dtos/graphs/CoauthorsGraph'
 import { ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
-import { DblpPublicationPerson } from '@/dtos/DblpPublication'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -47,6 +46,7 @@ export type CoauthorsGraphRef = {
     graphRef: RefObject<DataVisualisationCanvasRef | null>
 }
 
+/** Grahp of coauthors. */
 const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
     graph,
     ignoredNodeIds,
@@ -322,6 +322,7 @@ function drawNodes(
     context.restore();
 }
 
+/** Places a node to the right collection of nodes. These collections can be then drawn separately. */
 function placeNodeToRightGroup(
     node: PublicationPersonNodeDatum,
     computedStyle: CSSStyleDeclaration,

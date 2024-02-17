@@ -32,6 +32,7 @@ type GraphOptionsDialogParams = {
     isOpen: boolean,
 }
 
+/** Displays options and actions of the coauthors graph that can specified or invoked. */
 export default function GraphOptionsSelection({ options, nodesCount, linksCount, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
     const [optionsDialogRef, isOptionsDialogOpen, optionsDialogAnimationClass, showOptionsDialog, hideOptionsDialog] = useDialog();
     const [exportDialogRef, isExportDialogOpen, exportDialogAnimationClass, showExportDialog, hideExportDialog] = useDialog();

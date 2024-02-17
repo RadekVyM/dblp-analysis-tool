@@ -21,6 +21,7 @@ export type DataVisualisationSvgRef = {
     zoomTo: (zoomTransform: ZoomTransform) => void
 }
 
+/** SVG element that can be zoomable. */
 export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisualisationSvgParams>(({
     children,
     before,
@@ -35,7 +36,6 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     const outerRef = useRef<HTMLDivElement>(null);
     // ResizeObserver does not work on SVG elements. The outer div reference has to be used
     const dimensions = useDimensions(outerRef);
-
     const { zoomTo } = useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
 
     useImperativeHandle(ref, () => ({

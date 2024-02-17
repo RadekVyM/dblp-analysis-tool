@@ -5,6 +5,7 @@ type PageContainerParams = {
     className?: string
 }
 
+/** Container that wraps an entire page. */
 export default function PageContainer({ children, className }: PageContainerParams) {
     return (
         <main

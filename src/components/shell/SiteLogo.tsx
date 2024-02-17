@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+/** Logo of the site that acts as a link to the root page. */
 export default function SiteLogo() {
     return (
         <Link

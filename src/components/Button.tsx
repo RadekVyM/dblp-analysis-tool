@@ -9,6 +9,7 @@ export type ButtonParams = {
     React.ButtonHTMLAttributes<HTMLButtonElement> &
     VariantProps<typeof buttonVariants>
 
+/** Button that can act as either a Link or an HTML button. */
 export default function Button({ className, children, href, variant, size, title, ...props }: ButtonParams) {
     if (href) {
         return (

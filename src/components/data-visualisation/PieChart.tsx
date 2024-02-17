@@ -10,8 +10,9 @@ import { distance, intersect, overlapArea } from '@/utils/geometry'
 
 export type PieChartData<T> = {
     color: (key: any) => string,
-    pieceTitle?: (key: any) => string,
-    piece: (value: T) => any,
+    sliceTitle?: (key: any) => string,
+    /** Defines a property that specifies a slice of the chart. Items are assigned to a slice based on this property. */
+    slice: (item: T) => any,
     items: Array<T>
 }
 
@@ -64,28 +65,33 @@ type PieChartLabelsParams = {
     hoveredSlice: PieArc | null
 }
 
+type PieChartLabelPolylineParams = {
+    label: PieLabel
+}
+
 const pie = d3.pie<any, { key: any, value: number }>()
     .sort((a, b) => d3.ascending(a.value, b.value))
     .value((pair) => pair.value);
 
+/** Displays data in a pie chart. */
 export default function PieChart({ data, padding, className, innerClassName, arcClassName }: PieChartParams) {
     const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
     const [rolled, setRolled] = useState<d3.InternMap<any, number>>(new d3.InternMap<any, number>());
     const [hoveredSlice, setHoveredSlice] = useState<PieArc | null>(null);
 
-    useEffect(() =>
-        setRolled(d3.rollup(data.items, r => r.length, data.piece)),
-        [data]);
-
     const arcs = useMemo(() => {
         const newArcs = pie(Array.from(rolled).map<ArcData>((pair) => ({ key: pair[0], value: pair[1] })));
         newArcs.sort((a, b) => a.value - b.value);
-        return newArcs
+        return newArcs;
     }, [rolled]);
 
     const defaultRadius = useMemo(() =>
         Math.min((dimensions?.width || 1) * 0.4, (dimensions?.height || 1) * 0.4) - 1,
         [dimensions]);
+
+    useEffect(() =>
+        setRolled(d3.rollup(data.items, r => r.length, data.slice)),
+        [data]);
 
     return (
         <div
@@ -122,6 +128,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
     )
 }
 
+/** Displays a legend for individual slices of a pie chart. */
 function PieChartLegend({ data, arcs, hoveredSlice, onSliceHover }: PieChartLegendParams) {
     return (
         <ul
@@ -138,7 +145,7 @@ function PieChartLegend({ data, arcs, hoveredSlice, onSliceHover }: PieChartLege
                     key={`legend-label-${arc.data.key}`}>
                     <span
                         className='text-sm'>
-                        {data.pieceTitle && data.pieceTitle(arc.data.key)}
+                        {data.sliceTitle && data.sliceTitle(arc.data.key)}
                     </span>
                 </li>)}
         </ul>
@@ -165,6 +172,10 @@ function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onS
     const [radiusAddition, setRadiusAddition] = useState(0);
     const wholeArc = createWholeArc(defaultRadius + radiusAddition);
 
+    useEffect(() => {
+        setRadiusAdditionAnimated(hoveredSlice == arc ? 5 : 0)
+    }, [hoveredSlice]);
+
     function setRadiusAdditionAnimated(to: number) {
         const old = radiusAddition;
 
@@ -178,10 +189,6 @@ function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onS
             });
     }
 
-    useEffect(() => {
-        setRadiusAdditionAnimated(hoveredSlice == arc ? 5 : 0)
-    }, [hoveredSlice]);
-
     return (
         <path
             strokeLinejoin='round'
@@ -193,57 +200,20 @@ function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onS
     )
 }
 
+/** Displays labels of the pie chart slices and handles their overlapping. */
 function PieChartLabels({ arcs, defaultRadius, hoveredSlice }: PieChartLabelsParams) {
     const labels = useMemo(() => {
-        const wholeArc = createWholeArc(defaultRadius);
-
-        const newLabels = arcs.map<PieLabel>((arc) => {
-            const center = wholeArc.centroid(arc as unknown as d3.DefaultArcObject);
-            const x = center[0] * 1.2;
-            const y = center[1] * 1.2;
-
-            return {
-                data: arc,
-                x: x,
-                y: y,
-                idealX: x,
-                idealY: y,
-                anchorX: x,
-                anchorY: y,
-                width: 16 * arc.data.value.toString().length,
-                height: 20,
-                center: center
-            }
-        });
-
+        const newLabels = mapArcsToLabels(defaultRadius, arcs);
         handleOverlappingLabels(newLabels);
-        return newLabels
+        return newLabels;
     }, [arcs, defaultRadius]);
 
     return (
         <>
-            {labels.length > 0 && labels.map((label) => {
-                if (label.anchorX === label.x && label.anchorY === label.y) {
-                    return undefined
-                }
-
-                const lineWidth = label.width * 0.75;
-
-                const first: [number, number] = [label.anchorX, label.anchorY];
-                const second: [number, number] = [label.x - (lineWidth / 2), label.y + 4];
-                const third: [number, number] = [label.x + (lineWidth / 2), label.y + 4];
-
-                const order = distance(first, second) < distance(first, third);
-
-                return (
-                    <polyline
-                        key={`slice-label-line-${label.data.data.key}`}
-                        points={[first.join(','), order ? second.join(',') : third.join(','), order ? third.join(',') : second.join(',')].join(' ')}
-                        className='stroke-1 stroke-outline fill-none pointer-events-none'
-                        strokeLinejoin='round' strokeLinecap='round'>
-                    </polyline>
-                )
-            })}
+            {labels.length > 0 && labels.map((label) =>
+                <PieChartLabelPolyline
+                    key={`slice-label-line-${label.data.data.key}`}
+                    label={label} />)}
 
             {labels.length > 0 && labels.map((label) =>
                 <OutlinedText
@@ -255,6 +225,55 @@ function PieChartLabels({ arcs, defaultRadius, hoveredSlice }: PieChartLabelsPar
                 </OutlinedText>)}
         </>
     )
+}
+
+/**
+ * Polyline that leads from a label to a specific slice of a pie chart.
+ * If no polyline is needed, it is not rendered.
+ */
+function PieChartLabelPolyline({ label }: PieChartLabelPolylineParams) {
+    if (label.anchorX === label.x && label.anchorY === label.y) {
+        return undefined;
+    }
+
+    const lineWidth = label.width * 0.75;
+
+    const first: [number, number] = [label.anchorX, label.anchorY];
+    const second: [number, number] = [label.x - (lineWidth / 2), label.y + 4];
+    const third: [number, number] = [label.x + (lineWidth / 2), label.y + 4];
+
+    const order = distance(first, second) < distance(first, third);
+
+    return (
+        <polyline
+            points={[first.join(','), order ? second.join(',') : third.join(','), order ? third.join(',') : second.join(',')].join(' ')}
+            className='stroke-1 stroke-outline fill-none pointer-events-none'
+            strokeLinejoin='round' strokeLinecap='round'>
+        </polyline>
+    );
+}
+
+function mapArcsToLabels(defaultRadius: number, arcs: Array<PieArc>): Array<PieLabel> {
+    const wholeArc = createWholeArc(defaultRadius);
+
+    return arcs.map<PieLabel>((arc) => {
+        const center = wholeArc.centroid(arc as unknown as d3.DefaultArcObject);
+        const x = center[0] * 1.2;
+        const y = center[1] * 1.2;
+
+        return {
+            data: arc,
+            x: x,
+            y: y,
+            idealX: x,
+            idealY: y,
+            anchorX: x,
+            anchorY: y,
+            width: 16 * arc.data.value.toString().length,
+            height: 20,
+            center: center
+        };
+    });
 }
 
 function handleOverlappingLabels(newLabels: Array<PieLabel>) {
@@ -283,7 +302,7 @@ function handleOverlappingLabels(newLabels: Array<PieLabel>) {
             linesIntersect: (first, second) => {
                 const f = first as PieLabel;
                 const s = second as PieLabel;
-                return intersect([f.x, f.y], [f.anchorX, f.anchorY], [s.x, s.y], [s.anchorX, s.anchorY])
+                return intersect([f.x, f.y], [f.anchorX, f.anchorY], [s.x, s.y], [s.anchorX, s.anchorY]);
             }
         });
     }
@@ -293,5 +312,5 @@ function createWholeArc(outerRadius: number) {
     return d3.arc()
         .cornerRadius(6)
         .innerRadius(0)
-        .outerRadius(outerRadius)
+        .outerRadius(outerRadius);
 }

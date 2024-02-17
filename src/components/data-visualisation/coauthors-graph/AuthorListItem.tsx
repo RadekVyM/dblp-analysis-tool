@@ -11,6 +11,7 @@ type AuthorListItemParams = {
     onHoverChange: (id: string, isHovered: boolean) => void
 }
 
+/** List item for an author in a list that displays authors in the coauthors graph. */
 export default function AuthorListItem({ person, onAuthorClick, onHoverChange }: AuthorListItemParams) {
     const listItemRef = useRef<HTMLLIElement>(null);
     const isHovered = useHover(listItemRef);

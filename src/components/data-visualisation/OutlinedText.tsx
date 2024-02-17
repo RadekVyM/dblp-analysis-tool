@@ -1,4 +1,4 @@
-import { cn } from "@/utils/tailwindUtils"
+import { cn } from '@/utils/tailwindUtils'
 
 export interface OutlinedTextParams extends
     React.SVGTextElementAttributes<SVGTextElement> {
@@ -6,6 +6,7 @@ export interface OutlinedTextParams extends
     className?: string
 }
 
+/** Outlined text element that can be put to an SVG. */
 export default function OutlinedText({ children, className, ...rest }: OutlinedTextParams) {
     return (
         <>

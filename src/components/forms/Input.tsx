@@ -8,6 +8,7 @@ type InputParams = {
     inputClassName?: string
 } & React.InputHTMLAttributes<HTMLInputElement>
 
+/** Form input with a label and error description. */
 const Input = forwardRef<HTMLInputElement, InputParams>(({ label, id, error, className, inputClassName, ...rest }, ref) => {
     return (
         <div

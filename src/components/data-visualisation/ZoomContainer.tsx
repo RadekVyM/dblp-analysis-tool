@@ -5,6 +5,7 @@ type ZoomContainerParams = {
     zoomTransform: ZoomTransform
 }
 
+/** Container that can be put into an SVG and that can apply a zoom transform. */
 export default function ZoomContainer({ children, zoomTransform }: ZoomContainerParams) {
     return (
         <g

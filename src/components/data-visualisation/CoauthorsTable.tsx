@@ -9,6 +9,7 @@ type CoauthorsTableParams = {
     authors: Array<DblpAuthor>
 }
 
+/** Table that displays coauthors of all specified authors. */
 export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
     const rows = useMemo(() => {
         const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications));

@@ -1,10 +1,16 @@
 import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 import Link from 'next/link'
 
+type NavMenuItem = {
+    readonly title: string,
+    readonly url: string,
+}
+
+/** Navigation menu that is displayed in the top header of the site. */
 export default function NavigationMenu() {
-    const items = [
-        new NavMenuItem('Authors', SEARCH_AUTHOR),
-        new NavMenuItem('Venues', SEARCH_VENUE),
+    const items: Array<NavMenuItem> = [
+        { title: 'Authors', url: SEARCH_AUTHOR },
+        { title: 'Venues', url: SEARCH_VENUE },
     ];
 
     return (
@@ -24,8 +30,4 @@ export default function NavigationMenu() {
             </ul>
         </nav>
     );
-}
-
-class NavMenuItem {
-    constructor(public title: string, public url: string) { }
 }

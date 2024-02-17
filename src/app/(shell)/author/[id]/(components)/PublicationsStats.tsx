@@ -65,7 +65,7 @@ function PublicationTypesStatsBarChart({ publications, scaffoldId }: Publication
             className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-4 xs:px-8 py-7'
             innerClassName='min-w-[20rem]'
             data={{
-                bar: (value) => value.type,
+                bar: (item) => item.type,
                 barTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
                 color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
                 items: publications
@@ -79,8 +79,8 @@ function PublicationTypesStatsPieChart({ publications }: PublicationTypesStatsPa
             className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-5 xs:px-10 py-7'
             arcClassName='stroke-surface-container stroke-[0.1rem]'
             data={{
-                piece: (value) => value.type,
-                pieceTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
+                slice: (item) => item.type,
+                sliceTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
                 color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
                 items: publications
             } as PieChartData<Publ>} />

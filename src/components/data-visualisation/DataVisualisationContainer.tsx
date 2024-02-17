@@ -5,6 +5,7 @@ type DataVisualisationContainerParams = {
     className?: string
 }
 
+/** Container element that is used for graphs, charts and their menus. */
 export default function DataVisualisationContainer({ children, className }: DataVisualisationContainerParams) {
     return (
         <div

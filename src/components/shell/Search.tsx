@@ -9,6 +9,7 @@ type SearchParams = {
     className?: string
 }
 
+/** Component that renders and manages the search bar button and search dialog. */
 export default function Search({ className }: SearchParams) {
     const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
 

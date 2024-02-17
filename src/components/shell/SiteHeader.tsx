@@ -10,12 +10,13 @@ type SiteHeaderParams = {
     className?: string,
 }
 
+/** Top header of the entire site that contains the main navigation and search bar. */
 export default async function SiteHeader({ className }: SiteHeaderParams) {
     const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <header
-            className={cn('sticky top-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
+            className={cn('fixed top-0 left-0 right-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
             <div
                 className='grid grid-rows-[auto_auto] grid-cols-[1fr] md:grid-cols-[1fr_auto] max-w-screen-xl w-full mx-auto px-4'>
                 <div

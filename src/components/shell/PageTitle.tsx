@@ -14,6 +14,7 @@ type HeadingParams = {
     children: React.ReactNode
 }
 
+/** Title/heading of a page that can act as a link. */
 export default function PageTitle({ subtitle, title, titleHref, className }: PageTitleParams) {
     return (
         <div

@@ -17,6 +17,7 @@ type CoauthorsGraphShellParams = {
     className?: string
 }
 
+/** Shell for the entire coauthors graph and its menus. */
 export default function CoauthorsGraphShell({ authors, className }: CoauthorsGraphShellParams) {
     // Additional authors are authors whose all coauthors are included in the graph
     const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors);

@@ -1,5 +1,6 @@
 import { cva } from 'class-variance-authority'
 
+/** All the possible variants of a loading element. */
 export const loadingWheelVariants = cva(
     'animate-spin inline-block border-current border-t-transparent rounded-full',
     {

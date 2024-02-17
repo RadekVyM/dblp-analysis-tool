@@ -7,7 +7,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { useEffect, useState } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa'
-import { AddToGroupDialog } from './AddToGroupDialog'
+import AddToGroupDialog from './AddToGroupDialog'
 
 type SaveButtonsParams = {
     className?: string,
@@ -20,6 +20,7 @@ type GroupButtonParams = {
     authorName: string
 }
 
+/** Buttons that allow the user to save an author for easier access to a list or an author group. */
 export default function SaveButtons({ className, authorId, authorName }: SaveButtonsParams) {
     const [isSaved, setIsSaved] = useState<boolean>();
     const { removeSavedAuthor, saveAuthor, savedAuthors, error, isMutating } = useSavedAuthors();
@@ -57,6 +58,7 @@ export default function SaveButtons({ className, authorId, authorName }: SaveBut
     )
 }
 
+/** Buttons that allows the user to save an author to an author group. */
 function GroupButton({ authorId, authorName }: GroupButtonParams) {
     const [dialogRef, isDialogOpen, dialogAnimationClass, showDialog, hideDialog] = useDialog();
 

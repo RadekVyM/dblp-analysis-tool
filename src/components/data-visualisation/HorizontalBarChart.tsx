@@ -10,6 +10,7 @@ import Tabs from '../Tabs'
 export type HorizontalBarChartData<T> = {
     color: (key: any) => string,
     barTitle?: (key: any) => string,
+    /** Defines a property that specifies a bar of the chart. Items are assigned to a bar based on this property. */
     bar: (item: T) => any,
     items: Array<T>
 }
@@ -49,10 +50,11 @@ type ChartParams = {
 const UnitsType = {
     Count: 'Count',
     Percentage: 'Percentage'
-} as const
+} as const;
 
 type UnitsType = keyof typeof UnitsType
 
+/** Chart that displays data as horizontal bars. */
 export default function HorizontalBarChart({ data, padding, className, innerClassName, unitsId }: HorizontalBarChartParams) {
     const [selectedUnitsType, setSelectedUnitsType] = useState<UnitsType>('Count');
     const [dimensions, setDimensions] = useState<Dimensions | null>(null);
@@ -91,7 +93,7 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
     }, [data, selectedUnitsType]);
 
     function getTopDomainValue() {
-        return selectedUnitsType === UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1]
+        return selectedUnitsType === UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1];
     }
 
     return (

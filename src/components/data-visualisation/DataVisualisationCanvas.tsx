@@ -20,6 +20,7 @@ export type DataVisualisationCanvasRef = {
     zoomTo: (zoomTransform: ZoomTransform) => void
 }
 
+/** Canvas element that can be zoomable. */
 export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, DataVisualisationCanvasParams>(({
     children,
     before,
@@ -34,7 +35,6 @@ export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, Da
     const innerRef = useRef<HTMLCanvasElement | null>(null);
     const outerRef = useRef<HTMLDivElement>(null);
     const dimensions = useDimensions(outerRef);
-
     const { zoomTo } = useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
 
     useImperativeHandle(ref, () => ({

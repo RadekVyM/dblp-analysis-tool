@@ -31,6 +31,7 @@ type SearchBoxParams = {
 
 const COUNT_INCREASE = 60;
 
+/** Displays a list of authors in the coauthors graph. These authors can be filtered and searched using this component. */
 export default function AuthorsList(
     {
         nodes,

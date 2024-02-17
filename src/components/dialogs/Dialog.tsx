@@ -17,6 +17,7 @@ type DialogContentParams = {
     className?: string
 }
 
+/** Dialog element that can be hidden by clicking anywhere. Used in combination with DialogContent. */
 export const Dialog = forwardRef<HTMLDialogElement, DialogParams>(({ hide, animation, className, children, ...rest }, ref) => {
     const isClient = useIsClient();
 
@@ -41,6 +42,7 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogParams>(({ hide, anima
 
 Dialog.displayName = 'Dialog';
 
+/** Container for a dialog content. This container ensures that if the content is clicked, the dialog is not hidden. */
 export function DialogContent({ className, children }: DialogContentParams) {
     return (
         <article

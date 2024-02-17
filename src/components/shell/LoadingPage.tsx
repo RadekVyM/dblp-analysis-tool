@@ -5,6 +5,7 @@ type LoadingPageParams = {
     className?: string
 }
 
+/** Content that is displayed when a page is loading. */
 export default function LoadingPage({ className }: LoadingPageParams) {
     return (
         <main

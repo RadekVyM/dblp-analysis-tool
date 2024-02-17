@@ -7,6 +7,7 @@ type DialogHeaderParams = {
     children?: React.ReactNode,
 }
 
+/** Header of a dialog that contains a heading and close button. Then it can contain any content you want. */
 export default function DialogHeader({ hide, heading, children }: DialogHeaderParams) {
     return (
         <header
