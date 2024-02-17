@@ -40,7 +40,7 @@ function createRootElement(doc: XMLDocument) {
     root.setAttribute('version', '1.3');
     // Not mandatory:
     root.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-    root.setAttribute('xsi:schemaLocation', '”http://www.gexf.net/1.3 http://www.gexf.net/1.3/gexf.xsd');
+    root.setAttribute('xsi:schemaLocation', 'http://www.gexf.net/1.3 http://www.gexf.net/1.3/gexf.xsd');
     return root;
 }
 
@@ -67,7 +67,7 @@ function createNodeElement(doc: XMLDocument, id: string, label: string) {
 
 function createEdgeElement(doc: XMLDocument, source: string, target: string) {
     const edge = doc.createElement('edge');
-    edge.setAttribute('id', `${source}+${target}`);
+    //edge.setAttribute('id', `${source}+${target}`);
     edge.setAttribute('source', source);
     edge.setAttribute('target', target);
     return edge;

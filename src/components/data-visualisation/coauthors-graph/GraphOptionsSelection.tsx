@@ -53,7 +53,7 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 variant='outline'
                 onClick={() => showExportDialog()}>
                 <MdGetApp />
-                Export Data
+                Export Graph
             </Button>
             <div
                 className='flex-1 flex justify-end mr-2'>
