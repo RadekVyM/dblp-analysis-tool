@@ -1,11 +1,12 @@
 'use client'
 
 import { DataVisualisationSvg } from './DataVisualisationSvg'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef, forwardRef, CSSProperties } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
 import { cn, prependDashedPrefix } from '@/utils/tailwindUtils'
 import Tabs from '../Tabs'
+import useDimensions from '@/hooks/useDimensions'
 
 export type HorizontalBarChartData<T> = {
     color: (key: any) => string,
@@ -24,7 +25,8 @@ type HorizontalBarChartParams = {
     data: HorizontalBarChartData<any>,
     padding?: Padding,
     className?: string,
-    innerClassName?: string
+    innerClassName?: string,
+    orientation?: BarChartOrientation
 }
 
 type TicksParams = {
@@ -37,14 +39,19 @@ type TicksParams = {
 
 type ChartParams = {
     selectedUnitsType: UnitsType,
-    padding: Padding,
     dimensions: Dimensions,
     rolledItems: d3.InternMap<any, number>,
     valuesScale: d3.ScaleLinear<number, number, never>,
-    barLabelWidth: number,
-    barLabelHorizontalGap: number,
+    orientation: BarChartOrientation,
     color: (key: any) => string,
-    barTitle?: (key: any) => string
+}
+
+type PrimaryAxisLabelsParams = {
+    rolledItems: d3.InternMap<any, number>,
+    orientation: BarChartOrientation,
+    className?: string,
+    style?: CSSProperties,
+    barTitle?: (key: any) => string,
 }
 
 const UnitsType = {
@@ -54,28 +61,19 @@ const UnitsType = {
 
 type UnitsType = keyof typeof UnitsType
 
+const BarChartOrientation = {
+    Horizontal: 'Horizontal',
+    Vertical: 'Vertical'
+} as const;
+
+type BarChartOrientation = keyof typeof BarChartOrientation
+
 /** Chart that displays data as horizontal bars. */
-export default function HorizontalBarChart({ data, padding, className, innerClassName, unitsId }: HorizontalBarChartParams) {
+export default function HorizontalBarChart({ data, padding, className, innerClassName, unitsId, orientation }: HorizontalBarChartParams) {
+    orientation ??= BarChartOrientation.Horizontal;
+
     const [selectedUnitsType, setSelectedUnitsType] = useState<UnitsType>('Count');
-    const [dimensions, setDimensions] = useState<Dimensions | null>(null);
-    const [rolledItems, setRolledItems] = useState<d3.InternMap<any, number>>(new d3.InternMap<any, number>());
-
-    const valuesLabelHeight = 36;
-    const barLabelWidth = 110;
-    const barLabelHorizontalGap = 30;
-    const pad = padding || { left: 0, top: 20, right: 30, bottom: 20 + valuesLabelHeight };
-
-    const chartWidth = useMemo(() =>
-        (dimensions?.width || 1) - barLabelWidth - barLabelHorizontalGap - pad.left - pad.right,
-        [dimensions]);
-    const valuesDomain: [number, number] = useMemo(() =>
-        [0, getTopDomainValue()],
-        [rolledItems]);
-    const valuesScale = useMemo(() =>
-        d3.scaleLinear(valuesDomain, [0, chartWidth]),
-        [chartWidth, valuesDomain]);
-
-    useEffect(() => {
+    const rolledItems = useMemo<d3.InternMap<any, number>>(() => {
         const rolled = d3.rollup(data.items, r => r.length, data.bar);
 
         if (selectedUnitsType === UnitsType.Percentage) {
@@ -89,8 +87,20 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
             }
         }
 
-        setRolledItems(rolled);
+        return rolled;
     }, [data, selectedUnitsType]);
+    const valuesDomain: [number, number] = useMemo(() =>
+        [0, getTopDomainValue()],
+        [rolledItems, selectedUnitsType]);
+    const valuesScale = useMemo(() =>
+        d3.scaleLinear(valuesDomain, [0, 1]),
+        [valuesDomain]);
+
+    const {
+        svgContainerRef,
+        dimensions,
+        scrollable
+    } = useChartDimensions(rolledItems.size, 75, orientation);
 
     function getTopDomainValue() {
         return selectedUnitsType === UnitsType.Percentage ? 1 : (d3.extent(rolledItems.values()) as [number, number])[1];
@@ -98,41 +108,56 @@ export default function HorizontalBarChart({ data, padding, className, innerClas
 
     return (
         <div
-            className={cn(className, 'flex flex-col')}>
-            <DataVisualisationSvg
-                innerClassName={innerClassName}
-                onDimensionsChange={(width, height) => setDimensions({ width, height })}>
-                {
-                    dimensions &&
-                    <>
-                        <text
-                            x={pad.left + barLabelWidth + barLabelHorizontalGap + (chartWidth / 2)}
-                            y={dimensions.height - 4}
-                            textAnchor='middle'
-                            className='text-sm fill-on-surface-container'>
-                            {selectedUnitsType === UnitsType.Percentage ? '% of publications' : 'Publications Count'}
-                        </text>
-
-                        <Ticks
-                            selectedUnitsType={selectedUnitsType}
-                            dimensions={dimensions}
-                            domain={valuesDomain}
-                            scale={valuesScale}
-                            padding={{ top: pad.top, bottom: pad.bottom, right: pad.right, left: pad.left + barLabelWidth + barLabelHorizontalGap }} />
-
-                        <Chart
-                            selectedUnitsType={selectedUnitsType}
-                            valuesScale={valuesScale}
-                            barLabelWidth={barLabelWidth}
-                            barLabelHorizontalGap={barLabelHorizontalGap}
-                            dimensions={dimensions}
-                            padding={pad}
-                            rolledItems={rolledItems}
-                            color={data.color}
-                            barTitle={data.barTitle} />
-                    </>
-                }
-            </DataVisualisationSvg>
+            className={cn(className, 'overflow-hidden grid grid-rows-[1fr_auto]')}>
+            <div
+                className={cn(
+                    'overflow-auto',
+                    'grid gap-x-4 thin-scrollbar scroll-gutter-stable box-border max-w-full max-h-full h-full w-full min-h-0 min-w-0',
+                    orientation === BarChartOrientation.Horizontal ?
+                        'grid-cols-[10rem_1fr]' :
+                        'grid-rows-[1fr_4rem]'
+                )}>
+                <PrimaryAxisLabels
+                    orientation={orientation || BarChartOrientation.Horizontal}
+                    rolledItems={rolledItems}
+                    barTitle={data.barTitle}
+                    style={{
+                        width: orientation === BarChartOrientation.Horizontal ? undefined : dimensions.width,
+                        height: orientation === BarChartOrientation.Horizontal ? dimensions.height : undefined
+                    }}
+                    className={cn(
+                        'm-auto',
+                        orientation === BarChartOrientation.Horizontal ?
+                            'order-1' :
+                            'order-2'
+                    )} />
+                <div
+                    ref={svgContainerRef}
+                    className={cn(
+                        'relative',
+                        'w-full h-full min-h-0 min-w-0 grid place-items-center',
+                        orientation === BarChartOrientation.Horizontal ?
+                            'order-2 grid-rows-[1fr_0] grid-cols-1' :
+                            'order-1 grid-cols-[0_1fr] grid-rows-1'
+                    )}>
+                    <Chart
+                        dimensions={dimensions}
+                        color={data.color}
+                        orientation={orientation}
+                        rolledItems={rolledItems}
+                        selectedUnitsType={selectedUnitsType}
+                        valuesScale={valuesScale} />
+                    <span
+                        className={cn(
+                            'sticky',
+                            orientation === BarChartOrientation.Horizontal ?
+                                'bottom-0 left-0 right-0 col-start-1 row-start-2 self-end justify-self-stretch' :
+                                'top-0 bottom-0 left-0 col-start-1 row-start-1 self-stretch justify-self-start'
+                        )}>
+                        Ticks
+                    </span>
+                </div>
+            </div>
             <Tabs
                 className='mx-auto mt-6 w-fit'
                 size='xs'
@@ -206,13 +231,26 @@ function Ticks({ scale, dimensions, padding, domain, selectedUnitsType }: TicksP
     )
 }
 
-function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, barLabelHorizontalGap, selectedUnitsType, color, barTitle }: ChartParams) {
+function Chart({ rolledItems, valuesScale, dimensions, selectedUnitsType, orientation, color }: ChartParams) {
+    const secondaryAxisLength = orientation === BarChartOrientation.Horizontal ?
+        dimensions.width :
+        dimensions.height;
+    const primaryAxisLength = orientation === BarChartOrientation.Horizontal ?
+        dimensions.height :
+        dimensions.width;
     const barsScale = useMemo(() =>
-        d3.scaleBand([0, dimensions.height - padding.top - padding.bottom]).domain(rolledItems.keys()),
-        [dimensions, rolledItems]);
+        d3.scaleBand([0, primaryAxisLength]).domain(rolledItems.keys()),
+        [rolledItems, primaryAxisLength]);
 
     return (
-        <>
+        <svg
+            width={dimensions.width}
+            height={dimensions.height}
+            style={{
+                width: orientation === BarChartOrientation.Horizontal ? undefined : dimensions.width,
+                height: orientation === BarChartOrientation.Horizontal ? dimensions.height : undefined
+            }}
+            className='w-full h-full relative'>
             {
                 Array.from(rolledItems.keys()).map((key, index) => {
                     const value = rolledItems.get(key) as number;
@@ -221,29 +259,22 @@ function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, b
                         value.toLocaleString(undefined, { maximumFractionDigits: 2 });
                     const bandWidth = barsScale.bandwidth();
                     const barHeight = Math.min(bandWidth, 28);
-                    const yOffset = (bandWidth - barHeight) / 2;
+                    const offset = (barsScale(key) || 0) + (bandWidth - barHeight) / 2;
+                    const length = secondaryAxisLength * valuesScale(value);
 
-                    const left = padding.left + barLabelWidth + barLabelHorizontalGap;
-                    const top = (barsScale(key) || 0) + yOffset + padding.top;
-                    const width = Math.max(valuesScale(value), 2);
+                    const left = orientation === BarChartOrientation.Horizontal ? 0 : offset;
+                    const top = orientation === BarChartOrientation.Horizontal ? offset : secondaryAxisLength - length;
+                    const width = orientation === BarChartOrientation.Horizontal ? length : barHeight;
+                    const height = orientation === BarChartOrientation.Horizontal ? barHeight : length;
                     const radius = Math.min(8, barHeight / 2, width / 2);
 
                     return (
                         <g
                             key={key}>
-                            <foreignObject
-                                x={padding.left} y={(barsScale(key) || 0) + padding.top}
-                                width={barLabelWidth} height={bandWidth}>
-                                <div
-                                    className='flex items-center justify-end h-full'>
-                                    <span className='text-xs text-end text-on-surface-container'>{barTitle && barTitle(key)}</span>
-                                </div>
-                            </foreignObject>
-
                             <rect
                                 className={prependDashedPrefix('fill', color(key))}
                                 x={left} y={top}
-                                width={width} height={barHeight}
+                                width={width} height={height}
                                 rx={radius} ry={radius} />
 
                             <OutlinedText
@@ -256,6 +287,70 @@ function Chart({ padding, rolledItems, valuesScale, dimensions, barLabelWidth, b
                     )
                 })
             }
-        </>
+        </svg>
     )
+}
+
+const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({ rolledItems, orientation, className, style, barTitle }, ref) => {
+    return (
+        <div
+            ref={ref}
+            style={style}
+            className={cn(
+                className,
+                'flex justify-items-center justify-stretch',
+                orientation === BarChartOrientation.Horizontal ?
+                    'flex-col' :
+                    'flex-row')}>
+            {
+                Array.from(rolledItems.keys()).map((key, index) => {
+                    return (
+                        <div
+                            key={key}
+                            className='flex-1 grid items-center'>
+                            <span className='text-xs text-center text-on-surface-container'>{barTitle && barTitle(key)}</span>
+                        </div>
+                    )
+                })
+            }
+        </div>
+    )
+});
+
+PrimaryAxisLabels.displayName = 'PrimaryAxisLabels';
+
+function useChartDimensions(bandsCount: number, minBandSize: number, orientation: BarChartOrientation) {
+    const svgContainerRef = useRef<HTMLDivElement>(null);
+    const svgContainerDimenstions = useDimensions(svgContainerRef);
+
+    const minSize = minBandSize * bandsCount;
+    const dimensions = {
+        width: orientation == BarChartOrientation.Horizontal ?
+            svgContainerDimenstions.width :
+            minSize,
+        height: orientation == BarChartOrientation.Horizontal ?
+            minSize :
+            svgContainerDimenstions.height,
+    };
+
+    let scrollable = false;
+
+    if (orientation === BarChartOrientation.Horizontal) {
+        if (dimensions.height < minSize) {
+            dimensions.height = minSize;
+            scrollable = true;
+        }
+    }
+    if (orientation === BarChartOrientation.Vertical) {
+        if (dimensions.width < minSize) {
+            dimensions.width = minSize;
+            scrollable = true;
+        }
+    }
+
+    return {
+        svgContainerRef,
+        dimensions,
+        scrollable
+    }
 }
