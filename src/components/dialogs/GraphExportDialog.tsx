@@ -16,6 +16,7 @@ import Button from '../Button'
 import ComboBox from '../ComboBox'
 import { MdCheckCircle, MdFileCopy, MdGetApp } from 'react-icons/md'
 import { delay } from '@/utils/promises'
+import CheckListButton from '../CheckListButton'
 
 type GraphExportDialogParams = {
     hide: () => void,
@@ -46,15 +47,19 @@ const formatsMap = new Map<GraphExportFormat, GraphExportFormatValues>([
 /** Dialog for exporting a coauthors graph to various formats. */
 const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen, nodes, links }, ref) => {
     const preRef = useRef<HTMLPreElement>(null);
+    const [includeOnlyVisible, setIncludeOnlyVisible] = useState(true);
     const [selectedFormat, setSelectedFormat] = useState<GraphExportFormat>(GraphExportFormat.GraphViz);
     const exportedGraph = useMemo(() => {
         if (!isOpen) {
             return '';
         }
 
+        const exportedNodes = includeOnlyVisible ? nodes.filter((n) => n.isVisible) : nodes;
+        const exportedLinks = includeOnlyVisible ? links.filter((l) => l.isVisible) : links;
+
         const format = formatsMap.get(selectedFormat);
-        return format?.export(nodes, links) || '';
-    }, [selectedFormat, nodes, links, isOpen]);
+        return format?.export(exportedNodes, exportedLinks) || '';
+    }, [selectedFormat, includeOnlyVisible, nodes, links, isOpen]);
     const file = useMemo(() => textToFile(exportedGraph, 'text/plain'), [exportedGraph]);
     const currentFormat = formatsMap.get(selectedFormat);
 
@@ -84,6 +89,12 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                         items={[...formatsMap].map(([key, format]) => ({ key: key, label: format.label }))}
                         selectedKey={selectedFormat}
                         onKeySelectionChange={(key) => setSelectedFormat(key as GraphExportFormat)} />
+                    <CheckListButton
+                        className='w-full'
+                        isSelected={includeOnlyVisible}
+                        onClick={() => setIncludeOnlyVisible((old) => !old)}>
+                        Include only visible nodes
+                    </CheckListButton>
                 </DialogHeader>
 
                 <DialogBody

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import useFilters from './useFilters'
 import { FiltersConfiguration } from '@/dtos/Filters'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
@@ -29,7 +29,8 @@ export default function usePublicationFilters(publications: Array<DblpPublicatio
 
                     for (const publication of publications) {
                         if (selectedVenues.has(publication.venueId) || selectedTypes.has(publication.type)) {
-                            map.set(publication.type, PUBLICATION_TYPE_TITLE[publication.type]);
+                            if (!map.has(publication.type))
+                                map.set(publication.type, PUBLICATION_TYPE_TITLE[publication.type]);
                         }
                     }
 
@@ -50,7 +51,20 @@ export default function usePublicationFilters(publications: Array<DblpPublicatio
                     const map = new Map<any, any>();
 
                     for (const publication of publications) {
-                        if (selectedTypes.has(publication.type) || selectedVenues.has(publication.venueId)) {
+                        if (selectedTypes.has(publication.type)) {
+                            map.set(publication.venueId, getVenueTitle(publication));
+                        }
+                    }
+
+                    // If I use something like this: (selectedTypes.has(publication.type) || selectedVenues.has(publication.venueId))
+                    // in the first cycle, I do not get stable results.
+                    // A venue can have different types of publications.
+                    // Let's say we have a list of publications [a, b] with the types A and B.
+                    // Both publications are from the same venue, but each publication has saved a bit different title of the venue.
+                    // If a user selects type 'B', the venue title of the publication 'b' should be put to the selectableItems array.
+                    // However, if I use only one cycle with the condition above, the venue title of the publication 'a' will be put to the array.
+                    for (const publication of publications) {
+                        if (selectedVenues.has(publication.venueId) && !map.has(publication.venueId)) {
                             map.set(publication.venueId, getVenueTitle(publication));
                         }
                     }
@@ -68,7 +82,8 @@ export default function usePublicationFilters(publications: Array<DblpPublicatio
     return { ...state, typesFilter, venuesFilter };
 }
 
-function getAllPublicationTypes(publications: Array<DblpPublication>) {
+/** Returns a map where the key is a value of PublicationType and the value is a value of PUBLICATION_TYPE_TITLE. */
+function getAllPublicationTypes(publications: Array<DblpPublication>): Map<PublicationType, string> {
     const map = new Map<PublicationType, string>();
 
     for (const publication of publications) {
@@ -78,16 +93,19 @@ function getAllPublicationTypes(publications: Array<DblpPublication>) {
     return map;
 }
 
-function getAllPublicationVenues(publications: Array<DblpPublication>) {
+/** Returns a map where the key is a venue ID and the value is a venue title. */
+function getAllPublicationVenues(publications: Array<DblpPublication>): Map<string | undefined, string> {
     const map = new Map<string | undefined, string>();
 
     for (const publication of publications) {
-        map.set(publication.venueId, getVenueTitle(publication));
+        if (!map.has(publication.venueId)) {
+            map.set(publication.venueId, getVenueTitle(publication));
+        }
     }
 
     return map;
 }
 
 function getVenueTitle(publication: DblpPublication): string {
-    return publication.venueId ? publication.journal || publication.series || publication.booktitle || 'undefined' : 'Not Listed Publications'
+    return publication.venueId ? publication.journal || publication.booktitle || publication.series || 'undefined' : 'Not Listed Publications';
 }

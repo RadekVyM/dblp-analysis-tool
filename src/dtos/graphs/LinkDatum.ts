@@ -7,6 +7,7 @@ export type LinkDatum = {
 
 /** Additional properties of a link between two nodes of a graph. */
 export type LinkDatumExtension = {
+    isIgnored: boolean,
     isVisible: boolean,
     intensity: number,
     isHighlighted: boolean,

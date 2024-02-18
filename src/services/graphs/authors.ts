@@ -8,6 +8,7 @@ import { removeAccents } from '@/utils/strings'
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     publicationsCount: 1,
     intensity: 1,
+    isIgnored: false,
     isVisible: true,
     isHighlighted: false,
     isDim: false

@@ -11,6 +11,7 @@ import { CoauthorsGraphState } from '@/dtos/graphs/CoauthorsGraph'
 import { ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
+import { clamp } from '@/utils/numbers'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -294,7 +295,7 @@ function drawNodes(
 
         node.canvasX = toDimensionsX(node.x, dimensions);
         node.canvasY = toDimensionsY(node.y, dimensions);
-        node.canvasRadius = node.isHighlighted ? 10 : node.isDim ? 2 : 4;
+        node.canvasRadius = node.isHighlighted ? 10 : node.isDim ? 1.8 : 4;
 
         addNodeToPath(context, node, node.canvasRadius + 1.3);
 
@@ -460,7 +461,7 @@ function drawLinks(
         const source = link.source as PublicationPersonNodeDatum;
         const target = link.target as PublicationPersonNodeDatum;
 
-        if (!link.isVisible || (!justDimInvisibleNodes && (!source.isVisible || !target.isVisible))) {
+        if (link.isIgnored || (!justDimInvisibleNodes && !link.isVisible)) {
             continue;
         }
 
@@ -483,10 +484,9 @@ function drawLine(
     dimensions: { width: number; height: number }
 ) {
     if (source.x && source.y && target.x && target.y) {
-        const defaultAlpha = isDim ? 0.1 : isHighlighted ? 0.6 : 0.2 + 0.2 * intensity;
-        context.globalAlpha = defaultAlpha
+        context.globalAlpha = isDim ? 0.09 : isHighlighted ? (0.8 + 0.2 * intensity) : (0.2 + 0.8 * intensity);
         context.strokeStyle = color;
-        context.lineWidth = Math.max(0.5, (isHighlighted ? 2 : 1) / (Math.max(0.9, zoomTransform.scale)));
+        context.lineWidth = ((isHighlighted ? 1 : 0.8) + 0.3 * intensity) / clamp(zoomTransform.scale * 0.9, 0.9, 1.1);
 
         context.beginPath();
         context.moveTo(toDimensionsX(source.x, dimensions), toDimensionsY(source.y, dimensions));

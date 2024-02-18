@@ -122,16 +122,20 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
 /** Hook that handles processed authors. */
 function useAuthors(authors: Array<DblpAuthor>) {
     const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
-    const allAuthors = useMemo(() => ({
-        originalAuthors: authors,
-        originalAuthorsIds: authors.map((a) => a.id),
-        publications: authors
-            .flatMap((a) => a.publications)
-            .concat(additionalAuthors.flatMap((a) => a.publications)),
-        ids: authors
-            .map((a) => a.id)
-            .concat(additionalAuthors.map((a) => a.id))
-    }), [authors, additionalAuthors]);
+    const allAuthors = useMemo(() => {
+        const uniquePublications = new Map<string, DblpPublication>();
+        authors.forEach((a) => a.publications.forEach((p) => uniquePublications.set(p.id, p)));
+        additionalAuthors.forEach((a) => a.publications.forEach((p) => uniquePublications.set(p.id, p)));
+
+        return {
+            originalAuthors: authors,
+            originalAuthorsIds: authors.map((a) => a.id),
+            publications: [...uniquePublications.values()],
+            ids: authors
+                .map((a) => a.id)
+                .concat(additionalAuthors.map((a) => a.id))
+        };
+    }, [authors, additionalAuthors]);
 
     const addAdditionalAuthor = useCallback((author: DblpAuthor) => {
         if (additionalAuthors.some((a) => a.id === author.id)) {
