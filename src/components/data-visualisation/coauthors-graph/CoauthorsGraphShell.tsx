@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SelectedAuthor from './SelectedAuthor'
 import AuthorsList from './AuthorsList'
 import GraphOptionsSelection from './GraphOptionsSelection'
-import useCoauthorsGraph from '@/hooks/useCoauthorsGraph'
+import useCoauthorsGraph from '@/hooks/data-visualisation/useCoauthorsGraph'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import { DblpPublication } from '@/dtos/DblpPublication'
 

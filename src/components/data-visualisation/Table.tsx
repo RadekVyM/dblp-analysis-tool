@@ -1,6 +1,7 @@
 'use client'
 
 import useLazyListCount from '@/hooks/useLazyListCount'
+import { isGreater } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
@@ -49,7 +50,7 @@ export type TableData = {
 
 const DISPLAYED_COUNT_INCREASE = 50
 
-/** Table component. */
+/** Table component that allows sorting of columns. */
 export default function Table({ rows, columnHeaders, footer, className, isFirstColumnHeader }: TableParams) {
     const { displayedSortedRows, sorting, observerTarget, scrollableElement, updateSorting } = useDisplayedSortedRows(rows);
 
@@ -155,7 +156,7 @@ function useDisplayedSortedRows(rows: Array<Array<TableData>>) {
 
             const factor = sorting.descending ? 1 : -1;
 
-            return compare(first[sorting.column].value, second[sorting.column].value) * factor;
+            return isGreater(first[sorting.column].value, second[sorting.column].value) * factor;
         });
 
         setSortedRows(newRows);
@@ -184,14 +185,4 @@ function useDisplayedSortedRows(rows: Array<Array<TableData>>) {
         sorting,
         updateSorting,
     };
-}
-
-function compare(first: any, second: any) {
-    if (first > second) {
-        return 1;
-    }
-    else if (first < second) {
-        return -1;
-    }
-    return 0;
 }

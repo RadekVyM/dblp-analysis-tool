@@ -1,7 +1,7 @@
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { PageSection, PageSectionTitle } from '../../../../../components/shell/PageSection'
 import Link from 'next/link'
-import { PublicationTypesStats } from './PublicationsStats'
+import { PublicationTypesStats, PublicationsOverTimeStats } from './PublicationsStats'
 import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/client/publications'
 import { cn } from '@/utils/tailwindUtils'
 import { MdLibraryBooks } from 'react-icons/md'
@@ -54,7 +54,7 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
             <h4 className='font-semibold mb-5'>Publication Types</h4>
 
             <PublicationTypesStats
-                scaffoldId='publication-types-stats-1'
+                scaffoldId='publication-types-stats'
                 className='mb-10'
                 publications={publications.map((publ) => {
                     return {
@@ -64,15 +64,15 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
                     }
                 })} />
 
-            <h4 className='font-semibold mb-5'>Publication Types over Time</h4>
+            <h4 className='font-semibold mb-5'>Publications Over Time</h4>
 
-            <PublicationTypesStats
-                scaffoldId='publication-types-stats-2'
+            <PublicationsOverTimeStats
+                scaffoldId='publications-over-time-stats'
                 publications={publications.map((publ) => {
                     return {
                         id: publ.id,
                         type: publ.type,
-                        date: publ.date
+                        year: publ.year
                     }
                 })} />
         </PageSection>

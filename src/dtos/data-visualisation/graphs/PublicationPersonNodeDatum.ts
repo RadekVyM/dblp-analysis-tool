@@ -1,4 +1,4 @@
-import { DblpPublicationPerson } from '../DblpPublication'
+import { DblpPublicationPerson } from '../../DblpPublication'
 import { NodeDatum, NodeDatumCanvasExtension, NodeDatumExtension } from './NodeDatum'
 
 /** Represents a link between two nodes of a coauthors graph. */

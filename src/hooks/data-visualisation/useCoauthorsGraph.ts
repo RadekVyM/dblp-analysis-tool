@@ -1,8 +1,8 @@
 'use client'
 
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/graphs/CoauthorsGraph'
-import { PublicationPersonNodeDatum } from '@/dtos/graphs/PublicationPersonNodeDatum'
+import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/data-visualisation/graphs/CoauthorsGraph'
+import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'

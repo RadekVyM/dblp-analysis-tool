@@ -10,7 +10,11 @@ module.exports = {
   ],
   safelist: [
     {
-      pattern: /(bg|text|fill|stroke|border|outline)-(primary|books-and-theses|journal-articles|conference-and-workshop-papers|parts-in-books-or-collections|editorship|reference-works|data-and-artifacts|informal-and-other)/,
+      pattern: /(bg|text|fill|stroke|border|outline)-(books-and-theses|journal-articles|conference-and-workshop-papers|parts-in-books-or-collections|editorship|reference-works|data-and-artifacts|informal-and-other)/,
+      variants: ['hover', 'before', 'after'],
+    },
+    {
+      pattern: /(bg|text|fill|stroke|border|outline)-(primary|secondary|outline)/,
       variants: ['hover', 'before', 'after'],
     },
   ],

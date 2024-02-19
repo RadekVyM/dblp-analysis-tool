@@ -16,13 +16,22 @@ type StatsScaffoldItem = {
     title: string,
     icon: React.ReactNode,
     content: React.ReactNode,
+    secondaryContent?: React.ReactNode,
 }
 
 /** Shell for multiple data visualization components that can be displayed based on the selected tab. */
 export default function StatsScaffold({ className, items, scaffoldId, sideTabsLegend, onKeySelected, selectedKey }: StatsScaffoldParams) {
+    const selectedItem = items.find((item) => item.key == selectedKey)
+    const secondaryContent = selectedItem?.secondaryContent;
+
     return (
         <div
-            className={cn('grid grid-rows-[auto,1fr] sm:grid-cols-[1fr,auto] sm:grid-rows-[1fr] gap-3', className)}>
+            className={cn(
+                'grid sm:grid-cols-[1fr,auto] gap-3',
+                selectedItem?.secondaryContent ?
+                    'grid-rows-[auto,1fr,auto] sm:grid-rows-[1fr,auto]' :
+                    'grid-rows-[auto,1fr] sm:grid-rows-[1fr]',
+                className)}>
             <Tabs
                 className='self-start flex-wrap sm:flex-col sm:col-start-2 sm:col-end-3'
                 tabsId={`${scaffoldId}-side-tabs`}
@@ -37,9 +46,16 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 selectedId={selectedKey}
                 setSelectedId={(id) => onKeySelected(id)} />
             <DataVisualisationContainer
-                className='overflow-x-auto sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
-                {items.find((item) => item.key == selectedKey)?.content}
+                className='overflow-hidden sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
+                {selectedItem?.content}
             </DataVisualisationContainer>
+            {
+                selectedItem?.secondaryContent &&
+                <DataVisualisationContainer
+                    className='row-start-3 row-end-4 sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2'>
+                    {selectedItem?.secondaryContent}
+                </DataVisualisationContainer>
+            }
         </div>
     )
 }

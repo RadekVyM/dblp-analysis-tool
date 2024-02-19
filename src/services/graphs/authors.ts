@@ -1,8 +1,8 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { NodeDatumCanvasExtension } from '@/dtos/graphs/NodeDatum'
-import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/graphs/PublicationPersonLinkDatum'
-import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/graphs/PublicationPersonNodeDatum'
+import { NodeDatumCanvasExtension } from '@/dtos/data-visualisation/graphs/NodeDatum'
+import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from '@/dtos/data-visualisation/graphs/PublicationPersonLinkDatum'
+import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { removeAccents } from '@/utils/strings'
 
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {

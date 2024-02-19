@@ -1,5 +1,5 @@
-import { LinkDatum } from '@/dtos/graphs/LinkDatum'
-import { NodeDatum } from '@/dtos/graphs/NodeDatum'
+import { LinkDatum } from '@/dtos/data-visualisation/graphs/LinkDatum'
+import { NodeDatum } from '@/dtos/data-visualisation/graphs/NodeDatum'
 
 export default function exportToGraphViz(nodes: Array<NodeDatum>, links: Array<LinkDatum>) {
     const stringLinks = links.map((link) => {

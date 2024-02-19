@@ -5,376 +5,352 @@ import { useState, useMemo, useRef, forwardRef, CSSProperties } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
 import { cn, prependDashedPrefix } from '@/utils/tailwindUtils'
-import Tabs from '../Tabs'
 import useDimensions from '@/hooks/useDimensions'
+import { ChartUnit } from '@/enums/ChartUnit'
+import { ChartOrientation } from '@/enums/ChartOrientation'
+import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartData'
+import { ChartData } from '@/dtos/data-visualisation/ChartData'
 
 export type BarChartData<T> = {
     color: (key: any) => string,
     barTitle?: (key: any) => string,
-    /** Defines a property that specifies a bar of the chart. Items are assigned to a bar based on this property. */
-    bar: (item: T) => any,
-    items: Array<T>
-}
+} & ChartData<T>
 
 type Padding = { left: number, top: number, right: number, bottom: number }
 
 type Dimensions = { width: number, height: number }
 
 type BarChartParams = {
-    unitsId: string,
     data: BarChartData<any>,
+    selectedUnit: ChartUnit,
     bandThickness?: number,
     secondaryAxisThickness?: number,
     className?: string,
-    orientation?: BarChartOrientation
+    orientation?: ChartOrientation
 }
 
-type TicksParams = {
-    orientation: BarChartOrientation,
-    selectedUnitsType: UnitsType,
+type SecondaryAxisParams = {
+    orientation: ChartOrientation,
+    selectedUnit: ChartUnit,
     padding: Padding,
-    scale: d3.ScaleLinear<number, number, never>,
+    valuesScale: d3.ScaleLinear<number, number, never>,
     dimensions: Dimensions,
     className?: string,
     style?: CSSProperties,
 }
 
 type ChartParams = {
-    selectedUnitsType: UnitsType,
+    selectedUnit: ChartUnit,
     dimensions: Dimensions,
     padding: Padding,
-    rolledItems: d3.InternMap<any, number>,
+    chartMap: d3.InternMap<any, number>,
+    keys: Array<any>,
     valuesScale: d3.ScaleLinear<number, number, never>,
-    orientation: BarChartOrientation,
+    orientation: ChartOrientation,
+    className?: string,
     color: (key: any) => string,
 }
 
 type PrimaryAxisLabelsParams = {
-    rolledItems: d3.InternMap<any, number>,
-    orientation: BarChartOrientation,
+    labels: Array<any>,
+    orientation: ChartOrientation,
     dimensions: Dimensions,
     padding: Padding,
+    secondaryAxisThickness: number,
     className?: string,
-    barTitle?: (key: any) => string,
 }
 
-const UnitsType = {
-    Count: 'Count',
-    Percentage: 'Percentage'
-} as const;
-
-type UnitsType = keyof typeof UnitsType
-
-const BarChartOrientation = {
-    Horizontal: 'Horizontal',
-    Vertical: 'Vertical'
-} as const;
-
-type BarChartOrientation = keyof typeof BarChartOrientation
+type SecondaryAxisLinesParams = {
+} & SecondaryAxisParams
 
 /** Chart that displays data as bars. */
-export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, unitsId, orientation }: BarChartParams) {
-    orientation ??= BarChartOrientation.Horizontal;
+export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit }: BarChartParams) {
+    orientation ??= ChartOrientation.Horizontal;
     bandThickness ??= 75;
     secondaryAxisThickness ??= 40;
-    const chartPadding: Padding = orientation == BarChartOrientation.Horizontal ?
+    const chartPadding: Padding = orientation == ChartOrientation.Horizontal ?
         { left: 40, top: 0, right: 40, bottom: 0 } :
-        { left: 0, top: 40, right: 0, bottom: 40 };
-    const [selectedUnitsType, setSelectedUnitsType] = useState<UnitsType>('Count');
-    const rolledItems = useMemo<d3.InternMap<any, number>>(() => {
-        const rolled = d3.rollup(data.items, r => r.length, data.bar);
-
-        if (selectedUnitsType === UnitsType.Percentage) {
-            const total = data.items.length;
-
-            for (const key of rolled.keys()) {
-                const value = rolled.get(key);
-                if (total && value) {
-                    rolled.set(key, value / total);
-                }
-            }
-        }
-
-        return rolled;
-    }, [data, selectedUnitsType]);
-    const valuesDomain: [number, number] = useMemo(() =>
-        [0, getTopDomainValue()],
-        [rolledItems, selectedUnitsType]);
-    const valuesScale = useMemo(() =>
-        d3.scaleLinear(valuesDomain, [0, 1]),
-        [valuesDomain]);
-
+        { left: 0, top: 10, right: 0, bottom: 10 };
+    const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, orientation);
     const {
         svgContainerRef,
         dimensions
-    } = useChartDimensions(rolledItems.size, bandThickness, orientation);
-
-    function getTopDomainValue() {
-        const max = (d3.extent(rolledItems.values()) as [number, number])[1];
-
-        return selectedUnitsType === UnitsType.Percentage ?
-            1 :
-            Math.ceil(max / 10) * 10;
-    }
+    } = useChartDimensions(chartMap.size, bandThickness, orientation);
 
     return (
         <div
-            className={cn(className, 'overflow-hidden grid grid-rows-[1fr_auto]')}>
-            <div
+            className={cn(
+                className,
+                'overflow-auto',
+                'grid thin-scrollbar scroll-gutter-stable box-border min-h-0 min-w-0',
+                orientation === ChartOrientation.Horizontal ?
+                    'grid-cols-[minmax(8rem,0.25fr)_1fr]' :
+                    'grid-rows-[1fr_minmax(2rem,auto)]'
+            )}>
+            <PrimaryAxisLabels
+                orientation={orientation || ChartOrientation.Horizontal}
+                labels={keys.map((key) => data.barTitle && data.barTitle(key))}
+                dimensions={dimensions}
+                padding={chartPadding}
+                secondaryAxisThickness={secondaryAxisThickness}
                 className={cn(
-                    'overflow-auto',
-                    'grid thin-scrollbar scroll-gutter-stable box-border max-w-full max-h-full h-full w-full min-h-0 min-w-0',
-                    orientation === BarChartOrientation.Horizontal ?
-                        'grid-cols-[minmax(8rem,0.25fr)_1fr]' :
-                        'grid-rows-[1fr_4rem]'
+                    'm-auto',
+                    orientation === ChartOrientation.Horizontal ?
+                        'order-1' :
+                        'order-2'
+                )} />
+            <div
+                ref={svgContainerRef}
+                className={cn(
+                    'relative isolate',
+                    'w-full h-full min-h-0 min-w-0 grid place-items-center',
+                    orientation === ChartOrientation.Horizontal ?
+                        'order-2 grid-rows-[1fr_auto] grid-cols-1' :
+                        'order-1 grid-cols-[auto_1fr] grid-rows-1'
                 )}>
-                <PrimaryAxisLabels
-                    orientation={orientation || BarChartOrientation.Horizontal}
-                    rolledItems={rolledItems}
-                    barTitle={data.barTitle}
-                    dimensions={dimensions}
+                <Chart
+                    className='z-10'
                     padding={chartPadding}
+                    dimensions={dimensions}
+                    color={data.color}
+                    orientation={orientation}
+                    chartMap={chartMap}
+                    keys={keys}
+                    selectedUnit={selectedUnit}
+                    valuesScale={valuesScale} />
+
+                <SecondaryAxis
+                    orientation={orientation}
+                    padding={chartPadding}
+                    dimensions={dimensions}
+                    selectedUnit={selectedUnit}
+                    valuesScale={valuesScale}
+                    style={{
+                        width: orientation === ChartOrientation.Horizontal ? undefined : secondaryAxisThickness,
+                        height: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
+                    }}
                     className={cn(
-                        'm-auto',
-                        orientation === BarChartOrientation.Horizontal ?
-                            'order-1' :
-                            'order-2'
+                        'sticky bg-surface-container z-20',
+                        orientation === ChartOrientation.Horizontal ?
+                            'bottom-0 left-0 right-0 col-start-1 row-start-2 self-end justify-self-stretch' :
+                            'top-0 bottom-0 left-0 col-start-1 row-start-1 self-stretch justify-self-start'
                     )} />
-                <div
-                    ref={svgContainerRef}
-                    className={cn(
-                        'relative',
-                        'w-full h-full min-h-0 min-w-0 grid place-items-center',
-                        orientation === BarChartOrientation.Horizontal ?
-                            'order-2 grid-rows-[1fr_auto] grid-cols-1' :
-                            'order-1 grid-cols-[auto_1fr] grid-rows-1'
-                    )}>
-                    <Chart
-                        padding={chartPadding}
-                        dimensions={dimensions}
-                        color={data.color}
-                        orientation={orientation}
-                        rolledItems={rolledItems}
-                        selectedUnitsType={selectedUnitsType}
-                        valuesScale={valuesScale} />
-                    <Ticks
-                        orientation={orientation}
-                        padding={chartPadding}
-                        dimensions={dimensions}
-                        selectedUnitsType={selectedUnitsType}
-                        scale={valuesScale}
-                        style={{
-                            width: orientation === BarChartOrientation.Horizontal ? undefined : secondaryAxisThickness,
-                            height: orientation === BarChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
-                        }}
-                        className={cn(
-                            'sticky bg-surface-container',
-                            orientation === BarChartOrientation.Horizontal ?
-                                'bottom-0 left-0 right-0 col-start-1 row-start-2 self-end justify-self-stretch' :
-                                'top-0 bottom-0 left-0 col-start-1 row-start-1 self-stretch justify-self-start'
-                        )} />
-                </div>
+
+                <SecondaryAxisLines
+                    orientation={orientation}
+                    padding={chartPadding}
+                    dimensions={dimensions}
+                    selectedUnit={selectedUnit}
+                    valuesScale={valuesScale}
+                    className='absolute inset-0'
+                    style={{
+                        left: orientation === ChartOrientation.Horizontal ? undefined : secondaryAxisThickness,
+                        bottom: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
+                    }} />
             </div>
-            <Tabs
-                className='mx-auto mt-6 w-fit'
-                size='xs'
-                legend='Choose units'
-                tabsId={unitsId}
-                selectedId={selectedUnitsType}
-                setSelectedId={setSelectedUnitsType}
-                items={[
-                    {
-                        content: 'Publications Count',
-                        id: UnitsType.Count
-                    },
-                    {
-                        content: '% of publications',
-                        id: UnitsType.Percentage
-                    }
-                ]} />
         </div>
     )
 }
 
-function Ticks({ scale, dimensions, selectedUnitsType, padding, orientation, className, style }: TicksParams) {
-    const [svgWidth, setSvgWidth] = useState(0);
-    const ticks = useMemo(() => {
-        const pixelsPerTick = 60;
-        const length = orientation === BarChartOrientation.Horizontal ?
-            dimensions.width - padding.left - padding.right :
-            dimensions.height - padding.top - padding.bottom;
-        const numberOfTicksTarget = Math.max(1, Math.floor(length / pixelsPerTick));
-
-        return scale.ticks(numberOfTicksTarget)
-            .filter(value => selectedUnitsType === UnitsType.Percentage ? true : value % 1 === 0)
-            .map(value => ({
-                value,
-                displayedValue: selectedUnitsType === UnitsType.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
-                offset: scale(value) * length
-            }));
-    }, [scale, dimensions, selectedUnitsType, orientation]);
-
-    return (
-        <DataVisualisationSvg
-            className={className}
-            style={style}
-            onDimensionsChange={(width, height) => setSvgWidth(width)}>
-            {ticks.map((tick, index) => {
-                const x = orientation === BarChartOrientation.Horizontal ?
-                    padding.left + tick.offset :
-                    padding.left + (svgWidth / 2);
-                const y = orientation === BarChartOrientation.Horizontal ?
-                    padding.top + 8 :
-                    padding.top + tick.offset;
-
-                return (
-                    <g
-                        key={tick.offset}>
-                        <line
-                            x1={x} y1={0}
-                            x2={x} y2={0}
-                            strokeDasharray='0 6 6'
-                            className='stroke-outline stroke-1' />
-
-                        <text
-                            x={x}
-                            y={y}
-                            dominantBaseline='middle'
-                            textAnchor='middle'
-                            className='text-xs fill-on-surface-container'>
-                            {tick.displayedValue}
-                        </text>
-                    </g>
-                )
-            })}
-        </DataVisualisationSvg>
-    )
-}
-
-function Chart({ rolledItems, valuesScale, dimensions, selectedUnitsType, orientation, padding, color }: ChartParams) {
-    const secondaryAxisLength = orientation === BarChartOrientation.Horizontal ?
+function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, color }: ChartParams) {
+    const secondaryAxisLength = orientation === ChartOrientation.Horizontal ?
         dimensions.width - padding.left - padding.right :
         dimensions.height - padding.top - padding.bottom;
-    const primaryAxisLength = orientation === BarChartOrientation.Horizontal ?
+    const primaryAxisLength = orientation === ChartOrientation.Horizontal ?
         dimensions.height - padding.top - padding.bottom :
         dimensions.width - padding.left - padding.right;
     const barsScale = useMemo(() =>
-        d3.scaleBand([0, primaryAxisLength]).domain(rolledItems.keys()),
-        [rolledItems, primaryAxisLength]);
+        d3.scaleBand([0, primaryAxisLength]).domain(keys),
+        [keys, primaryAxisLength]);
 
     return (
         <svg
             width={dimensions.width}
             height={dimensions.height}
             style={{
-                width: orientation === BarChartOrientation.Horizontal ? undefined : dimensions.width,
-                height: orientation === BarChartOrientation.Horizontal ? dimensions.height : undefined
+                width: orientation === ChartOrientation.Horizontal ? undefined : dimensions.width,
+                height: orientation === ChartOrientation.Horizontal ? dimensions.height : undefined
             }}
-            className='w-full h-full relative'>
-            {
-                Array.from(rolledItems.keys()).map((key, index) => {
-                    const value = rolledItems.get(key) as number;
-                    const displayedValue = selectedUnitsType === UnitsType.Percentage ?
-                        value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
-                        value.toLocaleString(undefined, { maximumFractionDigits: 2 });
-                    const bandWidth = barsScale.bandwidth();
-                    const barHeight = Math.min(bandWidth, 28);
-                    const offset = (barsScale(key) || 0) + (bandWidth - barHeight) / 2;
-                    const length = Math.max(0, secondaryAxisLength * valuesScale(value));
+            className={cn(className, 'w-full h-full relative')}>
+            {dimensions.width !== 0 && dimensions.height !== 0 && keys.map((key, index) => {
+                const value = chartMap.get(key) || 0;
+                const displayedValue = selectedUnit === ChartUnit.Percentage ?
+                    value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
+                    value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                const bandWidth = barsScale.bandwidth();
+                const barHeight = Math.min(bandWidth, 28);
+                const offset = (barsScale(key) || 0) + (bandWidth - barHeight) / 2;
+                const length = Math.max(0, secondaryAxisLength * valuesScale(value));
 
-                    const left = padding.left + (orientation === BarChartOrientation.Horizontal ? 0 : offset);
-                    const top = padding.top + (orientation === BarChartOrientation.Horizontal ? offset : secondaryAxisLength - length);
-                    const width = orientation === BarChartOrientation.Horizontal ? length : barHeight;
-                    const height = orientation === BarChartOrientation.Horizontal ? barHeight : length;
-                    const radius = Math.min(8, barHeight / 2, width / 2);
+                const left = padding.left + (orientation === ChartOrientation.Horizontal ? 0 : offset);
+                const top = padding.top + (orientation === ChartOrientation.Horizontal ? offset : secondaryAxisLength - length);
+                const width = orientation === ChartOrientation.Horizontal ? length : barHeight;
+                const height = orientation === ChartOrientation.Horizontal ? barHeight : length;
+                const radius = Math.min(8, barHeight / 2, width / 2);
 
-                    return (
-                        <g
-                            key={key}>
-                            <rect
-                                className={prependDashedPrefix('fill', color(key))}
-                                x={left} y={top}
-                                width={width} height={height}
-                                rx={radius} ry={radius} />
+                return (
+                    <g
+                        key={key}>
+                        <rect
+                            className={prependDashedPrefix('fill', color(key))}
+                            x={left} y={top}
+                            width={width} height={height}
+                            rx={radius} ry={radius} />
 
-                            <OutlinedText
-                                x={left + (width / 2)} y={top + (height / 2) + 2}
-                                dominantBaseline='middle' textAnchor='middle'
-                                className='text-xs font-semibold'>
-                                {displayedValue}
-                            </OutlinedText>
-                        </g>
-                    )
-                })
-            }
+                        <OutlinedText
+                            x={left + (width / 2)} y={top + (height / 2) + 2}
+                            dominantBaseline='middle' textAnchor='middle'
+                            className='text-xs font-semibold'>
+                            {displayedValue}
+                        </OutlinedText>
+                    </g>
+                )
+            })}
         </svg>
     )
 }
 
-const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({ rolledItems, orientation, className, dimensions, padding, barTitle }, ref) => {
+function SecondaryAxis({ valuesScale, dimensions, selectedUnit, padding, orientation, className, style }: SecondaryAxisParams) {
+    const [svgDimensions, setSvgDimensions] = useState<Dimensions>({ width: 0, height: 0 });
+    const ticks = useValuesTicks(valuesScale, orientation, dimensions, padding, selectedUnit);
+
+    return (
+        <DataVisualisationSvg
+            className={className}
+            style={style}
+            onDimensionsChange={(width, height) => setSvgDimensions({ width, height })}>
+            {dimensions.width !== 0 && dimensions.height !== 0 && ticks.map((tick, index) => {
+                const x = orientation === ChartOrientation.Horizontal ?
+                    padding.left + tick.offset :
+                    padding.left + (svgDimensions.width / 2);
+                const y = orientation === ChartOrientation.Horizontal ?
+                    padding.top + (svgDimensions.height / 2) :
+                    padding.top + tick.offset;
+
+                return (
+                    <text
+                        key={tick.value}
+                        x={x}
+                        y={y}
+                        dominantBaseline='middle'
+                        textAnchor='middle'
+                        className='text-xs fill-on-surface-container'>
+                        {tick.displayedValue}
+                    </text>
+                )
+            })}
+        </DataVisualisationSvg>
+    )
+}
+
+function SecondaryAxisLines({ valuesScale, dimensions, selectedUnit, padding, orientation, className, style }: SecondaryAxisLinesParams) {
+    const [svgDimensions, setSvgDimensions] = useState<Dimensions>({ width: 0, height: 0 });
+    const ticks = useValuesTicks(valuesScale, orientation, dimensions, padding, selectedUnit);
+
+    return (
+        <div
+            className={className}
+            style={style}>
+            <DataVisualisationSvg
+                onDimensionsChange={(width, height) => setSvgDimensions({ width, height })}>
+                {dimensions.width !== 0 && dimensions.height !== 0 && ticks.map((tick, index) => {
+                    const x1 = orientation === ChartOrientation.Horizontal ?
+                        padding.left + tick.offset :
+                        padding.left;
+                    const x2 = orientation === ChartOrientation.Horizontal ?
+                        x1 :
+                        padding.left + svgDimensions.width;
+                    const y1 = orientation === ChartOrientation.Horizontal ?
+                        padding.top :
+                        padding.top + tick.offset;
+                    const y2 = orientation === ChartOrientation.Horizontal ?
+                        padding.top + svgDimensions.height :
+                        y1;
+
+                    return (
+                        <line
+                            key={tick.value}
+                            x1={x1} y1={y1}
+                            x2={x2} y2={y2}
+                            strokeDasharray='0 6 6'
+                            className='stroke-outline stroke-1' />
+                    )
+                })}
+            </DataVisualisationSvg>
+        </div>
+    )
+}
+
+const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({ labels, orientation, className, dimensions, padding, secondaryAxisThickness }, ref) => {
     return (
         <div
             ref={ref}
             className={cn(
                 className,
                 'relative grid isolate',
-                orientation === BarChartOrientation.Horizontal ?
+                orientation === ChartOrientation.Horizontal ?
                     'grid-rows-[1fr_auto]' :
                     'grid-cols-[auto_1fr]')}>
             <div
                 className={cn(
                     className,
                     'relative flex justify-items-center justify-stretch',
-                    orientation === BarChartOrientation.Horizontal ?
+                    orientation === ChartOrientation.Horizontal ?
                         'flex-col items-end' :
                         'flex-row items-start')}
                 style={{
-                    width: orientation === BarChartOrientation.Horizontal ? undefined : dimensions.width,
-                    height: orientation === BarChartOrientation.Horizontal ? dimensions.height : undefined,
-                    marginLeft: orientation === BarChartOrientation.Horizontal ? undefined : padding.left,
-                    marginTop: orientation === BarChartOrientation.Horizontal ? padding.top : undefined,
-                    marginRight: orientation === BarChartOrientation.Horizontal ? undefined : padding.right,
-                    marginBottom: orientation === BarChartOrientation.Horizontal ? padding.bottom : undefined,
+                    width: orientation === ChartOrientation.Horizontal ? undefined : dimensions.width,
+                    height: orientation === ChartOrientation.Horizontal ? dimensions.height : undefined,
+                    marginLeft: orientation === ChartOrientation.Horizontal ? undefined : padding.left,
+                    marginTop: orientation === ChartOrientation.Horizontal ? padding.top : undefined,
+                    marginRight: orientation === ChartOrientation.Horizontal ? undefined : padding.right,
+                    marginBottom: orientation === ChartOrientation.Horizontal ? padding.bottom : undefined,
                 }}>
                 {
-                    Array.from(rolledItems.keys()).map((key, index) => {
+                    labels.map((label) => {
                         return (
                             <div
-                                key={key}
+                                key={label}
                                 className='flex-1 grid items-center'>
                                 <span
                                     className={cn('text-xs text-on-surface-container',
-                                        orientation === BarChartOrientation.Horizontal ?
+                                        orientation === ChartOrientation.Horizontal ?
                                             'text-end' :
                                             'text-center')}>
-                                    {barTitle && barTitle(key)}
+                                    {label}
                                 </span>
                             </div>
                         )
                     })
                 }
             </div>
-            <div className={cn(
-                'sticky bg-surface-container z-10',
-                orientation === BarChartOrientation.Horizontal ?
-                    'h-8 bottom-0 left-0 right-0 col-start-1 row-start-2' :
-                    'w-8 top-0 bottom-0 left-0 col-start-1 row-start-1')}></div>
+            <div
+                style={{
+                    width: orientation === ChartOrientation.Horizontal ? undefined : secondaryAxisThickness,
+                    height: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
+                }}
+                className={cn(
+                    'sticky bg-surface-container z-10',
+                    orientation === ChartOrientation.Horizontal ?
+                        'h-8 bottom-0 left-0 right-0 col-start-1 row-start-2' :
+                        'w-8 top-0 bottom-0 left-0 col-start-1 row-start-1')}></div>
         </div>
     )
 });
 
 PrimaryAxisLabels.displayName = 'PrimaryAxisLabels';
 
-function useChartDimensions(bandsCount: number, bandThickness: number, orientation: BarChartOrientation) {
+/** Hook that manages dimensions of the chart SVG element. */
+function useChartDimensions(bandsCount: number, bandThickness: number, orientation: ChartOrientation) {
     const svgContainerRef = useRef<HTMLDivElement>(null);
     const svgContainerDimenstions = useDimensions(svgContainerRef);
 
     const minSize = bandThickness * bandsCount;
     const dimensions = {
-        width: orientation == BarChartOrientation.Horizontal ?
+        width: orientation == ChartOrientation.Horizontal ?
             svgContainerDimenstions.width :
             minSize,
-        height: orientation == BarChartOrientation.Horizontal ?
+        height: orientation == ChartOrientation.Horizontal ?
             minSize :
             svgContainerDimenstions.height,
     };
@@ -383,4 +359,29 @@ function useChartDimensions(bandsCount: number, bandThickness: number, orientati
         svgContainerRef,
         dimensions,
     }
+}
+
+/** Hook that returns a scale for ticks that can be displayed on the secondary axis. */
+function useValuesTicks(
+    valuesScale: d3.ScaleLinear<number, number, never>,
+    orientation: ChartOrientation,
+    dimensions: Dimensions,
+    padding: Padding,
+    selectedUnit: ChartUnit
+) {
+    return useMemo(() => {
+        const pixelsPerTick = 60;
+        const length = orientation === ChartOrientation.Horizontal ?
+            dimensions.width - padding.left - padding.right :
+            dimensions.height - padding.top - padding.bottom;
+        const numberOfTicksTarget = Math.max(1, Math.floor(length / pixelsPerTick));
+
+        return valuesScale.ticks(numberOfTicksTarget)
+            .filter(value => selectedUnit === ChartUnit.Percentage ? true : value % 1 === 0)
+            .map(value => ({
+                value,
+                displayedValue: selectedUnit === ChartUnit.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
+                offset: (orientation === ChartOrientation.Horizontal ? valuesScale(value) : 1 - valuesScale(value)) * length
+            }));
+    }, [valuesScale, dimensions, selectedUnit, orientation]);
 }

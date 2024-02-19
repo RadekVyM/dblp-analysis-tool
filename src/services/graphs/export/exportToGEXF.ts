@@ -1,5 +1,5 @@
-import { LinkDatum } from '@/dtos/graphs/LinkDatum'
-import { NodeDatum } from '@/dtos/graphs/NodeDatum'
+import { LinkDatum } from '@/dtos/data-visualisation/graphs/LinkDatum'
+import { NodeDatum } from '@/dtos/data-visualisation/graphs/NodeDatum'
 import { prettifyXml } from '@/utils/strings'
 
 export default function exportToGEXF(nodes: Array<NodeDatum>, links: Array<LinkDatum>) {

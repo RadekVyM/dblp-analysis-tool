@@ -1,5 +1,5 @@
-import { LinkDatum } from '@/dtos/graphs/LinkDatum'
-import { NodeDatum } from '@/dtos/graphs/NodeDatum'
+import { LinkDatum } from '@/dtos/data-visualisation/graphs/LinkDatum'
+import { NodeDatum } from '@/dtos/data-visualisation/graphs/NodeDatum'
 
 export default function exportToGDF(nodes: Array<NodeDatum>, links: Array<LinkDatum>) {
     const nodeDef = 'nodedef> name VARCHAR,label VARCHAR';
