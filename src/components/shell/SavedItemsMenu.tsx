@@ -13,12 +13,13 @@ import { createLocalPath } from '@/utils/urls'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'
 import useVisitedAuthors from '@/hooks/useVisitedAuthors'
 import useVisitedVenues from '@/hooks/useVisitedVenues'
-import { signOut, useSession } from 'next-auth/react'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { DISPLAYED_VISITED_AUTHORS_COUNT as DISPLAYED_VISITED_ITEMS_COUNT } from '@/constants/visits'
 import { createPortal } from 'react-dom'
+import { submitSignOutForm } from '@/services/auth/forms'
+import useSession from '@/hooks/useSession'
 
 // TODO: Do I want the hover feature?
 
@@ -155,7 +156,7 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
                 pointer-events-auto animate-slideLeftIn md:animate-none`,
                 className)}>
             {
-                session.status !== 'authenticated' ?
+                !session ?
                     <NotAuthenticated /> :
                     <MenuContent
                         hide={hide} />
@@ -204,11 +205,13 @@ function MenuContent({ hide }: MenuContentParams) {
             <ul
                 className='flex gap-2 mx-6 py-6 border-t border-outline-variant'>
                 <li>
-                    <Button
-                        size='xs'
-                        onClick={async () => await signOut()}>
-                        Sign out
-                    </Button>
+                    <form
+                        action={submitSignOutForm}>
+                        <Button
+                            size='xs'>
+                            Sign out
+                        </Button>
+                    </form>
                 </li>
                 <li>
                     <Button
@@ -386,8 +389,8 @@ function UserInfo({ className }: UserInfoParams) {
 
     return (
         <div>
-            <h2 className='font-bold leading-4'>{session.data?.user?.name}</h2>
-            <span className='text-xs leading-3'>{session.data?.user?.email}</span>
+            <h2 className='font-bold leading-4'>{session?.user?.username}</h2>
+            <span className='text-xs leading-3'>{session?.user?.email}</span>
         </div>
     )
 }

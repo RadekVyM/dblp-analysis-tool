@@ -1,7 +1,7 @@
 import { UserSchema } from '@/db/models/User'
 import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
 import { SavedVenue } from '@/dtos/saves/SavedVenue'
-import { getCurrentUser } from '@/services/auth/server'
+import { getCurrentUser } from '@/services/auth'
 import { NextResponse } from 'next/server'
 
 /**

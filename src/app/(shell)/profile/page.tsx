@@ -1,10 +1,10 @@
 import PageContainer from '@/components/shell/PageContainer'
-import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import YourInfoForm from './(components)/YourInfoForm'
 import ProfileHeader from './(components)/ProfileHeader'
 import ChangePasswordForm from './(components)/ChangePasswordForm'
 import DeleteAccountForm from './(components)/DeleteAccountForm'
+import { getSession } from '@/services/auth/session'
 
 type YourInfoParams = {
 }
@@ -15,9 +15,9 @@ type SectionParams = {
 }
 
 export default async function ProfilePage() {
-    const session = await getServerSession();
+    const session = await getSession();
 
-    if (!session || !session.user) {
+    if (!session) {
         redirect('/auth/signin');
     }
 

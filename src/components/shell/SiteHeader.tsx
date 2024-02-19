@@ -1,10 +1,11 @@
 import NavigationMenu from './NavigationMenu'
 import { cn } from '@/utils/tailwindUtils'
-import SignInButton from '../SignInButton'
 import SiteLogo from './SiteLogo'
 import { SavedItemsMenuIntegration } from './SavedItemsMenuIntegration'
-import { isAuthorizedOnServer } from '@/services/auth/server'
+import { isAuthorizedOnServer } from '@/services/auth'
 import Search from './Search'
+import Button from '../Button'
+import { FaUser } from 'react-icons/fa'
 
 type SiteHeaderParams = {
     className?: string,
@@ -38,7 +39,12 @@ export default async function SiteHeader({ className }: SiteHeaderParams) {
                     {
                         isAuthorized ?
                             <SavedItemsMenuIntegration /> :
-                            <SignInButton />
+                            <Button
+                                title='Sign in'
+                                variant='icon-outline'
+                                href='/auth/signin'>
+                                <FaUser />
+                            </Button>
                     }
                 </div>
             </div>

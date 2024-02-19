@@ -1,9 +1,9 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Gabarito } from 'next/font/google'
-import SessionProvider from '@/components/providers/SessionProvider'
-import { getServerSession } from 'next-auth'
 import Notifications from '@/components/shell/Notifications'
+import { getSession } from '@/services/auth/session'
+import SessionProvider from '@/components/providers/SessionProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,7 +17,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession();
+  const session = await getSession();
 
   return (
     <html lang='en' className='scroll-pt-36'>

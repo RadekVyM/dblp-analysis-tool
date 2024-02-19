@@ -3,7 +3,7 @@ import PageTitle from '@/components/shell/PageTitle'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import SaveButtons from './(components)/SaveButtons'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
-import { isAuthorizedOnServer } from '@/services/auth/server'
+import { isAuthorizedOnServer } from '@/services/auth'
 import { fetchVenue } from '@/services/venues/fetch-server'
 
 export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {

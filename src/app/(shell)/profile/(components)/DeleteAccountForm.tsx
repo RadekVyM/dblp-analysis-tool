@@ -3,8 +3,7 @@
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
-import { submitDeleteAccountForm } from '@/services/auth/server/forms'
-import { signOut } from 'next-auth/react'
+import { submitDeleteAccountForm } from '@/services/auth/forms'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 // @ts-expect-error
@@ -28,8 +27,6 @@ export default function DeleteAccountForm({ }: DeleteAccountFormParams) {
                 type: NotificationType.Success,
                 autoclose: true
             });
-
-            signOut({ redirect: false }).then();
         }
         else if (formState.error) {
             pushNotification({

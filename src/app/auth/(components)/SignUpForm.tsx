@@ -13,7 +13,7 @@ import Form from '@/components/forms/Form'
 import { useRouter } from 'next/navigation'
 import useNotifications from '@/hooks/useNotifications'
 import { NotificationType } from '@/enums/NotificationType'
-import { submitSignUpForm } from '@/services/auth/server/forms'
+import { submitSignUpForm } from '@/services/auth/forms'
 
 type RegisterFormParams = {
     className?: string

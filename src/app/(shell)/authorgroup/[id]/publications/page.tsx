@@ -1,7 +1,7 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
-import { getCurrentUser } from '@/services/auth/server'
+import { getCurrentUser } from '@/services/auth'
 import { getAuthorGroup } from '@/services/saves/authorGroups'
 import { redirect } from 'next/navigation'
 import { unauthorizedError } from '@/utils/errors'

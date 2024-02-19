@@ -1,7 +1,7 @@
 'use client'
 
 import PageTitle from '@/components/shell/PageTitle'
-import { useSession } from 'next-auth/react'
+import useSession from '@/hooks/useSession';
 
 export default function ProfileHeader() {
     const session = useSession();
@@ -9,7 +9,7 @@ export default function ProfileHeader() {
     return (
         <header>
             <PageTitle
-                title={session.data?.user?.name || ''}
+                title={session?.user?.username || ''}
                 subtitle='Profile'
                 className='pb-12' />
         </header>

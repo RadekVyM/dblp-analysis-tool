@@ -2,12 +2,12 @@ import { redirect } from 'next/navigation'
 import SignUpForm from '../(components)/SignUpForm'
 import PageContainer from '@/components/shell/PageContainer'
 import Link from 'next/link'
-import { getServerSession } from 'next-auth'
+import { getSession } from '@/services/auth/session'
 
 export default async function SignUpPage({ }) {
-    const session = await getServerSession();
+    const session = await getSession();
 
-    if (session && session?.user) {
+    if (session) {
         redirect('/profile');
     }
 

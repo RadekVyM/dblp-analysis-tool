@@ -1,15 +1,17 @@
 'use client'
 
+// @ts-expect-error
+import { useFormState } from 'react-dom'
 import Input from '../../../components/forms/Input'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from '@/services/auth/client'
 import signInValidator from '@/validation/signInValidator'
 import { SignInInputs } from '@/validation/schemas/SignInSchema'
 import ErrorMessage from '../../../components/forms/ErrorMessage'
 import { anyKeys } from '@/utils/objects'
 import SubmitButton from '@/components/forms/SubmitButton'
 import Form from '@/components/forms/Form'
+import { submitSignInForm } from '@/services/auth/forms'
 
 type SignInFormParams = {
     className?: string
@@ -20,37 +22,27 @@ export default function SignInForm({ className }: SignInFormParams) {
         email: '',
         password: '',
     });
+    const [formState, formAction] = useFormState(submitSignInForm, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
-    const [error, setError] = useState<string | null>(null);
-    const searchParams = useSearchParams();
     const router = useRouter();
-    const callbackUrl = searchParams.get('callbackUrl') || '/';
+
+    useEffect(() => {
+        if (formState.success) {
+            router.push('/');
+        }
+    }, [formState]);
 
     async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
+        setLoading(true);
+        const err = signInValidator({ ...formValues });
+        setErrors(err);
 
-        try {
-            setLoading(true);
-            const err = signInValidator({ ...formValues });
-            setErrors(err);
-
-            if (anyKeys(err)) {
-                return
-            }
-
-            await signIn(formValues.email, formValues.password, callbackUrl);
-
-            router.push(callbackUrl);
+        if (anyKeys(err)) {
+            e.preventDefault();
         }
-        catch (error) {
-            if (error instanceof Error) {
-                setError(error.message);
-            }
-        }
-        finally {
-            setLoading(false);
-        }
+
+        setLoading(false);
     }
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -60,6 +52,7 @@ export default function SignInForm({ className }: SignInFormParams) {
 
     return (
         <Form
+            action={formAction}
             onSubmit={onSubmit}
             className={className}>
             <Input
@@ -81,7 +74,7 @@ export default function SignInForm({ className }: SignInFormParams) {
                 onChange={handleChange}
                 error={errors?.password && 'Invalid password.'} />
 
-            {error && <ErrorMessage>{error}</ErrorMessage>}
+            {formState?.error && <ErrorMessage>{formState?.error}</ErrorMessage>}
 
             <SubmitButton
                 className='w-full mt-4'

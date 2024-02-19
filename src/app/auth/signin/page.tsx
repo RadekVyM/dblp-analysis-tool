@@ -1,6 +1,6 @@
 import SignInForm from '../(components)/SignInForm'
 import PageContainer from '@/components/shell/PageContainer'
-import { getServerSession } from 'next-auth'
+import { getSession } from '@/services/auth/session'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
@@ -9,9 +9,9 @@ type SignInPageParams = {
 }
 
 export default async function SignInPage({ searchParams }: SignInPageParams) {
-    const session = await getServerSession();
+    const session = await getSession();
 
-    if (session && session?.user) {
+    if (session) {
         redirect('/profile');
     }
 

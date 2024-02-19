@@ -75,7 +75,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
     const {
         svgContainerRef,
         dimensions
-    } = useChartDimensions(chartMap.size, bandThickness, orientation);
+    } = useChartDimensions(keys.length, bandThickness, orientation);
 
     return (
         <div

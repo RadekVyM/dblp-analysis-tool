@@ -6,16 +6,15 @@ import Input from '@/components/forms/Input'
 import SubmitButton from '@/components/forms/SubmitButton'
 import { NotificationType } from '@/enums/NotificationType'
 import useNotifications from '@/hooks/useNotifications'
-import { submitChangeUserInfoForm } from '@/services/auth/server/forms'
-import { updatedSession } from '@/services/auth/client'
+import { submitChangeUserInfoForm } from '@/services/auth/forms'
 import { anyKeys } from '@/utils/objects'
 import changeUserInfoValidator from '@/validation/changeUserInfoValidator'
 import { ChangeUserInfoInputs } from '@/validation/schemas/ChangeUserInfoSchema'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, useEffect, useState } from 'react'
 // @ts-expect-error
 import { useFormState } from 'react-dom'
+import useSession from '@/hooks/useSession'
 
 type YourInfoFormParams = {
 }
@@ -28,17 +27,13 @@ export default function YourInfoForm({ }: YourInfoFormParams) {
     const [formState, formAction] = useFormState(submitChangeUserInfoForm, {});
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: any }>({});
-    const { data: session, update: updateSession } = useSession();
+    const session = useSession();
     const router = useRouter();
     const { pushNotification } = useNotifications();
 
     useEffect(() => {
         // Update session after successful form submit 
         if (formState.success && formState?.email && formState?.username) {
-            const newSession = updatedSession(session, formState?.username, formState?.email);
-            updateSession(newSession)
-                .then(() => { });
-
             pushNotification({
                 key: 'PROFILE_INFO_CHANGED',
                 message: 'Your profile information has been changed succesfully',
@@ -51,7 +46,7 @@ export default function YourInfoForm({ }: YourInfoFormParams) {
     useEffect(() => {
         if (session?.user) {
             setFormValues({
-                username: session.user.name || '',
+                username: session.user.username || '',
                 email: session.user.email || ''
             })
         }
@@ -84,7 +79,7 @@ export default function YourInfoForm({ }: YourInfoFormParams) {
                 label='Name'
                 name='username'
                 required
-                defaultValue={session?.user?.name || ''}
+                defaultValue={session?.user?.username || ''}
                 onChange={handleChange}
                 error={errors?.username && 'Name must contain at least 1 character.'} />
             <Input
@@ -101,7 +96,7 @@ export default function YourInfoForm({ }: YourInfoFormParams) {
 
             <SubmitButton
                 className='self-end mt-4'
-                disabled={session?.user?.name === formValues.username && session?.user?.email === formValues.email}
+                disabled={session?.user?.username === formValues.username && session?.user?.email === formValues.email}
                 loading={loading}>
                 Save changes
             </SubmitButton>

@@ -1,6 +1,6 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { getCurrentUser } from '@/services/auth/server'
+import { getCurrentUser } from '@/services/auth'
 import { getAuthorGroup } from '@/services/saves/authorGroups'
 import { redirect } from 'next/navigation'
 import { RemoveAuthorGroupButton } from './(components)/RemoveAuthorGroupButton'
