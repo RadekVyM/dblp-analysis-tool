@@ -1,8 +1,7 @@
 'use client'
 
-import HorizontalBarChart, { HorizontalBarChartData } from '@/components/data-visualisation/HorizontalBarChart'
+import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
 import PieChart, { PieChartData } from '@/components/data-visualisation/PieChart'
-import { DataVisualisationSvg } from '@/components/data-visualisation/DataVisualisationSvg'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import Table from '@/components/data-visualisation/Table'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
@@ -60,16 +59,17 @@ export function PublicationTypesStats({ className, publications, scaffoldId }: P
 
 function PublicationTypesStatsBarChart({ publications, scaffoldId }: PublicationTypesStatsParams) {
     return (
-        <HorizontalBarChart
+        <BarChart
+            orientation='Horizontal'
+            bandThickness={60}
             unitsId={scaffoldId || ''}
             className='w-full h-[100vh] min-h-[30rem] max-h-[min(80vh,40rem)] px-4 xs:px-8 py-7'
-            innerClassName='min-w-[20rem]'
             data={{
                 bar: (item) => item.type,
                 barTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
                 color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
                 items: publications
-            } as HorizontalBarChartData<Publ>} />
+            } as BarChartData<Publ>} />
     )
 }
 

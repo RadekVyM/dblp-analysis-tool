@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useImperativeHandle } from 'react'
+import { forwardRef, useEffect, useRef, useImperativeHandle, CSSProperties } from 'react'
 import { cn } from '@/utils/tailwindUtils'
 import useDimensions from '@/hooks/useDimensions'
 import useZoom, { OnZoomChangeCallback, ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
@@ -8,6 +8,7 @@ import useZoom, { OnZoomChangeCallback, ZoomScaleExtent, ZoomTransform } from '@
 type DataVisualisationSvgParams = {
     children: React.ReactNode,
     className?: string,
+    style?: CSSProperties,
     before?: React.ReactNode,
     after?: React.ReactNode,
     innerClassName?: string,
@@ -30,6 +31,7 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     onDimensionsChange,
     onZoomChange,
     className,
+    style,
     innerClassName },
     ref) => {
     const innerRef = useRef<SVGSVGElement>(null);
@@ -52,6 +54,7 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     return (
         <div
             ref={outerRef}
+            style={style}
             className={cn('relative isolate w-full h-full overflow-x-auto', className)}>
             {before}
             <svg

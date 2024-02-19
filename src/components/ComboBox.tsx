@@ -23,25 +23,11 @@ type ComboBoxItem = {
 export default function ComboBox({ items, className, id, selectedKey, onKeySelectionChange }: ComboBoxParams) {
     const divRef = useRef<HTMLDivElement>(null);
     const [expanded, setExpanded] = useState(false);
-    const [focused, setFocused] = useState(false);
-    const debouncedFocused = useDebounce(focused, 100);
-
-    useEffect(() => {
-        setExpanded(debouncedFocused);
-    }, [debouncedFocused]);
-
-    useEffect(() => {
-        if (!expanded) {
-            divRef.current?.blur();
-        }
-    }, [focused]);
 
     return (
         <div
             ref={divRef}
-            className={cn('relative', className)}
-            onBlur={() => setFocused(false)}
-            onFocus={() => setFocused(true)}>
+            className={cn('relative', className)}>
             <ClientButton
                 variant='outline'
                 className='w-full h-full flex justify-start'
