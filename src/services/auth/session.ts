@@ -6,16 +6,16 @@ import { Session } from '@/dtos/Session';
 
 /** Inspired by: https://github.com/balazsorban44/auth-poc-next/tree/main */
 
-const SESSION_KEY = process.env.SESSION_KEY!;
+const SESSION_SECRET = process.env.SESSION_SECRET!;
 
-if (!SESSION_KEY) {
-    throw new Error('The SESSION_KEY environment variable is not defined');
+if (!SESSION_SECRET) {
+    throw new Error('The SESSION_SECRET environment variable is not defined');
 }
 
 const EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 1 week
 const ALGORITHM = 'HS256';
-const secretKey = 'secret';
-const key = new TextEncoder().encode(secretKey);
+const SESSION_KEY = 'session';
+const encryptKey = new TextEncoder().encode(SESSION_SECRET);
 
 /**
  * Updates the user's session.
@@ -82,10 +82,10 @@ async function encrypt(payload: any) {
         .setProtectedHeader({ alg: ALGORITHM })
         .setIssuedAt()
         .setExpirationTime('1 week from now')
-        .sign(key);
+        .sign(encryptKey);
 }
 
 async function decrypt(input: string): Promise<any> {
-    const { payload } = await jwtVerify(input, key, { algorithms: [ALGORITHM] });
+    const { payload } = await jwtVerify(input, encryptKey, { algorithms: [ALGORITHM] });
     return payload;
 }
