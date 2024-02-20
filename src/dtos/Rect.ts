@@ -1,9 +1,7 @@
 export type Rect = {
     x: number,
     y: number,
-    width: number,
-    height: number,
-}
+} & Dimensions
 
 export type EdgeRect = {
     left: number,
@@ -11,3 +9,5 @@ export type EdgeRect = {
     right: number,
     bottom: number,
 }
+
+export type Dimensions = { width: number, height: number }

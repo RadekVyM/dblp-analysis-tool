@@ -10,15 +10,13 @@ import { ChartUnit } from '@/enums/ChartUnit'
 import { ChartOrientation } from '@/enums/ChartOrientation'
 import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartData'
 import { ChartData } from '@/dtos/data-visualisation/ChartData'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { Dimensions, EdgeRect } from '@/dtos/Rect'
 
 export type BarChartData<T> = {
-    color: (key: any) => string,
-    barTitle?: (key: any) => string,
+    color: (key: any, value?: ChartValue) => string,
+    barTitle?: (key: any, value?: ChartValue) => string,
 } & ChartData<T>
-
-type Padding = { left: number, top: number, right: number, bottom: number }
-
-type Dimensions = { width: number, height: number }
 
 type BarChartParams = {
     data: BarChartData<any>,
@@ -32,7 +30,7 @@ type BarChartParams = {
 type SecondaryAxisParams = {
     orientation: ChartOrientation,
     selectedUnit: ChartUnit,
-    padding: Padding,
+    padding: EdgeRect,
     valuesScale: d3.ScaleLinear<number, number, never>,
     dimensions: Dimensions,
     className?: string,
@@ -42,20 +40,20 @@ type SecondaryAxisParams = {
 type ChartParams = {
     selectedUnit: ChartUnit,
     dimensions: Dimensions,
-    padding: Padding,
-    chartMap: d3.InternMap<any, number>,
+    padding: EdgeRect,
+    chartMap: d3.InternMap<any, ChartValue>,
     keys: Array<any>,
     valuesScale: d3.ScaleLinear<number, number, never>,
     orientation: ChartOrientation,
     className?: string,
-    color: (key: any) => string,
+    color: (key: any, value?: ChartValue) => string,
 }
 
 type PrimaryAxisLabelsParams = {
     labels: Array<any>,
     orientation: ChartOrientation,
     dimensions: Dimensions,
-    padding: Padding,
+    padding: EdgeRect,
     secondaryAxisThickness: number,
     className?: string,
 }
@@ -68,9 +66,10 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
     orientation ??= ChartOrientation.Horizontal;
     bandThickness ??= 75;
     secondaryAxisThickness ??= 40;
-    const chartPadding: Padding = orientation == ChartOrientation.Horizontal ?
-        { left: 40, top: 0, right: 40, bottom: 0 } :
-        { left: 0, top: 10, right: 0, bottom: 10 };
+    const chartPadding: EdgeRect = useMemo(() =>
+        orientation == ChartOrientation.Horizontal ?
+            { left: 40, top: 0, right: 40, bottom: 0 } :
+            { left: 0, top: 10, right: 0, bottom: 10 }, [orientation]);
     const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, orientation);
     const {
         svgContainerRef,
@@ -89,7 +88,13 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
             )}>
             <PrimaryAxisLabels
                 orientation={orientation || ChartOrientation.Horizontal}
-                labels={keys.map((key) => data.barTitle && data.barTitle(key))}
+                labels={keys.map((key) => {
+                    if (data.barTitle) {
+                        const value = chartMap.get(key);
+                        return data.barTitle(key, value);
+                    }
+                    return key;
+                })}
                 dimensions={dimensions}
                 padding={chartPadding}
                 secondaryAxisThickness={secondaryAxisThickness}
@@ -173,7 +178,8 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
             }}
             className={cn(className, 'w-full h-full relative')}>
             {dimensions.width !== 0 && dimensions.height !== 0 && keys.map((key, index) => {
-                const value = chartMap.get(key) || 0;
+                const chartValue = chartMap.get(key);
+                const value = chartValue?.value || 0;
                 const displayedValue = selectedUnit === ChartUnit.Percentage ?
                     value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
                     value.toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -190,9 +196,9 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
 
                 return (
                     <g
-                        key={key}>
+                        key={key === undefined ? 'undefined' : key}>
                         <rect
-                            className={prependDashedPrefix('fill', color(key))}
+                            className={prependDashedPrefix('fill', color(key, chartValue))}
                             x={left} y={top}
                             width={width} height={height}
                             rx={radius} ry={radius} />
@@ -294,7 +300,7 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
             <div
                 className={cn(
                     className,
-                    'relative flex justify-items-center justify-stretch',
+                    'flex justify-items-center justify-stretch',
                     orientation === ChartOrientation.Horizontal ?
                         'flex-col items-end' :
                         'flex-row items-start')}
@@ -310,8 +316,8 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
                     labels.map((label) => {
                         return (
                             <div
-                                key={label}
-                                className='flex-1 grid items-center'>
+                                key={label === undefined ? 'undefined' : label}
+                                className='flex-1 min-h-0 grid items-center'>
                                 <span
                                     className={cn('text-xs text-on-surface-container',
                                         orientation === ChartOrientation.Horizontal ?
@@ -366,7 +372,7 @@ function useValuesTicks(
     valuesScale: d3.ScaleLinear<number, number, never>,
     orientation: ChartOrientation,
     dimensions: Dimensions,
-    padding: Padding,
+    padding: EdgeRect,
     selectedUnit: ChartUnit
 ) {
     return useMemo(() => {
@@ -383,5 +389,5 @@ function useValuesTicks(
                 displayedValue: selectedUnit === ChartUnit.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
                 offset: (orientation === ChartOrientation.Horizontal ? valuesScale(value) : 1 - valuesScale(value)) * length
             }));
-    }, [valuesScale, dimensions, selectedUnit, orientation]);
+    }, [valuesScale, dimensions, selectedUnit, orientation, padding]);
 }

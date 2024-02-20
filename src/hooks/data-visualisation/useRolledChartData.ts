@@ -5,6 +5,7 @@ import * as d3 from 'd3'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { ChartOrientation } from '@/enums/ChartOrientation'
 import { ChartData } from '@/dtos/data-visualisation/ChartData'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 
 /**
  * Hook that converts input data into data that are presentable in a 2D chart, such as bar, point or line chart.
@@ -15,9 +16,9 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
  */
 export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orientation: ChartOrientation) {
     // Chart map maps each examined property value to a count of items with that property value
-    const chartMap = useMemo<d3.InternMap<any, number>>(
+    const chartMap = useMemo<d3.InternMap<any, ChartValue>>(
         () => {
-            const rolled = d3.rollup(data.items, r => r.length, data.examinedProperty);
+            const rolled = d3.rollup(data.items, r => ({ value: r.length, items: r }), data.examinedProperty);
 
             if (unit === ChartUnit.Percentage) {
                 const total = data.items.length;
@@ -25,7 +26,7 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
                 for (const key of rolled.keys()) {
                     const value = rolled.get(key);
                     if (total && value) {
-                        rolled.set(key, value / total);
+                        value.value = value.value / total;
                     }
                 }
             }
@@ -44,18 +45,25 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
                 rolledKeys = d3.range(min, max + 1);
             }
             if (data.sortKeys) {
-                rolledKeys.sort(data.sortKeys);
+                rolledKeys.sort((key1, key2) => {
+                    const value1 = chartMap.get(key1);
+                    const value2 = chartMap.get(key2);
+
+                    return data.sortKeys ? data.sortKeys({ key: key1, value: value1 }, { key: key2, value: value2 }) : 0;
+                });
             }
             return rolledKeys;
         }, [chartMap]);
 
     function getTopDomainValue() {
-        const max = (d3.extent(chartMap.values()) as [number, number])[1];
-        const roundTo = max < 10 ? 1 : max < 50 ? 5 : 10;
+        if (unit === ChartUnit.Percentage) {
+            return 1;
+        }
 
-        return unit === ChartUnit.Percentage ?
-            1 :
-            Math.ceil(max / roundTo) * roundTo;
+        const max = (d3.extent([...chartMap.values()].map((v) => v.value)) as [number, number])[1];
+        const roundTo = max < 10 ? 1 : max < 100 ? 5 : 10;
+
+        return Math.ceil(max / roundTo) * roundTo;
     }
 
     return { chartMap, keys, valuesScale };

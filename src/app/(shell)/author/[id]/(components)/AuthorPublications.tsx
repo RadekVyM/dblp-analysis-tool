@@ -1,7 +1,7 @@
-import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { PageSection, PageSectionTitle } from '../../../../../components/shell/PageSection'
+import { DblpPublication, DblpPublicationPerson, getVenueTitle } from '@/dtos/DblpPublication'
+import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import Link from 'next/link'
-import { PublicationTypesStats, PublicationsOverTimeStats } from './PublicationsStats'
+import PublicationTypesStats from '@/components/data-visualisation/stats/PublicationTypesStats'
 import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/client/publications'
 import { cn } from '@/utils/tailwindUtils'
 import { MdLibraryBooks } from 'react-icons/md'
@@ -10,6 +10,8 @@ import { SearchType } from '@/enums/SearchType'
 import { PublicationType } from '@/enums/PublicationType'
 import LinkArrow from '@/components/LinkArrow'
 import ItemsStats from '@/components/ItemsStats'
+import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
+import PublicationVenuesStats from '@/components/data-visualisation/stats/PublicationVenuesStats'
 
 type PublicationsParams = {
     className?: string,
@@ -68,11 +70,27 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
 
             <PublicationsOverTimeStats
                 scaffoldId='publications-over-time-stats'
+                className='mb-10'
                 publications={publications.map((publ) => {
                     return {
                         id: publ.id,
                         type: publ.type,
                         year: publ.year
+                    }
+                })} />
+
+            <h4 className='font-semibold mb-5'>Publication Venues</h4>
+
+            <PublicationVenuesStats
+                scaffoldId='publication-venues-stats'
+                publications={publications.map((publ) => {
+                    const title = getVenueTitle(publ);
+
+                    return {
+                        id: publ.id,
+                        type: publ.type,
+                        venueId: publ.venueId || null,
+                        venueTitle: getVenueTitle(publ)
                     }
                 })} />
         </PageSection>

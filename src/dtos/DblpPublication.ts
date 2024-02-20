@@ -1,4 +1,6 @@
+import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
+import { getVenueTypeFromDblpString } from '@/utils/urls'
 
 /** Publication stored in dblp. */
 export type DblpPublication = {
@@ -65,4 +67,20 @@ export function createDblpPublication(
         authors: authors || [],
         editors: editors || []
     }
+}
+
+/**
+ * Returns a title of a venue to which the publication belongs.
+ * @param publication Publication
+ * @returns Venue title
+ */
+export function getVenueTitle(publication: DblpPublication): string {
+    if (publication.venueId) {
+        const venueType = getVenueTypeFromDblpString(publication.venueId);
+        const venueTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
+        const title = publication.series || publication.journal || publication.booktitle || 'undefined';
+        return venueTitle ? `${title} (${venueTitle})` : title;
+    }
+
+    return 'Not Listed Publications';
 }

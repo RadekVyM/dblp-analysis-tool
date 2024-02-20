@@ -2,6 +2,12 @@ import { PublicationType } from '@/enums/PublicationType'
 import { VenueType } from '@/enums/VenueType'
 import { prependDashedPrefix } from '@/utils/tailwindUtils'
 
+export const VENUE_TYPE_COLOR = {
+    [VenueType.Conference]: 'conference-and-workshop-papers',
+    [VenueType.Journal]: 'journal-articles',
+    [VenueType.Series]: 'parts-in-books-or-collections',
+} as const
+
 export const PUBLICATION_TYPE_COLOR = {
     [PublicationType.BooksAndTheses]: 'books-and-theses',
     [PublicationType.ConferenceAndWorkshopPapers]: 'conference-and-workshop-papers',
@@ -11,7 +17,7 @@ export const PUBLICATION_TYPE_COLOR = {
     [PublicationType.JournalArticles]: 'journal-articles',
     [PublicationType.PartsInBooksOrCollections]: 'parts-in-books-or-collections',
     [PublicationType.ReferenceWorks]: 'reference-works',
-} as const
+} as const;
 
 export const PUBLICATION_TYPE_BG = createColorMap('bg')
 
@@ -58,6 +64,6 @@ function createColorMap(prefix: string) {
         [PublicationType.InformalAndOther]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.InformalAndOther]),
         [PublicationType.JournalArticles]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.JournalArticles]),
         [PublicationType.PartsInBooksOrCollections]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.PartsInBooksOrCollections]),
-        [PublicationType.ReferenceWorks]:  prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.ReferenceWorks]),
+        [PublicationType.ReferenceWorks]: prependDashedPrefix(prefix, PUBLICATION_TYPE_COLOR[PublicationType.ReferenceWorks]),
     } as const
 }

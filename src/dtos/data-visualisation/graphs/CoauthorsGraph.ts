@@ -9,7 +9,7 @@ export type CoauthorsGraphOptions = {
     searchQuery: string,
 } & CoauthorsGraphDisplayOptions
 
-/** Properties that modify a visualization of a coauthors graph. */
+/** Properties that modify a visualisation of a coauthors graph. */
 export type CoauthorsGraphDisplayOptions = {
     originalLinksDisplayed: boolean,
     justDimInvisibleNodes: boolean,
@@ -19,7 +19,7 @@ export type CoauthorsGraphDisplayOptions = {
 
 /**
  * Represents a state of a coauthors graph.
- * Stores all properties needed to visualize a coauthors graph and modify this visualization.
+ * Stores all properties needed to visualize a coauthors graph and modify this visualisation.
  */
 export type CoauthorsGraphState = {
     nodes: Array<PublicationPersonNodeDatum>,

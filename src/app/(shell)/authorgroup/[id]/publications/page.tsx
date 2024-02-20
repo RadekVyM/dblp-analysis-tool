@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { unauthorizedError } from '@/utils/errors'
 import { tryGetCachedAuthors } from '@/services/cache/authors'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
+import PageContent from './(components)/PageContent'
 
 type AuthorGroupPublicationsPageParams = {
     params: {
@@ -46,6 +47,10 @@ export default async function AuthorGroupPublicationsPage({ params: { id } }: Au
                     className='mb-4 flex gap-3 items-center'>
                     <PageSectionTitle className='text-xl mb-0'>Publications</PageSectionTitle>
                 </header>
+
+                <PageContent
+                    authorGroup={authorGroup}
+                    cachedAuthors={cachedAuthors} />
             </PageSection>
 
             <ScrollToTopButton />

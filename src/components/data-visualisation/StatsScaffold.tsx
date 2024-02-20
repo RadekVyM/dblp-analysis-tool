@@ -17,9 +17,10 @@ type StatsScaffoldItem = {
     icon: React.ReactNode,
     content: React.ReactNode,
     secondaryContent?: React.ReactNode,
+    isHidden?: boolean
 }
 
-/** Shell for multiple data visualization components that can be displayed based on the selected tab. */
+/** Shell for multiple data visualisation components that can be displayed based on the selected tab. */
 export default function StatsScaffold({ className, items, scaffoldId, sideTabsLegend, onKeySelected, selectedKey }: StatsScaffoldParams) {
     const selectedItem = items.find((item) => item.key == selectedKey)
     const secondaryContent = selectedItem?.secondaryContent;
@@ -36,7 +37,7 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 className='self-start flex-wrap sm:flex-col sm:col-start-2 sm:col-end-3'
                 tabsId={`${scaffoldId}-side-tabs`}
                 legend={sideTabsLegend}
-                items={items.map((item) => {
+                items={items.filter((item) => !item.isHidden).map((item) => {
                     return {
                         id: item.key,
                         content: item.icon,

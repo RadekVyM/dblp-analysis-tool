@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import useFilters from './useFilters'
 import { FiltersConfiguration } from '@/dtos/Filters'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
-import { DblpPublication } from '@/dtos/DblpPublication'
+import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
 import { PublicationType } from '@/enums/PublicationType'
 
 /**
@@ -104,8 +104,4 @@ function getAllPublicationVenues(publications: Array<DblpPublication>): Map<stri
     }
 
     return map;
-}
-
-function getVenueTitle(publication: DblpPublication): string {
-    return publication.venueId ? publication.journal || publication.booktitle || publication.series || 'undefined' : 'Not Listed Publications';
 }

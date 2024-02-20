@@ -11,7 +11,8 @@ type TableParams = {
     rows: Array<Array<TableData>>,
     columnHeaders: Array<TableColumnHeader>,
     footer?: Array<TableData>,
-    isFirstColumnHeader?: boolean
+    isFirstColumnHeader?: boolean,
+    rowKey?: (rowValues: Array<any>) => string
 }
 
 type SortButtonParams = {
@@ -40,7 +41,8 @@ export type TableColumnHeader = {
     column: TableColumn,
     title: React.ReactNode,
     sortingTitle: string,
-    className?: string
+    className?: string,
+    sort?: (first: TableData, second: TableData) => number
 }
 
 export type TableData = {
@@ -51,8 +53,8 @@ export type TableData = {
 const DISPLAYED_COUNT_INCREASE = 50
 
 /** Table component that allows sorting of columns. */
-export default function Table({ rows, columnHeaders, footer, className, isFirstColumnHeader }: TableParams) {
-    const { displayedSortedRows, sorting, observerTarget, scrollableElement, updateSorting } = useDisplayedSortedRows(rows);
+export default function Table({ rows, columnHeaders, footer, className, isFirstColumnHeader, rowKey }: TableParams) {
+    const { displayedSortedRows, sorting, observerTarget, scrollableElement, updateSorting } = useDisplayedSortedRows(rows, columnHeaders);
 
     return (
         <div
@@ -79,7 +81,9 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
                 <tbody>
                     {displayedSortedRows.map((row, index) => {
                         return (
-                            <tr key={`row-${row.map(d => d.value).join('-')}`} className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
+                            <tr
+                                key={`row-${rowKey ? rowKey(row) : row.map(d => d.value).join('-')}`}
+                                className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
                                 {row.map((col, index) => isFirstColumnHeader && index === 0 ?
                                     <th key={`row-value-${index}`} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
                                     <td key={`row-value-${index}`} className='px-3 py-2 border-l border-outline'>{col.presentedContent}</td>)}
@@ -138,7 +142,7 @@ function SortButton({ onClick, descending, title }: SortButtonParams) {
 }
 
 /** Hook that manages dislayed rows and their sorting in a table. */
-function useDisplayedSortedRows(rows: Array<Array<TableData>>) {
+function useDisplayedSortedRows(rows: Array<Array<TableData>>, columnHeaders: Array<TableColumnHeader>) {
     const [sortedRows, setSortedRows] = useState<Array<Array<any>>>([]);
     const [sorting, setSorting] = useState<TableColumnItemsOrder | undefined>(undefined);
     const observerTarget = useRef<HTMLDivElement>(null);
@@ -155,14 +159,18 @@ function useDisplayedSortedRows(rows: Array<Array<TableData>>) {
             }
 
             const factor = sorting.descending ? 1 : -1;
+            const sort = columnHeaders[sorting.column].sort;
 
+            if (sort) {
+                return sort(first[sorting.column], second[sorting.column]) * factor;
+            }
             return isGreater(first[sorting.column].value, second[sorting.column].value) * factor;
         });
 
         setSortedRows(newRows);
         resetDisplayedCount();
         scrollableElement.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [rows, sorting]);
+    }, [rows, columnHeaders, sorting]);
 
     const updateSorting = useCallback((column: TableColumn) => {
         if (sorting && sorting.column === column) {
