@@ -13,7 +13,6 @@ import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import { isGreater } from '@/utils/array'
 import Link from 'next/link'
 import LinkArrow from '@/components/LinkArrow'
-import Button from '@/components/Button'
 
 type PageContentParams = {
     authorGroup: AuthorGroup,
@@ -95,7 +94,9 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
 
 function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: MembersParams) {
     const members = useMemo(() => {
-        return authorGroup.authors.toSorted((a, b) => isGreater(a.title, b.title)).map((a) => {
+        const sortedAuthors = [...authorGroup.authors];
+        sortedAuthors.sort((a, b) => isGreater(a.title, b.title));
+        return sortedAuthors.map((a) => {
             const fetched = authors.find((fa) => fa.id === a.id);
 
             return {
@@ -111,7 +112,7 @@ function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: Memb
             <PageSectionTitle className='text-xl'>Members</PageSectionTitle>
 
             <ul
-                className='grid grid-rows-[repeat(auto_1fr)] xs:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-x-4 gap-y-2'>
+                className='grid grid-rows-[repeat(auto_1fr)] xs:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-x-4 gap-y-2'>
                 {members.map((member) =>
                     <li
                         key={member.id}
@@ -127,11 +128,11 @@ function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: Memb
                                         author={member.fetchedData} /> :
                                     <span>Downloading...</span>
                             }
-                            <Button
-                                className='col-start-2'
-                                onClick={() => toggleAuthor(member.id)}>
-                                {selectedAuthorIds.has(member.id) ? 'S' : 'U'}
-                            </Button>
+                            <input
+                                type='checkbox'
+                                checked={selectedAuthorIds.has(member.id)}
+                                onChange={() => toggleAuthor(member.id)}
+                                className='accent-on-surface-container w-4 h-4 self-end' />
                         </div>
                     </li>)}
             </ul>

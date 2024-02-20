@@ -29,7 +29,7 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
         <div
             className={cn(
                 'grid sm:grid-cols-[1fr,auto] gap-3',
-                selectedItem?.secondaryContent ?
+                secondaryContent ?
                     'grid-rows-[auto,1fr,auto] sm:grid-rows-[1fr,auto]' :
                     'grid-rows-[auto,1fr] sm:grid-rows-[1fr]',
                 className)}>
@@ -51,10 +51,10 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 {selectedItem?.content}
             </DataVisualisationContainer>
             {
-                selectedItem?.secondaryContent &&
+                secondaryContent &&
                 <DataVisualisationContainer
                     className='row-start-3 row-end-4 sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2'>
-                    {selectedItem?.secondaryContent}
+                    {secondaryContent}
                 </DataVisualisationContainer>
             }
         </div>

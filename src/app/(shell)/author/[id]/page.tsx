@@ -12,6 +12,8 @@ import { PageSection, PageSectionTitle } from '../../../../components/shell/Page
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import { isAuthorizedOnServer } from '@/services/auth'
 import AuthorCoauthors from '@/components/data-visualisation/AuthorCoauthors'
+import useShowMore from '@/hooks/useShowMore'
+import SameNameAuthors from './(components)/SameNameAuthors'
 
 type AuthorPageParams = {
     params: {
@@ -28,10 +30,6 @@ type AuthorInfoParams = {
 
 type AwardsParams = {
     awards: Array<{ title: string, label: string }>,
-}
-
-type SameNameAuthorsParams = {
-    homonyms: Array<DblpAuthorHomonym>
 }
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
@@ -128,25 +126,6 @@ function Awards({ awards }: AwardsParams) {
                         className='text-sm list-disc marker:text-primary'>
                         {award.title}
                     </li>)}
-            </ul>
-        </PageSection>
-    )
-}
-
-function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
-    return (
-        <PageSection>
-            <PageSectionTitle className='text-xl'>Authors with the same name</PageSectionTitle>
-            <ul className='flex flex-col gap-2'>
-                {homonyms.map((homonym) =>
-                    <ListLink
-                        key={homonym.url}
-                        size='sm'
-                        href={homonym.url}>
-                        <AliasesAffiliations
-                            compact={true}
-                            info={homonym.info} />
-                    </ListLink>)}
             </ul>
         </PageSection>
     )

@@ -10,9 +10,9 @@ import { removeAccents } from '@/utils/strings'
 
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
-    justDimInvisibleNodes: false,
+    justDimInvisibleNodes: true,
     showNeighborLabelsOfHighlightedNodes: false,
-    alwaysShowLabelsOfOriginalAuthorsNodes: false,
+    alwaysShowLabelsOfOriginalAuthorsNodes: true,
     selectedAuthorId: null,
     hoveredAuthorId: null,
     filteredAuthorsIds: new Set(),

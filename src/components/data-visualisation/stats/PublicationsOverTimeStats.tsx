@@ -35,7 +35,8 @@ type PublicationsOverTimeLineChartParams = {
 
 /** Displays publications statistics over time. */
 export default function PublicationsOverTimeStats({ className, publications, scaffoldId }: PublicationsOverTimeStatsParams) {
-    const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
+    const isLineChartHidden = publications.every((publ) => publ.year === publications[0]?.year);
+    const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState(isLineChartHidden ? 'Bars' : 'Line');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
 
     return (
@@ -45,6 +46,16 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                 'max-h-[min(80vh,40rem)]',
                 selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
             items={[
+                {
+                    key: 'Line',
+                    content: (
+                        <PublicationsOverTimeLineChart
+                            publications={publications}
+                            scaffoldId={scaffoldId} />),
+                    title: 'Line chart',
+                    icon: (<MdSsidChart />),
+                    isHidden: isLineChartHidden
+                },
                 {
                     key: 'Bars',
                     content: (
@@ -60,16 +71,6 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                             unitsId={scaffoldId || ''} />),
                     title: 'Bar chart',
                     icon: (<MdBarChart />),
-                },
-                {
-                    key: 'Line',
-                    content: (
-                        <PublicationsOverTimeLineChart
-                            publications={publications}
-                            scaffoldId={scaffoldId} />),
-                    title: 'Line chart',
-                    icon: (<MdSsidChart />),
-                    isHidden: publications.every((publ) => publ.year === publications[0]?.year)
                 },
                 {
                     key: 'Table',

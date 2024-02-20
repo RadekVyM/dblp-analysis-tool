@@ -21,6 +21,7 @@ export type BarChartData<T> = {
 type BarChartParams = {
     data: BarChartData<any>,
     selectedUnit: ChartUnit,
+    maxBarsCount?: number,
     bandThickness?: number,
     secondaryAxisThickness?: number,
     className?: string,
@@ -50,7 +51,7 @@ type ChartParams = {
 }
 
 type PrimaryAxisLabelsParams = {
-    labels: Array<any>,
+    labels: Array<{ key: any, label: any }>,
     orientation: ChartOrientation,
     dimensions: Dimensions,
     padding: EdgeRect,
@@ -62,7 +63,7 @@ type SecondaryAxisLinesParams = {
 } & SecondaryAxisParams
 
 /** Chart that displays data as bars. */
-export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit }: BarChartParams) {
+export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit, maxBarsCount }: BarChartParams) {
     orientation ??= ChartOrientation.Horizontal;
     bandThickness ??= 75;
     secondaryAxisThickness ??= 40;
@@ -70,7 +71,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
         orientation == ChartOrientation.Horizontal ?
             { left: 40, top: 0, right: 40, bottom: 0 } :
             { left: 0, top: 10, right: 0, bottom: 10 }, [orientation]);
-    const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, orientation);
+    const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, orientation, maxBarsCount);
     const {
         svgContainerRef,
         dimensions
@@ -89,11 +90,12 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
             <PrimaryAxisLabels
                 orientation={orientation || ChartOrientation.Horizontal}
                 labels={keys.map((key) => {
+                    let label = key;
                     if (data.barTitle) {
                         const value = chartMap.get(key);
-                        return data.barTitle(key, value);
+                        label = data.barTitle(key, value);
                     }
-                    return key;
+                    return { key, label };
                 })}
                 dimensions={dimensions}
                 padding={chartPadding}
@@ -293,14 +295,14 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
             ref={ref}
             className={cn(
                 className,
-                'relative grid isolate',
+                'relative grid isolate overflow-clip',
                 orientation === ChartOrientation.Horizontal ?
                     'grid-rows-[1fr_auto]' :
                     'grid-cols-[auto_1fr]')}>
             <div
                 className={cn(
                     className,
-                    'flex justify-items-center justify-stretch',
+                    'flex justify-items-center justify-stretch min-w-0 max-w-full',
                     orientation === ChartOrientation.Horizontal ?
                         'flex-col items-end' :
                         'flex-row items-start')}
@@ -316,14 +318,14 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
                     labels.map((label) => {
                         return (
                             <div
-                                key={label === undefined ? 'undefined' : label}
+                                key={label.key === undefined ? 'undefined' : label.key}
                                 className='flex-1 min-h-0 grid items-center'>
                                 <span
                                     className={cn('text-xs text-on-surface-container',
                                         orientation === ChartOrientation.Horizontal ?
                                             'text-end' :
                                             'text-center')}>
-                                    {label}
+                                    {label.label}
                                 </span>
                             </div>
                         )

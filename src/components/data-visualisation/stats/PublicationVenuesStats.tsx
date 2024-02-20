@@ -30,7 +30,14 @@ type PublicationVenuesStatsParams = {
 
 type PublicationVenuesBarChartParams = {
     selectedUnit: ChartUnit,
+    maxBarsCount: number
 } & PublicationVenuesStatsParams
+
+type MaxVenuesCountInputParams = {
+    scaffoldId: string,
+    maxVenuesCount: number,
+    setMaxVenuesCount: (value: number) => void
+}
 
 type VenuePair = { venueId: string | null, title: string }
 
@@ -38,6 +45,7 @@ type VenuePair = { venueId: string | null, title: string }
 export default function PublicationVenuesStats({ className, publications, scaffoldId }: PublicationVenuesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
+    const [maxBarsCount, setMaxBarsCount] = useState(100);
 
     return (
         <StatsScaffold
@@ -52,13 +60,21 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                         <PublicationVenuesBarChart
                             publications={publications}
                             scaffoldId={scaffoldId}
-                            selectedUnit={barChartSelectedUnit} />),
-                    secondaryContent: (
-                        <ChartUnitSelection
-                            className='p-3'
                             selectedUnit={barChartSelectedUnit}
-                            setSelectedUnit={setBarChartSelectedUnit}
-                            unitsId={scaffoldId || ''} />),
+                            maxBarsCount={maxBarsCount} />),
+                    secondaryContent: (
+                        <div
+                            className='flex justify-between'>
+                            <ChartUnitSelection
+                                className='p-3'
+                                selectedUnit={barChartSelectedUnit}
+                                setSelectedUnit={setBarChartSelectedUnit}
+                                unitsId={scaffoldId || ''} />
+                            <MaxVenuesCountInput
+                                scaffoldId={scaffoldId || ''}
+                                maxVenuesCount={maxBarsCount}
+                                setMaxVenuesCount={setMaxBarsCount} />
+                        </div>),
                     title: 'Bar chart',
                     icon: (<MdBarChart />),
 
@@ -78,13 +94,14 @@ export default function PublicationVenuesStats({ className, publications, scaffo
     )
 }
 
-function PublicationVenuesBarChart({ publications, selectedUnit }: PublicationVenuesBarChartParams) {
+function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }: PublicationVenuesBarChartParams) {
     return (
         <BarChart
             orientation='Horizontal'
             selectedUnit={selectedUnit}
             bandThickness={45}
             secondaryAxisThickness={60}
+            maxBarsCount={maxBarsCount}
             className='w-full h-full pl-2 xs:pl-4 pr-4 xs:pr-8 pt-7'
             data={{
                 examinedProperty: (item) => item.venueId,
@@ -126,6 +143,26 @@ function PublicationVenuesTable({ publications }: PublicationVenuesStatsParams) 
             filter={(p: VenuePublication, venue: VenuePair) => p.venueId === venue.venueId}
             sortExaminedValue={sortByPresentedContent}
             rowKey={venueTableRowKey} />
+    )
+}
+
+function MaxVenuesCountInput({ scaffoldId, maxVenuesCount, setMaxVenuesCount }: MaxVenuesCountInputParams) {
+    return (
+        <div
+            className='self-center pr-3 inline text-right'>
+            <label
+                htmlFor={`${scaffoldId}-limit-input`}
+                className='text-sm relative'>
+                Venues Count:
+            </label>
+            <input
+                id={`${scaffoldId}-limit-input`}
+                className='pl-2 ml-3 min-w-0 w-24 h-7 border border-outline rounded-md text-sm'
+                value={maxVenuesCount}
+                step={1}
+                onChange={(e) => setMaxVenuesCount(parseInt(e.currentTarget.value))}
+                type='number' />
+        </div>
     )
 }
 

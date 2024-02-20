@@ -16,10 +16,11 @@ import useVisitedVenues from '@/hooks/useVisitedVenues'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
-import { DISPLAYED_VISITED_AUTHORS_COUNT as DISPLAYED_VISITED_ITEMS_COUNT } from '@/constants/visits'
+import { DISPLAYED_VISITED_AUTHORS_COUNT as DEFAULT_DISPLAYED_ITEMS_COUNT } from '@/constants/visits'
 import { createPortal } from 'react-dom'
 import { submitSignOutForm } from '@/services/auth/forms'
 import useSession from '@/hooks/useSession'
+import useShowMore from '@/hooks/useShowMore'
 
 // TODO: Do I want the hover feature?
 
@@ -62,6 +63,7 @@ type SectionTitleParams = {
 type MenuSectionParams = {
     title: React.ReactNode,
     children: React.ReactNode,
+    footer?: React.ReactNode,
     className?: string
 }
 
@@ -73,6 +75,12 @@ type ListItemParams = {
 
 type NothingFoundParams = {
     items: string
+}
+
+type ShowMoreButtonParams = {
+    isExpanded: boolean,
+    expand: () => void,
+    collapse: () => void
 }
 
 /** Menu that displays all the user's saved items (saved authors/venues, author groups, visited authors/venues). */
@@ -241,6 +249,10 @@ function AuthorsTab() {
     const { visitedAuthors, removeVisitedAuthor, isMutating } = useVisitedAuthors();
     const { savedAuthors } = useSavedAuthors();
     const { authorGroups } = useAuthorGroups();
+    const [savedAuthorsDisplayedCount, areSavedAuthorsExpanded, expandSavedAuthors, collapseSavedAuthors]
+        = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, savedAuthors.length);
+    const [groupsDisplayedCount, areGroupsExpanded, expandGroups, collapseGroups]
+        = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, authorGroups.length);
 
     return (
         <TabPanel
@@ -250,7 +262,7 @@ function AuthorsTab() {
                 <MenuSection
                     title='Recently Seen'
                     className='mb-4'>
-                    {visitedAuthors.slice(0, DISPLAYED_VISITED_ITEMS_COUNT).map((author) =>
+                    {visitedAuthors.slice(0, DEFAULT_DISPLAYED_ITEMS_COUNT).map((author) =>
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}
@@ -275,8 +287,15 @@ function AuthorsTab() {
                 savedAuthors.length > 0 &&
                 <MenuSection
                     title='Saved'
-                    className={savedAuthors.length > 0 ? 'mb-4' : undefined}>
-                    {savedAuthors.map((author) =>
+                    className={savedAuthors.length > 0 ? 'mb-4' : undefined}
+                    footer={
+                        savedAuthors.length > DEFAULT_DISPLAYED_ITEMS_COUNT &&
+                        <ShowMoreButton
+                            isExpanded={areSavedAuthorsExpanded}
+                            collapse={collapseSavedAuthors}
+                            expand={expandSavedAuthors} />
+                    }>
+                    {savedAuthors.slice(0, savedAuthorsDisplayedCount).map((author) =>
                         <ListItem
                             key={author.id}
                             link={createLocalPath(author.id, SearchType.Author) || '#'}>
@@ -288,8 +307,15 @@ function AuthorsTab() {
             {
                 authorGroups.length > 0 &&
                 <MenuSection
-                    title='Groups'>
-                    {authorGroups.map((group) =>
+                    title='Groups'
+                    footer={
+                        authorGroups.length > DEFAULT_DISPLAYED_ITEMS_COUNT &&
+                        <ShowMoreButton
+                            isExpanded={areGroupsExpanded}
+                            collapse={collapseGroups}
+                            expand={expandGroups} />
+                    }>
+                    {authorGroups.slice(0, groupsDisplayedCount).map((group) =>
                         <ListItem
                             key={group.id}
                             link={`/authorgroup/${group.id}`}>
@@ -310,6 +336,8 @@ function AuthorsTab() {
 function VenuesTab() {
     const { visitedVenues, removeVisitedVenue, isMutating } = useVisitedVenues();
     const { savedVenues } = useSavedVenues();
+    const [savedVenuesDisplayedCount, areSavedVenuesExpanded, expandSavedVenues, collapseSavedVenues]
+        = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, savedVenues.length);
 
     return (
         <TabPanel
@@ -319,7 +347,7 @@ function VenuesTab() {
                 <MenuSection
                     title='Recently Seen'
                     className='mb-4'>
-                    {visitedVenues.slice(0, DISPLAYED_VISITED_ITEMS_COUNT).map((venue) =>
+                    {visitedVenues.slice(0, DEFAULT_DISPLAYED_ITEMS_COUNT).map((venue) =>
                         <ListItem
                             key={venue.id}
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}
@@ -343,8 +371,15 @@ function VenuesTab() {
             {
                 savedVenues.length > 0 &&
                 <MenuSection
-                    title='Saved'>
-                    {savedVenues.map((venue) =>
+                    title='Saved'
+                    footer={
+                        savedVenues.length > DEFAULT_DISPLAYED_ITEMS_COUNT &&
+                        <ShowMoreButton
+                            isExpanded={areSavedVenuesExpanded}
+                            collapse={collapseSavedVenues}
+                            expand={expandSavedVenues} />
+                    }>
+                    {savedVenues.slice(0, savedVenuesDisplayedCount).map((venue) =>
                         <ListItem
                             key={venue.id}
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}>
@@ -362,15 +397,16 @@ function VenuesTab() {
     )
 }
 
-function MenuSection({ title, children, className }: MenuSectionParams) {
+function MenuSection({ title, children, footer, className }: MenuSectionParams) {
     return (
         <section
-            className={className}>
+            className={cn(className, 'mb-3')}>
             <SectionTitle>{title}</SectionTitle>
             <ul
-                className='my-2'>
+                className='mt-2'>
                 {children}
             </ul>
+            {footer}
         </section>
     )
 }
@@ -457,5 +493,15 @@ function NotAuthenticated() {
                 Sign In
             </Button>
         </div>
+    )
+}
+
+function ShowMoreButton({ isExpanded, expand, collapse }: ShowMoreButtonParams) {
+    return (
+        <button
+            className='mx-3 mt-1 text-sm hover:underline hover:text-on-surface-container text-on-surface-container-muted'
+            onClick={() => isExpanded ? collapse() : expand()}>
+            {isExpanded ? 'Show less' : 'Show more'}
+        </button>
     )
 }

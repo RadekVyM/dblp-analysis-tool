@@ -25,7 +25,7 @@ export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
 
     return (
         <Table
-            className='h-100 max-h-[max(60vh,20rem)]'
+            className='h-100 max-h-[max(70vh,25rem)]'
             rows={rows}
             columnHeaders={[
                 {

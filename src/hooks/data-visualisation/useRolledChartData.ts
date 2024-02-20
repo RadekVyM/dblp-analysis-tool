@@ -12,9 +12,10 @@ import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
  * @param data Input chart data
  * @param unit Unit in which chart values are displayed
  * @param orientation Orientation of the chart
+ * @param maxKeysCount Maximum number of keys
  * @returns 
  */
-export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orientation: ChartOrientation) {
+export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orientation: ChartOrientation, maxKeysCount?: number) {
     // Chart map maps each examined property value to a count of items with that property value
     const chartMap = useMemo<d3.InternMap<any, ChartValue>>(
         () => {
@@ -52,8 +53,8 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
                     return data.sortKeys ? data.sortKeys({ key: key1, value: value1 }, { key: key2, value: value2 }) : 0;
                 });
             }
-            return rolledKeys;
-        }, [chartMap]);
+            return maxKeysCount ? rolledKeys.slice(0, maxKeysCount) : rolledKeys;
+        }, [chartMap, maxKeysCount]);
 
     function getTopDomainValue() {
         if (unit === ChartUnit.Percentage) {
