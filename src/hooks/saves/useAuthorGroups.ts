@@ -15,7 +15,7 @@ export default function useAuthorGroups() {
     const { data, error: fetchError, isLoading } =
         useSWR('/api/save/authorgroup', authorGroupsFetcher);
     const { trigger: triggerGroupPost, error: postGroupError, isMutating: isMutatingGroupPost } =
-        useSWRMutation('/api/save/authorgroup', sendPostRequest<Omit<AuthorGroup, 'id'> & { id?: string }, AuthorGroup>);
+        useSWRMutation('/api/save/authorgroup', sendPostRequest<Omit<AuthorGroup, 'id' | 'authors'> & { id?: string }, AuthorGroup>);
     const { trigger: triggerGroupDelete, error: deleteGroupError, isMutating: isMutatingGroupDelete } =
         useSWRMutation('/api/save/authorgroup', sendDeleteRequest);
     const { trigger: triggerGroupAuthorPost, error: postGroupAuthorError, isMutating: isMutatingGroupAuthorPost } =
@@ -24,7 +24,11 @@ export default function useAuthorGroups() {
         useSWRMutation('/api/save/authorgroup', sendDeleteRequest);
 
     const saveAuthorGroup = useCallback(async (title: string) => {
-        await triggerGroupPost({ data: { title: title, authors: [] } });
+        await triggerGroupPost({ data: { title: title } });
+    }, [triggerGroupPost]);
+
+    const renameAuthorGroup = useCallback(async (id: string, title: string) => {
+        await triggerGroupPost({ data: { id: id, title: title } });
     }, [triggerGroupPost]);
 
     const removeAuthorGroup = useCallback(async (groupId: string) => {
@@ -42,6 +46,7 @@ export default function useAuthorGroups() {
     return {
         authorGroups: data || [],
         saveAuthorGroup,
+        renameAuthorGroup,
         removeAuthorGroup,
         saveAuthorToGroup,
         removeAuthorFromGroup,

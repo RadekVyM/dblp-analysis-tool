@@ -2,7 +2,6 @@
 
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import { PublicationListItem } from './AuthorPublications'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import { group } from '@/utils/array'
@@ -15,6 +14,7 @@ import ListLink from '@/components/ListLink'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import FiltersList from '@/components/FiltersList'
+import PublicationListItem from './PublicationListItem'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -47,6 +47,7 @@ const GROUPED_BY_FUNC = {
 const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
 const DISPLAYED_COUNT_INCREASE = 25;
 
+/** Displays a list of publications that can be filtered. */
 export default function GroupedPublicationsList({ publications }: GroupedPublicationsListParams) {
     const observerTarget = useRef<HTMLDivElement>(null);
     const [groupedBy, setGroupedBy] = useState<GroupedBy>('year'); // Grouping selection is not used yet

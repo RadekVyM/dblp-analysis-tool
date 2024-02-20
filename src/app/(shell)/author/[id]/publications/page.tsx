@@ -3,7 +3,7 @@ import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
-import GroupedPublicationsList from '../(components)/GroupedPublicationsList'
+import GroupedPublicationsList from '../../../../../components/publications/GroupedPublicationsList'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 
 type AuthorPublicationsPageParams = {

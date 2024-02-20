@@ -6,7 +6,7 @@ import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import useAuthors from '@/hooks/authors/useAuthors'
 import { useMemo } from 'react'
 import { DblpPublication } from '@/dtos/DblpPublication'
-import GroupedPublicationsList from '@/app/(shell)/author/[id]/(components)/GroupedPublicationsList'
+import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
 
 type PageContentParams = {
     authorGroup: AuthorGroup,

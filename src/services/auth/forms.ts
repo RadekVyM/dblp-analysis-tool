@@ -28,6 +28,7 @@ export async function submitSignInForm(prevState: any, formData: FormData) {
         return { error: 'Signing in was not successful.' };
     }
 }
+
 export async function submitSignOutForm(formData: FormData) {
     try {
         signOut();

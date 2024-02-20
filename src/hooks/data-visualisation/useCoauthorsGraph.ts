@@ -146,8 +146,8 @@ function shouldUpdateLinksAndNodesVisualState(newGraph: Partial<CoauthorsGraphSt
 }
 
 function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
-    updateLinksVisualState(graph, allAuthors);
     updateNodesVisualState(graph, allAuthors);
+    updateLinksVisualState(graph, allAuthors);
 }
 
 function updateNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {

@@ -3,7 +3,7 @@ import PageTitle from '@/components/shell/PageTitle'
 import { getCurrentUser } from '@/services/auth'
 import { getAuthorGroup } from '@/services/saves/authorGroups'
 import { redirect } from 'next/navigation'
-import { RemoveAuthorGroupButton } from './(components)/RemoveAuthorGroupButton'
+import { AuthorGroupButtons } from './(components)/AuthorGroupButtons'
 import { unauthorizedError } from '@/utils/errors'
 import PageContent from './(components)/PageContent'
 import { tryGetCachedAuthors } from '@/services/cache/authors'
@@ -31,13 +31,16 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
 
     return (
         <PageContainer>
-            <header>
+            <header
+                className='mb-12'>
                 <PageTitle
                     title={authorGroup.title}
                     subtitle='Author group'
-                    className='pb-3' />
-                <RemoveAuthorGroupButton
-                    authorGroupId={authorGroup.id} />
+                    className='pb-3 mb-4' />
+
+                <AuthorGroupButtons
+                    authorGroupId={authorGroup.id}
+                    authorGroupTitle={authorGroup.title} />
             </header>
 
             <PageContent
