@@ -1,5 +1,5 @@
-import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications';
-import { DblpPublication } from '@/dtos/DblpPublication';
+import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications'
+import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenuevolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react'
 

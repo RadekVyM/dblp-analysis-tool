@@ -95,7 +95,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                 <Link
                                     prefetch={false}
                                     className='hover:underline'
-                                    href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                    href={createLocalVenuePath(publication)}>
                                     {addMissingNoun(publication.journal, 'journal')}
                                 </Link> :
                                 addMissingNoun(publication.journal, 'journal')
@@ -108,7 +108,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                     <Link
                                         prefetch={false}
                                         className='hover:underline'
-                                        href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                        href={createLocalVenuePath(publication)}>
                                         {addMissingNoun(publication.booktitle, 'conference')}
                                     </Link> :
                                     addMissingNoun(publication.booktitle, 'conference')
@@ -121,7 +121,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                     <Link
                                         prefetch={false}
                                         className='hover:underline'
-                                        href={createLocalPath(publication.venueId, SearchType.Venue) || ''}>
+                                        href={createLocalVenuePath(publication)}>
                                         {publication.booktitle}
                                     </Link> :
                                     publication.booktitle
@@ -130,6 +130,14 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
             }
         </p>
     )
+}
+
+function createLocalVenuePath(publication: DblpPublication) {
+    if (!publication.venueId) {
+        return '';
+    }
+
+    return createLocalPath(publication.venueId, SearchType.Venue, publication.volumeId) || '';
 }
 
 function addMissingNoun(title: string, noun: string) {

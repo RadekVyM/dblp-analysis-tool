@@ -6,6 +6,7 @@ export const VENUE_TYPE_COLOR = {
     [VenueType.Conference]: 'conference-and-workshop-papers',
     [VenueType.Journal]: 'journal-articles',
     [VenueType.Series]: 'parts-in-books-or-collections',
+    [VenueType.Book]: 'books-and-theses',
 } as const
 
 export const PUBLICATION_TYPE_COLOR = {
@@ -52,7 +53,8 @@ export const PUBLICATION_TYPE_TITLE_SINGULAR = {
 export const VENUE_TYPE_TITLE = {
     [VenueType.Conference]: 'Conference',
     [VenueType.Journal]: 'Journal',
-    [VenueType.Series]: 'Series'
+    [VenueType.Series]: 'Series',
+    [VenueType.Book]: 'Book',
 } as const
 
 function createColorMap(prefix: string) {

@@ -63,6 +63,7 @@ const validIdUrls: Array<UrlValue> = [
     ['https://dblp.org/db/conf/broadcom/broadcom2008.html', VenueType.Conference, ['conf___broadcom', 'broadcom2008']],
     ['https://dblp.org/db/conf/broadcom/broadcom2008', VenueType.Conference, ['conf___broadcom', 'broadcom2008']],
     ['https://dblp.org/db/conf/broadcom/broadcom2008/', VenueType.Conference, ['conf___broadcom', 'broadcom2008']],
+    ['https://dblp.org/db/books/collections/MS2009.html', VenueType.Book, ['books___collections', 'MS2009']],
 ];
 
 const invalidIdUrls = [

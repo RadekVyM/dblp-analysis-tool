@@ -2,7 +2,7 @@ import 'server-only'
 import { VenueType } from '@/enums/VenueType'
 import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
-import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
+import { DBLP_BOOKS_INDEX_HTML, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { extractVenueOrVolume, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
 import { fetchXml } from '@/services/fetch'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
@@ -14,6 +14,7 @@ const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
     [VenueType.Conference]: DBLP_CONF_INDEX_HTML,
     [VenueType.Series]: DBLP_SERIES_INDEX_HTML,
+    [VenueType.Book]: DBLP_BOOKS_INDEX_HTML
 } as const
 
 /**

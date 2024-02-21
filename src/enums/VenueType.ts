@@ -15,6 +15,7 @@ export const VenueType = {
     Journal: 'Journal',
     Conference: 'Conference',
     Series: 'Series',
+    Book: 'Book',
 } as const;
 
 /** Type of a venue in dblp. */

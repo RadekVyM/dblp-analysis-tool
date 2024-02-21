@@ -7,17 +7,24 @@ import { isAuthorizedOnServer } from '@/services/auth'
 import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
 import VolumesContent from './(components)/VolumesContent'
 import { DblpVenuevolume } from '@/dtos/DblpVenueVolume'
+import { getVenueTypeFromDblpString } from '@/utils/urls'
+import { VenueType } from '@/enums/VenueType'
 
-export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {
-    const venueOrVolume = await fetchVenueOrVolume(id);
+export default async function ConferencePage({ params: { ids }, searchParams }: VenuePageParams) {
+    const venueId = ids[0];
+    const venueType = getVenueTypeFromDblpString(venueId);
+    const volumeId = ids.length > 1 && venueType === VenueType.Book ?
+        ids[1] :
+        undefined;
+    const venueOrVolume = await fetchVenueOrVolume(venueId, volumeId);
     const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <PageContainer>
             {
-                isAuthorized &&
+                isAuthorized && venueType !== VenueType.Book &&
                 <AddToRecentlySeen
-                    id={id}
+                    id={venueId}
                     title={venueOrVolume.title} />
             }
 

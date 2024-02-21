@@ -56,10 +56,11 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         // Remove volume segment from the URL path
         const urlIndexOfHash = url?.indexOf('#');
         const venueUrl = !url ? undefined : (urlIndexOfHash < 0 ? url : url.slice(0, urlIndexOfHash));
-        const venueIdFromUrl = venueUrl ? (extractNormalizedIdFromDblpUrlPath(venueUrl) || [null, null])[0] || undefined : undefined;
+        const venueIdFromUrl = venueUrl ? extractNormalizedIdFromDblpUrlPath(venueUrl) : null;
+
         const venueId = venueIdFromUrl ?
             venueIdFromUrl :
-            seriesUrl ? (extractNormalizedIdFromDblpUrlPath(seriesUrl) || [null, null])[0] || undefined : undefined;
+            seriesUrl ? extractNormalizedIdFromDblpUrlPath(seriesUrl) || [null, null] : [null, null];
 
         publications.push(createDblpPublication(
             key,
@@ -75,7 +76,8 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             series,
             volume,
             number,
-            venueId,
+            venueId[0] ? venueId[0] : undefined,
+            venueId[1] ? venueId[1] : undefined,
             authors,
             editors,
         ));

@@ -35,7 +35,7 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const key = $('bht').attr('key');
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
-    if ($('dblpcites').length > 0) {
+    if ($('dblpcites > r').length > 0) {
         return extractVenueVolume($, title, venueType, id, additionalVolumeId);
     }
     else {
@@ -51,6 +51,11 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
  * @returns List of found venues
  */
 export function extractVenuesIndex(html: string, type: VenueType, count?: number) {
+    if (type === VenueType.Book) {
+        // Books index is not searchable
+        return [];
+    }
+
     const $ = cheerio.load(html);
     const links = $(`#${DBLP_INDEX_ELEMENT_IDS[type]} ul li a`);
 
@@ -81,6 +86,11 @@ export function extractVenuesIndex(html: string, type: VenueType, count?: number
  * @returns The venues index length
  */
 export function extractVenuesIndexLength(html: string, type: VenueType) {
+    if (type === VenueType.Book) {
+        // Books index is not searchable
+        return 0;
+    }
+
     const id = DBLP_INDEX_ELEMENT_IDS[type];
     const $ = cheerio.load(html);
     const links = $(`#${id} ul li a`);

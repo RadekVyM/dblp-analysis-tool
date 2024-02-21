@@ -6,6 +6,7 @@ export const VENUES_COUNT_PER_DBLP_INDEX_PAGE = 100;
 export const JOURNALS_DBLP_KEY = 'journals';
 export const CONF_DBLP_KEY = 'conf';
 export const SERIES_DBLP_KEY = 'series';
+export const BOOKS_DBLP_KEY = 'books';
 
 export const JOURNALS_DBLP_SEARCH_TYPE = 'Journal';
 export const CONF_DBLP_SEARCH_TYPE = 'Conference_or_Workshop';

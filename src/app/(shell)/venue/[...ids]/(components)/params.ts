@@ -1,6 +1,6 @@
 type VenuePageParams = {
     params: {
-        id: string
+        ids: Array<string>
     },
     searchParams: { [key: string]: number }
 }
