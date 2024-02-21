@@ -5,9 +5,10 @@ import { getCurrentUser } from '@/services/auth'
 import { getAuthorGroup } from '@/services/saves/authorGroups'
 import { redirect } from 'next/navigation'
 import { unauthorizedError } from '@/utils/errors'
-import { tryGetCachedAuthors } from '@/services/cache/authors'
+import { tryGetCachedRecords } from '@/services/cache/cache'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import PageContent from './(components)/PageContent'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
 
 type AuthorGroupPublicationsPageParams = {
     params: {
@@ -28,7 +29,7 @@ export default async function AuthorGroupPublicationsPage({ params: { id } }: Au
         throw unauthorizedError('You cannot access this author group.');
     }
 
-    const cachedAuthors = await tryGetCachedAuthors(authorGroup.authors.map((a) => a.id));
+    const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorGroup.authors.map((a) => a.id));
 
     return (
         <PageContainer

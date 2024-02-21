@@ -6,7 +6,8 @@ import { redirect } from 'next/navigation'
 import { AuthorGroupButtons } from './(components)/AuthorGroupButtons'
 import { unauthorizedError } from '@/utils/errors'
 import PageContent from './(components)/PageContent'
-import { tryGetCachedAuthors } from '@/services/cache/authors'
+import { tryGetCachedRecords } from '@/services/cache/cache'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
 
 type AuthorGroupPageParams = {
     params: {
@@ -27,7 +28,7 @@ export default async function AuthorGroupPage({ params: { id } }: AuthorGroupPag
         throw unauthorizedError('You cannot access this author group.');
     }
 
-    const cachedAuthors = await tryGetCachedAuthors(authorGroup.authors.map((a) => a.id));
+    const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorGroup.authors.map((a) => a.id));
 
     return (
         <PageContainer>

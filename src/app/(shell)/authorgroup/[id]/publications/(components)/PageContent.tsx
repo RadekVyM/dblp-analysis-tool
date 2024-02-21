@@ -15,7 +15,7 @@ type PageContentParams = {
 
 export default function PageContent({ authorGroup, cachedAuthors }: PageContentParams) {
     const authorIds = useMemo(() => authorGroup.authors.map((a) => a.id), [authorGroup]);
-    const { isLoading, authors, error } = useAuthors(cachedAuthors, authorIds);
+    const { authors, error } = useAuthors(cachedAuthors, authorIds);
     const allPublications = useMemo(() => {
         const map = new Map<string, DblpPublication>();
         authors.forEach((a) => a.publications.forEach((p) => map.set(p.id, p)));
@@ -25,9 +25,8 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
 
     return (
         <>
-            {isLoading && <p>Loading...</p>}
             {
-                !isLoading && !error && authors.length > 0 &&
+                !error && authors.length > 0 &&
                 <>
                     <GroupedPublicationsList
                         publications={allPublications} />

@@ -4,11 +4,13 @@ import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { DBLP_BOOKS_INDEX_HTML, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
 import { extractVenueOrVolume, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
-import { fetchXml } from '@/services/fetch'
+import { fetchXml, withCache } from '@/services/fetch'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { serverError } from '@/utils/errors'
+import { DblpVenueBase } from '@/dtos/DblpVenueBase'
+import { cacheRecord, tryGetCachedRecord } from '../cache/cache'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -54,8 +56,16 @@ export async function fetchVenuesIndexLength(type: VenueType) {
  * @returns Object containing all the venue or venue volume information
  */
 export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string) {
-    const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
-    return extractVenueOrVolume(xml, id);
+    const recordId = id + (additionalVolumeId ? `/${additionalVolumeId}` : '');
+
+    return await withCache<DblpVenueBase>(
+        async (value: DblpVenueBase) => await cacheRecord(recordId, value),
+        async () => await tryGetCachedRecord(recordId),
+        async () => {
+            const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
+            return extractVenueOrVolume(xml, id, additionalVolumeId);
+        }
+    );
 }
 
 /**

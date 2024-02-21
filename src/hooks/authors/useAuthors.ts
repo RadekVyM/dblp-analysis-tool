@@ -1,6 +1,7 @@
 import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import useSWRSubscription, { SWRSubscriptionOptions } from 'swr/subscription'
 
 /**
  * Hook that downloads information about all specified authors. 
@@ -12,45 +13,27 @@ export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, a
     const authorIdsToFetch = useMemo(
         () => authorIds.filter((id) => !alreadyAvailableAuthors.some((a) => a.id === id)),
         [alreadyAvailableAuthors, authorIds]);
-    const [fetchedAuthors, setFetchedAuthors] = useState<Array<DblpAuthor>>([]);
-    const authors = useMemo(() => [...alreadyAvailableAuthors, ...fetchedAuthors], [alreadyAvailableAuthors, fetchedAuthors]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<any>(null);
-
-    useEffect(() => {
-        if (authorIdsToFetch.length === 0) {
-            setError(null);
-            setFetchedAuthors([]);
-            setIsLoading(false);
-            return;
-        }
-
-        setError(null);
-        setFetchedAuthors([]);
-        setIsLoading(true);
+    const { data, error } = useSWRSubscription(authorIdsToFetch, (key, { next }: SWRSubscriptionOptions<Array<DblpAuthor>, Error>) => {
         const controller = new AbortController();
         const signal = controller.signal;
 
         fetchAuthors(
             authorIdsToFetch,
-            (authors) => setFetchedAuthors((oldAuthors) => [...oldAuthors, ...authors]),
+            (authors) => next(null, prev => (prev || []).concat(authors)),
             signal)
             .then()
             .catch((error) => {
                 if (!(error instanceof DOMException) || error.name !== 'AbortError') {
-                    setError(error);
+                    next(error);
                 }
-            })
-            .finally(() => {
-                setIsLoading(false);
             });
 
         return () => controller.abort();
-    }, [authorIdsToFetch]);
+    });
+    const authors = useMemo(() => [...alreadyAvailableAuthors, ...(data || [])], [alreadyAvailableAuthors, data]);
 
     return {
         authors,
-        isLoading,
         error
     }
 }

@@ -1,7 +1,7 @@
 import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { fetchAuthor } from '@/services/authors/fetch-server'
-import { tryGetCachedAuthor } from '@/services/cache/authors'
+import { tryGetCachedRecord } from '@/services/cache/cache'
 import { delay } from '@/utils/promises'
 import { iteratorToStream } from '@/utils/readableStreams'
 import { NextRequest, NextResponse } from 'next/server'
@@ -35,7 +35,7 @@ async function* fetchAuthors(authorIds: Array<string>) {
     let hasAlreadyFetched = false;
 
     for (const id of authorIds) {
-        const cachedAuthor = await tryGetCachedAuthor(id);
+        const cachedAuthor = await tryGetCachedRecord<DblpAuthor>(id);
 
         if (cachedAuthor) {
             yield authorToJson(cachedAuthor);

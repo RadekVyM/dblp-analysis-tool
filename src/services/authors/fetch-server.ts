@@ -7,7 +7,7 @@ import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchIt
 import { extractAuthor, extractAuthorsIndex, extractAuthorsIndexLength } from './parsing'
 import { SimpleSearchResult, SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { cacheAuthor, tryGetCachedAuthor } from '../cache/authors'
+import { cacheRecord, tryGetCachedRecord } from '../cache/cache'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { serverError } from '@/utils/errors'
 
@@ -41,8 +41,8 @@ export async function fetchAuthorsIndexLength(): Promise<number> {
  */
 export async function fetchAuthor(id: string): Promise<DblpAuthor> {
     return await withCache<DblpAuthor>(
-        async (value: DblpAuthor) => await cacheAuthor(id, value),
-        async () => await tryGetCachedAuthor(id),
+        async (value: DblpAuthor) => await cacheRecord(id, value),
+        async () => await tryGetCachedRecord(id),
         async () => {
             const xml = await fetchAuthorXml(id);
             return extractAuthor(xml, id);

@@ -50,6 +50,11 @@ export async function fetchSearchResultWithQuery(
 
 /** Returns a prefix of a query based on the venue type */
 function getQueryPrefix(type: VenueType): string {
+    if (type === VenueType.Book) {
+        // Searching the books index is not supported
+        return '';
+    }
+
     const searchType = {
         [VenueType.Journal]: JOURNALS_DBLP_SEARCH_TYPE,
         [VenueType.Conference]: CONF_DBLP_SEARCH_TYPE,

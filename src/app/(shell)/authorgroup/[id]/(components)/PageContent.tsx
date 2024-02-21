@@ -42,7 +42,7 @@ type Member = {
 
 export default function PageContent({ authorGroup, cachedAuthors }: PageContentParams) {
     const authorIds = useMemo(() => authorGroup.authors.map((a) => a.id), [authorGroup]);
-    const { isLoading, authors, error } = useAuthors(cachedAuthors, authorIds);
+    const { authors, error } = useAuthors(cachedAuthors, authorIds);
     const [selectedAuthorIds, setSelectedAuthorIds] = useState<Set<string>>(new Set(authorGroup.authors.map((a) => a.id)));
     const selectedAuthors = useMemo(() => authors.filter((a) => selectedAuthorIds.has(a.id)), [authors, selectedAuthorIds]);
     const allPublications = useMemo(() => {
@@ -136,7 +136,7 @@ function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: Memb
                         </div>
                     </li>)}
             </ul>
-        </PageSection >
+        </PageSection>
     )
 }
 

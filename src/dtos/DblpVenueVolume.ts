@@ -4,7 +4,7 @@ import { DblpVenueBase } from './DblpVenueBase'
 import { VenueVolumeType } from '@/enums/VenueVolumeType'
 
 /** Venue volume stored in dblp. */
-export type DblpVenuevolume = {
+export type DblpVenueVolume = {
     readonly venueId: string,
     readonly publications: Array<DblpPublication>
 } & DblpVenueBase
@@ -16,7 +16,7 @@ export function createDblpVenueVolume(
     title: string,
     publications: Array<DblpPublication>,
     type?: VenueType,
-): DblpVenuevolume {
+): DblpVenueVolume {
     return {
         id,
         venueId,

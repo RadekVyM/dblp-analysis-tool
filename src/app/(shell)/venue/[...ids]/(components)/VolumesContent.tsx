@@ -1,10 +1,12 @@
+'use client'
+
 import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications'
 import { DblpPublication } from '@/dtos/DblpPublication'
-import { DblpVenuevolume } from '@/dtos/DblpVenueVolume'
+import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react'
 
 type VolumesContentParams = {
-    volumes: Array<DblpVenuevolume>
+    volumes: Array<DblpVenueVolume>
 }
 
 export default function VolumesContent({ volumes }: VolumesContentParams) {
