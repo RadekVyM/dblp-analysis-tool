@@ -3,11 +3,11 @@ import { VenueType } from '@/enums/VenueType'
 import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
-import { extractVenue, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
+import { extractVenueOrVolume, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
 import { fetchXml } from '@/services/fetch'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
 import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { SimpleSearchResult, SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
+import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { serverError } from '@/utils/errors'
 
 const DBLP_HTML_INDEX_PATHS = {
@@ -43,14 +43,18 @@ export async function fetchVenuesIndexLength(type: VenueType) {
 }
 
 /**
- * Requests all the venue information with a specified ID.
+ * Requests all the venue or venue volume information with a specified ID.
+ * Some venues are not divided into multiple volumes.
+ * These venues are perceived by this app as if they are volumes.
+ * 
  * Results are cached.
  * @param id Normalized ID of the venue
- * @returns Object containing all the venue information
+ * @param additionalVolumeId Normalized ID of the venue volume
+ * @returns Object containing all the venue or venue volume information
  */
-export async function fetchVenue(id: string) {
-    const xml = await fetchVenueXml(id);
-    return extractVenue(xml, id);
+export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string) {
+    const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
+    return extractVenueOrVolume(xml, id);
 }
 
 /**
@@ -89,14 +93,10 @@ export async function fetchSearchResultWithoutQuery(type: VenueType, params: Sea
     return result;
 }
 
-/** Fetches a raw XML object containing all the venue information. */
-async function fetchVenueXml(id: string): Promise<string> {
-    const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/index.xml`;
-    return fetchXml(url);
-}
-
-/** Fetches a raw XML object containing all the venue volume information. */
-async function fetchVenueVolumeXml(id: string, volume: string): Promise<string> {
-    const url = `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/${volume}.xml`;
+/** Fetches a raw XML object containing all the venue or venue volume information. */
+async function fetchVenueOrVolumeXml(id: string, additionalVolumeId?: string): Promise<string> {
+    const url = additionalVolumeId ?
+        `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/${additionalVolumeId}.xml` :
+        `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/index.xml`;
     return fetchXml(url);
 }

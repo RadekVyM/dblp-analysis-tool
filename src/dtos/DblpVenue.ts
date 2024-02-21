@@ -1,11 +1,10 @@
 import { VenueType } from '@/enums/VenueType'
+import { DblpVenueBase } from './DblpVenueBase'
+import { VenueVolumeType } from '@/enums/VenueVolumeType'
 
 /** Venue stored in dblp. */
 export type DblpVenue = {
-    readonly id: string,
-    readonly title: string,
-    readonly type?: VenueType,
-}
+} & DblpVenueBase
 
 /** Creates an object of a venue stored in dblp. */
 export function createDblpVenue(
@@ -16,6 +15,7 @@ export function createDblpVenue(
     return {
         id,
         title,
-        type
+        type,
+        venueVolumeType: VenueVolumeType.Venue
     }
 }

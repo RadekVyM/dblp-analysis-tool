@@ -36,13 +36,14 @@ export function serverError(message?: string): Error {
  * @param options Additional info
  * @returns Instance of Error with a serialized fetch error object in the message property
  */
-export function fetchError(message: string, status: number, statusText: string, options?: object): Error {
+export function fetchError(message: string, status: number, statusText: string, url?: string, options?: object): Error {
     return error({
         ...options,
         message: message,
         type: ErrorType.Fetch,
         status: status,
-        statusText: statusText
+        statusText: statusText,
+        url: url
     } as FetchError);
 }
 

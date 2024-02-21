@@ -13,6 +13,12 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
 
     $('r > *').each((index, el) => {
         const elem = $(el);
+        const key = elem.attr('key') || '';
+
+        if (key === 'dblpnote/ellipsis') {
+            return;
+        }
+
         const title = elem.find('title').first().text();
         const booktitle = elem.find('booktitle').first().text();
         const year = elem.find('year').first().text();
@@ -21,10 +27,10 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         const pages = elem.find('pages').first().text();
         const journal = elem.find('journal').first().text();
         const series = elem.find('series').first().text();
+        const seriesUrl = elem.find('series').first().attr('href');
         const volume = elem.find('volume').first().text();
         const number = elem.find('number').first().text();
         const url = elem.find('url').first().text();
-        const key = elem.attr('key') || '';
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
         const authors = getPeople($, elem.children('author'));
@@ -50,6 +56,10 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         // Remove volume segment from the URL path
         const urlIndexOfHash = url?.indexOf('#');
         const venueUrl = !url ? undefined : (urlIndexOfHash < 0 ? url : url.slice(0, urlIndexOfHash));
+        const venueIdFromUrl = venueUrl ? (extractNormalizedIdFromDblpUrlPath(venueUrl) || [null, null])[0] || undefined : undefined;
+        const venueId = venueIdFromUrl ?
+            venueIdFromUrl :
+            seriesUrl ? (extractNormalizedIdFromDblpUrlPath(seriesUrl) || [null, null])[0] || undefined : undefined;
 
         publications.push(createDblpPublication(
             key,
@@ -65,7 +75,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             series,
             volume,
             number,
-            venueUrl ? (extractNormalizedIdFromDblpUrlPath(venueUrl) || [null, null])[0] || undefined : undefined,
+            venueId,
             authors,
             editors,
         ));

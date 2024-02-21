@@ -1,4 +1,4 @@
-import { fetchError, error } from '@/utils/errors'
+import { fetchError, badRequestError } from '@/utils/errors'
 
 /**
  * Retreives a content from a cache or calls a fetch request and stores the result to the cache.
@@ -88,7 +88,7 @@ export async function sendDelete(url: string) {
     const response = await fetch(url, {
         method: 'DELETE'
     });
-    
+
     await throwIfNotOk(response);
 
     return response;
@@ -124,6 +124,7 @@ async function throwIfNotOk(response: Response) {
         'An error occurred while fetching the data.',
         response.status,
         response.statusText,
+        response.url,
         {
             retryAfter: response.status === 429 ? parseInt(retryAfter) : undefined
         });
@@ -134,6 +135,6 @@ function throwIfWrongContentType(response: Response, type: string) {
     const contentType = response.headers.get('content-type');
 
     if (!contentType || !contentType.includes(type)) {
-        throw error('Response contains content of an incorrect type.');
+        throw badRequestError('Response contains content of an incorrect type.');
     }
 }

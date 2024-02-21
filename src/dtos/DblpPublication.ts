@@ -78,7 +78,7 @@ export function getVenueTitle(publication: DblpPublication): string {
     if (publication.venueId) {
         const venueType = getVenueTypeFromDblpString(publication.venueId);
         const venueTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
-        const title = publication.series || publication.journal || publication.booktitle || 'undefined';
+        const title = publication.journal || publication.booktitle || publication.series || 'undefined';
         return venueTitle ? `${title} (${venueTitle})` : title;
     }
 

@@ -4,10 +4,12 @@ import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import SaveButtons from './(components)/SaveButtons'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import { isAuthorizedOnServer } from '@/services/auth'
-import { fetchVenue } from '@/services/venues/fetch-server'
+import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
+import VolumesContent from './(components)/VolumesContent'
+import { DblpVenuevolume } from '@/dtos/DblpVenueVolume'
 
 export default async function ConferencePage({ params: { id }, searchParams }: VenuePageParams) {
-    const venue = await fetchVenue(id);
+    const venueOrVolume = await fetchVenueOrVolume(id);
     const isAuthorized = await isAuthorizedOnServer();
 
     return (
@@ -16,22 +18,29 @@ export default async function ConferencePage({ params: { id }, searchParams }: V
                 isAuthorized &&
                 <AddToRecentlySeen
                     id={id}
-                    title={venue.title} />
+                    title={venueOrVolume.title} />
             }
 
             <header>
                 <PageTitle
-                    title={venue.title}
-                    subtitle={venue.type ? VENUE_TYPE_TITLE[venue.type] : undefined}
+                    title={venueOrVolume.title}
+                    subtitle={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
                     className='pb-3' />
 
                 {
                     isAuthorized &&
                     <SaveButtons
-                        title={venue.title}
-                        venueId={venue.id} />
+                        title={venueOrVolume.title}
+                        venueId={venueOrVolume.id} />
                 }
             </header>
+
+            {
+                venueOrVolume.venueVolumeType === 'Volume' ?
+                    <VolumesContent
+                        volumes={[venueOrVolume as DblpVenuevolume]} /> :
+                    <span>Venue</span>
+            }
         </PageContainer>
     )
 }

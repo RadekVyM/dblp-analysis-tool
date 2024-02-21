@@ -10,5 +10,6 @@ export type DefaultError = {
 export type FetchError = {
     status: number,
     statusText: string,
+    url?: string,
     retryAfter?: number
 } & DefaultError

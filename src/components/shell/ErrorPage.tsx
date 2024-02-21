@@ -6,6 +6,8 @@ import PageTitle from './PageTitle'
 import Button from '../Button'
 import { MdAutorenew } from 'react-icons/md'
 import { unpackDefaultError, unpackFetchError } from '@/utils/errors'
+import Link, { LinkProps } from 'next/link'
+import { cn } from '@/utils/tailwindUtils'
 
 /** Parameters of an error page. */
 export type ErrorParams = {
@@ -74,7 +76,7 @@ function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
             case 401:
                 return 'Not authorized'
             case 404:
-                return 'Oops, 404 Error! That page cannot be found'
+                return 'Oops, 404 Error!'
             case 408:
                 return 'Request timeout'
             case 429:
@@ -85,17 +87,19 @@ function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
     }
 
     function message(e: FetchError) {
+        const [domain, domainUrl] = e.url ? getDomainFromUrl(e.url) : [undefined, undefined];
+
         switch (e.status) {
             case 401:
                 return <p>You are not authorized to do this action. Try to sign in.</p>
             case 404:
-                return <p>It looks like nothing was found at this location.</p>
+                return <p>It looks like the content cannot be found at {domain ? <DomainLink href={domainUrl}>{domain}</DomainLink> : 'this location'}.</p>
             case 408:
-                return <p>Data request took too long. The data service may not be available right now. Please try again later.</p>
+                return <p>Data request took too long. The data service{domain ? <> (<DomainLink href={domainUrl}>{domain}</DomainLink>)</> : ''} may not be available right now. Please try again later.</p>
             case 429:
-                return <p>You have send too many requests. Please try again {e.retryAfter ? `after ${e.retryAfter} seconds` : 'later'}.</p>
+                return <p>You have sent too many requests. Please try again {e.retryAfter ? `after ${e.retryAfter} seconds` : 'later'}.</p>
             default:
-                return <p>Content could not be loaded. Please try again later.</p>
+                return <p>Content could not be loaded{domain ? <> from <DomainLink href={domainUrl}>{domain}</DomainLink></> : ''}. Please try again later.</p>
         }
     }
 
@@ -146,4 +150,19 @@ function TryAgainButton({ reset }: TryAgainButtonParams) {
             Try again
         </Button>
     )
+}
+
+function DomainLink({ className, href, ...rest }: React.PropsWithChildren & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+    return (
+        <Link
+            {...rest}
+            href={href || ''}
+            className={cn(className, 'hover:underline font-semibold')}
+            prefetch={false} />
+    )
+}
+
+function getDomainFromUrl(urlString: string) {
+    const url = new URL(urlString);
+    return [url.hostname, `${url.protocol}//${url.hostname}`];
 }
