@@ -45,7 +45,7 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 variant='outline'
                 onClick={() => showOptionsDialog()}>
                 <MdSettings />
-                Display Options
+                Display options
             </Button>
             <Button
                 className='items-center gap-x-2'
@@ -53,7 +53,7 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 variant='outline'
                 onClick={() => showExportDialog()}>
                 <MdGetApp />
-                Export Graph
+                Export graph
             </Button>
             <div
                 className='flex-1 flex justify-end mr-2'>

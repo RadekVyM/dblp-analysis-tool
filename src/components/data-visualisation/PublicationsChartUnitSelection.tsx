@@ -8,7 +8,7 @@ type ChartUnitSelectionParams = {
     setSelectedUnit: (unit: ChartUnit) => void
 }
 
-export default function ChartUnitSelection({ unitsId, className, selectedUnit, setSelectedUnit }: ChartUnitSelectionParams) {
+export default function PublicationsChartUnitSelection({ unitsId, className, selectedUnit, setSelectedUnit }: ChartUnitSelectionParams) {
     return (
         <Tabs
             className={className}
@@ -19,7 +19,7 @@ export default function ChartUnitSelection({ unitsId, className, selectedUnit, s
             setSelectedId={setSelectedUnit}
             items={[
                 {
-                    content: 'Publications Count',
+                    content: 'Publications count',
                     id: ChartUnit.Count
                 },
                 {

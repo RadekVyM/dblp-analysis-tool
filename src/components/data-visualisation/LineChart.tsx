@@ -4,7 +4,6 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartOrientation } from '@/enums/ChartOrientation'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartData'
-import { cn } from '@/utils/tailwindUtils'
 import { DataVisualisationSvg } from './DataVisualisationSvg'
 import { Dimensions, EdgeRect } from '@/dtos/Rect'
 import { useMemo, useState } from 'react'
@@ -23,7 +22,7 @@ type LineChartParams = {
 
 type ChartParams = {
     dimensions: Dimensions,
-    padding: EdgeRect,
+    chartPadding: EdgeRect,
     secondaryAxisThickness: number,
     primaryAxisThickness: number,
     chartMap: d3.InternMap<any, ChartValue>,
@@ -32,7 +31,7 @@ type ChartParams = {
 }
 
 type SecondaryAxisParams = {
-    padding: EdgeRect,
+    chartPadding: EdgeRect,
     valuesScale: d3.ScaleLinear<number, number, never>,
     dimensions: Dimensions,
     primaryAxisThickness: number,
@@ -42,7 +41,8 @@ type SecondaryAxisParams = {
 export default function LineChart({ data, className, secondaryAxisThickness }: LineChartParams) {
     secondaryAxisThickness ??= 40;
     const primaryAxisThickness = 40;
-    const padding: EdgeRect = { left: 10, top: 10, right: 10, bottom: 10 }
+    // Padding of the chart, axes excluded
+    const chartPadding: EdgeRect = { left: 20, top: 10, right: 10, bottom: 20 }
     const { chartMap, keys, valuesScale } = useRolledChartData(data, ChartUnit.Count, ChartOrientation.Horizontal);
     const [dimensions, setDimensions] = useState<Dimensions>({ width: 0, height: 0 });
 
@@ -53,7 +53,7 @@ export default function LineChart({ data, className, secondaryAxisThickness }: L
                 onDimensionsChange={(width, height) => setDimensions({ width, height })}>
                 <SecondaryAxis
                     dimensions={dimensions}
-                    padding={padding}
+                    chartPadding={chartPadding}
                     valuesScale={valuesScale}
                     secondaryAxisThickness={secondaryAxisThickness}
                     primaryAxisThickness={primaryAxisThickness} />
@@ -61,7 +61,7 @@ export default function LineChart({ data, className, secondaryAxisThickness }: L
                     chartMap={chartMap}
                     keys={keys}
                     dimensions={dimensions}
-                    padding={padding}
+                    chartPadding={chartPadding}
                     secondaryAxisThickness={secondaryAxisThickness}
                     primaryAxisThickness={primaryAxisThickness}
                     valuesScale={valuesScale} />
@@ -70,21 +70,21 @@ export default function LineChart({ data, className, secondaryAxisThickness }: L
     )
 }
 
-function Chart({ chartMap, keys, valuesScale, dimensions, padding, primaryAxisThickness, secondaryAxisThickness }: ChartParams) {
-    const primaryAxisLength = dimensions.width - padding.left - padding.right - secondaryAxisThickness;
-    const secondaryAxisLength = dimensions.height - padding.top - padding.bottom - primaryAxisThickness;
+function Chart({ chartMap, keys, valuesScale, dimensions, chartPadding, primaryAxisThickness, secondaryAxisThickness }: ChartParams) {
+    const primaryAxisLength = dimensions.width - chartPadding.left - chartPadding.right - secondaryAxisThickness;
+    const secondaryAxisLength = dimensions.height - chartPadding.top - chartPadding.bottom - primaryAxisThickness;
     const primaryScale = useMemo(() =>
         d3.scaleBand([0, 1]).domain(keys),
         [keys]);
     const points = useMemo(() => {
         return keys.map((key, index) => {
             const value = chartMap.get(key)?.value || 0;
-            const x = padding.left + secondaryAxisThickness + ((primaryScale(key) || 0) * primaryAxisLength);
-            const y = padding.top + secondaryAxisLength - Math.max(0, secondaryAxisLength * valuesScale(value));
+            const x = chartPadding.left + secondaryAxisThickness + ((primaryScale(key) || 0) * primaryAxisLength);
+            const y = chartPadding.top + secondaryAxisLength - Math.max(0, secondaryAxisLength * valuesScale(value));
 
             return { x, y, key };
         })
-    }, [chartMap, keys, padding, secondaryAxisLength, primaryAxisLength]);
+    }, [chartMap, keys, chartPadding, secondaryAxisLength, primaryAxisLength]);
     const ticks = useBandTicks(keys, primaryAxisLength);
 
     return (
@@ -100,7 +100,7 @@ function Chart({ chartMap, keys, valuesScale, dimensions, padding, primaryAxisTh
                     <g
                         key={point.key || 'undefined'}>
                         <line
-                            x1={point.x} y1={dimensions.height - padding.bottom - primaryAxisThickness}
+                            x1={point.x} y1={dimensions.height - primaryAxisThickness}
                             x2={point.x} y2={point.y}
                             strokeDasharray='0 6 6'
                             className='stroke-outline stroke-1' />
@@ -114,8 +114,8 @@ function Chart({ chartMap, keys, valuesScale, dimensions, padding, primaryAxisTh
             })}
 
             {dimensions.width !== 0 && dimensions.height !== 0 && ticks.map((tick) => {
-                const x = padding.left + tick.offset + secondaryAxisThickness;
-                const y = dimensions.height - padding.bottom - (primaryAxisThickness / 2);
+                const x = chartPadding.left + tick.offset + secondaryAxisThickness;
+                const y = dimensions.height - (primaryAxisThickness / 2);
 
                 return (
                     <text
@@ -133,16 +133,16 @@ function Chart({ chartMap, keys, valuesScale, dimensions, padding, primaryAxisTh
     )
 }
 
-function SecondaryAxis({ valuesScale, dimensions, padding, primaryAxisThickness, secondaryAxisThickness }: SecondaryAxisParams) {
-    const length = dimensions.height - padding.top - padding.bottom - primaryAxisThickness;
+function SecondaryAxis({ valuesScale, dimensions, chartPadding, primaryAxisThickness, secondaryAxisThickness }: SecondaryAxisParams) {
+    const length = dimensions.height - chartPadding.top - chartPadding.bottom - primaryAxisThickness;
     const ticks = useValuesTicks(valuesScale, length);
 
     return (
         <>
             {dimensions.width !== 0 && dimensions.height !== 0 && ticks.map((tick, index) => {
-                const x = padding.left + (secondaryAxisThickness / 2);
-                const y = dimensions.height - padding.bottom - primaryAxisThickness + tick.offset;
-                const x1 = secondaryAxisThickness + padding.left;
+                const x = (secondaryAxisThickness / 2);
+                const y = dimensions.height - chartPadding.bottom - primaryAxisThickness + tick.offset;
+                const x1 = secondaryAxisThickness;
                 const x2 = x1 + dimensions.width;
 
                 return (
@@ -193,7 +193,7 @@ function useBandTicks(keys: Array<any>, axisLength: number) {
 
     const ticks = useMemo(() => {
         const scale = d3.scaleLinear([0, keys.length - 1], [0, keys.length - 1]);
-        return scale.ticks(numberOfTicksTarget)
+        return scale.ticks(Math.min(numberOfTicksTarget, keys.length - 1))
             .map((value) => {
                 const s = scale(value);
                 const key = keys[Math.round(s)];

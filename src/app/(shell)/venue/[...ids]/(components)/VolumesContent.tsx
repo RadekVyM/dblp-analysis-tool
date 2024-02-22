@@ -1,6 +1,7 @@
 'use client'
 
 import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications'
+import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph/CoauthorsGraphShell'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react'
@@ -17,9 +18,14 @@ export default function VolumesContent({ volumes }: VolumesContentParams) {
     }, [volumes]);
 
     return (
-        <AuthorPublications
-            publicationsUrl={`/`}
-            publications={allPublications}
-            maxDisplayedCount={3} />
+        <>
+            <AuthorPublications
+                publicationsUrl={`/`}
+                publications={allPublications}
+                maxDisplayedCount={3} />
+            <CoauthorsGraphShell
+                authors={[]}
+                publications={allPublications} />
+        </>
     )
 } 

@@ -155,7 +155,7 @@ function SelectedAuthorContent({
             {
                 displayedCommonCoauthors.length > 0 &&
                 <section>
-                    <h5 className='font-bold mx-4 mt-4 text-sm'>Common Coauthors</h5>
+                    <h5 className='font-bold mx-4 mt-4 text-sm'>Common coauthors</h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
                         {displayedCommonCoauthors.map((a) =>
@@ -171,7 +171,7 @@ function SelectedAuthorContent({
             {
                 displayedUncommonCoauthors.length > 0 &&
                 <section>
-                    <h5 className='font-bold mx-4 mt-4 text-sm'>Uncommon Coauthors</h5>
+                    <h5 className='font-bold mx-4 mt-4 text-sm'>Uncommon coauthors</h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
                         {displayedUncommonCoauthors.map((a) =>

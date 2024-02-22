@@ -93,7 +93,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                         className='w-full'
                         isSelected={includeOnlyVisible}
                         onClick={() => setIncludeOnlyVisible((old) => !old)}>
-                        Include only visible nodes
+                        Include only filtered nodes
                     </CheckListButton>
                 </DialogHeader>
 

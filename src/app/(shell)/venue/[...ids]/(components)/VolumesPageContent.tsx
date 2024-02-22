@@ -7,13 +7,15 @@ import { DblpVenueVolumeItem } from '@/dtos/DblpVenueVolumeItem'
 import { useEffect, useMemo, useState } from 'react'
 import VolumesContent from './VolumesContent'
 import useVenueVolume from '@/hooks/venues/useVenueVolume'
+import { DblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
+import useShowMore from '@/hooks/useShowMore'
 
 type VolumesPageContentParams = {
     venue: DblpVenue
 }
 
-type VolumeItemsParams = {
-    items: Array<DblpVenueVolumeItem>,
+type VolumeGroupsParams = {
+    groups: Array<DblpVenueVolumeItemGroup>,
     selectedVolumeIds: Set<string>,
     onFetchedVolume: (volume: DblpVenueVolume) => void,
     toggleVolume: (id: string) => void,
@@ -55,10 +57,10 @@ export default function VolumesPageContent({ venue }: VolumesPageContentParams) 
 
     return (
         <>
-            <VolumeItems
+            <VolumeGroups
                 toggleVolume={toggleVolume}
                 selectedVolumeIds={selectedVolumeIds}
-                items={venue.volumes}
+                groups={venue.volumeGroups}
                 onFetchedVolume={onFetchedVolume} />
 
             {
@@ -70,21 +72,48 @@ export default function VolumesPageContent({ venue }: VolumesPageContentParams) 
     )
 }
 
-function VolumeItems({ items, selectedVolumeIds, onFetchedVolume, toggleVolume }: VolumeItemsParams) {
+function VolumeGroups({ groups, selectedVolumeIds, onFetchedVolume, toggleVolume }: VolumeGroupsParams) {
+    const isGrouped = groups.some((g) => g.items.length > 1);
+    const [displayedCount, isExpanded, expand, collapse] = useShowMore(isGrouped ? 3 : 12, groups.length);
+
     return (
         <PageSection>
             <PageSectionTitle className='text-xl'>Volumes</PageSectionTitle>
 
-            <ul
-                className='grid grid-rows-[repeat(auto_1fr)] xs:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-4 gap-y-2'>
-                {items.map((item) =>
-                    <VolumeItem
-                        key={item.volumeId}
-                        item={item}
-                        selectedVolumeIds={selectedVolumeIds}
-                        toggleVolume={toggleVolume}
-                        onFetched={onFetchedVolume} />)}
-            </ul>
+            {
+                isGrouped ?
+                    <ul
+                        className='flex flex-col gap-y-2'>
+                        {groups.map((group) =>
+                            <li
+                                key={group.title || 'undefined'}>
+                                <span>{group.title}</span>
+                                <ul
+                                    className='
+                                        grid
+                                        grid-cols-[repeat(auto-fill,10rem)]
+                                        gap-x-4 gap-y-2'>
+                                    {group.items.map((item) =>
+                                        <VolumeItem
+                                            key={item.volumeId}
+                                            item={item}
+                                            selectedVolumeIds={selectedVolumeIds}
+                                            toggleVolume={toggleVolume}
+                                            onFetched={onFetchedVolume} />)}
+                                </ul>
+                            </li>)}
+                    </ul> :
+                    <ul
+                        className='grid xs:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-4 gap-y-2'>
+                        {groups.map((group) =>
+                            <VolumeItem
+                                key={group.items[0].volumeId}
+                                item={group.items[0]}
+                                selectedVolumeIds={selectedVolumeIds}
+                                toggleVolume={toggleVolume}
+                                onFetched={onFetchedVolume} />)}
+                    </ul>
+            }
         </PageSection>
     )
 }

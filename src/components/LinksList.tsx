@@ -1,17 +1,15 @@
 'use client'
 
 import Button from '@/components/Button'
+import { ExternalLink } from '@/dtos/ExternalLink'
+import { cn } from '@/utils/tailwindUtils'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { MdOutlinePublic } from 'react-icons/md'
 
 type LinksListParams = {
-    links: Array<
-        {
-            url: string,
-            title: string,
-            icon: string
-        }>
+    links: Array<ExternalLink>,
+    className?: string
 }
 
 type IconParams = {
@@ -19,14 +17,14 @@ type IconParams = {
     src: string
 }
 
-export default function LinksList({ links }: LinksListParams) {
+export default function LinksList({ links, className }: LinksListParams) {
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => setIsClient(true), []);
 
     return (
         <ul
-            className='flex flex-wrap gap-2'>
+            className={cn('flex flex-wrap gap-2', className)}>
             {links.map((link) =>
                 <li
                     key={link.url}>

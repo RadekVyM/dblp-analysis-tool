@@ -2,7 +2,7 @@ import 'server-only'
 import { VenueType } from '@/enums/VenueType'
 import { SimpleSearchResultItem } from '@/dtos/search/SimpleSearchResult'
 import * as cheerio from 'cheerio'
-import { convertDblpUrlToLocalPath, extractNormalizedIdFromDblpUrlPath, getVenueTypeFromDblpString } from '@/utils/urls'
+import { convertDblpUrlToLocalPath, convertNormalizedIdToDblpPath, extractNormalizedIdFromDblpUrlPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { isNumber } from '@/utils/strings'
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '@/constants/html'
@@ -13,6 +13,8 @@ import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import { DblpVenueVolume, createDblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { extractPublicationsFromXml } from '../publications/parsing'
 import { DblpVenueVolumeItem, createDblpVenueVolumeItem } from '@/dtos/DblpVenueVolumeItem'
+import { DBLP_URL } from '@/constants/urls'
+import { DblpVenueVolumeItemGroup, createDblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
 
 const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
@@ -113,10 +115,17 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
 }
 
 function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string): DblpVenue {
-    const volumes: Array<DblpVenueVolumeItem> = [];
+    const volumeGroups: Array<DblpVenueVolumeItemGroup> = [];
 
     $('li').each((liIndex, li) => {
-        const liElement = $(li);
+        const volumes: Array<DblpVenueVolumeItem> = [];
+        let groupTitle: string | undefined = '';
+
+        $(li).contents().first().each((index, child) => {
+            if (child.type === 'text') {
+                groupTitle = $(child).text();
+            }
+        });
 
         $('ref', li).each((refIndex, ref) => {
             const refElement = $(ref);
@@ -138,16 +147,24 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
                 ids[0],
                 ids[1],
                 textContent,
-                venueType,
+                venueType
             ));
         });
+
+        if (volumes.length > 0) {
+            volumeGroups.push(createDblpVenueVolumeItemGroup(
+                volumes,
+                groupTitle?.trim()
+            ));
+        }
     });
 
     const venue = createDblpVenue(
         id,
         he.decode(title),
-        volumes,
-        venueType
+        volumeGroups,
+        venueType,
+        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}`]
     );
 
     return venue;
@@ -161,7 +178,8 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
         id,
         he.decode(title),
         publications,
-        venueType
+        venueType,
+        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id, additionalVolumeId)}`]
     );
 
     return volume;

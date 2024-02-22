@@ -11,6 +11,8 @@ import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VenueType } from '@/enums/VenueType'
 import { DblpVenue } from '@/dtos/DblpVenue'
 import VolumesPageContent from './(components)/VolumesPageContent'
+import LinksList from '@/components/LinksList'
+import { cn } from '@/utils/tailwindUtils'
 
 export default async function ConferencePage({ params: { ids }, searchParams }: VenuePageParams) {
     const venueId = ids[0];
@@ -36,6 +38,10 @@ export default async function ConferencePage({ params: { ids }, searchParams }: 
                     title={venueOrVolume.title}
                     subtitle={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
                     className='pb-3' />
+
+                <LinksList
+                    className={cn('mt-4', isAuthorized ? 'mb-7' : '')}
+                    links={venueOrVolume.links} />
 
                 {
                     isAuthorized &&

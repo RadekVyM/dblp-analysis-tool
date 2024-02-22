@@ -1,7 +1,7 @@
 'use client'
 
 import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
-import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSlection'
+import PublicationsChartUnitSelection from '@/components/data-visualisation/PublicationsChartUnitSelection'
 import PieChart, { PieChartData } from '@/components/data-visualisation/PieChart'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import Table, { TableData } from '@/components/data-visualisation/Table'
@@ -52,7 +52,7 @@ export default function PublicationTypesStats({ className, publications, scaffol
                             scaffoldId={scaffoldId}
                             selectedUnit={barChartSelectedUnit} />),
                     secondaryContent: (
-                        <ChartUnitSelection
+                        <PublicationsChartUnitSelection
                             className='p-3'
                             selectedUnit={barChartSelectedUnit}
                             setSelectedUnit={setBarChartSelectedUnit}

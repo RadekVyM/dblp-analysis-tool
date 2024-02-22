@@ -129,7 +129,7 @@ function SearchBox({ className, searchQuery, onSearchQueryChange }: SearchBoxPar
                 type='text'
                 value={localSearchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder='Search coauthors...'
+                placeholder='Search authors...'
                 className='w-full h-8 px-8 bg-transparent text-sm rounded-lg' />
             <div
                 className='absolute top-0 grid place-items-center w-8 h-full pointer-events-none rounded-lg'>

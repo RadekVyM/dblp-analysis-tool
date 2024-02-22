@@ -34,7 +34,7 @@ function Scaffold({
                 </div>
                 <div
                     id='saveditems-menu-container'
-                    className='row-start-1 row-end-2 col-start-1 col-end-3 justify-self-end h-full bg-transparent pointer-events-none'>
+                    className='row-start-1 row-end-2 col-start-1 col-end-3 justify-self-end h-full bg-transparent pointer-events-none min-w-0'>
                 </div>
             </div>
 

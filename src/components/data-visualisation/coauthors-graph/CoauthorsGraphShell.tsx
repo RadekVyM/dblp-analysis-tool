@@ -11,16 +11,22 @@ import GraphOptionsSelection from './GraphOptionsSelection'
 import useCoauthorsGraph from '@/hooks/data-visualisation/useCoauthorsGraph'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import { DblpPublication } from '@/dtos/DblpPublication'
+import Button from '@/components/Button'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
+    publications?: Array<DblpPublication>,
     className?: string
 }
 
+type ShouldRenderGraphParams = {
+    onRenderItClick: () => void
+}
+
 /** Shell for the entire coauthors graph and its menus. */
-export default function CoauthorsGraphShell({ authors, className }: CoauthorsGraphShellParams) {
+export default function CoauthorsGraphShell({ authors, publications, className }: CoauthorsGraphShellParams) {
     // Additional authors are authors whose all coauthors are included in the graph
-    const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors);
+    const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors, publications);
     const graphRef = useRef<CoauthorsGraphRef | null>(null);
     const [graph, updateGraph] = useCoauthorsGraph(allAuthors);
     const selectedAuthor = useMemo(
@@ -34,6 +40,12 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,
         (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
+    const isGraphHuge = useMemo(() => graph.nodes.length > 2000, [graph.nodes.length]);
+    const [shouldRenderGraph, setShouldRenderGraph] = useState(false);
+
+    useEffect(() => {
+        setShouldRenderGraph(!isGraphHuge);
+    }, [isGraphHuge, graph.nodes.length]);
 
     function setSelectedAuthorId(id: string | null) {
         updateGraph({ selectedAuthorId: id });
@@ -69,12 +81,17 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                 className)}>
             <DataVisualisationContainer
                 className='overflow-hidden w-full h-full'>
-                <CoauthorsGraph
-                    ref={graphRef}
-                    className='w-full h-full'
-                    graph={graph}
-                    onAuthorClick={setSelectedAuthorId}
-                    onHoverChange={onCoauthorHoverChange} />
+                {
+                    !isGraphHuge || shouldRenderGraph ?
+                        <CoauthorsGraph
+                            ref={graphRef}
+                            className='w-full h-full'
+                            graph={graph}
+                            onAuthorClick={setSelectedAuthorId}
+                            onHoverChange={onCoauthorHoverChange} /> :
+                        <ShouldRenderGraph
+                            onRenderItClick={() => setShouldRenderGraph(true)} />
+                }
             </DataVisualisationContainer>
             <DataVisualisationContainer
                 className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-3 py-3 flex gap-x-2'>
@@ -109,7 +126,7 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
                             switchSelection={switchSelection}
                             clear={clear}
                             onAuthorClick={setSelectedAuthorId}
-                            title={`All Coauthors`}
+                            title={`All authors`}
                             onAuthorHoverChange={onCoauthorHoverChange}
                             searchQuery={graph.searchQuery}
                             onSearchQueryChange={(newQuery) => updateGraph({ searchQuery: newQuery })} />
@@ -119,13 +136,34 @@ export default function CoauthorsGraphShell({ authors, className }: CoauthorsGra
     )
 }
 
+function ShouldRenderGraph({ onRenderItClick }: ShouldRenderGraphParams) {
+    return (
+        <div
+            className='px-4 pb-4 pt-5'>
+            <h2 className='font-bold mb-4'>This graph is huge!</h2>
+            <p>
+                Are you sure you want this graph to be rendered?<br />
+                It may take a long time, slow your browser and will most likely be pretty useless.
+            </p>
+            <Button
+                className='mt-5'
+                size='sm'
+                onClick={onRenderItClick}>
+                Render it anyway
+            </Button>
+        </div>
+    )
+}
+
 /** Hook that handles processed authors. */
-function useAuthors(authors: Array<DblpAuthor>) {
+function useAuthors(authors: Array<DblpAuthor>, publications?: Array<DblpPublication>) {
     const [additionalAuthors, setAdditionalAuthors] = useState<Array<DblpAuthor>>([]);
     const allAuthors = useMemo(() => {
         const uniquePublications = new Map<string, DblpPublication>();
         authors.forEach((a) => a.publications.forEach((p) => uniquePublications.set(p.id, p)));
         additionalAuthors.forEach((a) => a.publications.forEach((p) => uniquePublications.set(p.id, p)));
+
+        publications?.forEach((p) => uniquePublications.set(p.id, p));
 
         return {
             originalAuthors: authors,
@@ -135,7 +173,7 @@ function useAuthors(authors: Array<DblpAuthor>) {
                 .map((a) => a.id)
                 .concat(additionalAuthors.map((a) => a.id))
         };
-    }, [authors, additionalAuthors]);
+    }, [authors, publications, additionalAuthors]);
 
     const addAdditionalAuthor = useCallback((author: DblpAuthor) => {
         if (additionalAuthors.some((a) => a.id === author.id)) {

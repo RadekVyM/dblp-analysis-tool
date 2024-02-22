@@ -1,13 +1,13 @@
 'use client'
 
 import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
-import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSlection'
+import PublicationsChartUnitSelection from '@/components/data-visualisation/PublicationsChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { PublicationType } from '@/enums/PublicationType'
 import { isGreater } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { MdBarChart, MdSsidChart, MdTableChart } from 'react-icons/md'
 import * as d3 from 'd3'
 import LineChart from '@/components/data-visualisation/LineChart'
@@ -38,6 +38,47 @@ export default function PublicationsOverTimeStats({ className, publications, sca
     const isLineChartHidden = publications.every((publ) => publ.year === publications[0]?.year);
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState(isLineChartHidden ? 'Bars' : 'Line');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
+    const items = useMemo(() => [
+        {
+            key: 'Line',
+            content: (
+                <PublicationsOverTimeLineChart
+                    publications={publications}
+                    scaffoldId={scaffoldId} />),
+            title: 'Line chart',
+            icon: (<MdSsidChart />),
+            isHidden: isLineChartHidden
+        },
+        {
+            key: 'Bars',
+            content: (
+                <PublicationsOverTimeBarChart
+                    publications={publications}
+                    scaffoldId={scaffoldId}
+                    selectedUnit={barChartSelectedUnit} />),
+            secondaryContent: (
+                <PublicationsChartUnitSelection
+                    className='p-3'
+                    selectedUnit={barChartSelectedUnit}
+                    setSelectedUnit={setBarChartSelectedUnit}
+                    unitsId={scaffoldId || ''} />),
+            title: 'Bar chart',
+            icon: (<MdBarChart />),
+        },
+        {
+            key: 'Table',
+            content: (<PublicationsOverTimeTable publications={publications} />),
+            title: 'Table',
+            icon: (<MdTableChart />),
+
+        },
+    ], [publications, scaffoldId, barChartSelectedUnit, isLineChartHidden]);
+
+    useEffect(() => {
+        if (isLineChartHidden && selectedPublTypesStatsVisual === 'Line') {
+            setSelectedPublTypesStatsVisual('Bars');
+        }
+    }, [isLineChartHidden, selectedPublTypesStatsVisual]);
 
     return (
         <StatsScaffold
@@ -45,41 +86,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                 className,
                 'max-h-[min(80vh,40rem)]',
                 selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
-            items={[
-                {
-                    key: 'Line',
-                    content: (
-                        <PublicationsOverTimeLineChart
-                            publications={publications}
-                            scaffoldId={scaffoldId} />),
-                    title: 'Line chart',
-                    icon: (<MdSsidChart />),
-                    isHidden: isLineChartHidden
-                },
-                {
-                    key: 'Bars',
-                    content: (
-                        <PublicationsOverTimeBarChart
-                            publications={publications}
-                            scaffoldId={scaffoldId}
-                            selectedUnit={barChartSelectedUnit} />),
-                    secondaryContent: (
-                        <ChartUnitSelection
-                            className='p-3'
-                            selectedUnit={barChartSelectedUnit}
-                            setSelectedUnit={setBarChartSelectedUnit}
-                            unitsId={scaffoldId || ''} />),
-                    title: 'Bar chart',
-                    icon: (<MdBarChart />),
-                },
-                {
-                    key: 'Table',
-                    content: (<PublicationsOverTimeTable publications={publications} />),
-                    title: 'Table',
-                    icon: (<MdTableChart />),
-
-                },
-            ]}
+            items={items}
             scaffoldId={scaffoldId || 'publication-types-stats'}
             sideTabsLegend='Choose data visualisation'
             selectedKey={selectedPublTypesStatsVisual}

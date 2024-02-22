@@ -1,7 +1,7 @@
 'use client'
 
 import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
-import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSlection'
+import PublicationsChartUnitSelection from '@/components/data-visualisation/PublicationsChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { TableData } from '@/components/data-visualisation/Table'
 import { ChartUnit } from '@/enums/ChartUnit'
@@ -65,7 +65,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                     secondaryContent: (
                         <div
                             className='flex justify-between'>
-                            <ChartUnitSelection
+                            <PublicationsChartUnitSelection
                                 className='p-3'
                                 selectedUnit={barChartSelectedUnit}
                                 setSelectedUnit={setBarChartSelectedUnit}

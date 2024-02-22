@@ -2,6 +2,7 @@ import { VenueType } from '@/enums/VenueType'
 import { DblpPublication } from './DblpPublication'
 import { DblpVenueBase } from './DblpVenueBase'
 import { VenueVolumeType } from '@/enums/VenueVolumeType'
+import { convertToExternalLinks } from '@/utils/links'
 
 /** Venue volume stored in dblp. */
 export type DblpVenueVolume = {
@@ -16,6 +17,7 @@ export function createDblpVenueVolume(
     title: string,
     publications: Array<DblpPublication>,
     type?: VenueType,
+    links?: Array<string>,
 ): DblpVenueVolume {
     return {
         id,
@@ -23,6 +25,7 @@ export function createDblpVenueVolume(
         title,
         publications,
         type,
-        venueVolumeType: VenueVolumeType.Volume
+        venueVolumeType: VenueVolumeType.Volume,
+        links: links ? convertToExternalLinks(links) : []
     }
 }
