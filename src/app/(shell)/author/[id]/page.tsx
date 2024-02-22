@@ -10,7 +10,7 @@ import AuthorPublications from './(components)/AuthorPublications'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import { isAuthorizedOnServer } from '@/services/auth'
-import AuthorCoauthors from '@/components/data-visualisation/AuthorCoauthors'
+import CoauthorsPageSection from '@/components/data-visualisation/CoauthorsPageSection'
 import SameNameAuthors from './(components)/SameNameAuthors'
 
 type AuthorPageParams = {
@@ -80,7 +80,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                         publications={author.publications}
                         maxDisplayedCount={3} />
 
-                    <AuthorCoauthors
+                    <CoauthorsPageSection
                         authors={[author]} />
                 </>
             }

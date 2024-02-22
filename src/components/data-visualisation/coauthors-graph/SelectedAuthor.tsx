@@ -216,13 +216,13 @@ function useDisplayedCoauthors(
         }
 
         if (isIncludedAuthor) {
-            return getUniqueCoauthors([fetchedAuthor], (a) => {
+            return getUniqueCoauthors([fetchedAuthor], [], (a) => {
                 const author = authorsMap.get(a.id);
                 return allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && author?.coauthorIds.has(id));
             });
         }
 
-        return getUniqueCoauthors([fetchedAuthor], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
+        return getUniqueCoauthors([fetchedAuthor], [], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
     }, [fetchedAuthor, selectedAuthor, authorsMap, isIncludedAuthor]);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
     const displayedCommonCoauthors = useMemo(

@@ -4,15 +4,17 @@ import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useMemo } from 'react'
 import Table from './Table'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
+import { DblpPublication } from '@/dtos/DblpPublication'
 
 type CoauthorsTableParams = {
-    authors: Array<DblpAuthor>
+    authors: Array<DblpAuthor>,
+    publications?: Array<DblpPublication>,
 }
 
 /** Table that displays coauthors of all specified authors. */
-export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
+export default function CoauthorsTable({ authors, publications }: CoauthorsTableParams) {
     const rows = useMemo(() => {
-        const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications));
+        const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications).concat(publications || []));
 
         return nodes
             .filter((a) => !authors.some((aa) => aa.id === a.person.id))
@@ -21,7 +23,7 @@ export default function CoauthorsTable({ authors }: CoauthorsTableParams) {
                 { value: node.coauthorIds.size, presentedContent: node.coauthorIds.size },
                 { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
             ]))
-    }, [authors]);
+    }, [authors, publications]);
 
     return (
         <Table

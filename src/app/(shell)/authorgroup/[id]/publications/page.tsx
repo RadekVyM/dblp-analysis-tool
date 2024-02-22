@@ -39,7 +39,7 @@ export default async function AuthorGroupPublicationsPage({ params: { id } }: Au
                 <PageTitle
                     title={authorGroup.title}
                     titleHref={`/authorgroup/${id}`}
-                    subtitle='Author'
+                    subtitle='Author group'
                     className='pb-3' />
             </header>
 

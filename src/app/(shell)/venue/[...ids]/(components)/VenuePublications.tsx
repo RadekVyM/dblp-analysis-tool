@@ -1,17 +1,18 @@
 'use client'
 
-import { DblpVenue } from '@/dtos/DblpVenue'
-import VolumesContent from './VolumesContent'
-import VolumeGroups from './VolumeGroups'
-import useSelectableFetchableVenueVolumes from '@/hooks/venues/useSelectableFetchableVenueVolumes'
+import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
+import { DblpVenue } from '@/dtos/DblpVenue';
+import useSelectableFetchableVenueVolumes from '@/hooks/venues/useSelectableFetchableVenueVolumes';
+import VolumePublications from './VolumePublications';
+import VolumeGroups from './VolumeGroups';
 
-type VolumesPageContentParams = {
+type VenuePublicationsParams = {
     venue: DblpVenue,
     venueId: string,
     volumeId?: string,
 }
 
-export default function VolumesPageContent({ venue, venueId, volumeId }: VolumesPageContentParams) {
+export default function VenuePublications({ venue }: VenuePublicationsParams) {
     const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue);
 
     return (
@@ -24,11 +25,9 @@ export default function VolumesPageContent({ venue, venueId, volumeId }: Volumes
 
             {
                 selectedVolumes.length > 0 &&
-                <VolumesContent
-                    volumes={selectedVolumes}
-                    venueId={venueId}
-                    volumeId={volumeId} />
+                <VolumePublications
+                    volumes={selectedVolumes} />
             }
         </>
-    )
+    );
 }

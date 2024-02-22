@@ -1,6 +1,5 @@
 'use client'
 
-
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import useAuthors from '@/hooks/authors/useAuthors'

@@ -7,14 +7,16 @@ import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph
 import CoauthorsTable from '@/components/data-visualisation/CoauthorsTable'
 import ItemsStats from '@/components/ItemsStats'
 import { getUniqueCoauthors } from '@/services/graphs/authors'
+import { DblpPublication } from '@/dtos/DblpPublication'
 
 type AuthorCoauthorsParams = {
     authors: Array<DblpAuthor>,
+    publications?: Array<DblpPublication>,
     className?: string
 }
 
 /** Page section that displays the coauthors graph and table. */
-export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
+export default function CoauthorsPageSection({ authors, publications }: AuthorCoauthorsParams) {
     return (
         <PageSection>
             <PageSectionTitle
@@ -24,15 +26,17 @@ export default function AuthorCoauthors({ authors }: AuthorCoauthorsParams) {
 
             <ItemsStats
                 className='mb-6'
-                totalCount={getUniqueCoauthors(authors).length} />
+                totalCount={getUniqueCoauthors(authors, publications).length} />
 
             <CoauthorsGraphShell
-                authors={authors} />
+                authors={authors}
+                publications={publications} />
 
             <DataVisualisationContainer
                 className='mt-10 overflow-hidden'>
                 <CoauthorsTable
-                    authors={authors} />
+                    authors={authors}
+                    publications={publications} />
             </DataVisualisationContainer>
         </PageSection>
     )

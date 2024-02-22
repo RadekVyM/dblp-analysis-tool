@@ -37,7 +37,7 @@ export default function FiltersList({ className, filtersMap, clear, switchSelect
                     variant='outline' size='xs'
                     onClick={() => showFiltersDialog()}>
                     <MdFilterListAlt />
-                    Add Filters
+                    Add filters
                 </Button>
             </li>
             {filters.map(({ filter, filterKey, itemKey, value }) =>

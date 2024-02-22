@@ -33,19 +33,16 @@ const DEFAULT_NODE_VALUES: PublicationPersonNodeDatumExtension & NodeDatumCanvas
  */
 export function getUniqueCoauthors(
     authors: Array<DblpAuthor>,
+    publications?: Array<DblpPublication>,
     skip?: (author: DblpPublicationPerson) => boolean
 ): Array<DblpPublicationPerson> {
     const map = new Map<string, DblpPublicationPerson>();
 
     authors.forEach((author) => {
-        author.publications.forEach((p) => [...p.authors, ...p.editors].forEach((a) => {
-            if ((skip && skip(a)) || map.has(a.id)) {
-                return;
-            }
-
-            map.set(a.id, a);
-        }));
+        author.publications.forEach((p) => extractCoauthorsOfPublicationToMap(p, map, skip));
     });
+
+    publications?.forEach((p) => extractCoauthorsOfPublicationToMap(p, map, skip));
 
     return [...map.values()];
 }
@@ -182,4 +179,19 @@ function getLinksLimits(links: Array<PublicationPersonLinkDatum>) {
         minCoauthoredPublicationsCount,
         maxCoauthoredPublicationsCount
     };
+}
+
+/** Puts all authors of a publication to a map. */
+function extractCoauthorsOfPublicationToMap(
+    p: DblpPublication,
+    map: Map<string, DblpPublicationPerson>,
+    skip?: ((author: DblpPublicationPerson) => boolean)
+): void {
+    [...p.authors, ...p.editors].forEach((a) => {
+        if ((skip && skip(a)) || map.has(a.id)) {
+            return;
+        }
+
+        map.set(a.id, a);
+    });
 }

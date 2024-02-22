@@ -38,11 +38,11 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const key = $('bht').attr('key');
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
-    if ($('dblpcites > r').length > 0) {
-        return extractVenueVolume($, title, venueType, id, additionalVolumeId);
+    if ($(volumesRefSelector(id)).length > 0) {
+        return extractVenue($, title, venueType, id);
     }
     else {
-        return extractVenue($, title, venueType, id);
+        return extractVenueVolume($, title, venueType, id, additionalVolumeId);
     }
 }
 
@@ -117,17 +117,20 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
 function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string): DblpVenue {
     const volumeGroups: Array<DblpVenueVolumeItemGroup> = [];
 
-    $('li').each((liIndex, li) => {
+    $(volumesRefSelector(id)).each((liIndex, li) => {
         const volumes: Array<DblpVenueVolumeItem> = [];
         let groupTitle: string | undefined = '';
 
         $(li).contents().first().each((index, child) => {
             if (child.type === 'text') {
-                groupTitle = $(child).text();
+                groupTitle = $(child).text().trim();
+                if (groupTitle.endsWith(':')) {
+                    groupTitle = groupTitle.substring(0, groupTitle.length - 1);
+                }
             }
         });
 
-        $('ref', li).each((refIndex, ref) => {
+        $(refSelector(id), li).each((refIndex, ref) => {
             const refElement = $(ref);
 
             const textContent = refElement.text();
@@ -151,10 +154,16 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
             ));
         });
 
+        if (!groupTitle) {
+            groupTitle = volumes.length > 1 ?
+                `${volumes[0].title} - ${volumes[volumes.length - 1].title}` :
+                volumes[0].title;
+        }
+
         if (volumes.length > 0) {
             volumeGroups.push(createDblpVenueVolumeItemGroup(
                 volumes,
-                groupTitle?.trim()
+                groupTitle
             ));
         }
     });
@@ -183,4 +192,13 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
     );
 
     return volume;
+}
+
+function refSelector(venueId: string) {
+    return `ref[href*="${convertNormalizedIdToDblpPath(venueId)}"]`;
+}
+
+function volumesRefSelector(venueId: string) {
+    const ref = refSelector(venueId);
+    return `tr:has(${ref}), li:has(${ref})`;
 }

@@ -1,0 +1,45 @@
+'use client'
+
+import { DblpVenue } from '@/dtos/DblpVenue'
+import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
+import { useEffect, useMemo, useState } from 'react'
+
+export default function useSelectableFetchableVenueVolumes(venue: DblpVenue) {
+    const [volumes, setVolumes] = useState<Array<DblpVenueVolume>>([]);
+    const [selectedVolumeIds, setSelectedVolumeIds] = useState<Set<string>>(new Set());
+    const selectedVolumes = useMemo(() => volumes.filter((v) => selectedVolumeIds.has(v.id)), [volumes, selectedVolumeIds]);
+
+    useEffect(() => {
+        const firstVolumeId = venue.volumeGroups[0]?.items[0]?.volumeId;
+        setSelectedVolumeIds(firstVolumeId ? new Set([firstVolumeId]) : new Set());
+    }, [venue]);
+
+    function toggleVolume(id: string) {
+        setSelectedVolumeIds((old) => {
+            const newSet = new Set<string>(old);
+            if (old.has(id)) {
+                newSet.delete(id);
+            }
+            else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    }
+
+    function onFetchedVolume(volume: DblpVenueVolume) {
+        setVolumes((old) => {
+            if (old.some((v) => v.id === volume.id)) {
+                return old;
+            }
+            return [...old, volume];
+        });
+    }
+
+    return {
+        selectedVolumes,
+        selectedVolumeIds,
+        toggleVolume,
+        onFetchedVolume
+    };
+}

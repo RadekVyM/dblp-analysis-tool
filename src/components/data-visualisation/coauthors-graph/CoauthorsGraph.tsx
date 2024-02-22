@@ -18,6 +18,8 @@ const inter = Inter({ subsets: ['latin'] });
 const DEFAULT_GRAPH_WIDTH = 400;
 const DEFAULT_GRAPH_HEIGHT = 300;
 const MAX_SCALE_EXTENT = 10;
+const MIN_NODE_RADIUS = 1.2;
+const MIN_LINK_THICKNESS = 0.35;
 
 type CoauthorsGraphParams = {
     onAuthorClick: (id: string) => void,
@@ -297,6 +299,12 @@ function drawNodes(
         node.canvasY = toDimensionsY(node.y, dimensions);
         node.canvasRadius = node.isHighlighted ? 10 : node.isDim ? 1.8 : 4;
 
+        // If the graph is too large and zoomed out, nodes are too small to be visible
+        // This ensures that nodes have a minimal size and are always visible
+        if (node.canvasRadius * scale < MIN_NODE_RADIUS) {
+            node.canvasRadius = (node.isDim ? MIN_NODE_RADIUS * 0.8 : MIN_NODE_RADIUS) / scale;
+        }
+
         addNodeToPath(context, node, node.canvasRadius + 1.3);
 
         placeNodeToRightGroup(node, computedStyle, labeledNodes, coloredNodes, normalNodes, semitransparentNormalNodes);
@@ -484,9 +492,15 @@ function drawLine(
     dimensions: { width: number; height: number }
 ) {
     if (source.x && source.y && target.x && target.y) {
-        context.globalAlpha = isDim ? 0.09 : isHighlighted ? (0.8 + 0.2 * intensity) : (0.2 + 0.8 * intensity);
+        context.globalAlpha = isDim ? 0.09 : isHighlighted ? (0.8 + 0.2 * intensity) : (0.3 + 0.7 * intensity);
         context.strokeStyle = color;
         context.lineWidth = ((isHighlighted ? 1 : 0.8) + 0.3 * intensity) / clamp(zoomTransform.scale * 0.9, 0.9, 1.1);
+
+        // If the graph is too large and zoomed out, links are too small to be visible
+        // This ensures that links have a minimal width and are always visible
+        if (context.lineWidth * zoomTransform.scale < MIN_LINK_THICKNESS) {
+            context.lineWidth = MIN_LINK_THICKNESS / zoomTransform.scale;
+        }
 
         context.beginPath();
         context.moveTo(toDimensionsX(source.x, dimensions), toDimensionsY(source.y, dimensions));
