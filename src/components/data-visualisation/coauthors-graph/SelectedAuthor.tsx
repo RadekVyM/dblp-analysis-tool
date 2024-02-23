@@ -14,6 +14,8 @@ import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/Pub
 import { getUniqueCoauthors } from '@/services/graphs/authors'
 import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
+import useCommonUncommonCoauthors from '@/hooks/data-visualisation/useCommonUncomonCoauthors'
+import { MdBook, MdInfo, MdLibraryBooks } from 'react-icons/md'
 
 const COUNT_INCREASE = 60;
 
@@ -24,7 +26,6 @@ type SelectedAuthorParams = {
 type SelectedAuthorContentParams = {
     originalAuthorIds: Array<string>,
     allIncludedAuthorIds: Array<string>,
-    ignoredAuthorIds?: Array<string>,
     selectedAuthor: PublicationPersonNodeDatum,
     authorsMap: Map<string, PublicationPersonNodeDatum>,
     addAuthor: (author: DblpAuthor) => void,
@@ -37,7 +38,6 @@ type SelectedAuthorContentParams = {
 export default function SelectedAuthor({
     selectedAuthor,
     authorsMap,
-    ignoredAuthorIds,
     allIncludedAuthorIds,
     originalAuthorIds,
     addAuthor,
@@ -72,7 +72,6 @@ export default function SelectedAuthor({
                 originalAuthorIds={originalAuthorIds}
                 selectedAuthor={selectedAuthor}
                 authorsMap={authorsMap}
-                ignoredAuthorIds={ignoredAuthorIds}
                 addAuthor={addAuthor}
                 removeAuthor={removeAuthor}
                 onCoauthorClick={onCoauthorClick}
@@ -84,7 +83,6 @@ export default function SelectedAuthor({
 function SelectedAuthorContent({
     selectedAuthor,
     authorsMap,
-    ignoredAuthorIds,
     allIncludedAuthorIds,
     originalAuthorIds,
     addAuthor,
@@ -95,16 +93,15 @@ function SelectedAuthorContent({
     const targerObserver = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
     const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
+    // Included author is an original author or an author whose coauthors were included in the graph
     const isIncludedAuthor = useMemo(() => allIncludedAuthorIds.some((id) => id === selectedAuthor.person.id), [allIncludedAuthorIds, selectedAuthor]);
     const { displayedCommonCoauthors, displayedUncommonCoauthors } = useDisplayedCoauthors(
         targerObserver,
         listRef,
         authorsMap,
-        selectedAuthor,
         fetchedAuthor,
         isIncludedAuthor,
-        allIncludedAuthorIds,
-        ignoredAuthorIds);
+        allIncludedAuthorIds);
 
     function onIncludeAllClick() {
         if (!fetchedAuthor) {
@@ -148,14 +145,16 @@ function SelectedAuthorContent({
                         isSelected={isIncludedAuthor}
                         onClick={onIncludeAllClick}
                         className='w-full'>
-                        <span className='leading-4'>Include all {selectedAuthor.person.name}&apos;s coauthors in the graph</span>
+                        <span className='leading-4'>Include {selectedAuthor.person.name} as an original author in the graph</span>
                     </CheckListButton>
                 </div>
             }
             {
                 displayedCommonCoauthors.length > 0 &&
                 <section>
-                    <h5 className='font-bold mx-4 mt-4 text-sm'>Common coauthors</h5>
+                    <h5 className='font-bold mx-4 mt-4 text-sm'>
+                        Common coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are common with an original author.`} />
+                    </h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
                         {displayedCommonCoauthors.map((a) =>
@@ -164,23 +163,42 @@ function SelectedAuthorContent({
                                 key={a.person.id}
                                 onAuthorClick={onCoauthorClick}
                                 person={a.person}
-                                onHoverChange={onCoauthorHoverChange} />)}
+                                onHoverChange={onCoauthorHoverChange}
+                                after={selectedAuthor.coauthorIds.has(a.person.id) && <span> <MdLibraryBooks title='Coauthor of the same publication' className='inline' /></span>} />)}
                     </ul>
                 </section>
             }
             {
                 displayedUncommonCoauthors.length > 0 &&
                 <section>
-                    <h5 className='font-bold mx-4 mt-4 text-sm'>Uncommon coauthors</h5>
+                    {
+                        displayedCommonCoauthors.length === 0 && originalAuthorIds.includes(selectedAuthor.person.id) ?
+                            <h5 className='font-bold mx-4 mt-4 text-sm'>
+                                Coauthors
+                            </h5> :
+                            <h5 className='font-bold mx-4 mt-4 text-sm'>
+                                Uncommon coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are not common with any original author.`} />
+                            </h5>
+                    }
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
-                        {displayedUncommonCoauthors.map((a) =>
-                            a &&
-                            <AuthorListItem
-                                key={a.id}
-                                onAuthorClick={(id) => id && authorsMap.has(id) && onCoauthorClick(id)}
-                                person={a}
-                                onHoverChange={onCoauthorHoverChange} />)}
+                        {displayedUncommonCoauthors.map((a) => {
+                            if (!a) {
+                                return undefined;
+                            }
+
+                            const isInGraph = authorsMap.has(a.id);
+
+                            return (
+                                <AuthorListItem
+                                    key={a.id}
+                                    disabled={!isInGraph}
+                                    marker={isInGraph ? 'onhover' : 'none'}
+                                    onAuthorClick={(id) => id && authorsMap.has(id) && onCoauthorClick(id)}
+                                    person={a}
+                                    onHoverChange={onCoauthorHoverChange} />
+                            )
+                        })}
                     </ul>
                 </section>
             }
@@ -195,35 +213,16 @@ function useDisplayedCoauthors(
     targerObserver: RefObject<HTMLDivElement>,
     listRef: RefObject<HTMLDivElement>,
     authorsMap: Map<string, PublicationPersonNodeDatum>,
-    selectedAuthor: PublicationPersonNodeDatum,
     fetchedAuthor: DblpAuthor | undefined,
     isIncludedAuthor: boolean,
     allIncludedAuthorIds: Array<string>,
-    ignoredAuthorIds?: Array<string>,
 ) {
-    const commonCoauthors = useMemo(() =>
-        isIncludedAuthor ?
-            [...selectedAuthor.coauthorIds.values()]
-                .map((id) => authorsMap.get(id))
-                .filter((a) => a && allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && a.coauthorIds.has(id))) :
-            [...selectedAuthor.coauthorIds.values()]
-                .map((id) => authorsMap.get(id))
-                .filter((a) => a && !ignoredAuthorIds?.includes(a.person.id)),
-        [selectedAuthor, authorsMap, ignoredAuthorIds, allIncludedAuthorIds, isIncludedAuthor]);
-    const uncommonCoauthors = useMemo(() => {
-        if (!fetchedAuthor?.publications) {
-            return [];
-        }
-
-        if (isIncludedAuthor) {
-            return getUniqueCoauthors([fetchedAuthor], [], (a) => {
-                const author = authorsMap.get(a.id);
-                return allIncludedAuthorIds.some((id) => id !== selectedAuthor.person.id && author?.coauthorIds.has(id));
-            });
-        }
-
-        return getUniqueCoauthors([fetchedAuthor], [], (a) => a.id === selectedAuthor.person.id || authorsMap.has(a.id));
-    }, [fetchedAuthor, selectedAuthor, authorsMap, isIncludedAuthor]);
+    const { commonCoauthors, uncommonCoauthors } = useCommonUncommonCoauthors(
+        authorsMap,
+        fetchedAuthor,
+        isIncludedAuthor,
+        allIncludedAuthorIds
+    );
     const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
     const displayedCommonCoauthors = useMemo(
         () => commonCoauthors.slice(0, displayedCount),
@@ -235,7 +234,7 @@ function useDisplayedCoauthors(
     useEffect(() => {
         resetDisplayedCount();
         listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [selectedAuthor.person.id]);
+    }, [fetchedAuthor?.id]);
 
     return {
         displayedCommonCoauthors,

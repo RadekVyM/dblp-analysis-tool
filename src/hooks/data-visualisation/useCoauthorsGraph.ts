@@ -94,7 +94,7 @@ export default function useCoauthorsGraph(
     }, [graph]);
 
     function setSelectedAuthorId(id: string | null, oldGraph: CoauthorsGraphState, updatedGraph: CoauthorsGraphState) {
-        if (allAuthors.originalAuthors.some((a) => a.id === id) || oldGraph.selectedAuthorId === id) {
+        if (oldGraph.selectedAuthorId === id) {
             return;
         }
 

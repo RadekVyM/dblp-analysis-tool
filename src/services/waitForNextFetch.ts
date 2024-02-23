@@ -8,7 +8,12 @@ import { delay } from '@/utils/promises'
  * Waits for a certain amount of time before another request can be sent to dblp.org.
  * The waiting time is stored in the WAITING_TIME_BETWEEN_DBLP_REQUESTS constant.
  * 
- * This is needed because dblp.org recommends waiting one second between requests: https://dblp.org/faq/1474706.html
+ * This is needed because dblp.org recommends waiting one or two seconds between requests: https://dblp.org/faq/1474706.html
+ * 
+ * This implementation is not perfect.
+ * If there are two requests sent almost at the same time, they may load the same record from the database.
+ * This will result in two requests being sent to the dblp.org at the same time.
+ * However, that hopefully should not happen too often, and even if it happens, it is not the end of the world.
  * @param signal Abort signal of the incoming request
  */
 export default async function waitForNextFetch(signal: AbortSignal) {

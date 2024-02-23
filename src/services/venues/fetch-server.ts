@@ -10,8 +10,7 @@ import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { serverError } from '@/utils/errors'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
-import { cacheRecord, tryGetCachedRecord } from '../cache/cache'
-import { cacheVenueOrVolume, tryGetCachedVenueOrVolume } from '../cache/venues'
+import { cacheVenueOrVolume, tryGetCachedVenueOrVolume } from '@/services/cache/venues'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -57,8 +56,6 @@ export async function fetchVenuesIndexLength(type: VenueType) {
  * @returns Object containing all the venue or venue volume information
  */
 export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string) {
-    const recordId = id + (additionalVolumeId ? `/${additionalVolumeId}` : '');
-
     return await withCache<DblpVenueBase>(
         async (value: DblpVenueBase) => await cacheVenueOrVolume(value, id, additionalVolumeId),
         async () => await tryGetCachedVenueOrVolume(id, additionalVolumeId),
