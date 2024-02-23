@@ -1,7 +1,7 @@
 'use client'
 
 import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
-import PublicationsChartUnitSelection from '@/components/data-visualisation/PublicationsChartUnitSelection'
+import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { PublicationType } from '@/enums/PublicationType'
@@ -14,15 +14,24 @@ import LineChart from '@/components/data-visualisation/LineChart'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 
+/** These items will be grouped by a chart or table. */
 type OverTimePublication = {
     id: string,
     type: PublicationType,
     year: number,
 }
 
+/** These items are already grouped. */
+type SimplifiedOverTimePublication = {
+    year: number,
+    count: number
+}
+
 type PublicationsOverTimeStatsParams = {
     className?: string,
-    publications: Array<OverTimePublication>,
+    publications: Array<OverTimePublication | SimplifiedOverTimePublication>,
+    /** This property needs to be set to true when simplified publications are used */
+    isSimplified?: boolean,
     scaffoldId?: string,
 }
 
@@ -34,7 +43,7 @@ type PublicationsOverTimeLineChartParams = {
 } & PublicationsOverTimeStatsParams
 
 /** Displays publications statistics over time. */
-export default function PublicationsOverTimeStats({ className, publications, scaffoldId }: PublicationsOverTimeStatsParams) {
+export default function PublicationsOverTimeStats({ className, publications, scaffoldId, isSimplified }: PublicationsOverTimeStatsParams) {
     const isLineChartHidden = publications.every((publ) => publ.year === publications[0]?.year);
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState(isLineChartHidden ? 'Bars' : 'Line');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
@@ -44,7 +53,8 @@ export default function PublicationsOverTimeStats({ className, publications, sca
             content: (
                 <PublicationsOverTimeLineChart
                     publications={publications}
-                    scaffoldId={scaffoldId} />),
+                    scaffoldId={scaffoldId}
+                    isSimplified={isSimplified} />),
             title: 'Line chart',
             icon: (<MdSsidChart />),
             isHidden: isLineChartHidden
@@ -55,9 +65,10 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                 <PublicationsOverTimeBarChart
                     publications={publications}
                     scaffoldId={scaffoldId}
+                    isSimplified={isSimplified}
                     selectedUnit={barChartSelectedUnit} />),
             secondaryContent: (
-                <PublicationsChartUnitSelection
+                <ChartUnitSelection
                     className='p-3'
                     selectedUnit={barChartSelectedUnit}
                     setSelectedUnit={setBarChartSelectedUnit}
@@ -67,7 +78,10 @@ export default function PublicationsOverTimeStats({ className, publications, sca
         },
         {
             key: 'Table',
-            content: (<PublicationsOverTimeTable publications={publications} />),
+            content: (
+                <PublicationsOverTimeTable
+                    publications={publications}
+                    isSimplified={isSimplified} />),
             title: 'Table',
             icon: (<MdTableChart />),
 
@@ -87,14 +101,14 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                 'max-h-[min(80vh,40rem)]',
                 selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
             items={items}
-            scaffoldId={scaffoldId || 'publication-types-stats'}
+            scaffoldId={scaffoldId || 'publications-over-time-stats'}
             sideTabsLegend='Choose data visualisation'
             selectedKey={selectedPublTypesStatsVisual}
             onKeySelected={setSelectedPublTypesStatsVisual} />
     )
 }
 
-function PublicationsOverTimeBarChart({ publications, selectedUnit }: PublicationsOverTimeBarChartParams) {
+function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified }: PublicationsOverTimeBarChartParams) {
     return (
         <BarChart
             orientation='Vertical'
@@ -107,13 +121,14 @@ function PublicationsOverTimeBarChart({ publications, selectedUnit }: Publicatio
                 barTitle: (key) => key,
                 color: (key) => 'primary',
                 sortKeys: (pair1, pair2) => isGreater(pair1.key, pair2.key),
+                value: isSimplified ? (items) => chartValueOfSimplifiedPublications(items as Array<SimplifiedOverTimePublication>) : undefined,
                 fillMissingNumberKeys: true,
                 items: publications
-            } as BarChartData<OverTimePublication>} />
+            } as BarChartData<OverTimePublication | SimplifiedOverTimePublication>} />
     )
 }
 
-function PublicationsOverTimeLineChart({ publications }: PublicationsOverTimeLineChartParams) {
+function PublicationsOverTimeLineChart({ publications, isSimplified }: PublicationsOverTimeLineChartParams) {
     return (
         <LineChart
             secondaryAxisThickness={60}
@@ -123,13 +138,14 @@ function PublicationsOverTimeLineChart({ publications }: PublicationsOverTimeLin
                 barTitle: (key) => key,
                 color: (key) => 'primary',
                 sortKeys: (pair1, pair2) => isGreater(pair1.key, pair2.key),
+                value: isSimplified ? (items) => chartValueOfSimplifiedPublications(items as Array<SimplifiedOverTimePublication>) : undefined,
                 fillMissingNumberKeys: true,
                 items: publications
-            } as BarChartData<OverTimePublication>} />
+            } as BarChartData<OverTimePublication | SimplifiedOverTimePublication>} />
     )
 }
 
-function PublicationsOverTimeTable({ publications }: PublicationsOverTimeStatsParams) {
+function PublicationsOverTimeTable({ publications, isSimplified }: PublicationsOverTimeStatsParams) {
     const years = useMemo(() => {
         const [min, max] = d3.extent(publications.map((p) => p.year)) as [number, number];
         return d3.range(min, max + 1);
@@ -141,7 +157,13 @@ function PublicationsOverTimeTable({ publications }: PublicationsOverTimeStatsPa
             examinatedValueSortTitle='Sort by year'
             examinatedValues={years}
             items={publications}
+            totalCount={isSimplified ? publications.reduce((acc, item) => acc + (item as SimplifiedOverTimePublication).count, 0) : undefined}
+            itemsCount={isSimplified ? (items) => (items.length > 0 ? items[0].count : 0) : undefined}
             toPresentedContent={(year: number) => year.toString()}
-            filter={(p: OverTimePublication, year: number) => p.year === year} />
+            filter={(p: OverTimePublication | SimplifiedOverTimePublication, year: number) => p.year === year} />
     )
+}
+
+function chartValueOfSimplifiedPublications(items: Array<SimplifiedOverTimePublication>) {
+    return items.reduce((acc, item) => acc + item.count, 0);
 }

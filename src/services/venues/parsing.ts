@@ -15,6 +15,8 @@ import { extractPublicationsFromXml } from '../publications/parsing'
 import { DblpVenueVolumeItem, createDblpVenueVolumeItem } from '@/dtos/DblpVenueVolumeItem'
 import { DBLP_URL } from '@/constants/urls'
 import { DblpVenueVolumeItemGroup, createDblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
+import { DblpVenueTopAuthor, createDblpVenueTopAuthor } from '@/dtos/DblpVenueTopAuthor'
+import { DblpVenueYearlyPublicationsCount, craeteDblpVenueYearlyPublicationsCount } from '@/dtos/DblpVenuePublicationsInfo'
 
 const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
@@ -29,6 +31,7 @@ const DBLP_INDEX_ELEMENT_IDS = {
  * 
  * @param xml XML string
  * @param id Normalized ID of the venue
+ * @param additionalVolumeId Normalized ID of the venue volume
  * @returns Object containing all the venue information
  */
 export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId?: string): DblpVenueBase {
@@ -44,6 +47,73 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     else {
         return extractVenueVolume($, title, venueType, id, additionalVolumeId);
     }
+}
+
+/**
+ * Extracts additional venue authors information from a XML string using Cheerio.
+ * This includes top authors and authors count.
+ * @param xml XML string
+ * @returns Object containing top authors and authors count
+ */
+export function extractVenueAuthorsInfo(xml: string): { topAuthors: Array<DblpVenueTopAuthor>, totalAuthorsCount: number } | null {
+    const $ = cheerio.load(xml, { xmlMode: true });
+
+    const totalAuthorsCount = $('completions').attr('total');
+
+    if (!totalAuthorsCount || !isNumber(totalAuthorsCount)) {
+        return null;
+    }
+
+    const authors: Array<DblpVenueTopAuthor> = [];
+
+    $('completions c').each((index, c) => {
+        const completion = $(c);
+        const text = completion.text();
+        const count = completion.attr('sc');
+
+        if (text.includes('0no0coauthors') || !count || !isNumber(count)) {
+            return;
+        }
+
+        authors.push(createDblpVenueTopAuthor(
+            text.replace(':facet:author:', ''),
+            parseInt(count)
+        ));
+    });
+
+    return {
+        topAuthors: authors,
+        totalAuthorsCount: parseInt(totalAuthorsCount)
+    };
+}
+
+/**
+ * Extracts venue yearly publications count from an SVG string using Cheerio.
+ * 
+ * @param svg XML string
+ * @returns Array containing the statistics
+ */
+export function extractVenueYearlyPublications(svg: string): Array<DblpVenueYearlyPublicationsCount> | null {
+    const $ = cheerio.load(svg, { xmlMode: true });
+
+    const map = new Map<number, number>();
+
+    $('rect > title').each((index, t) => {
+        const text = $(t).text();
+        const splitText = text.split(':');
+
+        if (splitText.length < 2 || !isNumber(splitText[0].trim()) || !isNumber(splitText[1].trim())) {
+            return;
+        }
+
+        map.set(parseInt(splitText[0].trim()), parseInt(splitText[1].trim()));
+    });
+
+    if (map.size === 0) {
+        return null;
+    }
+
+    return [...map].map(([year, count]) => craeteDblpVenueYearlyPublicationsCount(year, count));
 }
 
 /**

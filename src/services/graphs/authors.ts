@@ -49,6 +49,9 @@ export function getUniqueCoauthors(
 
 /**
  * Creates a graph from a list of publications.
+ * 
+ * Nodes represent all authors of the publications.
+ * An edge between an author A and author B means that A and B are coauthors of the same publication. 
  * @param publications Publications
  * @param ignoredAuthorIds IDs of authors that are not included in the graph
  * @param primaryColoredAuthorIds IDs of authors that are colored using the primary color

@@ -5,77 +5,56 @@ import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelecti
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { TableData } from '@/components/data-visualisation/Table'
 import { ChartUnit } from '@/enums/ChartUnit'
-import { PublicationType } from '@/enums/PublicationType'
 import { isGreater, isSmaller } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { MdBarChart, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
-import { getVenueTypeFromDblpString } from '@/utils/urls'
-import { VENUE_TYPE_COLOR } from '@/constants/client/publications'
-import ItemsStats from '@/components/ItemsStats'
 import MaxCountInput from '../MaxCountInput'
 
-type VenuePublication = {
-    id: string,
-    type: PublicationType,
-    venueId: string | null,
-    venueTitle: string,
+type VenueTopAuthor = {
+    nameId: string,
+    name: string,
+    publicationsCount: number,
 }
 
-type PublicationVenuesStatsParams = {
+type VenueTopAuthorsStatsParams = {
     className?: string,
-    publications: Array<VenuePublication>,
+    authors: Array<VenueTopAuthor>,
+    totalPublicationsCount?: number,
     scaffoldId?: string,
 }
 
-type PublicationVenuesBarChartParams = {
+type VenueTopAuthorsBarChartParams = {
     selectedUnit: ChartUnit,
     maxBarsCount: number
-} & PublicationVenuesStatsParams
+} & VenueTopAuthorsStatsParams
 
-type PublicationVenuesTableParams = {
-    venues: Array<VenuePair>
-} & PublicationVenuesStatsParams
+type VenueTopAuthorsTableParams = {
+} & VenueTopAuthorsStatsParams
 
-type VenuePair = { venueId: string | null, title: string }
-
-/** Displays publications statistics by venues. */
-export default function PublicationVenuesStats({ className, publications, scaffoldId }: PublicationVenuesStatsParams) {
-    const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
+/** Displays top venue authors statistics. */
+export default function VenueTopAuthorsStats({ className, authors, scaffoldId, totalPublicationsCount }: VenueTopAuthorsStatsParams) {
+    const [selectedStatsVisual, setSelectedStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
     const [maxBarsCount, setMaxBarsCount] = useState(100);
-    const venues = useMemo(() => {
-        const map = new Map<string | null, VenuePair>();
-
-        for (const publication of publications) {
-            if (!map.has(publication.venueId)) {
-                map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
-            }
-        }
-
-        return [...map.values()]
-    }, [publications]);
 
     return (
         <>
-            <ItemsStats
-                className='mb-6'
-                totalCount={venues.length} />
-
             <StatsScaffold
                 className={cn(
                     className,
                     'max-h-[min(80vh,40rem)]',
-                    selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
+                    selectedStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
                 items={[
                     {
                         key: 'Bars',
                         content: (
-                            <PublicationVenuesBarChart
-                                publications={publications}
+                            <VenueTopAuthorsBarChart
+                                authors={authors}
                                 scaffoldId={scaffoldId}
+                                totalPublicationsCount={totalPublicationsCount}
                                 selectedUnit={barChartSelectedUnit}
                                 maxBarsCount={maxBarsCount} />),
                         secondaryContent: (
@@ -87,7 +66,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                                     setSelectedUnit={setBarChartSelectedUnit}
                                     unitsId={scaffoldId || ''} />
                                 <MaxCountInput
-                                    label={'Venues Count:'}
+                                    label={'Authors Count:'}
                                     scaffoldId={scaffoldId || ''}
                                     maxCount={maxBarsCount}
                                     setMaxCount={setMaxBarsCount} />
@@ -98,7 +77,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                     },
                     {
                         key: 'Table',
-                        content: (<PublicationVenuesTable publications={publications} venues={venues} />),
+                        content: (<VenueTopAuthorsTable authors={authors} totalPublicationsCount={totalPublicationsCount} />),
                         title: 'Table',
                         icon: (<MdTableChart />),
 
@@ -106,13 +85,13 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                 ]}
                 scaffoldId={scaffoldId || 'publication-types-stats'}
                 sideTabsLegend='Choose data visualisation'
-                selectedKey={selectedPublTypesStatsVisual}
-                onKeySelected={setSelectedPublTypesStatsVisual} />
+                selectedKey={selectedStatsVisual}
+                onKeySelected={setSelectedStatsVisual} />
         </>
     )
 }
 
-function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }: PublicationVenuesBarChartParams) {
+function VenueTopAuthorsBarChart({ authors, selectedUnit, maxBarsCount, totalPublicationsCount }: VenueTopAuthorsBarChartParams) {
     return (
         <BarChart
             orientation='Horizontal'
@@ -122,40 +101,33 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }:
             maxBarsCount={maxBarsCount}
             className='w-full h-full pl-2 xs:pl-4 pr-4 xs:pr-8 pt-7'
             data={{
-                examinedProperty: (item) => item.venueId,
-                barTitle: (key, value) => value?.items[0]?.venueTitle || key,
-                color: (key, value) => {
-                    const type = key ? getVenueTypeFromDblpString(key) : null;
-
-                    if (type) {
-                        return VENUE_TYPE_COLOR[type];
-                    }
-                    return 'primary';
-                },
+                examinedProperty: (item) => item.nameId,
+                barTitle: (key, value) => value?.items[0]?.name || key,
+                color: (key) => 'primary',
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
-                items: publications
-            } as BarChartData<VenuePublication>} />
+                value: (items) => items.reduce((acc, item) => acc + item.publicationsCount, 0),
+                items: authors,
+                totalItemsCount: totalPublicationsCount
+            } as BarChartData<VenueTopAuthor>} />
     )
 }
 
-function PublicationVenuesTable({ publications, venues }: PublicationVenuesTableParams) {
+function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAuthorsTableParams) {
     return (
         <CountPercentageTable
-            examinatedValueTitle='Venue'
-            examinatedValueSortTitle='Sort by venue'
-            examinatedValues={venues}
-            items={publications}
-            toPresentedContent={(venue: VenuePair) => venue.title}
-            filter={(p: VenuePublication, venue: VenuePair) => p.venueId === venue.venueId}
+            examinatedValueTitle='Author'
+            examinatedValueSortTitle='Sort by author name'
+            examinatedValues={authors}
+            items={authors}
+            itemsCount={(items) => (items.length > 0 ? items[0].publicationsCount : 0)}
+            totalCount={totalPublicationsCount}
+            toPresentedContent={(author: VenueTopAuthor) => author.name}
+            filter={(a: VenueTopAuthor, author: VenueTopAuthor) => a.nameId === author.nameId}
             sortExaminedValue={sortByPresentedContent}
-            rowKey={venueTableRowKey} />
+            rowKey={(author: VenueTopAuthor) => author.nameId} />
     )
 }
 
 function sortByPresentedContent(first: TableData, second: TableData): number {
     return isGreater(first.presentedContent, second.presentedContent);
-}
-
-function venueTableRowKey(venue: VenuePair) {
-    return venue.venueId || 'undefined';
 }

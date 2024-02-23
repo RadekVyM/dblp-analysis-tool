@@ -8,7 +8,8 @@ type ChartUnitSelectionParams = {
     setSelectedUnit: (unit: ChartUnit) => void
 }
 
-export default function PublicationsChartUnitSelection({ unitsId, className, selectedUnit, setSelectedUnit }: ChartUnitSelectionParams) {
+/** Component for selecting currently used chart units. */
+export default function ChartUnitSelection({ unitsId, className, selectedUnit, setSelectedUnit }: ChartUnitSelectionParams) {
     return (
         <Tabs
             className={className}

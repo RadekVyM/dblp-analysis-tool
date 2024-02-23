@@ -45,6 +45,15 @@ export async function fetchXml(url: string) {
 }
 
 /**
+ * Sends a GET request which expects SVG image to be returned and throws an error if needed.
+ * @param url URL of the request
+ * @returns SVG string
+ */
+export async function fetchSvg(url: string) {
+    return fetchWithErrorHandling(url, 'image/svg+xml').then((res) => res.text());
+}
+
+/**
  * Sends a GET request which expects HTML document to be returned and throws an error if needed.
  * @param url URL of the request
  * @returns HTML string

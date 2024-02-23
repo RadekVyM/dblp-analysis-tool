@@ -145,7 +145,7 @@ function SelectedAuthorContent({
                         isSelected={isIncludedAuthor}
                         onClick={onIncludeAllClick}
                         className='w-full'>
-                        <span className='leading-4'>Include {selectedAuthor.person.name} as an original author in the graph</span>
+                        <span className='leading-4'>Include {selectedAuthor.person.name} as an original author</span>
                     </CheckListButton>
                 </div>
             }
@@ -172,7 +172,7 @@ function SelectedAuthorContent({
                 displayedUncommonCoauthors.length > 0 &&
                 <section>
                     {
-                        displayedCommonCoauthors.length === 0 && originalAuthorIds.includes(selectedAuthor.person.id) ?
+                        displayedCommonCoauthors.length === 0 && allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
                             <h5 className='font-bold mx-4 mt-4 text-sm'>
                                 Coauthors
                             </h5> :

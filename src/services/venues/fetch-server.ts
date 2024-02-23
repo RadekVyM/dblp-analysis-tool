@@ -3,14 +3,18 @@ import { VenueType } from '@/enums/VenueType'
 import { fetchItemsIndexHtml } from '@/services/items/fetch'
 import { convertNormalizedIdToDblpPath } from '@/utils/urls'
 import { DBLP_BOOKS_INDEX_HTML, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, DBLP_SERIES_INDEX_HTML, DBLP_URL } from '@/constants/urls'
-import { extractVenueOrVolume, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
-import { fetchXml, withCache } from '@/services/fetch'
+import { extractVenueAuthorsInfo, extractVenueOrVolume, extractVenueYearlyPublications, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
+import { fetchSvg, fetchXml, withCache } from '@/services/fetch'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
-import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
+import { delay, getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { serverError } from '@/utils/errors'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import { cacheVenueOrVolume, tryGetCachedVenueOrVolume } from '@/services/cache/venues'
+import { VenueVolumeType } from '@/enums/VenueVolumeType'
+import { DblpVenue } from '@/dtos/DblpVenue'
+import { createDblpVenueAuthorsInfo } from '@/dtos/DblpVenueInfo'
+import { createDblpVenuePublicationsInfo } from '@/dtos/DblpVenuePublicationsInfo'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -61,7 +65,14 @@ export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string
         async () => await tryGetCachedVenueOrVolume(id, additionalVolumeId),
         async () => {
             const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
-            return extractVenueOrVolume(xml, id, additionalVolumeId);
+            const venueOrVolume = extractVenueOrVolume(xml, id, additionalVolumeId);
+
+            if (venueOrVolume.venueVolumeType !== VenueVolumeType.Venue) {
+                return venueOrVolume;
+            }
+
+            const venue = venueOrVolume as DblpVenue;
+            return await tryFetchAdditionalVenueInfo(venue, id);
         }
     );
 }
@@ -102,10 +113,51 @@ export async function fetchSearchResultWithoutQuery(type: VenueType, params: Sea
     return result;
 }
 
+async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
+    try {
+        await delay(500); // Wait at least a bit to not send multiple requests at the same time
+        const additionalVenueInfoXml = await fetchAdditionalVenueInfoXml(id);
+        const authorsInfo = extractVenueAuthorsInfo(additionalVenueInfoXml);
+
+        if (authorsInfo) {
+            venue.venueAuthorsInfo = createDblpVenueAuthorsInfo(
+                authorsInfo.topAuthors,
+                authorsInfo.totalAuthorsCount
+            );
+        }
+    }
+    catch (e) { }
+
+    try {
+        await delay(500); // Wait at least a bit to not send multiple requests at the same time
+        const yearlyPublicationsSvg = await fetchVenueYearlyPublicationsSvg(id);
+        const yearlyPublications = extractVenueYearlyPublications(yearlyPublicationsSvg);
+
+        if (yearlyPublications) {
+            venue.venuePublicationsInfo = createDblpVenuePublicationsInfo(
+                yearlyPublications
+            );
+        }
+    }
+    catch (e) { }
+
+    return venue;
+}
+
 /** Fetches a raw XML object containing all the venue or venue volume information. */
 async function fetchVenueOrVolumeXml(id: string, additionalVolumeId?: string): Promise<string> {
     const url = additionalVolumeId ?
         `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/${additionalVolumeId}.xml` :
         `${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}/index.xml`;
     return fetchXml(url);
+}
+
+async function fetchAdditionalVenueInfoXml(id: string): Promise<string> {
+    const url = `${DBLP_URL}/search/publ/api?q=stream:${convertNormalizedIdToDblpPath(id).substring(1)}:&compl=author&p=0&h=0&c=1000&format=xml`;
+    return fetchXml(url);
+}
+
+async function fetchVenueYearlyPublicationsSvg(id: string): Promise<string> {
+    const url = `${DBLP_URL}/search/yt/svg?q=stream:${convertNormalizedIdToDblpPath(id).substring(1)}:`;
+    return fetchSvg(url);
 }

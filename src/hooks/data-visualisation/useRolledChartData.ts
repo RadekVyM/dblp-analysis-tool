@@ -19,10 +19,10 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
     // Chart map maps each examined property value to a count of items with that property value
     const chartMap = useMemo<d3.InternMap<any, ChartValue>>(
         () => {
-            const rolled = d3.rollup(data.items, r => ({ value: r.length, items: r }), data.examinedProperty);
+            const rolled = d3.rollup(data.items, r => ({ value: data.value ? data.value(r) : r.length, items: r }), data.examinedProperty);
 
             if (unit === ChartUnit.Percentage) {
-                const total = data.items.length;
+                const total = data.totalItemsCount || data.items.length;
 
                 for (const key of rolled.keys()) {
                     const value = rolled.get(key);
