@@ -2,6 +2,11 @@ import LinkArrow from '@/components/LinkArrow'
 import { cn } from '@/utils/tailwindUtils'
 import Link from 'next/link'
 
+type PageSectionParams = {
+    children: React.ReactNode,
+    className?: string,
+}
+
 type SectionTitleParams = {
     className?: string,
     href?: string,
@@ -14,9 +19,9 @@ type HeadingParams = {
 }
 
 /** Section of a page. */
-export function PageSection({ children }: { children: React.ReactNode }) {
+export function PageSection({ children, className }: PageSectionParams) {
     return (
-        <section className='mb-12'>{children}</section>
+        <section className={cn('mb-12', className)}>{children}</section>
     )
 }
 
@@ -32,6 +37,13 @@ export function PageSectionTitle({ children, href, className }: SectionTitlePara
                     className='w-6 h-5 mt-[-0.2rem]' />
             </Link> :
             <Heading className={cn('mb-5', className)}>{children}</Heading>
+    )
+}
+
+/** Title of a page subsection. */
+export function PageSubsectionTitle({ children, className }: HeadingParams) {
+    return (
+        <h4 className={cn('font-semibold mb-5', className)}>{children}</h4>
     )
 }
 

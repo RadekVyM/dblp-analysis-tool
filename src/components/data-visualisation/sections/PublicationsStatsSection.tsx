@@ -1,35 +1,36 @@
 import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
-import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
+import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
 import PublicationTypesStats from '@/components/data-visualisation/stats/PublicationTypesStats'
 import ItemsStats from '@/components/ItemsStats'
 import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
 import PublicationVenuesStats from '@/components/data-visualisation/stats/PublicationVenuesStats'
 import PublicationListItem from '@/components/publications/PublicationListItem'
 
-type PublicationsParams = {
+type PublicationsStatsSectionParams = {
     className?: string,
     maxDisplayedCount?: number,
+    title?: React.ReactNode,
+    children?: React.ReactNode,
     publicationsUrl: string,
     publications: Array<DblpPublication>
 }
 
-export default function AuthorPublications({ publications, publicationsUrl, maxDisplayedCount, className }: PublicationsParams) {
+/** Page section that displays all the publications statistics. */
+export default function PublicationsStatsSection({ publications, publicationsUrl, maxDisplayedCount, title, children, className }: PublicationsStatsSectionParams) {
     return (
-        <PageSection>
+        <PageSection
+            className={className}>
             <PageSectionTitle
                 href={publicationsUrl}
                 className='text-xl'>
-                Publications
+                {title || 'Publications'}
             </PageSectionTitle>
 
             <ItemsStats
                 className='mb-6'
                 totalCount={publications.length} />
 
-            <h4
-                className='font-semibold mb-5'>
-                Last Added
-            </h4>
+            <PageSubsectionTitle>Last Added</PageSubsectionTitle>
             <ul
                 className='flex flex-col gap-5 pl-4 mb-10'>
                 {publications.slice(0, maxDisplayedCount).map((publ) =>
@@ -38,46 +39,40 @@ export default function AuthorPublications({ publications, publicationsUrl, maxD
                         publication={publ} />)}
             </ul>
 
-            <h4 className='font-semibold mb-5'>Publication Types</h4>
+            <PageSubsectionTitle>Publication Types</PageSubsectionTitle>
 
             <PublicationTypesStats
                 scaffoldId='publication-types-stats'
                 className='mb-10'
-                publications={publications.map((publ) => {
-                    return {
-                        id: publ.id,
-                        type: publ.type,
-                        date: publ.date
-                    }
-                })} />
+                publications={publications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    date: publ.date
+                }))} />
 
-            <h4 className='font-semibold mb-5'>Publications Over Time</h4>
+            <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
 
             <PublicationsOverTimeStats
                 scaffoldId='publications-over-time-stats'
                 className='mb-10'
-                publications={publications.map((publ) => {
-                    return {
-                        id: publ.id,
-                        type: publ.type,
-                        year: publ.year
-                    }
-                })} />
+                publications={publications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    year: publ.year
+                }))} />
 
-            <h4 className='font-semibold mb-5'>Publication Venues</h4>
+            <PageSubsectionTitle>Publication Venues</PageSubsectionTitle>
 
             <PublicationVenuesStats
                 scaffoldId='publication-venues-stats'
-                publications={publications.map((publ) => {
-                    const title = getVenueTitle(publ);
+                publications={publications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    venueId: publ.venueId || null,
+                    venueTitle: getVenueTitle(publ)
+                }))} />
 
-                    return {
-                        id: publ.id,
-                        type: publ.type,
-                        venueId: publ.venueId || null,
-                        venueTitle: getVenueTitle(publ)
-                    }
-                })} />
+            {children}
         </PageSection>
     )
 }

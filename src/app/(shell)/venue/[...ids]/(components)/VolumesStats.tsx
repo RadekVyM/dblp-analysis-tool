@@ -1,18 +1,21 @@
 'use client'
 
-import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications'
-import CoauthorsPageSection from '@/components/data-visualisation/CoauthorsPageSection'
+import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
+import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react'
+import { VenueVolumeType } from '@/enums/VenueVolumeType'
 
-type VolumesContentParams = {
+type VolumesStatsParams = {
     volumes: Array<DblpVenueVolume>,
     venueId: string,
+    venueVolumeType: VenueVolumeType,
     volumeId?: string,
 }
 
-export default function VolumesContent({ volumes, venueId, volumeId }: VolumesContentParams) {
+/** Displays all the (publications and authors) statistics of the specified volumes. */
+export default function VolumesStats({ volumes, venueId, volumeId, venueVolumeType }: VolumesStatsParams) {
     const allPublications = useMemo(() => {
         const publicationsMap = new Map<string, DblpPublication>();
         volumes.forEach((v) => v.publications.forEach((p) => publicationsMap.set(p.id, p)));
@@ -21,11 +24,12 @@ export default function VolumesContent({ volumes, venueId, volumeId }: VolumesCo
 
     return (
         <>
-            <AuthorPublications
+            <PublicationsStatsSection
+                title={venueVolumeType === VenueVolumeType.Volume ? undefined : 'Selected Volumes Publications'}
                 publicationsUrl={volumeId ? `/venue/${venueId}/${volumeId}/publications` : `/venue/${venueId}/publications`}
                 publications={allPublications}
                 maxDisplayedCount={3} />
-            <CoauthorsPageSection
+            <CoauthorsSection
                 authors={[]}
                 publications={allPublications} />
         </>

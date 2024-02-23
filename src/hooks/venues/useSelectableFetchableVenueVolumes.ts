@@ -4,6 +4,11 @@ import { DblpVenue } from '@/dtos/DblpVenue'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useEffect, useMemo, useState } from 'react'
 
+/**
+ * Hook that creates a state and operations for selecting and storing fetched volumes of a venue.
+ * @param venue Venue
+ * @returns State and operations for selecting and storing fetched volumes of the venue
+ */
 export default function useSelectableFetchableVenueVolumes(venue: DblpVenue) {
     const [volumes, setVolumes] = useState<Array<DblpVenueVolume>>([]);
     const [selectedVolumeIds, setSelectedVolumeIds] = useState<Set<string>>(new Set());

@@ -1,8 +1,8 @@
-import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
+import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/fetch'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import { tryGetCachedRecord } from '@/services/cache/cache'
-import { delay } from '@/utils/promises'
+import waitForNextFetch from '@/services/waitForNextFetch'
 import { iteratorToStream } from '@/utils/readableStreams'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -25,15 +25,13 @@ export async function GET(request: NextRequest, { searchParams }: { searchParams
 
     const authorsIdsArray = authorsIdsParsed as Array<string>;
 
-    const iterator = fetchAuthors(authorsIdsArray);
+    const iterator = fetchAuthors(authorsIdsArray, request.signal);
     const stream = iteratorToStream(iterator);
 
     return new Response(stream);
 }
 
-async function* fetchAuthors(authorIds: Array<string>) {
-    let hasAlreadyFetched = false;
-
+async function* fetchAuthors(authorIds: Array<string>, signal: AbortSignal) {
     for (const id of authorIds) {
         const cachedAuthor = await tryGetCachedRecord<DblpAuthor>(id);
 
@@ -41,11 +39,8 @@ async function* fetchAuthors(authorIds: Array<string>) {
             yield authorToJson(cachedAuthor);
         }
         else {
-            if (hasAlreadyFetched) {
-                await delay(1200);
-            }
+            await waitForNextFetch(signal);
             const author = await fetchAuthor(id);
-            hasAlreadyFetched = true;
             yield authorToJson(author);
         }
     }

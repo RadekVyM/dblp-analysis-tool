@@ -1,22 +1,28 @@
 'use client'
 
 import { DblpVenue } from '@/dtos/DblpVenue'
-import VolumesContent from './VolumesContent'
-import VolumeGroups from './VolumeGroups'
+import VolumesStats from './VolumesStats'
+import VolumesSelection from './VolumesSelection'
 import useSelectableFetchableVenueVolumes from '@/hooks/venues/useSelectableFetchableVenueVolumes'
+import { VenueVolumeType } from '@/enums/VenueVolumeType'
 
-type VolumesPageContentParams = {
+type MultipleVolumesPageContentParams = {
     venue: DblpVenue,
+    venueVolumeType: VenueVolumeType,
     venueId: string,
     volumeId?: string,
 }
 
-export default function VolumesPageContent({ venue, venueId, volumeId }: VolumesPageContentParams) {
+/**
+ * Content that should be displayed on a venue page with multiple venue volumes.
+ * This includes volumes selection and all the volumes statistics.
+*/
+export default function MultipleVolumesPageContent({ venue, venueVolumeType, venueId, volumeId }: MultipleVolumesPageContentParams) {
     const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue);
 
     return (
         <>
-            <VolumeGroups
+            <VolumesSelection
                 toggleVolume={toggleVolume}
                 selectedVolumeIds={selectedVolumeIds}
                 groups={venue.volumeGroups}
@@ -24,7 +30,8 @@ export default function VolumesPageContent({ venue, venueId, volumeId }: Volumes
 
             {
                 selectedVolumes.length > 0 &&
-                <VolumesContent
+                <VolumesStats
+                    venueVolumeType={venueVolumeType}
                     volumes={selectedVolumes}
                     venueId={venueId}
                     volumeId={volumeId} />

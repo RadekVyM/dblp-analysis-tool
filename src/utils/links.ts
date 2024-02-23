@@ -1,4 +1,11 @@
-export function convertToExternalLinks(links: Array<string>) {
+import { ExternalLink } from "@/dtos/ExternalLink";
+
+/**
+ * Converts a collection of URLs to a collection of external links which contain a title and icon URL.
+ * @param links Collection of string URLs
+ * @returns Collection of external links
+ */
+export function convertToExternalLinks(links: Array<string>): Array<ExternalLink> {
     return links.map((link) => {
         const url = new URL(link);
 

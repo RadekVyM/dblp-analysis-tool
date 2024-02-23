@@ -1,10 +1,21 @@
 import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
 import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VenueType } from '@/enums/VenueType'
-import VenueOrVolumePage from './(components)/VenueOrVolumePage'
-import PublicationsPage from './(components)/PublicationsPage'
+import VenuePage from './(components)/VenuePages'
+import VenuePublicationsPage from './(components)/VenuePublicationsPage'
 
-export default async function VenuePage({ params: { ids }, searchParams }: VenuePageParams) {
+type VenuePagesParams = {
+    params: {
+        ids: Array<string>
+    },
+    searchParams: { [key: string]: number }
+}
+
+/**
+ * Processes the URL parameters and decides what page should be displayed.
+ * This approach is used because variable count of URL parameters is used - file based routing cannot be used after [...ids].
+*/
+export default async function VenuePages({ params: { ids }, searchParams }: VenuePagesParams) {
     const venueId = ids[0];
     const venueType = getVenueTypeFromDblpString(venueId);
     const volumeId = ids.length > 1 && venueType === VenueType.Book ?
@@ -16,7 +27,7 @@ export default async function VenuePage({ params: { ids }, searchParams }: Venue
 
     if (isPublicationsPage) {
         return (
-            <PublicationsPage
+            <VenuePublicationsPage
                 venueId={venueId}
                 volumeId={volumeId}
                 venueOrVolume={venueOrVolume} />
@@ -24,7 +35,7 @@ export default async function VenuePage({ params: { ids }, searchParams }: Venue
     }
     else {
         return (
-            <VenueOrVolumePage
+            <VenuePage
                 venueId={venueId}
                 volumeId={volumeId}
                 venueOrVolume={venueOrVolume}

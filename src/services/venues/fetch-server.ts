@@ -11,6 +11,7 @@ import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/
 import { serverError } from '@/utils/errors'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import { cacheRecord, tryGetCachedRecord } from '../cache/cache'
+import { cacheVenueOrVolume, tryGetCachedVenueOrVolume } from '../cache/venues'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -59,8 +60,8 @@ export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string
     const recordId = id + (additionalVolumeId ? `/${additionalVolumeId}` : '');
 
     return await withCache<DblpVenueBase>(
-        async (value: DblpVenueBase) => await cacheRecord(recordId, value),
-        async () => await tryGetCachedRecord(recordId),
+        async (value: DblpVenueBase) => await cacheVenueOrVolume(value, id, additionalVolumeId),
+        async () => await tryGetCachedVenueOrVolume(id, additionalVolumeId),
         async () => {
             const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
             return extractVenueOrVolume(xml, id, additionalVolumeId);

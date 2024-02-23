@@ -15,6 +15,7 @@ import useLazyListCount from '@/hooks/useLazyListCount'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import FiltersList from '@/components/FiltersList'
 import PublicationListItem from './PublicationListItem'
+import Badge from '../Badge'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>
@@ -110,11 +111,10 @@ function PublicationsList({ publications, groupedBy, className }: PublicationsLi
                                 className='font-semibold'>
                                 {getTitleFromKey(key, groupedBy)}
                             </h4>
-                            <span
-                                title={`${keyPublications.count} publications`}
-                                className='px-2 py-0.5 text-xs rounded-lg bg-secondary text-on-secondary'>
+                            <Badge
+                                title={`${keyPublications.count} publications`}>
                                 {keyPublications.count}
-                            </span>
+                            </Badge>
                         </header>
                         <ul
                             className='flex flex-col gap-5 pl-4'>

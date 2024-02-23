@@ -8,7 +8,7 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 
 /**
- * Hook that converts input data into data that are presentable in a 2D chart, such as bar, point or line chart.
+ * Hook that converts input data into data that is presentable in a 2D chart, such as bar, point or line chart.
  * @param data Input chart data
  * @param unit Unit in which chart values are displayed
  * @param orientation Orientation of the chart

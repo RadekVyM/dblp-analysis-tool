@@ -8,26 +8,27 @@ import { DblpVenue } from '@/dtos/DblpVenue'
 import LinksList from '@/components/LinksList'
 import { cn } from '@/utils/tailwindUtils'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
-import AddToRecentlySeen from './AddToRecentlySeen'
-import SaveButtons from './SaveButtons'
-import VolumesContent from './VolumesContent'
-import VolumesPageContent from './VolumesPageContent'
+import AddToVisitedVenues from './AddToVisitedVenues'
+import SaveVenueButton from './SaveVenueButton'
+import VolumesStats from './VolumesStats'
+import MultipleVolumesPageContent from './MultipleVolumesPageContent'
 
-type VenueOrVolumePageParams = {
+type VenuePageParams = {
     venueOrVolume: DblpVenueBase,
     venueType: VenueType | null,
     venueId: string,
     volumeId?: string,
 }
 
-export default async function VenueOrVolumePage({ venueOrVolume, venueType, venueId, volumeId }: VenueOrVolumePageParams) {
+/** Page displaying content of a venue. */
+export default async function VenuePage({ venueOrVolume, venueType, venueId, volumeId }: VenuePageParams) {
     const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <PageContainer>
             {
                 isAuthorized && venueType !== VenueType.Book &&
-                <AddToRecentlySeen
+                <AddToVisitedVenues
                     id={venueId}
                     title={venueOrVolume.title} />
             }
@@ -44,8 +45,8 @@ export default async function VenueOrVolumePage({ venueOrVolume, venueType, venu
                     links={venueOrVolume.links} />
 
                 {
-                    isAuthorized &&
-                    <SaveButtons
+                    isAuthorized && venueType !== VenueType.Book &&
+                    <SaveVenueButton
                         title={venueOrVolume.title}
                         venueId={venueOrVolume.id} />
                 }
@@ -53,11 +54,13 @@ export default async function VenueOrVolumePage({ venueOrVolume, venueType, venu
 
             {
                 venueOrVolume.venueVolumeType === 'Volume' ?
-                    <VolumesContent
+                    <VolumesStats
+                        venueVolumeType={venueOrVolume.venueVolumeType}
                         volumes={[venueOrVolume as DblpVenueVolume]}
                         venueId={venueId}
                         volumeId={volumeId} /> :
-                    <VolumesPageContent
+                    <MultipleVolumesPageContent
+                        venueVolumeType={venueOrVolume.venueVolumeType}
                         venue={venueOrVolume as DblpVenue}
                         venueId={venueId}
                         volumeId={volumeId} />

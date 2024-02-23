@@ -27,7 +27,8 @@ export default function useSavedAuthors() {
         savedAuthors: data || [],
         saveAuthor,
         removeSavedAuthor,
-        error: fetchError || postError || deleteError,
+        fetchError,
+        mutationError: postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
     }

@@ -3,12 +3,13 @@
 import useVisitedVenues from '@/hooks/useVisitedVenues'
 import { useEffect } from 'react'
 
-type AddToRecentlySeenParams = {
+type AddToVisitedVenuesParams = {
     id: string,
     title: string
 }
 
-export default function AddToRecentlySeen({ id, title }: AddToRecentlySeenParams) {
+/** Adds the venue with the specified ID to the user's visited venues collection. */
+export default function AddToVisitedVenues({ id, title }: AddToVisitedVenuesParams) {
     const { visitedVenue } = useVisitedVenues();
 
     useEffect(() => {

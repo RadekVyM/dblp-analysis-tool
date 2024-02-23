@@ -6,11 +6,12 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react';
 
-type VolumePublicationsParams = {
+type VolumePublicationsSectionParams = {
     volumes: Array<DblpVenueVolume>,
 }
 
-export default function VolumePublications({ volumes }: VolumePublicationsParams) {
+/** Displays a page section with a list of volume publications that can be filtered. */
+export default function VolumePublicationsSection({ volumes }: VolumePublicationsSectionParams) {
     const allPublications = useMemo(() => {
         const publicationsMap = new Map<string, DblpPublication>();
         volumes.forEach((v) => v.publications.forEach((p) => publicationsMap.set(p.id, p)));

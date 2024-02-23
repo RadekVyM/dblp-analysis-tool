@@ -1,4 +1,4 @@
-import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/streams'
+import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/fetch'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useMemo } from 'react'
 import useSWRSubscription, { SWRSubscriptionOptions } from 'swr/subscription'

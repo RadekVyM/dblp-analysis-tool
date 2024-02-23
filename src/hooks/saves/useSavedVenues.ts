@@ -27,7 +27,8 @@ export default function useSavedVenues() {
         savedVenues: data || [],
         saveVenue,
         removeSavedVenue,
-        error: fetchError | postError | deleteError,
+        fetchError,
+        mutationError: postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
     }

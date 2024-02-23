@@ -38,7 +38,7 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const key = $('bht').attr('key');
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
-    if ($(volumesRefSelector(id)).length > 0) {
+    if ($(elementsContainingVolumeRefsSelector(id)).length > 0) {
         return extractVenue($, title, venueType, id);
     }
     else {
@@ -114,11 +114,11 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
     return count;
 }
 
+/** Extracts all the venue information from a XML string using Cheerio. */
 function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string): DblpVenue {
     const volumeGroups: Array<DblpVenueVolumeItemGroup> = [];
 
-    $(volumesRefSelector(id)).each((liIndex, li) => {
-        const volumes: Array<DblpVenueVolumeItem> = [];
+    $(elementsContainingVolumeRefsSelector(id)).each((liIndex, li) => {
         let groupTitle: string | undefined = '';
 
         $(li).contents().first().each((index, child) => {
@@ -130,29 +130,7 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
             }
         });
 
-        $(refSelector(id), li).each((refIndex, ref) => {
-            const refElement = $(ref);
-
-            const textContent = refElement.text();
-            const href = refElement.attr('href');
-
-            if (!href) {
-                return;
-            }
-
-            const ids = extractNormalizedIdFromDblpUrlPath(href);
-
-            if (!ids || !ids[1]) {
-                return;
-            }
-
-            volumes.push(createDblpVenueVolumeItem(
-                ids[0],
-                ids[1],
-                textContent,
-                venueType
-            ));
-        });
+        const volumes = extractVolumeItems($, li, id, venueType);
 
         if (!groupTitle) {
             groupTitle = volumes.length > 1 ?
@@ -179,6 +157,38 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
     return venue;
 }
 
+/** Extracts all the venue volume items from a XML string using Cheerio. */
+function extractVolumeItems($: cheerio.Root, li: cheerio.Element, id: string, venueType: VenueType | undefined) {
+    const volumes: Array<DblpVenueVolumeItem> = [];
+
+    $(volumeRefSelector(id), li).each((refIndex, ref) => {
+        const refElement = $(ref);
+
+        const textContent = refElement.text();
+        const href = refElement.attr('href');
+
+        if (!href) {
+            return;
+        }
+
+        const ids = extractNormalizedIdFromDblpUrlPath(href);
+
+        if (!ids || !ids[1]) {
+            return;
+        }
+
+        volumes.push(createDblpVenueVolumeItem(
+            ids[0],
+            ids[1],
+            textContent,
+            venueType
+        ));
+    })
+
+    return volumes;
+}
+
+/** Extracts all the venue volume information from a XML string using Cheerio. */
 function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string, additionalVolumeId?: string): DblpVenueVolume {
     const publications = extractPublicationsFromXml($);
 
@@ -194,11 +204,13 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
     return volume;
 }
 
-function refSelector(venueId: string) {
+/** Returns a selector of <ref> elements. */
+function volumeRefSelector(venueId: string) {
     return `ref[href*="${convertNormalizedIdToDblpPath(venueId)}"]`;
 }
 
-function volumesRefSelector(venueId: string) {
-    const ref = refSelector(venueId);
+/** Returns a selector of elements that contain <ref> elements. */
+function elementsContainingVolumeRefsSelector(venueId: string) {
+    const ref = volumeRefSelector(venueId);
     return `tr:has(${ref}), li:has(${ref})`;
 }

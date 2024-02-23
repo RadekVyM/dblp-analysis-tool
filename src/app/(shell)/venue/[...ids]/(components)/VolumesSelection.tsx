@@ -1,7 +1,6 @@
 'use client'
 
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
-import { DblpVenue } from '@/dtos/DblpVenue'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { DblpVenueVolumeItem } from '@/dtos/DblpVenueVolumeItem'
 import { useEffect, useMemo, useState } from 'react'
@@ -12,8 +11,9 @@ import ListButton from '@/components/ListButton'
 import { cn } from '@/utils/tailwindUtils'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 import LoadingWheel from '@/components/LoadingWheel'
+import Badge from '@/components/Badge'
 
-type VolumeGroupsParams = {
+type VolumesSelectionParams = {
     groups: Array<DblpVenueVolumeItemGroup>,
     selectedVolumeIds: Set<string>,
     onFetchedVolume: (volume: DblpVenueVolume) => void,
@@ -34,7 +34,11 @@ type VolumeItemGroupParams = {
     toggleVolume: (id: string) => void,
 }
 
-export default function VolumeGroups({ groups, selectedVolumeIds, onFetchedVolume, toggleVolume }: VolumeGroupsParams) {
+/**
+ * Displays all the volume groups and allows to select them.
+ * Handles fetching of the volumes from the server when they are selected.
+ */
+export default function VolumesSelection({ groups, selectedVolumeIds, onFetchedVolume, toggleVolume }: VolumesSelectionParams) {
     const isGrouped = groups.some((g) => g.items.length > 1);
 
     return (
@@ -70,13 +74,10 @@ export default function VolumeGroups({ groups, selectedVolumeIds, onFetchedVolum
 
 function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolume }: VolumeItemGroupParams) {
     const [isExpanded, setIsExpanded] = useState(false);
-    const containsSelected = useMemo(() => group.items.some((item) => selectedVolumeIds.has(item.volumeId)), [group, selectedVolumeIds]);
-
-    useEffect(() => {
-        if (containsSelected) {
-            setIsExpanded(true);
-        }
-    }, [selectedVolumeIds, group]);
+    const selectedVolumesCount = useMemo(
+        () => group.items.reduce((acc, item) =>
+            selectedVolumeIds.has(item.volumeId) ? acc + 1 : acc, 0),
+        [group, selectedVolumeIds]);
 
     return (
         <li>
@@ -84,8 +85,18 @@ function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolu
                 className='w-full flex flex-row justify-between items-center bg-surface-container border border-outline'
                 surface='container'
                 marker='none'
-                onClick={() => setIsExpanded((old) => containsSelected || !old)}>
-                {group.title}
+                onClick={() => setIsExpanded((old) => !old)}>
+                <span
+                    className='flex gap-2 items-center'>
+                    {group.title}
+                    {
+                        selectedVolumesCount > 0 &&
+                        <Badge
+                            title={`${selectedVolumesCount} selected volumes`}>
+                            {selectedVolumesCount}
+                        </Badge>
+                    }
+                </span>
                 {
                     isExpanded ?
                         <MdArrowDropUp /> :
@@ -97,7 +108,7 @@ function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolu
                     'mt-2 px-2',
                     'xs:grid-cols-[repeat(auto-fit,12rem)]',
                     'gap-x-4 gap-y-2 mb-3',
-                    containsSelected || isExpanded ? 'grid' : 'hidden')}>
+                    isExpanded ? 'grid' : 'hidden')}>
                 {group.items.map((item) =>
                     <VolumeItem
                         key={item.volumeId}

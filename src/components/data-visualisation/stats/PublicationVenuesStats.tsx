@@ -14,6 +14,7 @@ import CountPercentageTable from '@/components/data-visualisation/CountPercentag
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VENUE_TYPE_COLOR } from '@/constants/client/publications'
+import ItemsStats from '@/components/ItemsStats'
 
 type VenuePublication = {
     id: string,
@@ -33,6 +34,10 @@ type PublicationVenuesBarChartParams = {
     maxBarsCount: number
 } & PublicationVenuesStatsParams
 
+type PublicationVenuesTableParams = {
+    venues: Array<VenuePair>
+} & PublicationVenuesStatsParams
+
 type MaxVenuesCountInputParams = {
     scaffoldId: string,
     maxVenuesCount: number,
@@ -46,51 +51,68 @@ export default function PublicationVenuesStats({ className, publications, scaffo
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
     const [maxBarsCount, setMaxBarsCount] = useState(100);
+    const venues = useMemo(() => {
+        const map = new Map<string | null, VenuePair>();
+
+        for (const publication of publications) {
+            if (!map.has(publication.venueId)) {
+                map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
+            }
+        }
+
+        return [...map.values()]
+    }, [publications]);
 
     return (
-        <StatsScaffold
-            className={cn(
-                className,
-                'max-h-[min(80vh,40rem)]',
-                selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
-            items={[
-                {
-                    key: 'Bars',
-                    content: (
-                        <PublicationVenuesBarChart
-                            publications={publications}
-                            scaffoldId={scaffoldId}
-                            selectedUnit={barChartSelectedUnit}
-                            maxBarsCount={maxBarsCount} />),
-                    secondaryContent: (
-                        <div
-                            className='flex justify-between'>
-                            <PublicationsChartUnitSelection
-                                className='p-3'
+        <>
+            <ItemsStats
+                className='mb-6'
+                totalCount={venues.length} />
+
+            <StatsScaffold
+                className={cn(
+                    className,
+                    'max-h-[min(80vh,40rem)]',
+                    selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
+                items={[
+                    {
+                        key: 'Bars',
+                        content: (
+                            <PublicationVenuesBarChart
+                                publications={publications}
+                                scaffoldId={scaffoldId}
                                 selectedUnit={barChartSelectedUnit}
-                                setSelectedUnit={setBarChartSelectedUnit}
-                                unitsId={scaffoldId || ''} />
-                            <MaxVenuesCountInput
-                                scaffoldId={scaffoldId || ''}
-                                maxVenuesCount={maxBarsCount}
-                                setMaxVenuesCount={setMaxBarsCount} />
-                        </div>),
-                    title: 'Bar chart',
-                    icon: (<MdBarChart />),
+                                maxBarsCount={maxBarsCount} />),
+                        secondaryContent: (
+                            <div
+                                className='flex justify-between'>
+                                <PublicationsChartUnitSelection
+                                    className='p-3'
+                                    selectedUnit={barChartSelectedUnit}
+                                    setSelectedUnit={setBarChartSelectedUnit}
+                                    unitsId={scaffoldId || ''} />
+                                <MaxVenuesCountInput
+                                    scaffoldId={scaffoldId || ''}
+                                    maxVenuesCount={maxBarsCount}
+                                    setMaxVenuesCount={setMaxBarsCount} />
+                            </div>),
+                        title: 'Bar chart',
+                        icon: (<MdBarChart />),
 
-                },
-                {
-                    key: 'Table',
-                    content: (<PublicationVenuesTable publications={publications} />),
-                    title: 'Table',
-                    icon: (<MdTableChart />),
+                    },
+                    {
+                        key: 'Table',
+                        content: (<PublicationVenuesTable publications={publications} venues={venues} />),
+                        title: 'Table',
+                        icon: (<MdTableChart />),
 
-                },
-            ]}
-            scaffoldId={scaffoldId || 'publication-types-stats'}
-            sideTabsLegend='Choose data visualisation'
-            selectedKey={selectedPublTypesStatsVisual}
-            onKeySelected={setSelectedPublTypesStatsVisual} />
+                    },
+                ]}
+                scaffoldId={scaffoldId || 'publication-types-stats'}
+                sideTabsLegend='Choose data visualisation'
+                selectedKey={selectedPublTypesStatsVisual}
+                onKeySelected={setSelectedPublTypesStatsVisual} />
+        </>
     )
 }
 
@@ -120,19 +142,7 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }:
     )
 }
 
-function PublicationVenuesTable({ publications }: PublicationVenuesStatsParams) {
-    const venues = useMemo(() => {
-        const map = new Map<string | null, VenuePair>();
-
-        for (const publication of publications) {
-            if (!map.has(publication.venueId)) {
-                map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
-            }
-        }
-
-        return [...map.values()]
-    }, [publications]);
-
+function PublicationVenuesTable({ publications, venues }: PublicationVenuesTableParams) {
     return (
         <CountPercentageTable
             examinatedValueTitle='Venue'

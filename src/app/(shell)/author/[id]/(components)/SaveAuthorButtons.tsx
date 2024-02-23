@@ -4,12 +4,13 @@ import Button from '@/components/Button'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useDialog from '@/hooks/useDialog'
 import { cn } from '@/utils/tailwindUtils'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa'
 import AddToGroupDialog from './AddToGroupDialog'
+import useNotifications from '@/hooks/useNotifications'
 
-type SaveButtonsParams = {
+type SaveAuthorButtonsParams = {
     className?: string,
     authorId: string,
     authorName: string
@@ -21,15 +22,20 @@ type GroupButtonParams = {
 }
 
 /** Buttons that allow the user to save an author for easier access to a list or an author group. */
-export default function SaveButtons({ className, authorId, authorName }: SaveButtonsParams) {
-    const [isSaved, setIsSaved] = useState<boolean>();
-    const { removeSavedAuthor, saveAuthor, savedAuthors, error, isMutating } = useSavedAuthors();
-
-    // TODO: Handle errors
+export default function SaveAuthorButtons({ className, authorId, authorName }: SaveAuthorButtonsParams) {
+    const { removeSavedAuthor, saveAuthor, savedAuthors, mutationError, isMutating } = useSavedAuthors();
+    const { pushNotification } = useNotifications();
+    const isSaved = useMemo(() => savedAuthors.some((v) => v.id === authorId), [savedAuthors, authorId]);
 
     useEffect(() => {
-        setIsSaved(!!savedAuthors.find((a) => a.id == authorId));
-    }, [savedAuthors, authorId]);
+        if (mutationError) {
+            pushNotification({
+                key: 'SAVE_AUTHOR_NOTIFICATION',
+                message: 'Author could not be saved.',
+                type: 'Error'
+            });
+        }
+    }, [mutationError]);
 
     function updateSaved() {
         if (isSaved) {
@@ -58,7 +64,7 @@ export default function SaveButtons({ className, authorId, authorName }: SaveBut
     )
 }
 
-/** Buttons that allows the user to save an author to an author group. */
+/** Button that allows the user to save an author to an author group. */
 function GroupButton({ authorId, authorName }: GroupButtonParams) {
     const [dialogRef, isDialogOpen, dialogAnimationClass, showDialog, hideDialog] = useDialog();
 

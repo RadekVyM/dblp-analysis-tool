@@ -3,18 +3,19 @@ import PageTitle from '@/components/shell/PageTitle'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
-import VenuePublications from './VenuePublications'
-import VolumePublications from './VolumePublications'
+import MultipleVolumesPublications from './MultipleVolumesPublications'
+import VolumePublicationsSection from './VolumePublicationsSection'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { DblpVenue } from '@/dtos/DblpVenue'
 
-type PublicationsPageParams = {
+type VenuePublicationsPageParams = {
     venueOrVolume: DblpVenueBase,
     venueId: string,
     volumeId?: string,
 }
 
-export default async function PublicationsPage({ venueOrVolume, venueId, volumeId }: PublicationsPageParams) {
+/** Page displaying publications of a venue. */
+export default async function VenuePublicationsPage({ venueOrVolume, venueId, volumeId }: VenuePublicationsPageParams) {
     return (
         <PageContainer>
             <header
@@ -28,9 +29,9 @@ export default async function PublicationsPage({ venueOrVolume, venueId, volumeI
 
             {
                 venueOrVolume.venueVolumeType === 'Volume' ?
-                    <VolumePublications
+                    <VolumePublicationsSection
                         volumes={[venueOrVolume as DblpVenueVolume]} /> :
-                    <VenuePublications
+                    <MultipleVolumesPublications
                         venue={venueOrVolume as DblpVenue}
                         venueId={venueId}
                         volumeId={volumeId} />

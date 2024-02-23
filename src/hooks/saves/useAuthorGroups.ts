@@ -50,7 +50,9 @@ export default function useAuthorGroups() {
         removeAuthorGroup,
         saveAuthorToGroup,
         removeAuthorFromGroup,
-        error: fetchError || postGroupError || deleteGroupError || postGroupAuthorError || deleteGroupAuthorError,
+        fetchError,
+        mutationError: postGroupError || deleteGroupError,
+        authorMutationError: postGroupAuthorError || deleteGroupAuthorError,
         isLoading,
         isMutating: isMutatingGroupPost || isMutatingGroupDelete || isMutatingGroupAuthorPost || isMutatingGroupAuthorDelete
     }

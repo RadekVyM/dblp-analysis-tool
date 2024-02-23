@@ -6,8 +6,8 @@ import { SearchType } from '@/enums/SearchType'
 import useAuthors from '@/hooks/authors/useAuthors'
 import { createLocalPath } from '@/utils/urls'
 import { useEffect, useMemo, useState } from 'react'
-import CoauthorsPageSection from '@/components/data-visualisation/CoauthorsPageSection'
-import AuthorPublications from '@/app/(shell)/author/[id]/(components)/AuthorPublications'
+import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
+import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import { isGreater } from '@/utils/array'
@@ -80,11 +80,11 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
             {
                 selectedAuthors.length > 0 &&
                 <>
-                    <AuthorPublications
+                    <PublicationsStatsSection
                         publicationsUrl={`/authorgroup/${authorGroup.id}/publications`}
                         publications={allPublications}
                         maxDisplayedCount={3} />
-                    <CoauthorsPageSection
+                    <CoauthorsSection
                         authors={selectedAuthors} />
                 </>
             }

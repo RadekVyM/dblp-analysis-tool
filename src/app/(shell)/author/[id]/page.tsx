@@ -4,13 +4,13 @@ import { fetchAuthor } from '@/services/authors/fetch-server'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import LinksList from '@/components/LinksList'
 import { DblpAuthorInfo } from '@/dtos/DblpAuthor'
-import SaveButtons from './(components)/SaveButtons'
+import SaveAuthorButtons from './(components)/SaveAuthorButtons'
 import { cn } from '@/utils/tailwindUtils'
-import AuthorPublications from './(components)/AuthorPublications'
+import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import { isAuthorizedOnServer } from '@/services/auth'
-import CoauthorsPageSection from '@/components/data-visualisation/CoauthorsPageSection'
+import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import SameNameAuthors from './(components)/SameNameAuthors'
 
 type AuthorPageParams = {
@@ -75,12 +75,12 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
             {
                 author.publications.length > 0 &&
                 <>
-                    <AuthorPublications
+                    <PublicationsStatsSection
                         publicationsUrl={`/author/${id}/publications`}
                         publications={author.publications}
                         maxDisplayedCount={3} />
 
-                    <CoauthorsPageSection
+                    <CoauthorsSection
                         authors={[author]} />
                 </>
             }
@@ -105,7 +105,7 @@ async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoP
 
             {
                 isAuthorized &&
-                <SaveButtons
+                <SaveAuthorButtons
                     authorId={authorId}
                     authorName={authorName} />
             }

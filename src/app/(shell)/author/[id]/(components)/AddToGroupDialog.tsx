@@ -11,6 +11,7 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import DialogHeader from '@/components/dialogs/DialogHeader'
 import DialogBody from '@/components/dialogs/DialogBody'
+import useNotifications from '@/hooks/useNotifications'
 
 type AddToGroupDialogParams = {
     hide: () => void,
@@ -60,8 +61,20 @@ AddToGroupDialog.displayName = 'AddToGroupDialog';
 export default AddToGroupDialog;
 
 function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
-    const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup, error, isLoading, isMutating } = useAuthorGroups();
+    const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup, mutationError, authorMutationError, isLoading, isMutating }
+        = useAuthorGroups();
     const { inputRef, isInputVisible, newGroupName, setNewGroupName, onNewAuthorGroupClick } = useAuthorGroupInput(isOpen, saveAuthorGroup);
+    const { pushNotification } = useNotifications();
+
+    useEffect(() => {
+        if (mutationError || authorMutationError) {
+            pushNotification({
+                key: 'SAVE_GROUP_NOTIFICATION',
+                message: 'Author group could not be updated.',
+                type: 'Error'
+            });
+        }
+    }, [mutationError, authorMutationError]);
 
     async function onAuthorGroupClick(groupId: string, select: boolean) {
         if (select) {

@@ -2,21 +2,21 @@
 
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import DataVisualisationContainer from '@/components/data-visualisation/DataVisualisationContainer'
-import { PageSection, PageSectionTitle } from '../shell/PageSection'
+import { PageSection, PageSectionTitle } from '../../shell/PageSection'
 import CoauthorsGraphShell from '@/components/data-visualisation/coauthors-graph/CoauthorsGraphShell'
 import CoauthorsTable from '@/components/data-visualisation/CoauthorsTable'
 import ItemsStats from '@/components/ItemsStats'
 import { getUniqueCoauthors } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
 
-type AuthorCoauthorsParams = {
+type CoauthorsSectionParams = {
     authors: Array<DblpAuthor>,
     publications?: Array<DblpPublication>,
     className?: string
 }
 
 /** Page section that displays the coauthors graph and table. */
-export default function CoauthorsPageSection({ authors, publications }: AuthorCoauthorsParams) {
+export default function CoauthorsSection({ authors, publications }: CoauthorsSectionParams) {
     return (
         <PageSection>
             <PageSectionTitle
