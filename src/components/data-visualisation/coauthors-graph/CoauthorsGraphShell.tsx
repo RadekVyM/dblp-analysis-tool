@@ -12,6 +12,9 @@ import useCoauthorsGraph from '@/hooks/data-visualisation/useCoauthorsGraph'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import Button from '@/components/Button'
+import useFullscreen from '@/hooks/useFullscreen'
+import GraphStats from './GrapStats'
+import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -25,6 +28,7 @@ type ShouldRenderGraphParams = {
 
 /** Shell for the entire coauthors graph and its menus. */
 export default function CoauthorsGraphShell({ authors, publications, className }: CoauthorsGraphShellParams) {
+    const rootRef = useRef<HTMLDivElement>(null);
     // Additional authors are authors whose all coauthors are included in the graph
     const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors, publications);
     const graphRef = useRef<CoauthorsGraphRef | null>(null);
@@ -35,12 +39,13 @@ export default function CoauthorsGraphShell({ authors, publications, className }
     // Original authors are excluded
     const displayedNodes = useMemo(
         () => graph.nodes.filter((a) => a.isVisible),
-        [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, authors]);
+        [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, graph.intersectionOfCoauthors, graph.onlyCommonCoauthors, authors]);
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,
         (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
     const isGraphHuge = useMemo(() => graph.nodes.length > 2000, [graph.nodes.length]);
     const [shouldRenderGraph, setShouldRenderGraph] = useState(false);
+    const { isFullscreen, isFullscreenEnabled, toggleFullscreen } = useFullscreen(rootRef);
 
     useEffect(() => {
         setShouldRenderGraph(!isGraphHuge);
@@ -73,10 +78,12 @@ export default function CoauthorsGraphShell({ authors, publications, className }
 
     return (
         <div
+            ref={rootRef}
             className={cn(
                 'grid gap-3',
                 'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[100vh] max-h-[max(100vh,40rem)]',
                 'sm:grid-rows-[1fr_auto] sm:grid-cols-[1fr_minmax(auto,18rem)] sm:h-[100vh] sm:min-h-[30rem] sm:max-h-[min(80vh,40rem)]',
+                isFullscreen ? 'p-2 bg-surface' : '',
                 className)}>
             <DataVisualisationContainer
                 className='overflow-hidden w-full h-full'>
@@ -94,14 +101,31 @@ export default function CoauthorsGraphShell({ authors, publications, className }
             </DataVisualisationContainer>
             <DataVisualisationContainer
                 className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-3 py-3 flex gap-x-2'>
-                <GraphOptionsSelection
+                <div
+                    className='flex flex-1 gap-x-2'>
+                    <GraphOptionsSelection
+                        nodes={graph.nodes}
+                        links={graph.links}
+                        options={graph}
+                        setOptions={updateGraph}
+                        zoomToCenter={() => graphRef.current?.zoomToCenter()} />
+
+                    {
+                        isFullscreenEnabled &&
+                        <Button
+                            size='sm'
+                            variant='icon-outline'
+                            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                            onClick={toggleFullscreen}>
+                            {isFullscreen ? <MdFullscreenExit className='w-5 h-5' /> : <MdFullscreen className='w-5 h-5' />}
+                        </Button>
+                    }
+                </div>
+
+                <GraphStats
+                    className='mr-2'
                     nodesCount={graph.nodes.length}
-                    linksCount={graph.links.length}
-                    nodes={graph.nodes}
-                    links={graph.links}
-                    options={graph}
-                    setOptions={updateGraph}
-                    zoomToCenter={() => graphRef.current?.zoomToCenter()} />
+                    linksCount={graph.links.length} />
             </DataVisualisationContainer>
             <DataVisualisationContainer
                 className='h-full overflow-hidden sm:row-start-1 sm:row-end-3 sm:col-start-2 sm:col-end-3'>

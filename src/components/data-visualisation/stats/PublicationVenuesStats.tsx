@@ -16,6 +16,7 @@ import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VENUE_TYPE_COLOR } from '@/constants/client/publications'
 import ItemsStats from '@/components/ItemsStats'
 import MaxCountInput from '../MaxCountInput'
+import { sortByPresentedContent } from '@/utils/table'
 
 type VenuePublication = {
     id: string,
@@ -141,19 +142,15 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }:
 function PublicationVenuesTable({ publications, venues }: PublicationVenuesTableParams) {
     return (
         <CountPercentageTable
-            examinatedValueTitle='Venue'
-            examinatedValueSortTitle='Sort by venue'
-            examinatedValues={venues}
+            examinedValueTitle='Venue'
+            examinedValueSortTitle='Sort by venue'
+            examinedValues={venues}
             items={publications}
             toPresentedContent={(venue: VenuePair) => venue.title}
             filter={(p: VenuePublication, venue: VenuePair) => p.venueId === venue.venueId}
             sortExaminedValue={sortByPresentedContent}
             rowKey={venueTableRowKey} />
     )
-}
-
-function sortByPresentedContent(first: TableData, second: TableData): number {
-    return isGreater(first.presentedContent, second.presentedContent);
 }
 
 function venueTableRowKey(venue: VenuePair) {

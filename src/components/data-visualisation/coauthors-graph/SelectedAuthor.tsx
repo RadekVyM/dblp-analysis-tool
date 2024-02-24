@@ -172,7 +172,7 @@ function SelectedAuthorContent({
                 displayedUncommonCoauthors.length > 0 &&
                 <section>
                     {
-                        displayedCommonCoauthors.length === 0 && allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
+                        displayedCommonCoauthors.length === 0 || (allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id) ?
                             <h5 className='font-bold mx-4 mt-4 text-sm'>
                                 Coauthors
                             </h5> :

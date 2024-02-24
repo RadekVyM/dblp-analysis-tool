@@ -15,8 +15,6 @@ import { MdGetApp, MdSettings } from 'react-icons/md'
 
 type GraphOptionsSelectionParams = {
     options: CoauthorsGraphOptions,
-    nodesCount: number,
-    linksCount: number,
     nodes: Array<NodeDatum & NodeDatumExtension>,
     links: Array<LinkDatum & LinkDatumExtension>,
     zoomToCenter: () => void,
@@ -33,7 +31,7 @@ type GraphOptionsDialogParams = {
 }
 
 /** Displays options and actions of the coauthors graph that can specified or invoked. */
-export default function GraphOptionsSelection({ options, nodesCount, linksCount, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
+export default function GraphOptionsSelection({ options, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
     const [optionsDialogRef, isOptionsDialogOpen, optionsDialogAnimationClass, showOptionsDialog, hideOptionsDialog] = useDialog();
     const [exportDialogRef, isExportDialogOpen, exportDialogAnimationClass, showExportDialog, hideExportDialog] = useDialog();
 
@@ -55,16 +53,6 @@ export default function GraphOptionsSelection({ options, nodesCount, linksCount,
                 <MdGetApp />
                 Export graph
             </Button>
-            <div
-                className='flex-1 flex justify-end mr-2'>
-                <dl
-                    className='grid text-xs grid-cols-[1fr_auto] gap-x-2'>
-                    <dt className='font-semibold'>Nodes count: </dt>
-                    <dd className='justify-self-end'>{nodesCount}</dd>
-                    <dt className='font-semibold'>Links count: </dt>
-                    <dd className='justify-self-end'>{linksCount}</dd>
-                </dl>
-            </div>
             <GraphOptionsDialog
                 ref={optionsDialogRef}
                 animation={optionsDialogAnimationClass}

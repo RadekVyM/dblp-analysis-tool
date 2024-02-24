@@ -9,10 +9,11 @@ import { useEffect, useMemo, useState } from 'react'
 import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
 import { DblpPublication } from '@/dtos/DblpPublication'
-import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
+import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
 import { isGreater } from '@/utils/array'
 import Link from 'next/link'
 import LinkArrow from '@/components/LinkArrow'
+import AuthorGroupMembersStats from '@/components/data-visualisation/stats/AuthorGroupMembersStats'
 
 type PageContentParams = {
     authorGroup: AuthorGroup,
@@ -83,7 +84,14 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
                     <PublicationsStatsSection
                         publicationsUrl={`/authorgroup/${authorGroup.id}/publications`}
                         publications={allPublications}
-                        maxDisplayedCount={3} />
+                        maxDisplayedCount={3} >
+                        <PageSubsectionTitle>Publications by Member</PageSubsectionTitle>
+
+                        <AuthorGroupMembersStats
+                            authors={selectedAuthors}
+                            allPublications={allPublications}
+                            scaffoldId='author-group-members-publications' />
+                    </PublicationsStatsSection>
                     <CoauthorsSection
                         authors={selectedAuthors} />
                 </>
@@ -129,10 +137,11 @@ function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: Memb
                                     <span>Downloading...</span>
                             }
                             <input
+                                title='Hide/Show'
                                 type='checkbox'
                                 checked={selectedAuthorIds.has(member.id)}
                                 onChange={() => toggleAuthor(member.id)}
-                                className='accent-on-surface-container w-4 h-4 self-end' />
+                                className='accent-on-surface-container w-4 h-4 self-end col-start-2' />
                         </div>
                     </li>)}
             </ul>

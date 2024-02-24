@@ -153,9 +153,9 @@ function PublicationsOverTimeTable({ publications, isSimplified }: PublicationsO
 
     return (
         <CountPercentageTable
-            examinatedValueTitle='Year'
-            examinatedValueSortTitle='Sort by year'
-            examinatedValues={years}
+            examinedValueTitle='Year'
+            examinedValueSortTitle='Sort by year'
+            examinedValues={years}
             items={publications}
             totalCount={isSimplified ? publications.reduce((acc, item) => acc + (item as SimplifiedOverTimePublication).count, 0) : undefined}
             itemsCount={isSimplified ? (items) => (items.length > 0 ? items[0].count : 0) : undefined}

@@ -4,7 +4,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { useEffect, useRef, useState } from 'react'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 import ClientButton from './ClientButton'
-import { useDebounce } from 'usehooks-ts'
+import { useDebounce, useOnClickOutside } from 'usehooks-ts'
 
 type ComboBoxParams = {
     id: string,
@@ -23,6 +23,9 @@ type ComboBoxItem = {
 export default function ComboBox({ items, className, id, selectedKey, onKeySelectionChange }: ComboBoxParams) {
     const divRef = useRef<HTMLDivElement>(null);
     const [expanded, setExpanded] = useState(false);
+    useOnClickOutside(divRef, (e) => {
+        setExpanded(false);
+    }, 'mousedown');
 
     return (
         <div

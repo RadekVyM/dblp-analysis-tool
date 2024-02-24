@@ -4,34 +4,35 @@ import Table, { TableData } from '@/components/data-visualisation/Table'
 import { useMemo } from 'react'
 
 type CountPercentageTableParams = {
-    filter: (item: any, examinatedValue: any) => boolean,
-    toPresentedContent: (examinatedValue: any) => string,
+    filter: (item: any, examinedValue: any) => boolean,
+    toPresentedContent: (examinedValue: any) => string,
     rowKey?: (examinedValue: any) => string,
     /** Returns count of items in a group. */
     itemsCount?: (filteredItems: Array<any>) => number,
     sortExaminedValue?: (first: TableData, second: TableData) => number,
     items: Array<any>,
-    examinatedValues: Array<any>,
-    examinatedValueTitle: string,
-    examinatedValueSortTitle: string,
+    examinedValues: Array<any>,
+    examinedValueTitle: string,
+    examinedValueSortTitle: string,
+    hideFooter?: boolean,
     totalCount?: number
 }
 
 /** Table that groups items by a property and displays counts of the items in the groups. */
-export default function CountPercentageTable({ items, examinatedValues, examinatedValueTitle, examinatedValueSortTitle, totalCount, itemsCount, sortExaminedValue, filter, toPresentedContent, rowKey }: CountPercentageTableParams) {
+export default function CountPercentageTable({ items, examinedValues, examinedValueTitle, examinedValueSortTitle, totalCount, hideFooter, itemsCount, sortExaminedValue, filter, toPresentedContent, rowKey }: CountPercentageTableParams) {
     const rows = useMemo(() =>
-        examinatedValues.map((examinatedValue, index) => {
-            const filteredItems = items.filter((item) => filter(item, examinatedValue));
+        examinedValues.map((examinedValue, index) => {
+            const filteredItems = items.filter((item) => filter(item, examinedValue));
             const count = itemsCount ? itemsCount(filteredItems) : filteredItems.length;
             const percentage = count / (totalCount || items.length);
 
             return [
-                { value: examinatedValue, presentedContent: toPresentedContent(examinatedValue) },
+                { value: examinedValue, presentedContent: toPresentedContent(examinedValue) },
                 { value: count, presentedContent: count },
                 { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
-            ]
+            ];
         }),
-        [examinatedValues, items, toPresentedContent, filter]);
+        [examinedValues, items, toPresentedContent, filter]);
     const footer = [
         { value: 'Totals', presentedContent: 'Totals' },
         { value: totalCount || items.length, presentedContent: totalCount || items.length },
@@ -46,8 +47,8 @@ export default function CountPercentageTable({ items, examinatedValues, examinat
             columnHeaders={[
                 {
                     column: 0,
-                    sortingTitle: examinatedValueSortTitle,
-                    title: examinatedValueTitle,
+                    sortingTitle: examinedValueSortTitle,
+                    title: examinedValueTitle,
                     className: 'w-[20rem]',
                     sort: sortExaminedValue
                 },
@@ -62,7 +63,7 @@ export default function CountPercentageTable({ items, examinatedValues, examinat
                     title: 'Percentage'
                 }
             ]}
-            footer={footer}
+            footer={hideFooter ? undefined : footer}
             isFirstColumnHeader />
     )
 }

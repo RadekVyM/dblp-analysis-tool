@@ -65,6 +65,7 @@ export default function PublicationsStatsSection({ publications, publicationsUrl
 
             <PublicationVenuesStats
                 scaffoldId='publication-venues-stats'
+                className={children ? 'mb-10' : ''}
                 publications={publications.map((publ) => ({
                     id: publ.id,
                     type: publ.type,

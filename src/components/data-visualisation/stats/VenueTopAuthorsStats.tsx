@@ -12,6 +12,7 @@ import { MdBarChart, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import MaxCountInput from '../MaxCountInput'
+import { sortByPresentedContent } from '@/utils/table'
 
 type VenueTopAuthor = {
     nameId: string,
@@ -115,9 +116,9 @@ function VenueTopAuthorsBarChart({ authors, selectedUnit, maxBarsCount, totalPub
 function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAuthorsTableParams) {
     return (
         <CountPercentageTable
-            examinatedValueTitle='Author'
-            examinatedValueSortTitle='Sort by author name'
-            examinatedValues={authors}
+            examinedValueTitle='Author'
+            examinedValueSortTitle='Sort by author name'
+            examinedValues={authors}
             items={authors}
             itemsCount={(items) => (items.length > 0 ? items[0].publicationsCount : 0)}
             totalCount={totalPublicationsCount}
@@ -126,8 +127,4 @@ function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAutho
             sortExaminedValue={sortByPresentedContent}
             rowKey={(author: VenueTopAuthor) => author.nameId} />
     )
-}
-
-function sortByPresentedContent(first: TableData, second: TableData): number {
-    return isGreater(first.presentedContent, second.presentedContent);
 }

@@ -4,18 +4,15 @@ import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import PieChart, { PieChartData } from '@/components/data-visualisation/PieChart'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
-import Table, { TableData } from '@/components/data-visualisation/Table'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { PublicationType } from '@/enums/PublicationType'
-import { isGreater, isSmaller } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import { useState, useMemo } from 'react'
-import { MdBarChart, MdIncompleteCircle, MdInsights, MdSsidChart, MdTableChart } from 'react-icons/md'
-import * as d3 from 'd3'
-import LineChart from '@/components/data-visualisation/LineChart'
+import { MdBarChart, MdIncompleteCircle, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
+import { sortByPresentedContent } from '@/utils/table'
 
 type TypePublication = {
     id: string,
@@ -118,11 +115,12 @@ function PublicationTypesTable({ publications }: PublicationTypesStatsParams) {
 
     return (
         <CountPercentageTable
-            examinatedValueTitle='Type'
-            examinatedValueSortTitle='Sort by publication type'
-            examinatedValues={types}
+            examinedValueTitle='Type'
+            examinedValueSortTitle='Sort by publication type'
+            examinedValues={types}
             items={publications}
             toPresentedContent={(type: PublicationType) => PUBLICATION_TYPE_TITLE[type]}
-            filter={(p: TypePublication, type: PublicationType) => p.type === type} />
+            filter={(p: TypePublication, type: PublicationType) => p.type === type}
+            sortExaminedValue={sortByPresentedContent} />
     )
 }

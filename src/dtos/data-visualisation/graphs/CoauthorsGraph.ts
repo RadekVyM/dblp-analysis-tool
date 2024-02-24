@@ -7,7 +7,9 @@ export type CoauthorsGraphOptions = {
     selectedAuthorId: string | null,
     filteredAuthorsIds: Set<string>,
     searchQuery: string,
+    /** Show only common coauthors of at least two original authors */
     onlyCommonCoauthors: boolean,
+    /** Show only common coauthors of all original authors */
     intersectionOfCoauthors: boolean,
     originalAuthorsAlwaysIncluded: boolean,
 } & CoauthorsGraphDisplayOptions
