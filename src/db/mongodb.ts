@@ -5,7 +5,7 @@ import { serverError } from '@/utils/errors'
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-    throw new Error('The MONGODB_URI environment variable is not defined');
+    //throw new Error('The MONGODB_URI environment variable is not defined');
 }
 
 let cached: { connection: null | typeof mongoose, promise: null | Promise<typeof mongoose> } = { connection: null, promise: null };

@@ -9,7 +9,7 @@ import { Session } from '@/dtos/Session';
 const SESSION_SECRET = process.env.SESSION_SECRET!;
 
 if (!SESSION_SECRET) {
-    throw new Error('The SESSION_SECRET environment variable is not defined');
+    //throw new Error('The SESSION_SECRET environment variable is not defined');
 }
 
 const EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 1 week
