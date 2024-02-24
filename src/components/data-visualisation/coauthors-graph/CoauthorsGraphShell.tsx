@@ -35,7 +35,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
     // Original authors are excluded
     const displayedNodes = useMemo(
         () => graph.nodes.filter((a) => a.isVisible),
-        [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, authors]);
+        [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, authors]);
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,
         (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
@@ -126,6 +126,14 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                             onAuthorClick={setSelectedAuthorId}
                             title={`All authors`}
                             onAuthorHoverChange={onCoauthorHoverChange}
+                            isOriginalAuthorsAlwaysIncludedOptionVisible={allAuthors.ids.length > 0}
+                            isOnlyCommonCoauthorsOptionVisible={allAuthors.ids.length > 1}
+                            originalAuthorsAlwaysIncluded={graph.originalAuthorsAlwaysIncluded}
+                            toggleOriginalAuthorsAlwaysIncluded={() => updateGraph({ originalAuthorsAlwaysIncluded: !graph.originalAuthorsAlwaysIncluded })}
+                            onlyCommonCoauthors={graph.onlyCommonCoauthors}
+                            toggleOnlyCommonCoauthors={() => updateGraph({ onlyCommonCoauthors: !graph.onlyCommonCoauthors })}
+                            intersectionOfCoauthors={graph.intersectionOfCoauthors}
+                            toggleIntersectionOfCoauthors={() => updateGraph({ intersectionOfCoauthors: !graph.intersectionOfCoauthors })}
                             searchQuery={graph.searchQuery}
                             onSearchQueryChange={(newQuery) => updateGraph({ searchQuery: newQuery })} />
                 }

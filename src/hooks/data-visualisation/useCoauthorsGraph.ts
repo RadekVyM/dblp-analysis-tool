@@ -13,6 +13,9 @@ const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     justDimInvisibleNodes: true,
     showNeighborLabelsOfHighlightedNodes: false,
     alwaysShowLabelsOfOriginalAuthorsNodes: true,
+    onlyCommonCoauthors: false,
+    intersectionOfCoauthors: false,
+    originalAuthorsAlwaysIncluded: true,
     selectedAuthorId: null,
     hoveredAuthorId: null,
     filteredAuthorsIds: new Set(),
@@ -138,6 +141,9 @@ function shouldUpdateLinksAndNodesVisualState(newGraph: Partial<CoauthorsGraphSt
         newGraph.justDimInvisibleNodes !== undefined ||
         newGraph.showNeighborLabelsOfHighlightedNodes !== undefined ||
         newGraph.alwaysShowLabelsOfOriginalAuthorsNodes !== undefined ||
+        newGraph.originalAuthorsAlwaysIncluded !== undefined ||
+        newGraph.intersectionOfCoauthors !== undefined ||
+        newGraph.onlyCommonCoauthors !== undefined ||
         newGraph.selectedAuthorId !== undefined ||
         newGraph.hoveredAuthorId !== undefined ||
         newGraph.filteredAuthorsIds !== undefined ||
@@ -161,7 +167,8 @@ function updateNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAutho
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isOriginalAuthorNode = allAuthors.ids.some((id) => node.person.id === id);
-        const isVisible = (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery);
+        const isCommon = !(graph.onlyCommonCoauthors || graph.intersectionOfCoauthors) || allAuthors.ids.length < 2 || isCommonForOriginals(allAuthors, node, graph.intersectionOfCoauthors);
+        const isVisible = (isOriginalAuthorNode && graph.originalAuthorsAlwaysIncluded) || (graph.filteredAuthorsIds.has(node.person.id) && matchesSearchQuery && isCommon);
         const isSemiVisible = (!isVisible && isOriginalAuthorNode) || graph.justDimInvisibleNodes && !isVisible;
         const showNeighborLabel = graph.showNeighborLabelsOfHighlightedNodes && (!!(graph.hoveredAuthorId || graph.selectedAuthorId) && !isDim);
 
@@ -222,4 +229,19 @@ function isNodeHoveredOrSelected(
     return (
         person.id === selectedAuthorId ||
         person.id === hoveredAuthorId);
+}
+
+function isCommonForOriginals(allAuthors: AllAuthors, node: PublicationPersonNodeDatum, intersection: boolean): boolean {
+    let count = 0;
+
+    for (const id of allAuthors.ids) {
+        if (node.coauthorIds.has(id)) {
+            count++;
+        }
+        if (!intersection && count >= 2) {
+            return true;
+        }
+    }
+
+    return allAuthors.ids.length === count;
 }

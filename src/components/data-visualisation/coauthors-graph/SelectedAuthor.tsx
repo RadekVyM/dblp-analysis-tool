@@ -144,7 +144,7 @@ function SelectedAuthorContent({
                     <CheckListButton
                         isSelected={isIncludedAuthor}
                         onClick={onIncludeAllClick}
-                        className='w-full'>
+                        className='w-full text-xs'>
                         <span className='leading-4'>Include {selectedAuthor.person.name} as an original author</span>
                     </CheckListButton>
                 </div>
@@ -153,7 +153,7 @@ function SelectedAuthorContent({
                 displayedCommonCoauthors.length > 0 &&
                 <section>
                     <h5 className='font-bold mx-4 mt-4 text-sm'>
-                        Common coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are common with an original author.`} />
+                        Common coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are common with an original author`} />
                     </h5>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
@@ -177,7 +177,7 @@ function SelectedAuthorContent({
                                 Coauthors
                             </h5> :
                             <h5 className='font-bold mx-4 mt-4 text-sm'>
-                                Uncommon coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are not common with any original author.`} />
+                                Uncommon coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are not common with any original author`} />
                             </h5>
                     }
                     <ul

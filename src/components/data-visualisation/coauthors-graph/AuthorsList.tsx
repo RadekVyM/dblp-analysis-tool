@@ -8,20 +8,40 @@ import FiltersList from '@/components/FiltersList'
 import FiltersDialog from '@/components/dialogs/FiltersDialog'
 import useDialog from '@/hooks/useDialog'
 import { FiltersState } from '@/dtos/Filters'
-import { MdCancel, MdSearch } from 'react-icons/md'
+import { MdCancel, MdInfo, MdSearch } from 'react-icons/md'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { cn } from '@/utils/tailwindUtils'
 import { useDebounce } from 'usehooks-ts'
+import CheckListButton from '@/components/CheckListButton'
 
 type AuthorsListParams = {
     nodes: Array<PublicationPersonNodeDatum>
     title: React.ReactNode,
     filteredAuthorsIds: Set<string>,
     searchQuery: string,
+    isOnlyCommonCoauthorsOptionVisible: boolean,
+    isOriginalAuthorsAlwaysIncludedOptionVisible: boolean,
+    onlyCommonCoauthors: boolean,
+    intersectionOfCoauthors: boolean,
+    originalAuthorsAlwaysIncluded: boolean,
+    toggleOriginalAuthorsAlwaysIncluded: () => void,
+    toggleOnlyCommonCoauthors: () => void,
+    toggleIntersectionOfCoauthors: () => void,
     onSearchQueryChange: (query: string) => void
     onAuthorClick: (id: string | null) => void,
     onAuthorHoverChange: (id: string, isHovered: boolean) => void,
 } & FiltersState
+
+type OptionsParams = {
+    isOnlyCommonCoauthorsOptionVisible: boolean,
+    isOriginalAuthorsAlwaysIncludedOptionVisible: boolean,
+    onlyCommonCoauthors: boolean,
+    intersectionOfCoauthors: boolean,
+    originalAuthorsAlwaysIncluded: boolean,
+    toggleOriginalAuthorsAlwaysIncluded: () => void,
+    toggleOnlyCommonCoauthors: () => void,
+    toggleIntersectionOfCoauthors: () => void,
+}
 
 type SearchBoxParams = {
     className?: string,
@@ -39,6 +59,14 @@ export default function AuthorsList(
         filteredAuthorsIds,
         filtersMap,
         searchQuery,
+        isOnlyCommonCoauthorsOptionVisible,
+        isOriginalAuthorsAlwaysIncludedOptionVisible,
+        onlyCommonCoauthors,
+        originalAuthorsAlwaysIncluded,
+        intersectionOfCoauthors,
+        toggleIntersectionOfCoauthors,
+        toggleOriginalAuthorsAlwaysIncluded,
+        toggleOnlyCommonCoauthors,
         onSearchQueryChange,
         clear,
         switchSelection,
@@ -62,15 +90,28 @@ export default function AuthorsList(
             className='flex flex-col h-full w-full'>
             <h4 className='mx-4 mt-5 mb-4 font-bold'>{title}</h4>
 
-            <SearchBox
-                className='mx-4 mb-3'
-                searchQuery={searchQuery}
-                onSearchQueryChange={onSearchQueryChange} />
-
             <div
-                className='flex-1 h-full overflow-auto thin-scrollbar py-2 flex flex-col'>
+                className='flex-1 h-full overflow-auto thin-scrollbar flex flex-col isolate pb-4'>
+                <Options
+                    isOnlyCommonCoauthorsOptionVisible={isOnlyCommonCoauthorsOptionVisible}
+                    isOriginalAuthorsAlwaysIncludedOptionVisible={isOriginalAuthorsAlwaysIncludedOptionVisible}
+                    originalAuthorsAlwaysIncluded={originalAuthorsAlwaysIncluded}
+                    onlyCommonCoauthors={onlyCommonCoauthors}
+                    intersectionOfCoauthors={intersectionOfCoauthors}
+                    toggleOriginalAuthorsAlwaysIncluded={toggleOriginalAuthorsAlwaysIncluded}
+                    toggleOnlyCommonCoauthors={toggleOnlyCommonCoauthors}
+                    toggleIntersectionOfCoauthors={toggleIntersectionOfCoauthors} />
+
+                <div
+                    className='sticky top-0 bg-surface-container z-30'>
+                    <SearchBox
+                        className='mx-4 mb-2'
+                        searchQuery={searchQuery}
+                        onSearchQueryChange={onSearchQueryChange} />
+                </div>
+
                 <FiltersList
-                    className='mx-4 mb-4'
+                    className='mx-4 mb-5 mt-2'
                     showFiltersDialog={showFiltersDialog}
                     filtersMap={filtersMap}
                     switchSelection={switchSelection}
@@ -81,7 +122,7 @@ export default function AuthorsList(
                         <>
                             <ul
                                 ref={listRef}
-                                className='px-3 pb-2 flex flex-col gap-1'>
+                                className='px-3 pb-0 flex flex-col gap-1'>
                                 {displayedNodes.map((coauthor) =>
                                     <AuthorListItem
                                         key={coauthor.person.id}
@@ -111,6 +152,54 @@ export default function AuthorsList(
                 isOpen={isFiltersDialogOpen}
                 ref={filtersDialog} />
         </article>
+    )
+}
+
+function Options({
+    isOnlyCommonCoauthorsOptionVisible,
+    isOriginalAuthorsAlwaysIncludedOptionVisible,
+    originalAuthorsAlwaysIncluded,
+    onlyCommonCoauthors,
+    intersectionOfCoauthors,
+    toggleOriginalAuthorsAlwaysIncluded,
+    toggleOnlyCommonCoauthors,
+    toggleIntersectionOfCoauthors
+}: OptionsParams) {
+    if (!isOriginalAuthorsAlwaysIncludedOptionVisible && !isOnlyCommonCoauthorsOptionVisible) {
+        return undefined;
+    }
+
+    return (
+        <div
+            className='mx-3 mb-4 flex flex-col gap-1'>
+            {
+                isOriginalAuthorsAlwaysIncludedOptionVisible &&
+                <CheckListButton
+                    className='text-xs'
+                    isSelected={originalAuthorsAlwaysIncluded}
+                    onClick={toggleOriginalAuthorsAlwaysIncluded}>
+                    Original authors always included
+                </CheckListButton>
+            }
+
+            {
+                isOnlyCommonCoauthorsOptionVisible &&
+                <>
+                    <CheckListButton
+                        className='text-xs'
+                        isSelected={onlyCommonCoauthors}
+                        onClick={toggleOnlyCommonCoauthors}>
+                        <span>Only common coauthors <MdInfo className='inline' title={`Show only common coauthors of at least two original authors`} /></span>
+                    </CheckListButton>
+                    <CheckListButton
+                        className='text-xs'
+                        isSelected={intersectionOfCoauthors}
+                        onClick={toggleIntersectionOfCoauthors}>
+                        <span>Intersection of coauthors <MdInfo className='inline' title={`Show only common coauthors of all original authors`} /></span>
+                    </CheckListButton>
+                </>
+            }
+        </div>
     )
 }
 

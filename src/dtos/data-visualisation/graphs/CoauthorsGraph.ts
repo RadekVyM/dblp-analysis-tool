@@ -7,6 +7,9 @@ export type CoauthorsGraphOptions = {
     selectedAuthorId: string | null,
     filteredAuthorsIds: Set<string>,
     searchQuery: string,
+    onlyCommonCoauthors: boolean,
+    intersectionOfCoauthors: boolean,
+    originalAuthorsAlwaysIncluded: boolean,
 } & CoauthorsGraphDisplayOptions
 
 /** Properties that modify a visualisation of a coauthors graph. */
