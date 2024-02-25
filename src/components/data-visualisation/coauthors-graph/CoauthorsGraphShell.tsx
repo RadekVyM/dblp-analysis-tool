@@ -48,7 +48,9 @@ export default function CoauthorsGraphShell({ authors, publications, className }
     const { isFullscreen, isFullscreenEnabled, toggleFullscreen } = useFullscreen(rootRef);
 
     useEffect(() => {
-        setShouldRenderGraph(!isGraphHuge);
+        if (graph.nodes.length !== 0) {
+            setShouldRenderGraph(!isGraphHuge);
+        }
     }, [isGraphHuge, graph.nodes.length]);
 
     function setSelectedAuthorId(id: string | null) {

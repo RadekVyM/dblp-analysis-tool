@@ -646,6 +646,11 @@ function runGraphSimulation(
     links: Array<PublicationPersonLinkDatum>,
     onFinished: () => void,
     onProgress: (progress: number) => void) {
+    if (filteredNodes.length === 0) {
+        onFinished();
+        return;
+    }
+
     const simulation = d3.forceSimulation<PublicationPersonNodeDatum>(filteredNodes)
         .force('link', d3.forceLink<PublicationPersonNodeDatum, PublicationPersonLinkDatum>()
             .id((d) => d.person.id)

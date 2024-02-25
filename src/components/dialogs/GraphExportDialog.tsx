@@ -36,13 +36,13 @@ type GraphExportFormatValues = {
     export: (nodes: Array<NodeDatum>, links: Array<LinkDatum>) => string
 }
 
-const formatsMap = new Map<GraphExportFormat, GraphExportFormatValues>([
+const FORMATS_MAP = new Map<GraphExportFormat, GraphExportFormatValues>([
     [GraphExportFormat.GraphViz, { label: 'GraphViz (.dot)', extension: 'dot', export: exportToGraphViz }],
     [GraphExportFormat.GDF, { label: 'GDF (.gdf)', extension: 'gdf', export: exportToGDF }],
     [GraphExportFormat.GML, { label: 'GML (.gml)', extension: 'gml', export: exportToGML }],
     [GraphExportFormat.GraphML, { label: 'GraphML (.graphml)', extension: 'graphml', export: exportToGraphML }],
     [GraphExportFormat.GEXF, { label: 'GEXF (.gexf)', extension: 'gexf', export: exportToGEXF }],
-])
+]);
 
 /** Dialog for exporting a coauthors graph to various formats. */
 const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen, nodes, links }, ref) => {
@@ -57,11 +57,11 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
         const exportedNodes = includeOnlyVisible ? nodes.filter((n) => n.isVisible) : nodes;
         const exportedLinks = includeOnlyVisible ? links.filter((l) => l.isVisible) : links;
 
-        const format = formatsMap.get(selectedFormat);
+        const format = FORMATS_MAP.get(selectedFormat);
         return format?.export(exportedNodes, exportedLinks) || '';
     }, [selectedFormat, includeOnlyVisible, nodes, links, isOpen]);
     const file = useMemo(() => textToFile(exportedGraph, 'text/plain'), [exportedGraph]);
-    const currentFormat = formatsMap.get(selectedFormat);
+    const currentFormat = FORMATS_MAP.get(selectedFormat);
 
     useEffect(() => {
         preRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -86,7 +86,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                     heading={'Export Graph'}>
                     <ComboBox
                         id='graph-format-combobox'
-                        items={[...formatsMap].map(([key, format]) => ({ key: key, label: format.label }))}
+                        items={[...FORMATS_MAP].map(([key, format]) => ({ key: key, label: format.label }))}
                         selectedKey={selectedFormat}
                         onKeySelectionChange={(key) => setSelectedFormat(key as GraphExportFormat)} />
                     <CheckListButton

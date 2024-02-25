@@ -17,6 +17,8 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+# https://nextjs.org/docs/messages/sharp-missing-in-production
+RUN npm i sharp
 
 # Rebuild the source code only when needed
 FROM base AS builder

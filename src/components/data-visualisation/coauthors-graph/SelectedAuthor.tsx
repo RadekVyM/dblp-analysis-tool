@@ -11,11 +11,10 @@ import { HiArrowNarrowLeft } from 'react-icons/hi'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
-import { getUniqueCoauthors } from '@/services/graphs/authors'
 import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import useCommonUncommonCoauthors from '@/hooks/data-visualisation/useCommonUncomonCoauthors'
-import { MdBook, MdInfo, MdLibraryBooks } from 'react-icons/md'
+import { MdInfo, MdLibraryBooks } from 'react-icons/md'
 
 const COUNT_INCREASE = 60;
 

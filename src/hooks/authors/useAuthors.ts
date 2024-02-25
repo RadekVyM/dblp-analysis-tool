@@ -51,7 +51,7 @@ async function fetchAuthors(
 
     const reader = response.body.getReader();
 
-    // One chunk can contain just a part of a object
+    // One chunk can contain just a part of an object
     // So I pile up the content to a buffer
     let stringBuffer = '';
     let isDone = true;
@@ -66,6 +66,7 @@ async function fetchAuthors(
             const separator = stringBuffer.lastIndexOf(STREAMED_OBJECTS_SEPARATOR);
 
             if (separator !== -1) {
+                // Buffer contains separator => buffer contains whole object
                 const completeData = stringBuffer.substring(0, separator);
                 const jsonObjects = completeData.split(STREAMED_OBJECTS_SEPARATOR);
                 stringBuffer = stringBuffer.substring(separator + 1);

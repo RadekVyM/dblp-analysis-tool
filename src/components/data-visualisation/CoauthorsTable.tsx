@@ -13,17 +13,7 @@ type CoauthorsTableParams = {
 
 /** Table that displays coauthors of all specified authors. */
 export default function CoauthorsTable({ authors, publications }: CoauthorsTableParams) {
-    const rows = useMemo(() => {
-        const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications).concat(publications || []));
-
-        return nodes
-            .filter((a) => !authors.some((aa) => aa.id === a.person.id))
-            .map((node, index) => ([
-                { value: node.person.name, presentedContent: node.person.name },
-                { value: node.coauthorIds.size, presentedContent: node.coauthorIds.size },
-                { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
-            ]))
-    }, [authors, publications]);
+    const rows = useCoauthorsTableRows(authors, publications);
 
     return (
         <Table
@@ -49,4 +39,18 @@ export default function CoauthorsTable({ authors, publications }: CoauthorsTable
             ]}
             isFirstColumnHeader />
     )
+}
+
+function useCoauthorsTableRows(authors: Array<DblpAuthor>, publications?: Array<DblpPublication>) {
+    return useMemo(() => {
+        const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications).concat(publications || []));
+
+        return nodes
+            .filter((a) => !authors.some((aa) => aa.id === a.person.id))
+            .map((node, index) => ([
+                { value: node.person.name, presentedContent: node.person.name },
+                { value: node.coauthorIds.size, presentedContent: node.coauthorIds.size },
+                { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
+            ]))
+    }, [authors, publications]);
 }
