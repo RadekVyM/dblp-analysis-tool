@@ -8,8 +8,6 @@ services:
       dockerfile: Dockerfile
     container_name: next-app
     restart: always
-    volumes:
-      - ./src:/next-app # folder of the app on my machine : folder of the app on the container
     ports:
       - "3000:3000"
     depends_on:

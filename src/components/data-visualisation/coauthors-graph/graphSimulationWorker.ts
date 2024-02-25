@@ -2,21 +2,25 @@
 
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { CoauthorsGraphWorkerData } from './CoauthorsGraph'
-import * as d3 from 'd3'
 import { PublicationPersonLinkDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonLinkDatum'
+import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
 
 /*
 Web worker that runs a simulation on the passed graph.
 Positions of all nodes are found as a result of this simulation.
 */
 
+// 24.02. 2024
+// The simulation suddenly throws an error: timer.js:8 Uncaught ReferenceError: window is not defined
+// I have just experimented with Docker, updated Next.js, removed node_modules folder and that is all
+
 const onmessage = (event: MessageEvent<CoauthorsGraphWorkerData>) => {
-    const simulation = d3.forceSimulation<PublicationPersonNodeDatum>(event.data.nodes)
-        .force('link', d3.forceLink<PublicationPersonNodeDatum, PublicationPersonLinkDatum>()
+    const simulation = forceSimulation<PublicationPersonNodeDatum>(event.data.nodes)
+        .force('link', forceLink<PublicationPersonNodeDatum, PublicationPersonLinkDatum>()
             .id((d) => d.person.id)
             .links(event.data.links))
-        .force('charge', d3.forceManyBody().strength(-50))
-        .force('center', d3.forceCenter(event.data.graphWidth / 2, event.data.graphHeight / 2))
+        .force('charge', forceManyBody().strength(-50))
+        .force('center', forceCenter(event.data.graphWidth / 2, event.data.graphHeight / 2))
         .stop();
 
     // The natural number of ticks when the simulation is started
