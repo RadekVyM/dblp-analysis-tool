@@ -5,7 +5,7 @@ import { useHover, useIsClient } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
 import { MdCancel, MdClose, MdOutlineBookmarks } from 'react-icons/md'
 import Button from '../Button'
-import { SavedItemsMenuState as SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
+import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import { SearchType } from '@/enums/SearchType'
 import Tabs from '../Tabs'
 import ListLink from '../ListLink'
@@ -18,8 +18,6 @@ import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { DEFAULT_DISPLAYED_ITEMS_COUNT } from '@/constants/visits'
 import { createPortal } from 'react-dom'
-import { submitSignOutForm } from '@/services/auth/forms'
-import useSession from '@/hooks/useSession'
 import useShowMore from '@/hooks/useShowMore'
 
 // TODO: Do I want the hover feature?
@@ -148,7 +146,6 @@ MenuContainer.displayName = 'MenuContainer';
 
 const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
     const [isClient, setIsClient] = useState(false);
-    const session = useSession();
 
     useEffect(() => setIsClient(true), []);
 
@@ -163,12 +160,8 @@ const Menu = forwardRef<HTMLElement, MenuParams>(({ className, hide }, ref) => {
                 bg-surface-container rounded-l-lg md:rounded-lg md:border border-outline
                 pointer-events-auto animate-slideLeftIn md:animate-none`,
                 className)}>
-            {
-                !session ?
-                    <NotAuthenticated /> :
-                    <MenuContent
-                        hide={hide} />
-            }
+            <MenuContent
+                hide={hide} />
         </article>
     )
 });
@@ -181,22 +174,19 @@ function MenuContent({ hide }: MenuContentParams) {
     return (
         <>
             <div
-                className='flex justify-between items-center mb-6 pl-5 pr-3'>
-                <UserInfo />
+                className='flex justify-between items-center px-5 mb-6'>
+                <TypeSelection
+                    selectedType={selectedType}
+                    setSelectedType={(type) => setSelectedType(type)} />
                 <Button
                     title='Close'
                     size='sm' variant='icon-outline'
-                    className='md:hidden self-start'
+                    className='md:hidden'
                     onClick={() => hide()}>
                     <MdClose
                         className='w-5 h-5' />
                 </Button>
             </div>
-
-            <TypeSelection
-                className='px-5 mb-6'
-                selectedType={selectedType}
-                setSelectedType={(type) => setSelectedType(type)} />
 
             {
                 selectedType == SearchType.Author &&
@@ -209,27 +199,6 @@ function MenuContent({ hide }: MenuContentParams) {
                 <VenuesTab
                     key={SearchType.Venue} />
             }
-
-            <ul
-                className='flex gap-2 mx-6 py-6 border-t border-outline-variant'>
-                <li>
-                    <form
-                        action={submitSignOutForm}>
-                        <Button
-                            size='xs'>
-                            Sign out
-                        </Button>
-                    </form>
-                </li>
-                <li>
-                    <Button
-                        variant='outline'
-                        size='xs'
-                        href='/profile'>
-                        Your profile
-                    </Button>
-                </li>
-            </ul>
         </>
     )
 }
@@ -246,7 +215,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
 }
 
 function AuthorsTab() {
-    const { visitedAuthors, removeVisitedAuthor, isMutating } = useVisitedAuthors();
+    const { visitedAuthors, removeVisitedAuthor } = useVisitedAuthors();
     const { savedAuthors } = useSavedAuthors();
     const { authorGroups } = useAuthorGroups();
     const [savedAuthorsDisplayedCount, areSavedAuthorsExpanded, expandSavedAuthors, collapseSavedAuthors]
@@ -268,7 +237,6 @@ function AuthorsTab() {
                             link={createLocalPath(author.id, SearchType.Author) || '#'}
                             floatingContent={
                                 <button
-                                    disabled={isMutating}
                                     className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -318,7 +286,7 @@ function AuthorsTab() {
                     {authorGroups.slice(0, groupsDisplayedCount).map((group) =>
                         <ListItem
                             key={group.id}
-                            link={`/authorgroup/${group.id}`}>
+                            link={`/authorgroup/${group.id}?${group.authors.map((a) => `id=${a.id}`).join('&')}`}>
                             <span>{group.title}</span>
                         </ListItem>)}
                 </MenuSection>
@@ -334,7 +302,7 @@ function AuthorsTab() {
 }
 
 function VenuesTab() {
-    const { visitedVenues, removeVisitedVenue, isMutating } = useVisitedVenues();
+    const { visitedVenues, removeVisitedVenue } = useVisitedVenues();
     const { savedVenues } = useSavedVenues();
     const [savedVenuesDisplayedCount, areSavedVenuesExpanded, expandSavedVenues, collapseSavedVenues]
         = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, savedVenues.length);
@@ -353,7 +321,6 @@ function VenuesTab() {
                             link={createLocalPath(venue.id, SearchType.Venue) || '#'}
                             floatingContent={
                                 <button
-                                    disabled={isMutating}
                                     className='absolute top-0 bottom-0 right-0 w-8 text-on-surface-container-muted hover:text-on-surface-container rounded-md'
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -416,17 +383,6 @@ function SectionTitle({ children }: SectionTitleParams) {
         <div
             className='flex justify-between items-center w-full'>
             <h3 className='font-semibold text-sm'>{children}</h3>
-        </div>
-    )
-}
-
-function UserInfo({ className }: UserInfoParams) {
-    const session = useSession();
-
-    return (
-        <div>
-            <h2 className='font-bold leading-4'>{session?.user?.username}</h2>
-            <span className='text-xs leading-3'>{session?.user?.email}</span>
         </div>
     )
 }

@@ -14,65 +14,61 @@ import { isGreater } from '@/utils/array'
 import Link from 'next/link'
 import LinkArrow from '@/components/LinkArrow'
 import AuthorGroupMembersStats from '@/components/data-visualisation/stats/AuthorGroupMembersStats'
+import PageContainer from '@/components/shell/PageContainer'
+import PageTitle from '@/components/shell/PageTitle'
+import { AuthorGroupButtons } from './AuthorGroupButtons'
+import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
+import { error as createError } from '@/utils/errors'
+import { useIsClient } from 'usehooks-ts'
+import LoadingPage from '@/components/shell/LoadingPage'
+import ErrorPage from '@/components/shell/ErrorPage'
+import useSelectedAuthorGroupMembers from '@/hooks/useSelectedAuthorGroupMembers'
+import AuthorGroupMembers from './AuthorGroupMembers'
 
 type PageContentParams = {
-    authorGroup: AuthorGroup,
+    authorGroupId: string,
     cachedAuthors: Array<DblpAuthor>
 }
 
-type MembersParams = {
-    authorGroup: AuthorGroup,
-    authors: Array<DblpAuthor>,
-    selectedAuthorIds: Set<string>,
-    toggleAuthor: (id: string) => void,
-}
-
-type MemberHeaderParams = {
-    member: Member
-}
-
-type MemberInfoParams = {
-    author: DblpAuthor
-}
-
-type Member = {
-    name: string,
-    id: string,
-    fetchedData?: DblpAuthor
-}
-
-export default function PageContent({ authorGroup, cachedAuthors }: PageContentParams) {
-    const authorIds = useMemo(() => authorGroup.authors.map((a) => a.id), [authorGroup]);
+export default function PageContent({ cachedAuthors, authorGroupId }: PageContentParams) {
+    const { authorGroups } = useAuthorGroups();
+    const authorGroup = authorGroups.find((g) => g.id === authorGroupId);
+    const authorIds = useMemo(() => authorGroup?.authors.map((a) => a.id) || [], [authorGroup]);
     const { authors, error } = useAuthors(cachedAuthors, authorIds);
-    const [selectedAuthorIds, setSelectedAuthorIds] = useState<Set<string>>(new Set(authorGroup.authors.map((a) => a.id)));
-    const selectedAuthors = useMemo(() => authors.filter((a) => selectedAuthorIds.has(a.id)), [authors, selectedAuthorIds]);
-    const allPublications = useMemo(() => {
-        const map = new Map<string, DblpPublication>();
-        selectedAuthors.forEach((a) => a.publications.forEach((p) => map.set(p.id, p)));
+    const {
+        selectedAuthorIds,
+        selectedAuthors,
+        allPublications,
+        toggleAuthor
+    } = useSelectedAuthorGroupMembers(authors, authorGroup);
+    const isClient = useIsClient();
 
-        return [...map.values()];
-    }, [selectedAuthors]);
+    if (!isClient) {
+        return (<LoadingPage />);
+    }
 
-    useEffect(() => {
-        setSelectedAuthorIds(new Set(authorGroup.authors.map((a) => a.id)));
-    }, [authorGroup]);
-
-    function toggleAuthor(id: string) {
-        setSelectedAuthorIds((old) => {
-            const newSet = new Set<string>(old);
-            if (old.has(id)) {
-                newSet.delete(id);
-            }
-            else {
-                newSet.add(id);
-            }
-            return newSet;
-        });
+    if (!authorGroup) {
+        return (
+            <ErrorPage
+                params={{ error: createError('This author group could not be found.') }} />
+        )
     }
 
     return (
-        <>
-            <Members
+        <PageContainer>
+            <header
+                className='mb-12'>
+                <PageTitle
+                    title={authorGroup.title}
+                    subtitle='Author group'
+                    className='pb-3 mb-4' />
+
+                <AuthorGroupButtons
+                    authorGroupId={authorGroup.id}
+                    authorGroupTitle={authorGroup.title} />
+            </header>
+
+            <AuthorGroupMembers
                 authors={authors}
                 authorGroup={authorGroup}
                 selectedAuthorIds={selectedAuthorIds}
@@ -82,7 +78,7 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
                 selectedAuthors.length > 0 &&
                 <>
                     <PublicationsStatsSection
-                        publicationsUrl={`/authorgroup/${authorGroup.id}/publications`}
+                        publicationsUrl={`/authorgroup/${authorGroup.id}/publications?${authorGroup.authors.map((a) => `id=${a.id}`).join('&')}`}
                         publications={allPublications}
                         maxDisplayedCount={3} >
                         <PageSubsectionTitle>Publications by Member</PageSubsectionTitle>
@@ -96,94 +92,6 @@ export default function PageContent({ authorGroup, cachedAuthors }: PageContentP
                         authors={selectedAuthors} />
                 </>
             }
-        </>
+        </PageContainer>
     );
-}
-
-function Members({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: MembersParams) {
-    const members = useMemo(() => {
-        const sortedAuthors = [...authorGroup.authors];
-        sortedAuthors.sort((a, b) => isGreater(a.title, b.title));
-        return sortedAuthors.map((a) => {
-            const fetched = authors.find((fa) => fa.id === a.id);
-
-            return {
-                name: a.title,
-                id: a.id,
-                fetchedData: fetched
-            } as Member;
-        })
-    }, [authorGroup, authors]);
-
-    return (
-        <PageSection>
-            <PageSectionTitle className='text-xl'>Members</PageSectionTitle>
-
-            <ul
-                className='grid grid-rows-[repeat(auto_1fr)] xs:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-x-4 gap-y-2'>
-                {members.map((member) =>
-                    <li
-                        key={member.id}
-                        className='p-4 min-w-0 row-span-2 grid grid-rows-subgrid
-                            bg-surface-container rounded-lg border border-outline'>
-                        <MemberHeader
-                            member={member} />
-                        <div
-                            className='grid grid-cols-[1fr_auto]'>
-                            {
-                                member.fetchedData ?
-                                    <MemberInfo
-                                        author={member.fetchedData} /> :
-                                    <span>Downloading...</span>
-                            }
-                            <input
-                                title='Hide/Show'
-                                type='checkbox'
-                                checked={selectedAuthorIds.has(member.id)}
-                                onChange={() => toggleAuthor(member.id)}
-                                className='accent-on-surface-container w-4 h-4 self-end col-start-2' />
-                        </div>
-                    </li>)}
-            </ul>
-        </PageSection>
-    )
-}
-
-function MemberHeader({ member }: MemberHeaderParams) {
-    return (
-        <header>
-            <Link
-                prefetch={false}
-                className='link-heading block w-fit text-on-surface-muted hover:text-on-surface transition-colors'
-                href={createLocalPath(member.id, SearchType.Author)}>
-                <h4
-                    className='inline font-semibold text-on-surface'>
-                    {member.name}
-                </h4>
-                <LinkArrow
-                    className='w-6 h-5 ml-[-0.1rem] mt-[-0.2rem]' />
-            </Link>
-
-            {
-                member.fetchedData?.info && member.fetchedData.info.aliases.length > 0 &&
-                <dl className='inline'>
-                    <dt className={'text-xs inline font-semibold'}>Alias: </dt>
-                    <dd className='text-xs inline'>{member.fetchedData.info.aliases.map((a) => a.title).join(' / ')}</dd>
-                </dl>
-            }
-        </header>
-    )
-}
-
-function MemberInfo({ author }: MemberInfoParams) {
-    return (
-        <ul
-            className='text-sm flex flex-col gap-1 list-disc marker:text-primary pl-4'>
-            <li>{author.publications.length} publications</li>
-            {
-                author.info && author.info.awards.length > 0 &&
-                <li>{author.info.awards.length} awards</li>
-            }
-        </ul>
-    )
 }

@@ -9,7 +9,6 @@ import { cn } from '@/utils/tailwindUtils'
 import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
-import { isAuthorizedOnServer } from '@/services/auth'
 import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import SameNameAuthors from './(components)/SameNameAuthors'
 
@@ -32,17 +31,12 @@ type AwardsParams = {
 
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
     const author = await fetchAuthor(id);
-    const isAuthorized = await isAuthorizedOnServer();
 
     return (
         <PageContainer>
-
-            {
-                isAuthorized &&
-                <AddToRecentlySeen
-                    id={id}
-                    title={author.name} />
-            }
+            <AddToRecentlySeen
+                id={id}
+                title={author.name} />
 
             <header>
                 <PageTitle
@@ -90,8 +84,6 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
 }
 
 async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
-    const isAuthorized = await isAuthorizedOnServer();
-
     return (
         <div className={cn('flex flex-col gap-7', info.aliases.length > 0 || info.affiliations.length > 0 ? '' : 'mt-4', className)}>
             <AliasesAffiliations
@@ -103,12 +95,9 @@ async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoP
                     links={info.links} />
             }
 
-            {
-                isAuthorized &&
-                <SaveAuthorButtons
-                    authorId={authorId}
-                    authorName={authorName} />
-            }
+            <SaveAuthorButtons
+                authorId={authorId}
+                authorName={authorName} />
         </div>
     )
 }

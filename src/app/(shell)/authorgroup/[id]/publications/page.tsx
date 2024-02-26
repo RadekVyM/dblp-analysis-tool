@@ -13,48 +13,17 @@ import { DblpAuthor } from '@/dtos/DblpAuthor'
 type AuthorGroupPublicationsPageParams = {
     params: {
         id: string
-    }
+    },
+    searchParams: { id?: Array<string> | string }
 }
 
-export default async function AuthorGroupPublicationsPage({ params: { id } }: AuthorGroupPublicationsPageParams) {
-    const user = await getCurrentUser();
-
-    if (!user) {
-        redirect('/auth/signin');
-    }
-
-    const authorGroup = await getAuthorGroup(id, user);
-
-    if (!authorGroup) {
-        throw unauthorizedError('You cannot access this author group.');
-    }
-
-    const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorGroup.authors.map((a) => a.id));
+export default async function AuthorGroupPublicationsPage({ params: { id }, searchParams }: AuthorGroupPublicationsPageParams) {
+    const authorIds: Array<string> = searchParams.id ? (typeof searchParams.id === 'string' ? [searchParams.id] : searchParams.id) : [];
+    const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorIds);
 
     return (
-        <PageContainer
-            className='relative'>
-            <header
-                className='mb-10'>
-                <PageTitle
-                    title={authorGroup.title}
-                    titleHref={`/authorgroup/${id}`}
-                    subtitle='Author group'
-                    className='pb-3' />
-            </header>
-
-            <PageSection>
-                <header
-                    className='mb-4 flex gap-3 items-center'>
-                    <PageSectionTitle className='text-xl mb-0'>Publications</PageSectionTitle>
-                </header>
-
-                <PageContent
-                    authorGroup={authorGroup}
-                    cachedAuthors={cachedAuthors} />
-            </PageSection>
-
-            <ScrollToTopButton />
-        </PageContainer>
+        <PageContent
+            authorGroupId={id}
+            cachedAuthors={cachedAuthors} />
     )
 }

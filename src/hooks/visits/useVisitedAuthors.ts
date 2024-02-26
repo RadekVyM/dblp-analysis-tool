@@ -1,39 +1,37 @@
 'use client'
 
-import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
-import useSWR, { Fetcher } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { VisitedAuthor } from '@/dtos/saves/VisitedAuthor'
-import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
+import { useLocalStorage } from 'usehooks-ts'
 
-const visitedAuthorsFetcher: Fetcher<Array<VisitedAuthor> | null, string> = (key) =>
-    fetchJson(key);
+const VISITED_AUTHORS_STORAGE_KEY = 'VISITED_AUTHORS_STORAGE_KEY';
 
-/** Hook that handles loading of visited authors from the server and provides operations for posting and deleting a visited author. */
+/** Hook that handles loading of visited authors and provides operations for adding and deleting a visited author. */
 export default function useVisitedAuthors() {
-    const { data, error: fetchError, isLoading } =
-        useSWR('/api/visit/author', visitedAuthorsFetcher);
-    const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } =
-        useSWRMutation('/api/visit/author', sendPostRequest<SavedAuthor, VisitedAuthor>);
-    const { trigger: triggerDelete, error: deleteError, isMutating: isMutatingDelete } =
-        useSWRMutation('/api/visit/author', sendDeleteRequest);
+    const [visitedAuthors, setVisitedAuthors] = useLocalStorage(VISITED_AUTHORS_STORAGE_KEY, new Array<VisitedAuthor>());
 
     const visitedAuthor = useCallback(async (id: string, title: string) => {
-        await triggerPost({ data: { title: title, id: id } });
-    }, [triggerPost]);
+        setVisitedAuthors((old) => {
+            const author = old.find((a) => a.id === id);
+
+            if (author) {
+                author.visitsCount += 1;
+                return [author, ...(old.filter((a) => a.id !== id))];
+            }
+
+            return [{ title: title, id: id, visitsCount: 1 }, ...old];
+        });
+    }, [setVisitedAuthors]);
 
     const removeVisitedAuthor = useCallback(async (id: string) => {
-        await triggerDelete([id]);
-    }, [triggerDelete]);
+        setVisitedAuthors((old) => {
+            return [...(old.filter((a) => a.id !== id))];
+        });
+    }, [setVisitedAuthors]);
 
     return {
-        visitedAuthors: data || [],
+        visitedAuthors,
         visitedAuthor,
-        removeVisitedAuthor,
-        error: fetchError || postError || deleteError,
-        isMutating: isMutatingPost || isMutatingDelete,
-        isLoading
+        removeVisitedAuthor
     };
 }

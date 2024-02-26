@@ -4,7 +4,7 @@ import Button from '@/components/Button'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useNotifications from '@/hooks/useNotifications'
 import { cn } from '@/utils/tailwindUtils'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 
 type SaveVenueButtonParams = {
@@ -15,19 +15,9 @@ type SaveVenueButtonParams = {
 
 /** Button that allows the user to save a venue for easier access to a list. */
 export default function SaveVenueButton({ className, venueId, title }: SaveVenueButtonParams) {
-    const { removeSavedVenue, saveVenue, savedVenues, mutationError, isMutating } = useSavedVenues();
+    const { removeSavedVenue, saveVenue, savedVenues } = useSavedVenues();
     const { pushNotification } = useNotifications();
     const isSaved = useMemo(() => savedVenues.some((v) => v.id === venueId), [savedVenues, venueId]);
-
-    useEffect(() => {
-        if (mutationError) {
-            pushNotification({
-                key: 'SAVE_VENUE_NOTIFICATION',
-                message: 'Venue could not be saved.',
-                type: 'Error'
-            });
-        }
-    }, [mutationError]);
 
     function updateSaved() {
         if (isSaved) {
@@ -40,7 +30,6 @@ export default function SaveVenueButton({ className, venueId, title }: SaveVenue
 
     return (
         <Button
-            disabled={isMutating}
             variant={isSaved ? 'default' : 'outline'}
             size='sm'
             className='items-center gap-x-2'

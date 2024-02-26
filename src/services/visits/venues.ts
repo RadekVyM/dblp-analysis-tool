@@ -36,7 +36,7 @@ export async function updateVisitedVenue(dto: SavedVenueDto, user: UserSchema): 
     return {
         id: venue?.venueId || '',
         title: venue?.name || '',
-        visitsCount: venue?.visitsCount
+        visitsCount: venue?.visitsCount || 0
     };
 }
 
@@ -60,7 +60,7 @@ export async function getVisitedVenues(user: UserSchema, limit?: number): Promis
     return venues.map((v) => ({
         id: v.venueId,
         title: v.name,
-        visitsCount: v?.visitsCount
+        visitsCount: v.visitsCount
     }));
 }
 

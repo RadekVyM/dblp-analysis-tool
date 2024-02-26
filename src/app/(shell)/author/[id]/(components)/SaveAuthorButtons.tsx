@@ -4,11 +4,10 @@ import Button from '@/components/Button'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useDialog from '@/hooks/useDialog'
 import { cn } from '@/utils/tailwindUtils'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa'
 import AddToGroupDialog from './AddToGroupDialog'
-import useNotifications from '@/hooks/useNotifications'
 
 type SaveAuthorButtonsParams = {
     className?: string,
@@ -23,19 +22,8 @@ type GroupButtonParams = {
 
 /** Buttons that allow the user to save an author for easier access to a list or an author group. */
 export default function SaveAuthorButtons({ className, authorId, authorName }: SaveAuthorButtonsParams) {
-    const { removeSavedAuthor, saveAuthor, savedAuthors, mutationError, isMutating } = useSavedAuthors();
-    const { pushNotification } = useNotifications();
+    const { removeSavedAuthor, saveAuthor, savedAuthors } = useSavedAuthors();
     const isSaved = useMemo(() => savedAuthors.some((v) => v.id === authorId), [savedAuthors, authorId]);
-
-    useEffect(() => {
-        if (mutationError) {
-            pushNotification({
-                key: 'SAVE_AUTHOR_NOTIFICATION',
-                message: 'Author could not be saved.',
-                type: 'Error'
-            });
-        }
-    }, [mutationError]);
 
     function updateSaved() {
         if (isSaved) {
@@ -49,7 +37,6 @@ export default function SaveAuthorButtons({ className, authorId, authorName }: S
     return (
         <div className={cn('flex gap-2', className)}>
             <Button
-                disabled={isMutating}
                 variant={isSaved ? 'default' : 'outline'}
                 size='sm'
                 className='items-center gap-x-2'

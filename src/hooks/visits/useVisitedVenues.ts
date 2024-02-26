@@ -1,39 +1,37 @@
 'use client'
 
-import { SavedVenue, } from '@/dtos/saves/SavedVenue'
-import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
-import useSWR, { Fetcher } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { VisitedVenue } from '@/dtos/saves/VisitedVenue'
+import { useLocalStorage } from 'usehooks-ts'
 
-const visitedVenuesFetcher: Fetcher<Array<VisitedVenue> | null, string> = (key) =>
-    fetchJson(key);
+const VISITED_VENUES_STORAGE_KEY = 'VISITED_VENUES_STORAGE_KEY';
 
-/** Hook that handles loading of visited venues from the server and provides operations for posting and deleting a visited venue. */
+/** Hook that handles loading of visited venues and provides operations for adding and deleting a visited venue. */
 export default function useVisitedVenues() {
-    const { data, error: fetchError, isLoading } =
-        useSWR('/api/visit/venue', visitedVenuesFetcher);
-    const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } =
-        useSWRMutation('/api/visit/venue', sendPostRequest<SavedVenue, VisitedVenue>);
-    const { trigger: triggerDelete, error: deleteError, isMutating: isMutatingDelete } =
-        useSWRMutation('/api/visit/venue', sendDeleteRequest);
+    const [visitedVenues, setVisitedVenues] = useLocalStorage(VISITED_VENUES_STORAGE_KEY, new Array<VisitedVenue>());
 
     const visitedVenue = useCallback(async (id: string, title: string) => {
-        await triggerPost({ data: { title: title, id: id } });
-    }, [triggerPost]);
+        setVisitedVenues((old) => {
+            const venue = old.find((v) => v.id === id);
+
+            if (venue) {
+                venue.visitsCount += 1;
+                return [venue, ...(old.filter((v) => v.id !== id))];
+            }
+
+            return [{ title: title, id: id, visitsCount: 1 }, ...old];
+        });
+    }, [setVisitedVenues]);
 
     const removeVisitedVenue = useCallback(async (id: string) => {
-        await triggerDelete([id]);
-    }, [triggerDelete]);
+        setVisitedVenues((old) => {
+            return [...(old.filter((v) => v.id !== id))];
+        });
+    }, [setVisitedVenues]);
 
     return {
-        visitedVenues: data || [],
+        visitedVenues,
         visitedVenue,
-        removeVisitedVenue,
-        error: fetchError || postError || deleteError,
-        isMutating: isMutatingPost || isMutatingDelete,
-        isLoading
+        removeVisitedVenue
     };
 }

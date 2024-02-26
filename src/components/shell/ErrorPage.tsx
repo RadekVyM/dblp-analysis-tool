@@ -12,7 +12,7 @@ import { cn } from '@/utils/tailwindUtils'
 /** Parameters of an error page. */
 export type ErrorParams = {
     error: Error,
-    reset: () => void
+    reset?: () => void
 }
 
 type ErrorPageParams = {
@@ -21,16 +21,16 @@ type ErrorPageParams = {
 
 type FetchErrorContentParams = {
     error: FetchError,
-    reset: () => void
+    reset?: () => void
 }
 
 type ErrorObjectContentParams = {
     error: DefaultError,
-    reset: () => void
+    reset?: () => void
 }
 
 type DefaultErrorContentParams = {
-    reset: () => void
+    reset?: () => void
 }
 
 type ErrorPageTitleParams = {
@@ -38,7 +38,7 @@ type ErrorPageTitleParams = {
 }
 
 type TryAgainButtonParams = {
-    reset: () => void
+    reset?: () => void
 }
 
 /** Content that is displayed when there is an unhandled error. */
@@ -110,8 +110,11 @@ function FetchErrorContent({ error, reset }: FetchErrorContentParams) {
 
             {message(error)}
 
-            <TryAgainButton
-                reset={reset} />
+            {
+                reset &&
+                <TryAgainButton
+                    reset={reset} />
+            }
         </>
     )
 }
@@ -124,8 +127,11 @@ function DefaultErrorContent({ reset }: DefaultErrorContentParams) {
 
             <p>Content could not be loaded. Please try again later.</p>
 
-            <TryAgainButton
-                reset={reset} />
+            {
+                reset &&
+                <TryAgainButton
+                    reset={reset} />
+            }
         </>
     )
 }

@@ -20,7 +20,7 @@ type AuthorGroupButtonsParams = {
 
 type RenameAuthorGroupDialogParams = {
     hide: () => void,
-    rename: (title: string) => Promise<void>,
+    rename: (title: string) => void,
     currentTitle: string,
     animation: string,
     isOpen: boolean
@@ -33,13 +33,12 @@ export function AuthorGroupButtons({ authorGroupId, authorGroupTitle }: AuthorGr
     const router = useRouter();
 
     async function remove() {
-        await removeAuthorGroup(authorGroupId);
+        removeAuthorGroup(authorGroupId);
         router.replace('/');
     }
 
     async function rename(title: string) {
-        await renameAuthorGroup(authorGroupId, title);
-        router.refresh();
+        renameAuthorGroup(authorGroupId, title);
     }
 
     return (
@@ -93,7 +92,9 @@ const RenameAuthorGroupDialog = forwardRef<HTMLDialogElement, RenameAuthorGroupD
     });
 
     async function onSubmit(e: React.FormEvent) {
-        await rename(formValues.title);
+        e.preventDefault();
+        rename(formValues.title);
+        hide();
     }
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {

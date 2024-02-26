@@ -1,7 +1,6 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
-import { isAuthorizedOnServer } from '@/services/auth'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { VenueType } from '@/enums/VenueType'
 import { DblpVenue } from '@/dtos/DblpVenue'
@@ -22,12 +21,10 @@ type VenuePageParams = {
 
 /** Page displaying content of a venue. */
 export default async function VenuePage({ venueOrVolume, venueType, venueId, volumeId }: VenuePageParams) {
-    const isAuthorized = await isAuthorizedOnServer();
-
     return (
         <PageContainer>
             {
-                isAuthorized && venueType !== VenueType.Book &&
+                venueType !== VenueType.Book &&
                 <AddToVisitedVenues
                     id={venueId}
                     title={venueOrVolume.title} />
@@ -41,11 +38,11 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
                     className='pb-3' />
 
                 <LinksList
-                    className={cn('mt-4', isAuthorized ? 'mb-7' : '')}
+                    className={cn('mt-4', 'mb-7')}
                     links={venueOrVolume.links} />
 
                 {
-                    isAuthorized && venueType !== VenueType.Book &&
+                    venueType !== VenueType.Book &&
                     <SaveVenueButton
                         title={venueOrVolume.title}
                         venueId={venueOrVolume.id} />

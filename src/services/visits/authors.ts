@@ -36,7 +36,7 @@ export async function updateVisitedAuthor(dto: SavedAuthorDto, user: UserSchema)
     return {
         id: author?.authorId || '',
         title: author?.name || '',
-        visitsCount: author?.visitsCount
+        visitsCount: author?.visitsCount || 0
     };
 }
 
@@ -59,7 +59,8 @@ export async function getVisitedAuthors(user: UserSchema, limit?: number): Promi
 
     return authors.map((a) => ({
         id: a.authorId,
-        title: a.name
+        title: a.name,
+        visitsCount: a.visitsCount
     }));
 }
 

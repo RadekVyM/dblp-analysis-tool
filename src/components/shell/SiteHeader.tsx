@@ -2,10 +2,7 @@ import NavigationMenu from './NavigationMenu'
 import { cn } from '@/utils/tailwindUtils'
 import SiteLogo from './SiteLogo'
 import { SavedItemsMenuIntegration } from './SavedItemsMenuIntegration'
-import { isAuthorizedOnServer } from '@/services/auth'
 import Search from './Search'
-import Button from '../Button'
-import { FaUser } from 'react-icons/fa'
 
 type SiteHeaderParams = {
     className?: string,
@@ -13,8 +10,6 @@ type SiteHeaderParams = {
 
 /** Top header of the entire site that contains the main navigation and search bar. */
 export default async function SiteHeader({ className }: SiteHeaderParams) {
-    const isAuthorized = await isAuthorizedOnServer();
-
     return (
         <header
             className={cn('fixed top-0 left-0 right-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
@@ -36,16 +31,7 @@ export default async function SiteHeader({ className }: SiteHeaderParams) {
                     <Search
                         className='md:min-w-[18rem]' />
 
-                    {
-                        isAuthorized ?
-                            <SavedItemsMenuIntegration /> :
-                            <Button
-                                title='Sign in'
-                                variant='icon-outline'
-                                href='/auth/signin'>
-                                <FaUser />
-                            </Button>
-                    }
+                    <SavedItemsMenuIntegration />
                 </div>
             </div>
         </header>

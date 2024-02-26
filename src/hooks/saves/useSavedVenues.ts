@@ -1,36 +1,36 @@
 'use client'
 
 import { SavedVenue } from '@/dtos/saves/SavedVenue'
-import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
-import useSWR, { Fetcher } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from '../shared'
+import { useLocalStorage } from 'usehooks-ts';
 
-const savedVenuesFetcher: Fetcher<Array<SavedVenue> | null, string> = (key) =>
-    fetchJson(key);
+const SAVED_VENUES_STORAGE_KEY = 'SAVED_VENUES_STORAGE_KEY';
 
-/** Hook that handles loading of saved venues from the server and provides operations for posting and deleting a saved venue. */
+/** Hook that handles loading of saved venues and provides operations for adding and deleting a saved venue. */
 export default function useSavedVenues() {
-    const { data, error: fetchError, isLoading } = useSWR('/api/save/venue', savedVenuesFetcher);
-    const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } = useSWRMutation('/api/save/venue', sendPostRequest<SavedVenue, SavedVenue>);
-    const { trigger: triggerDelete, error: deleteError, isMutating: isMutatingDelete } = useSWRMutation('/api/save/venue', sendDeleteRequest);
+    const [savedVenues, setSavedVenues] = useLocalStorage(SAVED_VENUES_STORAGE_KEY, new Array<SavedVenue>());
 
     const saveVenue = useCallback(async (id: string, title: string) => {
-        await triggerPost({ data: { title: title, id: id } });
-    }, [triggerPost]);
+        setSavedVenues((old) => {
+            const venue = old.find((v) => v.id === id);
+
+            if (venue) {
+                return [venue, ...(old.filter((v) => v.id !== id))];
+            }
+
+            return [{ title: title, id: id }, ...old];
+        });
+    }, [setSavedVenues]);
 
     const removeSavedVenue = useCallback(async (id: string) => {
-        await triggerDelete([id]);
-    }, [triggerDelete]);
+        setSavedVenues((old) => {
+            return [...(old.filter((v) => v.id !== id))];
+        });
+    }, [setSavedVenues]);
 
     return {
-        savedVenues: data || [],
+        savedVenues,
         saveVenue,
-        removeSavedVenue,
-        fetchError,
-        mutationError: postError || deleteError,
-        isMutating: isMutatingPost || isMutatingDelete,
-        isLoading
+        removeSavedVenue
     };
 }

@@ -1,63 +1,78 @@
 'use client'
 
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
-import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
-import useSWR, { Fetcher } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from '../shared'
-import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
+import { useLocalStorage } from 'usehooks-ts'
+import { v4 as uuidv4 } from 'uuid'
 
-const authorGroupsFetcher: Fetcher<Array<AuthorGroup> | null, string> = (key) =>
-    fetchJson(key);
+const AUTHOR_GROUPS_STORAGE_KEY = 'AUTHOR_GROUPS_STORAGE_KEY';
 
 /**
  * Hook that handles loading of author groups from the server and provides operations for managing the author groups -
  * adding and deleting an author group and adding and deleting an author from an author group.
  */
 export default function useAuthorGroups() {
-    const { data, error: fetchError, isLoading } =
-        useSWR('/api/save/authorgroup', authorGroupsFetcher);
-    const { trigger: triggerGroupPost, error: postGroupError, isMutating: isMutatingGroupPost } =
-        useSWRMutation('/api/save/authorgroup', sendPostRequest<Omit<AuthorGroup, 'id' | 'authors'> & { id?: string }, AuthorGroup>);
-    const { trigger: triggerGroupDelete, error: deleteGroupError, isMutating: isMutatingGroupDelete } =
-        useSWRMutation('/api/save/authorgroup', sendDeleteRequest);
-    const { trigger: triggerGroupAuthorPost, error: postGroupAuthorError, isMutating: isMutatingGroupAuthorPost } =
-        useSWRMutation('/api/save/authorgroup', sendPostRequest<SavedAuthor, AuthorGroup>);
-    const { trigger: triggerGroupAuthorDelete, error: deleteGroupAuthorError, isMutating: isMutatingGroupAuthorDelete } =
-        useSWRMutation('/api/save/authorgroup', sendDeleteRequest);
+    const [authorGroups, setAuthorGroups] = useLocalStorage(AUTHOR_GROUPS_STORAGE_KEY, new Array<AuthorGroup>());
 
-    const saveAuthorGroup = useCallback(async (title: string) => {
-        await triggerGroupPost({ data: { title: title } });
-    }, [triggerGroupPost]);
+    const saveAuthorGroup = useCallback((title: string) => {
+        setAuthorGroups((old) => {
+            return [{ id: uuidv4(), title: title, authors: [] }, ...old];
+        });
+    }, [setAuthorGroups]);
 
-    const renameAuthorGroup = useCallback(async (id: string, title: string) => {
-        await triggerGroupPost({ data: { id: id, title: title } });
-    }, [triggerGroupPost]);
+    const renameAuthorGroup = useCallback((id: string, title: string) => {
+        setAuthorGroups((old) => {
+            const group = old.find((g) => g.id === id);
 
-    const removeAuthorGroup = useCallback(async (groupId: string) => {
-        await triggerGroupDelete([groupId]);
-    }, [triggerGroupDelete]);
+            if (group) {
+                group.title = title;
+            }
 
-    const saveAuthorToGroup = useCallback(async (groupId: string, authorId: string, authorName: string) => {
-        await triggerGroupAuthorPost({ data: { id: authorId, title: authorName }, urlParams: [groupId] });
-    }, [triggerGroupPost]);
+            return [...old];
+        });
+    }, [setAuthorGroups]);
 
-    const removeAuthorFromGroup = useCallback(async (groupId: string, authorId: string) => {
-        await triggerGroupAuthorDelete([groupId, authorId]);
-    }, [triggerGroupPost]);
+    const removeAuthorGroup = useCallback((groupId: string) => {
+        setAuthorGroups((old) => {
+            return [...(old.filter((g) => g.id !== groupId))];
+        });
+    }, [setAuthorGroups]);
+
+    const saveAuthorToGroup = useCallback((groupId: string, authorId: string, authorName: string) => {
+        setAuthorGroups((old) => {
+            const group = old.find((g) => g.id === groupId);
+
+            if (group && !group.authors.some(((a) => a.id === authorId))) {
+                group.authors = [{ id: authorId, title: authorName }, ...group.authors];
+            }
+
+            return [...old];
+        });
+    }, [setAuthorGroups]);
+
+    const removeAuthorFromGroup = useCallback((groupId: string, authorId: string) => {
+        setAuthorGroups((old) => {
+            const group = old.find((g) => g.id === groupId);
+
+            if (group) {
+                group.authors = [...group.authors.filter((a) => a.id !== authorId)];
+            }
+
+            return [...old];
+        });
+    }, [setAuthorGroups]);
 
     return {
-        authorGroups: data || [],
+        authorGroups,
         saveAuthorGroup,
         renameAuthorGroup,
         removeAuthorGroup,
         saveAuthorToGroup,
         removeAuthorFromGroup,
-        fetchError,
-        mutationError: postGroupError || deleteGroupError,
-        authorMutationError: postGroupAuthorError || deleteGroupAuthorError,
-        isLoading,
-        isMutating: isMutatingGroupPost || isMutatingGroupDelete || isMutatingGroupAuthorPost || isMutatingGroupAuthorDelete
+        fetchError: undefined,
+        mutationError: undefined,
+        authorMutationError: undefined,
+        isLoading: false,
+        isMutating: false
     };
 }

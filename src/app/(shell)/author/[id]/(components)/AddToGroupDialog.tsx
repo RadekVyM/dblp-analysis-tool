@@ -11,7 +11,6 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import DialogHeader from '@/components/dialogs/DialogHeader'
 import DialogBody from '@/components/dialogs/DialogBody'
-import useNotifications from '@/hooks/useNotifications'
 
 type AddToGroupDialogParams = {
     hide: () => void,
@@ -30,8 +29,7 @@ type AuthorGroupsParams = {
 type AuthorGroupsListParams = {
     authorGroups: Array<AuthorGroup>,
     authorId: string,
-    isMutating: boolean,
-    onAuthorGroupClick: (groupId: string, select: boolean) => Promise<void>
+    onAuthorGroupClick: (groupId: string, select: boolean) => void
 }
 
 /** Dialog for adding an author to an author group. */
@@ -61,27 +59,16 @@ AddToGroupDialog.displayName = 'AddToGroupDialog';
 export default AddToGroupDialog;
 
 function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
-    const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup, mutationError, authorMutationError, isLoading, isMutating }
+    const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup }
         = useAuthorGroups();
     const { inputRef, isInputVisible, newGroupName, setNewGroupName, onNewAuthorGroupClick } = useAuthorGroupInput(isOpen, saveAuthorGroup);
-    const { pushNotification } = useNotifications();
 
-    useEffect(() => {
-        if (mutationError || authorMutationError) {
-            pushNotification({
-                key: 'SAVE_GROUP_NOTIFICATION',
-                message: 'Author group could not be updated.',
-                type: 'Error'
-            });
-        }
-    }, [mutationError, authorMutationError]);
-
-    async function onAuthorGroupClick(groupId: string, select: boolean) {
+    function onAuthorGroupClick(groupId: string, select: boolean) {
         if (select) {
-            await saveAuthorToGroup(groupId, authorId, authorName);
+            saveAuthorToGroup(groupId, authorId, authorName);
         }
         else {
-            await removeAuthorFromGroup(groupId, authorId);
+            removeAuthorFromGroup(groupId, authorId);
         }
     }
 
@@ -94,7 +81,6 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                         <AuthorGroupsList
                             authorId={authorId}
                             authorGroups={authorGroups}
-                            isMutating={isMutating}
                             onAuthorGroupClick={onAuthorGroupClick} /> :
                         <div className='flex-1 self-center grid place-content-center'>
                             <span className='text-on-surface-container-muted text-sm'>No groups found</span>
@@ -115,7 +101,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                         onChange={(e) => setNewGroupName(e.target.value)} />
                 }
                 <Button
-                    disabled={isMutating || (isInputVisible && isNullOrWhiteSpace(newGroupName))}
+                    disabled={isInputVisible && isNullOrWhiteSpace(newGroupName)}
                     variant='outline'
                     className='items-center gap-x-2 self-end'
                     onClick={onNewAuthorGroupClick}>
@@ -127,7 +113,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
     )
 }
 
-function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupClick }: AuthorGroupsListParams) {
+function AuthorGroupsList({ authorGroups, authorId, onAuthorGroupClick }: AuthorGroupsListParams) {
     return (
         <ul
             className='flex-1 flex flex-col gap-2'>
@@ -138,9 +124,8 @@ function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupCli
                     key={group.id}>
                     <CheckListButton
                         className='w-full'
-                        disabled={isMutating}
                         isSelected={containsAuthor}
-                        onClick={async () => await onAuthorGroupClick(group.id, !containsAuthor)}>
+                        onClick={() => onAuthorGroupClick(group.id, !containsAuthor)}>
                         {group.title}
                     </CheckListButton>
                 </li>)
@@ -150,7 +135,7 @@ function AuthorGroupsList({ authorGroups, authorId, isMutating, onAuthorGroupCli
 }
 
 /** Hook that creates a state and operations for managing an input for adding a new author group. */
-function useAuthorGroupInput(isDialogOpen: boolean, onAddNewAuthorGroup: (newGroupName: string) => Promise<void>) {
+function useAuthorGroupInput(isDialogOpen: boolean, onAddNewAuthorGroup: (newGroupName: string) => void) {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
     const [newGroupName, setNewGroupName] = useState('');
@@ -169,7 +154,7 @@ function useAuthorGroupInput(isDialogOpen: boolean, onAddNewAuthorGroup: (newGro
 
     async function onNewAuthorGroupClick() {
         if (isInputVisible) {
-            await onAddNewAuthorGroup(newGroupName);
+            onAddNewAuthorGroup(newGroupName);
             setNewGroupName('');
             setIsInputVisible(false);
         }
