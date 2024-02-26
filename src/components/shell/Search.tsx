@@ -4,6 +4,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { SearchDialog } from '../dialogs/SearchDialog'
 import SearchBarButton from './SearchBarButton'
 import useDialog from '@/hooks/useDialog'
+import { Suspense } from 'react'
 
 type SearchParams = {
     className?: string
@@ -13,8 +14,10 @@ type SearchParams = {
 export default function Search({ className }: SearchParams) {
     const [searchDialog, isSearchDialogOpen, searchDialogAnimation, showSearchDialog, hideSearchDialog] = useDialog();
 
+    //https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+
     return (
-        <>
+        <Suspense>
             <SearchBarButton
                 className={cn('w-full', className)}
                 onClick={() => showSearchDialog()} />
@@ -24,6 +27,6 @@ export default function Search({ className }: SearchParams) {
                 animation={searchDialogAnimation}
                 isOpen={isSearchDialogOpen}
                 ref={searchDialog} />
-        </>
+        </Suspense>
     )
 }

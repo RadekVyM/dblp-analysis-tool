@@ -1,12 +1,4 @@
-import PageContainer from '@/components/shell/PageContainer'
-import PageTitle from '@/components/shell/PageTitle'
-import ScrollToTopButton from '@/components/ScrollToTopButton'
-import { getCurrentUser } from '@/services/auth'
-import { getAuthorGroup } from '@/services/saves/authorGroups'
-import { redirect } from 'next/navigation'
-import { unauthorizedError } from '@/utils/errors'
 import { tryGetCachedRecords } from '@/services/cache/cache'
-import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import PageContent from './(components)/PageContent'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 

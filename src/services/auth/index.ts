@@ -1,8 +1,0 @@
-export { default as changePassword } from './changePassword'
-export { default as changeUserInfo } from './changeUserInfo'
-export { default as deleteCurrentUser } from './deleteCurrentUser'
-export { default as getCurrentUser } from './getCurrentUser'
-export { default as isAuthorizedOnServer } from './isAuthorizedOnServer'
-export { default as signUp } from './signUp'
-export { default as signIn } from './signIn'
-export { default as signOut } from './signOut'
