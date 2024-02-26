@@ -5,12 +5,16 @@ import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from './shared'
+import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
 
 const authorGroupsFetcher: Fetcher<Array<AuthorGroup> | null, string> = (key) =>
     fetchJson(key);
 
+/**
+ * Hook that handles loading of author groups from the server and provides operations for managing the author groups -
+ * adding and deleting an author group and adding and deleting an author from an author group.
+ */
 export default function useAuthorGroups() {
     const { data, error: fetchError, isLoading } =
         useSWR('/api/save/authorgroup', authorGroupsFetcher);
@@ -55,5 +59,5 @@ export default function useAuthorGroups() {
         authorMutationError: postGroupAuthorError || deleteGroupAuthorError,
         isLoading,
         isMutating: isMutatingGroupPost || isMutatingGroupDelete || isMutatingGroupAuthorPost || isMutatingGroupAuthorDelete
-    }
+    };
 }

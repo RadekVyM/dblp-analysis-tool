@@ -1,6 +1,6 @@
 'use client'
 
-import useVisitedAuthors from '@/hooks/useVisitedAuthors';
+import useVisitedAuthors from '@/hooks/visits/useVisitedAuthors';
 import { useEffect } from 'react'
 
 type AddToRecentlySeenParams = {

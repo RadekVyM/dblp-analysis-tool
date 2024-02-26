@@ -1,6 +1,6 @@
 'use client'
 
-import useVisitedVenues from '@/hooks/useVisitedVenues'
+import useVisitedVenues from '@/hooks/visits/useVisitedVenues'
 import { useEffect } from 'react'
 
 type AddToVisitedVenuesParams = {

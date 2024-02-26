@@ -25,6 +25,15 @@ The app is launched in production mode with predefined environment variables (in
 npm install
 ```
 
+4. Create `.env` file in the `src/` folder with following variables:
+
+```
+MONGODB_URI=mongodb://127.0.0.1:27017/dblp-analysis-tool
+SESSION_SECRET='super_secret_secret'
+```
+
+`SESSION_SECRET` can be an arbitrary string.
+
 ### Development with hot reload
 
 To launch the app in development mode, run the following command in the `src/` folder:

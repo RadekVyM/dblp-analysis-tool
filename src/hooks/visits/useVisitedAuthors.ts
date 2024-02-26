@@ -4,13 +4,14 @@ import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from './saves/shared'
+import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { VisitedAuthor } from '@/dtos/saves/VisitedAuthor'
 import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
 
 const visitedAuthorsFetcher: Fetcher<Array<VisitedAuthor> | null, string> = (key) =>
     fetchJson(key);
 
+/** Hook that handles loading of visited authors from the server and provides operations for posting and deleting a visited author. */
 export default function useVisitedAuthors() {
     const { data, error: fetchError, isLoading } =
         useSWR('/api/visit/author', visitedAuthorsFetcher);
@@ -34,5 +35,5 @@ export default function useVisitedAuthors() {
         error: fetchError || postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
-    }
+    };
 }

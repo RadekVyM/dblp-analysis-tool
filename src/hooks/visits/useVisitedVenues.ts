@@ -5,15 +5,16 @@ import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from './saves/shared'
+import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { VisitedVenue } from '@/dtos/saves/VisitedVenue'
 
-const visitedAuthorsFetcher: Fetcher<Array<VisitedVenue> | null, string> = (key) =>
+const visitedVenuesFetcher: Fetcher<Array<VisitedVenue> | null, string> = (key) =>
     fetchJson(key);
 
-export default function useVisitedAuthors() {
+/** Hook that handles loading of visited venues from the server and provides operations for posting and deleting a visited venue. */
+export default function useVisitedVenues() {
     const { data, error: fetchError, isLoading } =
-        useSWR('/api/visit/venue', visitedAuthorsFetcher);
+        useSWR('/api/visit/venue', visitedVenuesFetcher);
     const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } =
         useSWRMutation('/api/visit/venue', sendPostRequest<SavedVenue, VisitedVenue>);
     const { trigger: triggerDelete, error: deleteError, isMutating: isMutatingDelete } =
@@ -34,5 +35,5 @@ export default function useVisitedAuthors() {
         error: fetchError || postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
-    }
+    };
 }

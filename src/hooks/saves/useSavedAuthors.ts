@@ -4,12 +4,13 @@ import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from './shared'
+import { sendDeleteRequest, sendPostRequest } from '../shared'
 import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
 
 const savedAuthorsFetcher: Fetcher<Array<SavedAuthor> | null, string> = (key) =>
     fetchJson(key);
 
+/** Hook that handles loading of saved authors from the server and provides operations for posting and deleting a saved author. */
 export default function useSavedAuthors() {
     const { data, error: fetchError, isLoading } = useSWR('/api/save/author', savedAuthorsFetcher);
     const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } = useSWRMutation('/api/save/author', sendPostRequest<SavedAuthor, SavedAuthor>);
@@ -31,5 +32,5 @@ export default function useSavedAuthors() {
         mutationError: postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
-    }
+    };
 }

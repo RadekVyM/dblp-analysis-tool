@@ -5,11 +5,12 @@ import { fetchJson } from '@/services/fetch'
 import { useCallback } from 'react'
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { sendDeleteRequest, sendPostRequest } from './shared'
+import { sendDeleteRequest, sendPostRequest } from '../shared'
 
 const savedVenuesFetcher: Fetcher<Array<SavedVenue> | null, string> = (key) =>
     fetchJson(key);
 
+/** Hook that handles loading of saved venues from the server and provides operations for posting and deleting a saved venue. */
 export default function useSavedVenues() {
     const { data, error: fetchError, isLoading } = useSWR('/api/save/venue', savedVenuesFetcher);
     const { trigger: triggerPost, error: postError, isMutating: isMutatingPost } = useSWRMutation('/api/save/venue', sendPostRequest<SavedVenue, SavedVenue>);
@@ -31,5 +32,5 @@ export default function useSavedVenues() {
         mutationError: postError || deleteError,
         isMutating: isMutatingPost || isMutatingDelete,
         isLoading
-    }
+    };
 }
