@@ -2,7 +2,7 @@
 
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import { useCallback } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
+import { useIsClient, useLocalStorage } from 'usehooks-ts'
 import { v4 as uuidv4 } from 'uuid'
 
 const AUTHOR_GROUPS_STORAGE_KEY = 'AUTHOR_GROUPS_STORAGE_KEY';
@@ -13,6 +13,7 @@ const AUTHOR_GROUPS_STORAGE_KEY = 'AUTHOR_GROUPS_STORAGE_KEY';
  */
 export default function useAuthorGroups() {
     const [authorGroups, setAuthorGroups] = useLocalStorage(AUTHOR_GROUPS_STORAGE_KEY, new Array<AuthorGroup>());
+    const isClient = useIsClient();
 
     const saveAuthorGroup = useCallback((title: string) => {
         setAuthorGroups((old) => {
@@ -64,15 +65,11 @@ export default function useAuthorGroups() {
 
     return {
         authorGroups,
+        canUseAuthorGroups: isClient,
         saveAuthorGroup,
         renameAuthorGroup,
         removeAuthorGroup,
         saveAuthorToGroup,
-        removeAuthorFromGroup,
-        fetchError: undefined,
-        mutationError: undefined,
-        authorMutationError: undefined,
-        isLoading: false,
-        isMutating: false
+        removeAuthorFromGroup
     };
 }

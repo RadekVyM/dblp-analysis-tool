@@ -2,13 +2,14 @@
 
 import { useCallback } from 'react'
 import { VisitedAuthor } from '@/dtos/saves/VisitedAuthor'
-import { useLocalStorage } from 'usehooks-ts'
+import { useIsClient, useLocalStorage } from 'usehooks-ts'
 
 const VISITED_AUTHORS_STORAGE_KEY = 'VISITED_AUTHORS_STORAGE_KEY';
 
 /** Hook that handles loading of visited authors and provides operations for adding and deleting a visited author. */
 export default function useVisitedAuthors() {
     const [visitedAuthors, setVisitedAuthors] = useLocalStorage(VISITED_AUTHORS_STORAGE_KEY, new Array<VisitedAuthor>());
+    const isClient = useIsClient();
 
     const visitedAuthor = useCallback(async (id: string, title: string) => {
         setVisitedAuthors((old) => {
@@ -31,6 +32,7 @@ export default function useVisitedAuthors() {
 
     return {
         visitedAuthors,
+        canUseVisitedAuthors: isClient,
         visitedAuthor,
         removeVisitedAuthor
     };

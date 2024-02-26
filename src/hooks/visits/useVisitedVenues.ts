@@ -2,13 +2,14 @@
 
 import { useCallback } from 'react'
 import { VisitedVenue } from '@/dtos/saves/VisitedVenue'
-import { useLocalStorage } from 'usehooks-ts'
+import { useIsClient, useLocalStorage } from 'usehooks-ts'
 
 const VISITED_VENUES_STORAGE_KEY = 'VISITED_VENUES_STORAGE_KEY';
 
 /** Hook that handles loading of visited venues and provides operations for adding and deleting a visited venue. */
 export default function useVisitedVenues() {
     const [visitedVenues, setVisitedVenues] = useLocalStorage(VISITED_VENUES_STORAGE_KEY, new Array<VisitedVenue>());
+    const isClient = useIsClient();
 
     const visitedVenue = useCallback(async (id: string, title: string) => {
         setVisitedVenues((old) => {
@@ -31,6 +32,7 @@ export default function useVisitedVenues() {
 
     return {
         visitedVenues,
+        canUseVisitedVenues: isClient,
         visitedVenue,
         removeVisitedVenue
     };

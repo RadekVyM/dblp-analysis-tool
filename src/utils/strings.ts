@@ -28,6 +28,20 @@ export function removeAccents(str: string): string {
 }
 
 /**
+ * Parses all passed strings if they are integers.
+ * @param numberStrings String or array of strings
+ * @returns Array of numbers
+ */
+export function parseIntStrings(numberStrings: Array<string> | string) {
+    if (typeof numberStrings === 'string') {
+        return isNumber(numberStrings) ? [parseInt(numberStrings)] : [];
+    }
+    else {
+        return numberStrings.map((s) => isNumber(s) && parseInt(s)).filter((n) => n !== false) as Array<number>;
+    }
+}
+
+/**
  * Properly indents all nodes of a XML string.
  * 
  * This is not super robust implementation, but it works for XML strings returned from XMLSerializer.
@@ -69,4 +83,4 @@ export function prettifyXml(xml: string) {
     }
 
     return lines.join('\n');
-};
+}

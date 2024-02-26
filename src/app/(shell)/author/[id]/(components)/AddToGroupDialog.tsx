@@ -11,6 +11,7 @@ import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import DialogHeader from '@/components/dialogs/DialogHeader'
 import DialogBody from '@/components/dialogs/DialogBody'
+import Form from '@/components/forms/Form'
 
 type AddToGroupDialogParams = {
     hide: () => void,
@@ -59,7 +60,7 @@ AddToGroupDialog.displayName = 'AddToGroupDialog';
 export default AddToGroupDialog;
 
 function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
-    const { authorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup }
+    const { authorGroups, canUseAuthorGroups, saveAuthorGroup, saveAuthorToGroup, removeAuthorFromGroup }
         = useAuthorGroups();
     const { inputRef, isInputVisible, newGroupName, setNewGroupName, onNewAuthorGroupClick } = useAuthorGroupInput(isOpen, saveAuthorGroup);
 
@@ -77,7 +78,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
             <DialogBody
                 className='py-2'>
                 {
-                    authorGroups && authorGroups.length > 0 ?
+                    canUseAuthorGroups && authorGroups && authorGroups.length > 0 ?
                         <AuthorGroupsList
                             authorId={authorId}
                             authorGroups={authorGroups}
@@ -91,23 +92,35 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
             <footer
                 className='px-6 pt-2 pb-6 flex gap-2 justify-end'>
                 {
-                    isInputVisible &&
-                    <Input
-                        ref={inputRef}
-                        id='author-group-name'
-                        label='Group name'
-                        className='flex-1 min-w-0'
-                        inputClassName='min-h-[2.25rem] px-3 py-1'
-                        onChange={(e) => setNewGroupName(e.target.value)} />
+                    isInputVisible ?
+                        <form
+                            className='flex-1 flex flex-row gap-2 justify-stretch'>
+                            <Input
+                                ref={inputRef}
+                                id='author-group-name'
+                                label='Group name'
+                                className='flex-1'
+                                inputClassName='min-h-[2.25rem] px-3 py-1'
+                                onChange={(e) => setNewGroupName(e.target.value)} />
+                            <Button
+                                disabled={canUseAuthorGroups && isInputVisible && isNullOrWhiteSpace(newGroupName)}
+                                variant='outline'
+                                type='submit'
+                                className='items-center gap-x-2 self-end'
+                                onClick={onNewAuthorGroupClick}>
+                                <MdLibraryAdd />
+                                Add
+                            </Button>
+                        </form> :
+                        <Button
+                            disabled={canUseAuthorGroups && isInputVisible && isNullOrWhiteSpace(newGroupName)}
+                            variant='outline'
+                            className='items-center gap-x-2 self-end'
+                            onClick={onNewAuthorGroupClick}>
+                            <MdLibraryAdd />
+                            Add new group
+                        </Button>
                 }
-                <Button
-                    disabled={isInputVisible && isNullOrWhiteSpace(newGroupName)}
-                    variant='outline'
-                    className='items-center gap-x-2 self-end'
-                    onClick={onNewAuthorGroupClick}>
-                    <MdLibraryAdd />
-                    {isInputVisible ? 'Add' : 'Add new group'}
-                </Button>
             </footer>
         </>
     )

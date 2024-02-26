@@ -215,13 +215,17 @@ function TabPanel({ id, className, children }: TabPanelParams) {
 }
 
 function AuthorsTab() {
-    const { visitedAuthors, removeVisitedAuthor } = useVisitedAuthors();
-    const { savedAuthors } = useSavedAuthors();
-    const { authorGroups } = useAuthorGroups();
+    const { visitedAuthors, canUseVisitedAuthors, removeVisitedAuthor } = useVisitedAuthors();
+    const { savedAuthors, canUseSavedAuthors } = useSavedAuthors();
+    const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const [savedAuthorsDisplayedCount, areSavedAuthorsExpanded, expandSavedAuthors, collapseSavedAuthors]
         = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, savedAuthors.length);
     const [groupsDisplayedCount, areGroupsExpanded, expandGroups, collapseGroups]
         = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, authorGroups.length);
+
+    if (!canUseSavedAuthors || !canUseVisitedAuthors || !canUseAuthorGroups) {
+        return undefined;
+    }
 
     return (
         <TabPanel
@@ -302,10 +306,14 @@ function AuthorsTab() {
 }
 
 function VenuesTab() {
-    const { visitedVenues, removeVisitedVenue } = useVisitedVenues();
-    const { savedVenues } = useSavedVenues();
+    const { visitedVenues, canUseVisitedVenues, removeVisitedVenue } = useVisitedVenues();
+    const { savedVenues, canUseSavedVenues } = useSavedVenues();
     const [savedVenuesDisplayedCount, areSavedVenuesExpanded, expandSavedVenues, collapseSavedVenues]
         = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, savedVenues.length);
+
+    if (!canUseSavedVenues || !canUseVisitedVenues) {
+        return undefined;
+    }
 
     return (
         <TabPanel

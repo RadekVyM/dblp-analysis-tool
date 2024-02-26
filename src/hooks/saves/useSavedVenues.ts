@@ -2,13 +2,14 @@
 
 import { SavedVenue } from '@/dtos/saves/SavedVenue'
 import { useCallback } from 'react'
-import { useLocalStorage } from 'usehooks-ts';
+import { useIsClient, useLocalStorage } from 'usehooks-ts'
 
 const SAVED_VENUES_STORAGE_KEY = 'SAVED_VENUES_STORAGE_KEY';
 
 /** Hook that handles loading of saved venues and provides operations for adding and deleting a saved venue. */
 export default function useSavedVenues() {
     const [savedVenues, setSavedVenues] = useLocalStorage(SAVED_VENUES_STORAGE_KEY, new Array<SavedVenue>());
+    const isClient = useIsClient();
 
     const saveVenue = useCallback(async (id: string, title: string) => {
         setSavedVenues((old) => {
@@ -30,6 +31,7 @@ export default function useSavedVenues() {
 
     return {
         savedVenues,
+        canUseSavedVenues: isClient,
         saveVenue,
         removeSavedVenue
     };

@@ -3,17 +3,22 @@ import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
-import GroupedPublicationsList from '../../../../../components/publications/GroupedPublicationsList'
+import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
+import { parseIntStrings } from '@/utils/strings'
 
 type AuthorPublicationsPageParams = {
     params: {
         id: string
-    }
+    },
+    searchParams: { year?: Array<string> | string }
 }
 
-export default async function AuthorPublicationsPage({ params: { id } }: AuthorPublicationsPageParams) {
+export default async function AuthorPublicationsPage({ params: { id }, searchParams }: AuthorPublicationsPageParams) {
     const author = await fetchAuthor(id);
+    const years = searchParams.year ?
+        parseIntStrings(searchParams.year) :
+        [];
 
     return (
         <PageContainer
@@ -39,7 +44,8 @@ export default async function AuthorPublicationsPage({ params: { id } }: AuthorP
                     <PageSectionTitle className='text-xl mb-0'>Publications</PageSectionTitle>
                 </header>
                 <GroupedPublicationsList
-                    publications={author.publications} />
+                    publications={author.publications}
+                    defaultSelectedYears={years} />
             </PageSection>
 
             <ScrollToTopButton />

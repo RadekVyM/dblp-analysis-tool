@@ -2,13 +2,14 @@
 
 import { useCallback } from 'react'
 import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
-import { useLocalStorage } from 'usehooks-ts'
+import { useIsClient, useLocalStorage } from 'usehooks-ts'
 
 const SAVED_AUTHORS_STORAGE_KEY = 'SAVED_AUTHORS_STORAGE_KEY';
 
 /** Hook that handles loading of saved authors and provides operations for adding and deleting a saved author. */
 export default function useSavedAuthors() {
     const [savedAuthors, setSavedAuthors] = useLocalStorage(SAVED_AUTHORS_STORAGE_KEY, new Array<SavedAuthor>());
+    const isClient = useIsClient();
 
     const saveAuthor = useCallback(async (id: string, title: string) => {
         setSavedAuthors((old) => {
@@ -29,6 +30,7 @@ export default function useSavedAuthors() {
     }, [setSavedAuthors]);
 
     return {
+        canUseSavedAuthors: isClient,
         savedAuthors,
         saveAuthor,
         removeSavedAuthor,

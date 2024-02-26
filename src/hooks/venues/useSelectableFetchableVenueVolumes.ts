@@ -9,15 +9,19 @@ import { useEffect, useMemo, useState } from 'react'
  * @param venue Venue
  * @returns State and operations for selecting and storing fetched volumes of the venue
  */
-export default function useSelectableFetchableVenueVolumes(venue: DblpVenue) {
+export default function useSelectableFetchableVenueVolumes(venue: DblpVenue, defaultSelectedVolumeIds?: Array<string>) {
     const [volumes, setVolumes] = useState<Array<DblpVenueVolume>>([]);
     const [selectedVolumeIds, setSelectedVolumeIds] = useState<Set<string>>(new Set());
     const selectedVolumes = useMemo(() => volumes.filter((v) => selectedVolumeIds.has(v.id)), [volumes, selectedVolumeIds]);
 
     useEffect(() => {
+        if (defaultSelectedVolumeIds) {
+            setSelectedVolumeIds(new Set([...defaultSelectedVolumeIds]));
+            return;
+        }
         const firstVolumeId = venue.volumeGroups[0]?.items[0]?.volumeId;
         setSelectedVolumeIds(firstVolumeId ? new Set([firstVolumeId]) : new Set());
-    }, [venue]);
+    }, [venue, defaultSelectedVolumeIds]);
 
     function toggleVolume(id: string) {
         setSelectedVolumeIds((old) => {

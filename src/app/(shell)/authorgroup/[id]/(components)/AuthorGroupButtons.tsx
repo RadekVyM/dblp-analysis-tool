@@ -9,6 +9,7 @@ import Form from '@/components/forms/Form'
 import Input from '@/components/forms/Input'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import useDialog from '@/hooks/useDialog'
+import { delay } from '@/utils/promises'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, forwardRef, useState } from 'react'
 import { MdDelete, MdDriveFileRenameOutline } from 'react-icons/md'
@@ -33,8 +34,9 @@ export function AuthorGroupButtons({ authorGroupId, authorGroupTitle }: AuthorGr
     const router = useRouter();
 
     async function remove() {
-        removeAuthorGroup(authorGroupId);
         router.replace('/');
+        await delay(100);
+        removeAuthorGroup(authorGroupId);
     }
 
     async function rename(title: string) {
@@ -76,7 +78,7 @@ export function AuthorGroupButtons({ authorGroupId, authorGroupTitle }: AuthorGr
                 isOpen={isRemoveDialogOpen}
                 isDestructive
                 title='Are you sure?'
-                onConfirm={() => remove()}>
+                onConfirm={remove}>
                 <span>Are you sure you want to remove this group?</span>
             </ConfirmDialog>
         </div>

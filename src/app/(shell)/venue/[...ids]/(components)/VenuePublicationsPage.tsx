@@ -12,10 +12,12 @@ type VenuePublicationsPageParams = {
     venueOrVolume: DblpVenueBase,
     venueId: string,
     volumeId?: string,
+    defaultSelectedYears?: Array<number>,
+    defaultSelectedVolumeIds?: Array<string>,
 }
 
 /** Page displaying publications of a venue. */
-export default async function VenuePublicationsPage({ venueOrVolume, venueId, volumeId }: VenuePublicationsPageParams) {
+export default async function VenuePublicationsPage({ venueOrVolume, venueId, volumeId, defaultSelectedYears, defaultSelectedVolumeIds }: VenuePublicationsPageParams) {
     return (
         <PageContainer>
             <header
@@ -30,11 +32,14 @@ export default async function VenuePublicationsPage({ venueOrVolume, venueId, vo
             {
                 venueOrVolume.venueVolumeType === 'Volume' ?
                     <VolumePublicationsSection
-                        volumes={[venueOrVolume as DblpVenueVolume]} /> :
+                        volumes={[venueOrVolume as DblpVenueVolume]}
+                        defaultSelectedYears={defaultSelectedYears} /> :
                     <MultipleVolumesPublications
                         venue={venueOrVolume as DblpVenue}
                         venueId={venueId}
-                        volumeId={volumeId} />
+                        volumeId={volumeId}
+                        defaultSelectedYears={defaultSelectedYears}
+                        defaultSelectedVolumeIds={defaultSelectedVolumeIds} />
             }
 
             <ScrollToTopButton />

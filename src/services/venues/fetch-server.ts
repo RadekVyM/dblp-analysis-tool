@@ -119,6 +119,8 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
         const additionalVenueInfoXml = await fetchAdditionalVenueInfoXml(id);
         const authorsInfo = extractVenueAuthorsInfo(additionalVenueInfoXml);
 
+        console.log(additionalVenueInfoXml);
+
         if (authorsInfo) {
             venue.venueAuthorsInfo = createDblpVenueAuthorsInfo(
                 authorsInfo.topAuthors,
@@ -126,7 +128,9 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
             );
         }
     }
-    catch (e) { }
+    catch (e) {
+        console.log(e);
+    }
 
     try {
         await delay(500); // Wait at least a bit to not send multiple requests at the same time
@@ -139,7 +143,9 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
             );
         }
     }
-    catch (e) { }
+    catch (e) {
+        console.log(e);
+    }
 
     return venue;
 }

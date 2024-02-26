@@ -15,8 +15,7 @@ type SaveVenueButtonParams = {
 
 /** Button that allows the user to save a venue for easier access to a list. */
 export default function SaveVenueButton({ className, venueId, title }: SaveVenueButtonParams) {
-    const { removeSavedVenue, saveVenue, savedVenues } = useSavedVenues();
-    const { pushNotification } = useNotifications();
+    const { removeSavedVenue, saveVenue, savedVenues, canUseSavedVenues } = useSavedVenues();
     const isSaved = useMemo(() => savedVenues.some((v) => v.id === venueId), [savedVenues, venueId]);
 
     function updateSaved() {
@@ -30,12 +29,13 @@ export default function SaveVenueButton({ className, venueId, title }: SaveVenue
 
     return (
         <Button
-            variant={isSaved ? 'default' : 'outline'}
+            disabled={!canUseSavedVenues}
+            variant={canUseSavedVenues && isSaved ? 'default' : 'outline'}
             size='sm'
             className='items-center gap-x-2'
             onClick={() => updateSaved()}>
             <MdBookmarks />
-            <span className={cn('hidden xs:block', className)}>{isSaved ? 'Saved' : 'Save'}</span>
+            <span className={cn('hidden xs:block', className)}>{canUseSavedVenues && isSaved ? 'Saved' : 'Save'}</span>
         </Button>
     )
 }

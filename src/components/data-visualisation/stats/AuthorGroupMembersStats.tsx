@@ -43,25 +43,28 @@ type AuthorGroupMembersTableParams = {
 /** Displays statistics of all members of an author group. */
 export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, className }: AuthorGroupMembersStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
-    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(allPublications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const authorsStats = useMemo(() => {
-        if (!typesFilter || !venuesFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter) {
             return [];
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
+        const selectedYears = yearsFilter.selectedItems;
 
         return authors.map((a) => ({
             id: a.id,
             name: a.name,
             publicationsCount: a.publications
                 .filter((publ) =>
-                    (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)))
+                    (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
+                    (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
+                    (selectedYears.size == 0 || selectedYears.has(publ.year)))
                 .length
         } as AuthorStats));
-    }, [authors, typesFilter, venuesFilter]);
+    }, [authors, typesFilter, venuesFilter, yearsFilter]);
 
     return (
         <>

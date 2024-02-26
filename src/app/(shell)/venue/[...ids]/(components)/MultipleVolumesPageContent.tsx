@@ -16,6 +16,7 @@ type MultipleVolumesPageContentParams = {
     venueVolumeType: VenueVolumeType,
     venueId: string,
     volumeId?: string,
+    defaultSelectedVolumeIds?: Array<string>,
 }
 
 type GeneralStasSectionParams = {
@@ -26,8 +27,8 @@ type GeneralStasSectionParams = {
  * Content that should be displayed on a venue page with multiple venue volumes.
  * This includes volumes selection and all the volumes statistics.
 */
-export default function MultipleVolumesPageContent({ venue, venueVolumeType, venueId, volumeId }: MultipleVolumesPageContentParams) {
-    const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue);
+export default function MultipleVolumesPageContent({ venue, venueVolumeType, venueId, volumeId, defaultSelectedVolumeIds }: MultipleVolumesPageContentParams) {
+    const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue, defaultSelectedVolumeIds);
 
     return (
         <>

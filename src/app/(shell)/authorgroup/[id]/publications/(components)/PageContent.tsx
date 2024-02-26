@@ -18,11 +18,12 @@ import AuthorGroupMembers from '../../(components)/AuthorGroupMembers'
 
 type PageContentParams = {
     authorGroupId: string,
-    cachedAuthors: Array<DblpAuthor>
+    cachedAuthors: Array<DblpAuthor>,
+    defaultSelectedYears?: Array<number>
 }
 
-export default function PageContent({ authorGroupId, cachedAuthors }: PageContentParams) {
-    const { authorGroups } = useAuthorGroups();
+export default function PageContent({ authorGroupId, cachedAuthors, defaultSelectedYears }: PageContentParams) {
+    const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const authorGroup = authorGroups.find((g) => g.id === authorGroupId);
     const authorIds = useMemo(() => authorGroup?.authors.map((a) => a.id) || [], [authorGroup]);
     const { authors, error } = useAuthors(cachedAuthors, authorIds);
@@ -34,7 +35,7 @@ export default function PageContent({ authorGroupId, cachedAuthors }: PageConten
     } = useSelectedAuthorGroupMembers(authors, authorGroup);
     const isClient = useIsClient();
 
-    if (!isClient) {
+    if (!isClient || !canUseAuthorGroups) {
         return (<LoadingPage />);
     }
 
@@ -70,7 +71,8 @@ export default function PageContent({ authorGroupId, cachedAuthors }: PageConten
                 </header>
 
                 <GroupedPublicationsList
-                    publications={allPublications} />
+                    publications={allPublications}
+                    defaultSelectedYears={defaultSelectedYears} />
             </PageSection>
 
             <ScrollToTopButton />

@@ -17,10 +17,11 @@ type VenuePageParams = {
     venueType: VenueType | null,
     venueId: string,
     volumeId?: string,
+    defaultSelectedVolumeIds?: Array<string>,
 }
 
 /** Page displaying content of a venue. */
-export default async function VenuePage({ venueOrVolume, venueType, venueId, volumeId }: VenuePageParams) {
+export default async function VenuePage({ venueOrVolume, venueType, venueId, volumeId, defaultSelectedVolumeIds }: VenuePageParams) {
     return (
         <PageContainer>
             {
@@ -60,7 +61,8 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
                         venueVolumeType={venueOrVolume.venueVolumeType}
                         venue={venueOrVolume as DblpVenue}
                         venueId={venueId}
-                        volumeId={volumeId} />
+                        volumeId={volumeId}
+                        defaultSelectedVolumeIds={defaultSelectedVolumeIds} />
             }
         </PageContainer>
     )

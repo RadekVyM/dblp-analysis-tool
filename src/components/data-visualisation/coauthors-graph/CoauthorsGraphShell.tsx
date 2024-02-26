@@ -223,17 +223,20 @@ function useAuthors(authors: Array<DblpAuthor>, publications?: Array<DblpPublica
 
 /** Hook that handles filtering of nodes. */
 function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsChange: (ids: Set<string>) => void) {
-    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(publications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(publications);
 
     useEffect(() => {
-        if (!typesFilter || !venuesFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter) {
             return;
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
+        const selectedYears = yearsFilter.selectedItems;
         const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
+            (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
+            (selectedYears.size == 0 || selectedYears.has(publ.year)));
         const authorsIds = new Set<string>();
 
         publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {
@@ -241,7 +244,7 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         }));
 
         onFilteredAuthorsIdsChange(authorsIds);
-    }, [publications, typesFilter, venuesFilter]);
+    }, [publications, typesFilter, venuesFilter, yearsFilter]);
 
     return { filtersMap, switchSelection, clear };
 }

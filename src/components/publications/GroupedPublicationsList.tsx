@@ -16,9 +16,11 @@ import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import FiltersList from '@/components/FiltersList'
 import PublicationListItem from './PublicationListItem'
 import Badge from '../Badge'
+import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
 
 type GroupedPublicationsListParams = {
-    publications: Array<DblpPublication>
+    publications: Array<DblpPublication>,
+    defaultSelectedYears?: Array<number>
 }
 
 type ContentsTableParams = {
@@ -49,7 +51,7 @@ const DEFAULT_VISIBLE_CONTENTS_COUNT = 8;
 const DISPLAYED_COUNT_INCREASE = 25;
 
 /** Displays a list of publications that can be filtered. */
-export default function GroupedPublicationsList({ publications }: GroupedPublicationsListParams) {
+export default function GroupedPublicationsList({ publications, defaultSelectedYears }: GroupedPublicationsListParams) {
     const observerTarget = useRef<HTMLDivElement>(null);
     const [groupedBy, setGroupedBy] = useState<GroupedBy>('year'); // Grouping selection is not used yet
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
@@ -60,6 +62,17 @@ export default function GroupedPublicationsList({ publications }: GroupedPublica
         switchFilterSelection,
         clearFilters
     } = useDisplayedPublications(publications, groupedBy, observerTarget);
+
+    useEffect(() => {
+        if (!defaultSelectedYears || defaultSelectedYears.length === 0) {
+            return;
+        }
+
+        clearFilters(PublicationFilterKey.Year);
+        defaultSelectedYears.forEach((y) => {
+            switchFilterSelection(PublicationFilterKey.Year, y)
+        });
+    }, [defaultSelectedYears]);
 
     return (
         <>
@@ -165,7 +178,7 @@ function useDisplayedPublications(publications: Array<DblpPublication>, groupedB
     const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
     const [totalCount, setTotalCount] = useState(publications.length);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
-    const { filtersMap, typesFilter, venuesFilter, switchSelection, clear } = usePublicationFilters(publications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(publications);
     const displayedPublications = useMemo(() => {
         let count = displayedCount;
         const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
@@ -193,19 +206,22 @@ function useDisplayedPublications(publications: Array<DblpPublication>, groupedB
     const displayedPublicationsCount = useMemo(() => groupedPublications.reduce((prev, current) => prev + current[1].length, 0), [groupedPublications]);
 
     useEffect(() => {
-        if (!typesFilter || !venuesFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter) {
             return;
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
+        const selectedYears = yearsFilter.selectedItems;
 
         const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) && (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)));
+            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
+            (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
+            (selectedYears.size == 0 || selectedYears.has(publ.year)));
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
         resetDisplayedCount();
-    }, [publications, groupedBy, typesFilter, venuesFilter]);
+    }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter]);
 
     return {
         displayedPublications,

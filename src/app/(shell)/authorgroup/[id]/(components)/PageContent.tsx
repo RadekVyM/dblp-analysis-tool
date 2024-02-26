@@ -31,7 +31,7 @@ type PageContentParams = {
 }
 
 export default function PageContent({ cachedAuthors, authorGroupId }: PageContentParams) {
-    const { authorGroups } = useAuthorGroups();
+    const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const authorGroup = authorGroups.find((g) => g.id === authorGroupId);
     const authorIds = useMemo(() => authorGroup?.authors.map((a) => a.id) || [], [authorGroup]);
     const { authors, error } = useAuthors(cachedAuthors, authorIds);
@@ -43,7 +43,7 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
     } = useSelectedAuthorGroupMembers(authors, authorGroup);
     const isClient = useIsClient();
 
-    if (!isClient) {
+    if (!isClient || !canUseAuthorGroups) {
         return (<LoadingPage />);
     }
 

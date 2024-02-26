@@ -22,7 +22,7 @@ type GroupButtonParams = {
 
 /** Buttons that allow the user to save an author for easier access to a list or an author group. */
 export default function SaveAuthorButtons({ className, authorId, authorName }: SaveAuthorButtonsParams) {
-    const { removeSavedAuthor, saveAuthor, savedAuthors } = useSavedAuthors();
+    const { removeSavedAuthor, saveAuthor, savedAuthors, canUseSavedAuthors } = useSavedAuthors();
     const isSaved = useMemo(() => savedAuthors.some((v) => v.id === authorId), [savedAuthors, authorId]);
 
     function updateSaved() {
@@ -37,12 +37,13 @@ export default function SaveAuthorButtons({ className, authorId, authorName }: S
     return (
         <div className={cn('flex gap-2', className)}>
             <Button
-                variant={isSaved ? 'default' : 'outline'}
+                disabled={!canUseSavedAuthors}
+                variant={canUseSavedAuthors && isSaved ? 'default' : 'outline'}
                 size='sm'
                 className='items-center gap-x-2'
                 onClick={() => updateSaved()}>
                 <MdBookmarks />
-                <span className='hidden xs:block'>{isSaved ? 'Saved' : 'Save'}</span>
+                <span className='hidden xs:block'>{canUseSavedAuthors && isSaved ? 'Saved' : 'Save'}</span>
             </Button>
             <GroupButton
                 authorId={authorId}

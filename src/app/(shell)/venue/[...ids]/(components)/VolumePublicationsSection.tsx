@@ -8,10 +8,11 @@ import { useMemo } from 'react';
 
 type VolumePublicationsSectionParams = {
     volumes: Array<DblpVenueVolume>,
+    defaultSelectedYears?: Array<number>,
 }
 
 /** Displays a page section with a list of volume publications that can be filtered. */
-export default function VolumePublicationsSection({ volumes }: VolumePublicationsSectionParams) {
+export default function VolumePublicationsSection({ volumes, defaultSelectedYears }: VolumePublicationsSectionParams) {
     const allPublications = useMemo(() => {
         const publicationsMap = new Map<string, DblpPublication>();
         volumes.forEach((v) => v.publications.forEach((p) => publicationsMap.set(p.id, p)));
@@ -26,7 +27,8 @@ export default function VolumePublicationsSection({ volumes }: VolumePublication
             </header>
 
             <GroupedPublicationsList
-                publications={allPublications} />
+                publications={allPublications}
+                defaultSelectedYears={defaultSelectedYears} />
         </PageSection>
     );
 }
