@@ -3,6 +3,7 @@ import PageContent from './(components)/PageContent'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { parseIntStrings } from '@/utils/strings'
 import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
+import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
 
 type AuthorGroupPublicationsPageParams = {
     params: {
@@ -18,15 +19,16 @@ export default async function AuthorGroupPublicationsPage({ params: { id }, sear
     const authorIds: Array<string> = searchParams.id ?
         (typeof searchParams.id === 'string' ? [searchParams.id] : searchParams.id) :
         [];
-    const years = searchParams.year ?
-        parseIntStrings(searchParams.year) :
-        [];
+    const { years, types, venues, authors } = parsePublicationsSearchParams(searchParams);
     const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorIds);
 
     return (
         <PageContent
             authorGroupId={id}
             cachedAuthors={cachedAuthors}
-            defaultSelectedYears={years} />
+            defaultSelectedYears={years}
+            defaultSelectedTypes={types}
+            defaultSelectedVenueIds={venues}
+            defaultSelectedAuthors={authors} />
     )
 }

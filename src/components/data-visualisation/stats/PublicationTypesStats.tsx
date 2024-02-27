@@ -13,6 +13,9 @@ import { MdBarChart, MdIncompleteCircle, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import { sortByPresentedContent } from '@/utils/table'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { useRouter } from 'next/navigation'
+import { toTypesSearchParamsString } from '@/utils/publicationsSearchParams'
 
 type TypePublication = {
     id: string,
@@ -24,16 +27,19 @@ type PublicationTypesStatsParams = {
     className?: string,
     publications: Array<TypePublication>,
     scaffoldId?: string,
+    publicationsUrl?: string,
 }
 
 type PublicationTypesBarChartParams = {
     selectedUnit: ChartUnit,
+    onBarClick?: (key: any, value?: ChartValue) => void,
 } & PublicationTypesStatsParams
 
 /** Displays publications statistics by type of a publication. */
-export default function PublicationTypesStats({ className, publications, scaffoldId }: PublicationTypesStatsParams) {
+export default function PublicationTypesStats({ className, publications, scaffoldId, publicationsUrl }: PublicationTypesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
+    const router = useRouter();
 
     return (
         <StatsScaffold
@@ -47,7 +53,10 @@ export default function PublicationTypesStats({ className, publications, scaffol
                         <PublicationTypesStatsBarChart
                             publications={publications}
                             scaffoldId={scaffoldId}
-                            selectedUnit={barChartSelectedUnit} />),
+                            selectedUnit={barChartSelectedUnit}
+                            onBarClick={publicationsUrl ?
+                                (key, value) => router.push(createFilteredPublicationsUrlByType(publicationsUrl, key)) :
+                                undefined} />),
                     secondaryContent: (
                         <ChartUnitSelection
                             className='p-3'
@@ -80,13 +89,14 @@ export default function PublicationTypesStats({ className, publications, scaffol
     )
 }
 
-function PublicationTypesStatsBarChart({ publications, selectedUnit }: PublicationTypesBarChartParams) {
+function PublicationTypesStatsBarChart({ publications, selectedUnit, onBarClick }: PublicationTypesBarChartParams) {
     return (
         <BarChart
             orientation='Horizontal'
             selectedUnit={selectedUnit}
             bandThickness={60}
             className='w-full h-full pl-2 xs:pl-4 px-4 xs:px-8 pt-7'
+            onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.type,
                 barTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
@@ -123,4 +133,9 @@ function PublicationTypesTable({ publications }: PublicationTypesStatsParams) {
             filter={(p: TypePublication, type: PublicationType) => p.type === type}
             sortExaminedValue={sortByPresentedContent} />
     )
+}
+
+function createFilteredPublicationsUrlByType(publicationsUrl: string, type: PublicationType) {
+    const params = toTypesSearchParamsString(type);
+    return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }

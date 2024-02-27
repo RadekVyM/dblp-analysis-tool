@@ -3,13 +3,14 @@ import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VenueType } from '@/enums/VenueType'
 import VenuePage from './(components)/VenuePage'
 import VenuePublicationsPage from './(components)/VenuePublicationsPage'
-import { parseIntStrings } from '@/utils/strings'
+import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
+import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
 
 type VenuePagesParams = {
     params: {
         ids: Array<string>
     },
-    searchParams: { year?: Array<string> | string, volumeId?: Array<string> | string }
+    searchParams: { volumeId?: Array<string> | string } & PublicationsSearchParams
 }
 
 /**
@@ -17,9 +18,7 @@ type VenuePagesParams = {
  * This approach is used because variable count of URL parameters is used - file based routing cannot be used after [...ids].
 */
 export default async function VenuePages({ params: { ids }, searchParams }: VenuePagesParams) {
-    const years = searchParams.year ?
-        parseIntStrings(searchParams.year) :
-        [];
+    const { years, types, venues, authors } = parsePublicationsSearchParams(searchParams);
     const defaultSelectedVolumeIds = searchParams.volumeId ?
         (typeof searchParams.volumeId === 'string' ? [searchParams.volumeId] : searchParams.volumeId) :
         undefined;
@@ -39,7 +38,10 @@ export default async function VenuePages({ params: { ids }, searchParams }: Venu
                 volumeId={volumeId}
                 venueOrVolume={venueOrVolume}
                 defaultSelectedYears={years}
-                defaultSelectedVolumeIds={defaultSelectedVolumeIds} />
+                defaultSelectedTypes={types}
+                defaultSelectedVenueIds={venues}
+                defaultSelectedVolumeIds={defaultSelectedVolumeIds}
+                defaultSelectedAuthors={authors} />
         )
     }
     else {

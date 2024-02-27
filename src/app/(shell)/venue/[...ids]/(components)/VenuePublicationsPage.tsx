@@ -7,17 +7,26 @@ import MultipleVolumesPublications from './MultipleVolumesPublications'
 import VolumePublicationsSection from './VolumePublicationsSection'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { DblpVenue } from '@/dtos/DblpVenue'
+import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
 
 type VenuePublicationsPageParams = {
     venueOrVolume: DblpVenueBase,
     venueId: string,
     volumeId?: string,
-    defaultSelectedYears?: Array<number>,
     defaultSelectedVolumeIds?: Array<string>,
-}
+} & DefaultSelectedPublicationsParams
 
 /** Page displaying publications of a venue. */
-export default async function VenuePublicationsPage({ venueOrVolume, venueId, volumeId, defaultSelectedYears, defaultSelectedVolumeIds }: VenuePublicationsPageParams) {
+export default async function VenuePublicationsPage({
+    venueOrVolume,
+    venueId,
+    volumeId,
+    defaultSelectedYears,
+    defaultSelectedTypes,
+    defaultSelectedVenueIds,
+    defaultSelectedAuthors,
+    defaultSelectedVolumeIds
+}: VenuePublicationsPageParams) {
     return (
         <PageContainer>
             <header
@@ -33,12 +42,18 @@ export default async function VenuePublicationsPage({ venueOrVolume, venueId, vo
                 venueOrVolume.venueVolumeType === 'Volume' ?
                     <VolumePublicationsSection
                         volumes={[venueOrVolume as DblpVenueVolume]}
-                        defaultSelectedYears={defaultSelectedYears} /> :
+                        defaultSelectedYears={defaultSelectedYears}
+                        defaultSelectedTypes={defaultSelectedTypes}
+                        defaultSelectedVenueIds={defaultSelectedVenueIds}
+                        defaultSelectedAuthors={defaultSelectedAuthors} /> :
                     <MultipleVolumesPublications
                         venue={venueOrVolume as DblpVenue}
                         venueId={venueId}
                         volumeId={volumeId}
                         defaultSelectedYears={defaultSelectedYears}
+                        defaultSelectedTypes={defaultSelectedTypes}
+                        defaultSelectedVenueIds={defaultSelectedVenueIds}
+                        defaultSelectedAuthors={defaultSelectedAuthors}
                         defaultSelectedVolumeIds={defaultSelectedVolumeIds} />
             }
 

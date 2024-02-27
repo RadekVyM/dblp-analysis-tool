@@ -225,10 +225,12 @@ function useAuthors(authors: Array<DblpAuthor>, publications?: Array<DblpPublica
 function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsChange: (ids: Set<string>) => void) {
     const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(
         publications,
-        'Select only authors of publications of certain type',
-        'Select only authors that contribute to certain venues',
-        'Select only authors that published a publication in a certain year',
-        'Select only specified authors');
+        {
+            typeFilter: 'Select only authors of publications of certain type',
+            venueFilter: 'Select only authors that contribute to certain venues',
+            yearFilter: 'Select only authors that published a publication in a certain year',
+            authorFilter: 'Select only specified authors'
+        });
 
     useEffect(() => {
         if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {

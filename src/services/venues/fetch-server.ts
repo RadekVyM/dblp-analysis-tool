@@ -119,8 +119,6 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
         const additionalVenueInfoXml = await fetchAdditionalVenueInfoXml(id);
         const authorsInfo = extractVenueAuthorsInfo(additionalVenueInfoXml);
 
-        console.log(additionalVenueInfoXml);
-
         if (authorsInfo) {
             venue.venueAuthorsInfo = createDblpVenueAuthorsInfo(
                 authorsInfo.topAuthors,
@@ -129,7 +127,7 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
         }
     }
     catch (e) {
-        console.log(e);
+        console.log(`Fetch of additional venue info failed. Error: ${e}`);
     }
 
     try {
@@ -144,7 +142,7 @@ async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {
         }
     }
     catch (e) {
-        console.log(e);
+        console.log(`Fetch of venue yearly publications stats failed. Error: ${e}`);
     }
 
     return venue;

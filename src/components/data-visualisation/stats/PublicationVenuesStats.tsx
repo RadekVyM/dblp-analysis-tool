@@ -3,10 +3,9 @@
 import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
-import { TableData } from '@/components/data-visualisation/Table'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { PublicationType } from '@/enums/PublicationType'
-import { isGreater, isSmaller } from '@/utils/array'
+import { isSmaller } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import { useState, useMemo } from 'react'
 import { MdBarChart, MdTableChart } from 'react-icons/md'
@@ -17,6 +16,9 @@ import { VENUE_TYPE_COLOR } from '@/constants/client/publications'
 import ItemsStats from '@/components/ItemsStats'
 import MaxCountInput from '../MaxCountInput'
 import { sortByPresentedContent } from '@/utils/table'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { useRouter } from 'next/navigation'
+import { toVenuesSearchParamsString } from '@/utils/publicationsSearchParams'
 
 type VenuePublication = {
     id: string,
@@ -29,11 +31,13 @@ type PublicationVenuesStatsParams = {
     className?: string,
     publications: Array<VenuePublication>,
     scaffoldId?: string,
+    publicationsUrl?: string,
 }
 
 type PublicationVenuesBarChartParams = {
     selectedUnit: ChartUnit,
-    maxBarsCount: number
+    maxBarsCount: number,
+    onBarClick?: (key: any, value?: ChartValue) => void,
 } & PublicationVenuesStatsParams
 
 type PublicationVenuesTableParams = {
@@ -43,7 +47,7 @@ type PublicationVenuesTableParams = {
 type VenuePair = { venueId: string | null, title: string }
 
 /** Displays publications statistics by venues. */
-export default function PublicationVenuesStats({ className, publications, scaffoldId }: PublicationVenuesStatsParams) {
+export default function PublicationVenuesStats({ className, publications, scaffoldId, publicationsUrl }: PublicationVenuesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
     const [maxBarsCount, setMaxBarsCount] = useState(100);
@@ -58,6 +62,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
 
         return [...map.values()]
     }, [publications]);
+    const router = useRouter();
 
     return (
         <>
@@ -78,7 +83,10 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                                 publications={publications}
                                 scaffoldId={scaffoldId}
                                 selectedUnit={barChartSelectedUnit}
-                                maxBarsCount={maxBarsCount} />),
+                                maxBarsCount={maxBarsCount}
+                                onBarClick={publicationsUrl ?
+                                    (key, value) => router.push(createFilteredPublicationsUrlByVenueId(publicationsUrl, key)) :
+                                    undefined} />),
                         secondaryContent: (
                             <div
                                 className='flex justify-between'>
@@ -113,7 +121,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
     )
 }
 
-function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }: PublicationVenuesBarChartParams) {
+function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, onBarClick }: PublicationVenuesBarChartParams) {
     return (
         <BarChart
             orientation='Horizontal'
@@ -122,6 +130,7 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount }:
             secondaryAxisThickness={60}
             maxBarsCount={maxBarsCount}
             className='w-full h-full pl-2 xs:pl-4 pr-4 xs:pr-8 pt-7'
+            onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.venueId,
                 barTitle: (key, value) => value?.items[0]?.venueTitle || key,
@@ -155,4 +164,9 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
 
 function venueTableRowKey(venue: VenuePair) {
     return venue.venueId || 'undefined';
+}
+
+function createFilteredPublicationsUrlByVenueId(publicationsUrl: string, venueId: string | undefined) {
+    const params = toVenuesSearchParamsString(venueId);
+    return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }

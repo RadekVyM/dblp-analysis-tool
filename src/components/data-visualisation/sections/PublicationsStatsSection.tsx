@@ -48,7 +48,8 @@ export default function PublicationsStatsSection({ publications, publicationsUrl
                     id: publ.id,
                     type: publ.type,
                     date: publ.date
-                }))} />
+                }))}
+                publicationsUrl={publicationsUrl} />
 
             <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
 
@@ -72,7 +73,8 @@ export default function PublicationsStatsSection({ publications, publicationsUrl
                     type: publ.type,
                     venueId: publ.venueId || null,
                     venueTitle: getVenueTitle(publ)
-                }))} />
+                }))}
+                publicationsUrl={publicationsUrl} />
 
             {children}
         </PageSection>

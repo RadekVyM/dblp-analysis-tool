@@ -14,6 +14,10 @@ import CountPercentageTable from '../CountPercentageTable'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { sortByPresentedContent } from '@/utils/table'
 import { isSmaller } from '@/utils/array'
+import { toAuthorsSearchParamsString, toTypesSearchParamsString, toVenuesSearchParamsString, toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
+import { isNullOrWhiteSpace } from '@/utils/strings'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { useRouter } from 'next/navigation'
 
 type AuthorStats = {
     id: string,
@@ -27,12 +31,14 @@ type AuthorGroupMembersStatsParams = {
     /** All publications of all authors of an author group */
     allPublications: Array<DblpPublication>,
     scaffoldId?: string,
+    publicationsUrl?: string,
     className?: string,
 }
 
 type AuthorGroupMembersBarChartParams = {
     scaffoldId?: string,
-    authors: Array<AuthorStats>
+    authors: Array<AuthorStats>,
+    onBarClick?: (key: any, value?: ChartValue) => void,
 }
 
 type AuthorGroupMembersTableParams = {
@@ -41,7 +47,7 @@ type AuthorGroupMembersTableParams = {
 }
 
 /** Displays statistics of all members of an author group. */
-export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, className }: AuthorGroupMembersStatsParams) {
+export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, publicationsUrl, className }: AuthorGroupMembersStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
@@ -67,6 +73,7 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                 .length
         } as AuthorStats));
     }, [authors, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
+    const router = useRouter();
 
     return (
         <>
@@ -81,7 +88,16 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                         content: (
                             <AuthorGroupMembersBarChart
                                 authors={authorsStats}
-                                scaffoldId={scaffoldId} />),
+                                scaffoldId={scaffoldId}
+                                onBarClick={publicationsUrl ?
+                                    (key, value) => router.push(createFilteredPublicationsUrlByType(
+                                        publicationsUrl,
+                                        key,
+                                        typesFilter?.selectedItems,
+                                        venuesFilter?.selectedItems,
+                                        yearsFilter?.selectedItems,
+                                        authorsFilter?.selectedItems)) :
+                                    undefined} />),
                         secondaryContent: (
                             <FiltersList
                                 className='p-2 min-h-0 max-h-20 overflow-y-auto thin-scrollbar'
@@ -124,7 +140,7 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
     )
 }
 
-function AuthorGroupMembersBarChart({ authors }: AuthorGroupMembersBarChartParams) {
+function AuthorGroupMembersBarChart({ authors, onBarClick }: AuthorGroupMembersBarChartParams) {
     return (
         <BarChart
             orientation='Horizontal'
@@ -132,6 +148,7 @@ function AuthorGroupMembersBarChart({ authors }: AuthorGroupMembersBarChartParam
             bandThickness={45}
             secondaryAxisThickness={60}
             className='w-full h-full pl-2 xs:pl-4 pr-4 xs:pr-8 pt-7'
+            onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.id,
                 barTitle: (key, value) => value?.items[0]?.name || key,
@@ -158,4 +175,19 @@ function AuthorGroupMembersTable({ authors, totalPublicationsCount }: AuthorGrou
             rowKey={(a: AuthorStats) => a.id}
             hideFooter />
     )
+}
+
+function createFilteredPublicationsUrlByType(
+    publicationsUrl: string,
+    authorId: string,
+    selectedTypes?: Map<any, any>,
+    selectedVenues?: Map<any, any>,
+    selectedYears?: Map<any, any>,
+    selectedAuthors?: Map<any, any>) {
+    const typesParams = toTypesSearchParamsString(...(selectedTypes?.keys() || []));
+    const venuesParams = toVenuesSearchParamsString(...(selectedVenues?.keys() || []));
+    const yearsParams = toYearsSearchParamsString(...(selectedYears?.keys() || []));
+    const authorsParams = toAuthorsSearchParamsString(authorId, ...(selectedAuthors?.keys() || []));
+    const params = [typesParams, venuesParams, yearsParams, authorsParams].filter((p) => !isNullOrWhiteSpace(p)).join('&');
+    return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }

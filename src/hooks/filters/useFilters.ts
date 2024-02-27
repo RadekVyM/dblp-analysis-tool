@@ -15,11 +15,21 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
         Object.keys(filtersConfiguration).forEach((key) => {
             const filter = filtersConfiguration[key];
 
+            const selectedItems = new Map<any, any>();
+
+            if (filter.defaultSelectedKeys) {
+                for (const key of filter.defaultSelectedKeys) {
+                    if (filter.allSelectableItems.has(key)) {
+                        selectedItems.set(key, filter.allSelectableItems.get(key));
+                    }
+                }
+            }
+
             map[key] = {
                 key: key,
                 title: filter.title,
                 description: filter.description,
-                selectedItems: new Map<any, any>(),
+                selectedItems: selectedItems,
                 selectableItems: new Map<any, any>(filter.allSelectableItems),
                 allSelectableItems: new Map<any, any>(filter.allSelectableItems),
                 itemTitleSelector: filter.itemTitleSelector,

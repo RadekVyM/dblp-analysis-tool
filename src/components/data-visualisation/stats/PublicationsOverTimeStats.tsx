@@ -15,6 +15,7 @@ import CountPercentageTable from '@/components/data-visualisation/CountPercentag
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
+import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -73,7 +74,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                     isSimplified={isSimplified}
                     selectedUnit={barChartSelectedUnit}
                     onBarClick={publicationsUrl ?
-                        (key, value) => router.push(createFilteredPublicationsUrlByYear(publicationsUrl, key.toString())) :
+                        (key, value) => router.push(createFilteredPublicationsUrlByYear(publicationsUrl, key)) :
                         undefined} />),
             secondaryContent: (
                 <ChartUnitSelection
@@ -94,7 +95,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
             icon: (<MdTableChart />),
 
         },
-    ], [publications, scaffoldId, barChartSelectedUnit, isLineChartHidden]);
+    ], [publications, scaffoldId, isSimplified, publicationsUrl, barChartSelectedUnit, isLineChartHidden]);
 
     useEffect(() => {
         if (isLineChartHidden && selectedPublTypesStatsVisual === 'Line') {
@@ -177,7 +178,7 @@ function chartValueOfSimplifiedPublications(items: Array<SimplifiedOverTimePubli
     return items.reduce((acc, item) => acc + item.count, 0);
 }
 
-function createFilteredPublicationsUrlByYear(publicationsUrl: string, year: string) {
-    const params = `year=${year}`;
+function createFilteredPublicationsUrlByYear(publicationsUrl: string, year: number) {
+    const params = toYearsSearchParamsString(year);
     return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }

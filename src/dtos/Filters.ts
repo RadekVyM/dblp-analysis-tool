@@ -3,6 +3,7 @@ export type Filter = {
     title: string,
     description?: string,
     allSelectableItems: Map<any, any>,
+    defaultSelectedKeys?: Array<any>,
     updateSelectableItems: (filtersState: FilterStatesMap) => Map<any, any>,
     itemTitleSelector: (item: any) => any,
 }

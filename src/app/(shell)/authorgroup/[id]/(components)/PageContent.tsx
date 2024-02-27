@@ -1,18 +1,11 @@
 'use client'
 
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
-import { SearchType } from '@/enums/SearchType'
 import useAuthors from '@/hooks/authors/useAuthors'
-import { createLocalPath } from '@/utils/urls'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
-import { DblpPublication } from '@/dtos/DblpPublication'
-import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
-import { isGreater } from '@/utils/array'
-import Link from 'next/link'
-import LinkArrow from '@/components/LinkArrow'
+import { PageSubsectionTitle } from '@/components/shell/PageSection'
 import AuthorGroupMembersStats from '@/components/data-visualisation/stats/AuthorGroupMembersStats'
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
@@ -54,6 +47,8 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
         )
     }
 
+    const publicationsUrl = `/authorgroup/${authorGroup.id}/publications?${authorGroup.authors.map((a) => `id=${a.id}`).join('&')}`;
+
     return (
         <PageContainer>
             <header
@@ -78,7 +73,7 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                 selectedAuthors.length > 0 &&
                 <>
                     <PublicationsStatsSection
-                        publicationsUrl={`/authorgroup/${authorGroup.id}/publications?${authorGroup.authors.map((a) => `id=${a.id}`).join('&')}`}
+                        publicationsUrl={publicationsUrl}
                         publications={allPublications}
                         maxDisplayedCount={3} >
                         <PageSubsectionTitle>Publications by Member</PageSubsectionTitle>
@@ -86,7 +81,8 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                         <AuthorGroupMembersStats
                             authors={selectedAuthors}
                             allPublications={allPublications}
-                            scaffoldId='author-group-members-publications' />
+                            scaffoldId='author-group-members-publications'
+                            publicationsUrl={publicationsUrl} />
                     </PublicationsStatsSection>
                     <CoauthorsSection
                         authors={selectedAuthors} />

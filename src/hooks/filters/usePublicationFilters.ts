@@ -15,16 +15,28 @@ import { VenueType } from '@/enums/VenueType'
  */
 export default function usePublicationFilters(
     publications: Array<DblpPublication>,
-    typeFilterDescription?: string,
-    venueFilterDescription?: string,
-    yearFilterDescription?: string,
-    authorFilterDescription?: string,) {
+    description?: {
+        typeFilter?: string,
+        venueFilter?: string,
+        yearFilter?: string,
+        authorFilter?: string,
+    },
+    defaultSelected?: {
+        types?: Array<PublicationType>,
+        /** Venue IDs */
+        venues?: Array<string | undefined>,
+        years?: Array<number>,
+        /** Author IDs */
+        authors?: Array<string>
+    }
+) {
     const filters = useMemo<FiltersConfiguration>(
         () => ({
             [PublicationFilterKey.Type]: {
                 title: 'Publication Types',
-                description: typeFilterDescription || 'Select only publications of certain type',
+                description: description?.typeFilter || 'Select only publications of certain type',
                 allSelectableItems: getAllPublicationTypes(publications),
+                defaultSelectedKeys: defaultSelected?.types,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
                     const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
@@ -53,8 +65,9 @@ export default function usePublicationFilters(
             },
             [PublicationFilterKey.Venue]: {
                 title: 'Venues',
-                description: venueFilterDescription || 'Select only publications from certain venues',
+                description: description?.venueFilter || 'Select only publications from certain venues',
                 allSelectableItems: getAllPublicationVenues(publications),
+                defaultSelectedKeys: defaultSelected?.venues,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
                     const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
@@ -94,8 +107,9 @@ export default function usePublicationFilters(
             },
             [PublicationFilterKey.Year]: {
                 title: 'Years',
-                description: yearFilterDescription || 'Select only publications that were published in a certain year',
+                description: description?.yearFilter || 'Select only publications that were published in a certain year',
                 allSelectableItems: getAllPublicationYears(publications),
+                defaultSelectedKeys: defaultSelected?.years,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
                     const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
@@ -122,8 +136,9 @@ export default function usePublicationFilters(
             },
             [PublicationFilterKey.Author]: {
                 title: 'Authors',
-                description: authorFilterDescription || 'Select only publications with specified authors',
+                description: description?.authorFilter || 'Select only publications with specified authors',
                 allSelectableItems: getAllPublicationAuthors(publications),
+                defaultSelectedKeys: defaultSelected?.authors,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
                     const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
@@ -151,7 +166,17 @@ export default function usePublicationFilters(
                 }
             },
         }),
-        [publications]);
+        [
+            publications,
+            description?.authorFilter,
+            description?.typeFilter,
+            description?.venueFilter,
+            description?.yearFilter,
+            defaultSelected?.authors,
+            defaultSelected?.types,
+            defaultSelected?.venues,
+            defaultSelected?.years
+        ]);
 
     const state = useFilters(filters);
     const typesFilter = state.filtersMap[PublicationFilterKey.Type];

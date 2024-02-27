@@ -15,14 +15,21 @@ import ErrorPage from '@/components/shell/ErrorPage'
 import { error as createError } from '@/utils/errors'
 import useSelectedAuthorGroupMembers from '@/hooks/useSelectedAuthorGroupMembers'
 import AuthorGroupMembers from '../../(components)/AuthorGroupMembers'
+import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
 
 type PageContentParams = {
     authorGroupId: string,
     cachedAuthors: Array<DblpAuthor>,
-    defaultSelectedYears?: Array<number>
-}
+} & DefaultSelectedPublicationsParams
 
-export default function PageContent({ authorGroupId, cachedAuthors, defaultSelectedYears }: PageContentParams) {
+export default function PageContent({
+    authorGroupId,
+    cachedAuthors,
+    defaultSelectedYears,
+    defaultSelectedTypes,
+    defaultSelectedVenueIds,
+    defaultSelectedAuthors
+}: PageContentParams) {
     const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const authorGroup = authorGroups.find((g) => g.id === authorGroupId);
     const authorIds = useMemo(() => authorGroup?.authors.map((a) => a.id) || [], [authorGroup]);
@@ -72,7 +79,10 @@ export default function PageContent({ authorGroupId, cachedAuthors, defaultSelec
 
                 <GroupedPublicationsList
                     publications={allPublications}
-                    defaultSelectedYears={defaultSelectedYears} />
+                    defaultSelectedYears={defaultSelectedYears}
+                    defaultSelectedTypes={defaultSelectedTypes}
+                    defaultSelectedVenueIds={defaultSelectedVenueIds}
+                    defaultSelectedAuthors={defaultSelectedAuthors} />
             </PageSection>
 
             <ScrollToTopButton />

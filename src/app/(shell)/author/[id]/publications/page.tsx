@@ -5,20 +5,19 @@ import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
-import { parseIntStrings } from '@/utils/strings'
+import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
+import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
 
 type AuthorPublicationsPageParams = {
     params: {
         id: string
     },
-    searchParams: { year?: Array<string> | string }
+    searchParams: {} & PublicationsSearchParams
 }
 
 export default async function AuthorPublicationsPage({ params: { id }, searchParams }: AuthorPublicationsPageParams) {
     const author = await fetchAuthor(id);
-    const years = searchParams.year ?
-        parseIntStrings(searchParams.year) :
-        [];
+    const { years, types, venues, authors } = parsePublicationsSearchParams(searchParams);
 
     return (
         <PageContainer
@@ -45,7 +44,10 @@ export default async function AuthorPublicationsPage({ params: { id }, searchPar
                 </header>
                 <GroupedPublicationsList
                     publications={author.publications}
-                    defaultSelectedYears={years} />
+                    defaultSelectedYears={years}
+                    defaultSelectedTypes={types}
+                    defaultSelectedVenueIds={venues}
+                    defaultSelectedAuthors={authors} />
             </PageSection>
 
             <ScrollToTopButton />

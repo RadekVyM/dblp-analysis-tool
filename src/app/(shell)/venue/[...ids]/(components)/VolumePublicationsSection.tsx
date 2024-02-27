@@ -4,15 +4,15 @@ import GroupedPublicationsList from '@/components/publications/GroupedPublicatio
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
+import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
 import { useMemo } from 'react';
 
 type VolumePublicationsSectionParams = {
     volumes: Array<DblpVenueVolume>,
-    defaultSelectedYears?: Array<number>,
-}
+} & DefaultSelectedPublicationsParams
 
 /** Displays a page section with a list of volume publications that can be filtered. */
-export default function VolumePublicationsSection({ volumes, defaultSelectedYears }: VolumePublicationsSectionParams) {
+export default function VolumePublicationsSection({ volumes, defaultSelectedYears, defaultSelectedTypes, defaultSelectedVenueIds, defaultSelectedAuthors }: VolumePublicationsSectionParams) {
     const allPublications = useMemo(() => {
         const publicationsMap = new Map<string, DblpPublication>();
         volumes.forEach((v) => v.publications.forEach((p) => publicationsMap.set(p.id, p)));
@@ -28,7 +28,10 @@ export default function VolumePublicationsSection({ volumes, defaultSelectedYear
 
             <GroupedPublicationsList
                 publications={allPublications}
-                defaultSelectedYears={defaultSelectedYears} />
+                defaultSelectedYears={defaultSelectedYears}
+                defaultSelectedTypes={defaultSelectedTypes}
+                defaultSelectedVenueIds={defaultSelectedVenueIds}
+                defaultSelectedAuthors={defaultSelectedAuthors} />
         </PageSection>
     );
 }
