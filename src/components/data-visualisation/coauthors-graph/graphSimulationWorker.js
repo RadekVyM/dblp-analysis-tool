@@ -1,26 +1,29 @@
 'use client'
 
-import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
-import { CoauthorsGraphWorkerData } from './CoauthorsGraph'
-import { PublicationPersonLinkDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonLinkDatum'
-import { forceCenter, forceLink, forceManyBody, forceSimulation } from 'd3'
+importScripts('https://d3js.org/d3-collection.v1.min.js');
+importScripts('https://d3js.org/d3-dispatch.v1.min.js');
+importScripts('https://d3js.org/d3-quadtree.v1.min.js');
+importScripts('https://d3js.org/d3-timer.v1.min.js');
+importScripts('https://d3js.org/d3-force.v1.min.js');
 
 /*
 Web worker that runs a simulation on the passed graph.
 Positions of all nodes are found as a result of this simulation.
 */
 
-// 24.02. 2024
+// 24. 02. 2024
 // The simulation suddenly throws an error: timer.js:8 Uncaught ReferenceError: window is not defined
 // I have just experimented with Docker, updated Next.js, removed node_modules folder and that is all
+// 27. 02. 2024
+// Fixed the problem thanks to this gist: https://gist.github.com/mbostock/01ab2e85e8727d6529d20391c0fd9a16
 
-const onmessage = (event: MessageEvent<CoauthorsGraphWorkerData>) => {
-    const simulation = forceSimulation<PublicationPersonNodeDatum>(event.data.nodes)
-        .force('link', forceLink<PublicationPersonNodeDatum, PublicationPersonLinkDatum>()
+const onmessage = (event) => {
+    const simulation = d3.forceSimulation(event.data.nodes)
+        .force('link', d3.forceLink()
             .id((d) => d.person.id)
             .links(event.data.links))
-        .force('charge', forceManyBody().strength(-50))
-        .force('center', forceCenter(event.data.graphWidth / 2, event.data.graphHeight / 2))
+        .force('charge', d3.forceManyBody().strength(-50))
+        .force('center', d3.forceCenter(event.data.graphWidth / 2, event.data.graphHeight / 2))
         .stop();
 
     // The natural number of ticks when the simulation is started

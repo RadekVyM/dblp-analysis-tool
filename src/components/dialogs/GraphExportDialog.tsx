@@ -68,6 +68,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
         return format?.export(exportedNodes, exportedLinks) || '';
     }, [selectedFormat, includeOnlyVisible, nodes, links, isOpen]);
     const file = useMemo(() => textToFile(exportedGraph, 'text/plain'), [exportedGraph]);
+    const printedText = useMemo(() => exportedGraph.substring(0, 250000), [exportedGraph]);
     const currentFormat = FORMATS_MAP.get(selectedFormat);
 
     useEffect(() => {
@@ -93,7 +94,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                     heading={'Export Graph'}>
                     <ComboBox
                         id='graph-format-combobox'
-                        items={[...FORMATS_MAP].map(([key, format]) => ({ key: key, label: format.label }))}
+                        items={[...FORMATS_MAP].map(([key, format]) => ({ key: key, label: format.label })).filter((v) => v.key !== GraphExportFormat.MatrixCsv || nodes.length < 4000)}
                         selectedKey={selectedFormat}
                         onKeySelectionChange={(key) => setSelectedFormat(key as GraphExportFormat)} />
                     <CheckListButton
@@ -105,11 +106,12 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                 </DialogHeader>
 
                 <DialogBody
-                    className='py-2'>
+                    className='py-2 flex flex-col'>
+                    <h3 className='font-semibold mb-2'>Preview:</h3>
                     <pre
                         ref={preRef}
-                        className='h-full overflow-auto thin-scrollbar bg-surface-container text-on-surface-container border border-outline rounded-lg p-4'>
-                        {exportedGraph}
+                        className='flex-1 overflow-auto thin-scrollbar bg-surface-container text-on-surface-container border border-outline rounded-lg p-4'>
+                        {printedText}{printedText.length < exportedGraph.length ? '...' : ''}
                     </pre>
                 </DialogBody>
 
