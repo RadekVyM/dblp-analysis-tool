@@ -27,7 +27,7 @@ export default function exportToGEXF(nodes: Array<NodeDatum>, links: Array<LinkD
         const target = typeof link.target === 'object' ?
             (link.target as NodeDatum).id :
             link.target.toString();
-        const element = createEdgeElement(doc, source, target);
+        const element = createEdgeElement(doc, source, target, link.weight);
         edgesElement.appendChild(element);
     });
 
@@ -65,10 +65,11 @@ function createNodeElement(doc: XMLDocument, id: string, label: string) {
     return node;
 }
 
-function createEdgeElement(doc: XMLDocument, source: string, target: string) {
+function createEdgeElement(doc: XMLDocument, source: string, target: string, weight: number) {
     const edge = doc.createElement('edge');
     //edge.setAttribute('id', `${source}+${target}`);
     edge.setAttribute('source', source);
     edge.setAttribute('target', target);
+    edge.setAttribute('weight', weight.toString());
     return edge;
 }

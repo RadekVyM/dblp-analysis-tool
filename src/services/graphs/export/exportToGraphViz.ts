@@ -10,7 +10,7 @@ export default function exportToGraphViz(nodes: Array<NodeDatum>, links: Array<L
             (link.target as NodeDatum).id :
             link.target.toString();
 
-        return `"${source}" -- "${target}"`;
+        return `"${source}" -- "${target}" [weight=${link.weight}]`;
     });
     const stringNodes = nodes.map((node) => `"${node.id}" [label="${node.label}"]`);
 

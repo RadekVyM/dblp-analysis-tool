@@ -120,9 +120,11 @@ function extractLinksToAuthor(publication: DblpPublication, author: DblpPublicat
 
             if (existingLink) {
                 existingLink.publicationsCount += 1;
+                existingLink.weight = existingLink.publicationsCount;
             }
             else {
                 linksMap.set(key, {
+                    weight: 1,
                     ...sourceTarget,
                     ...DEFAULT_LINK_VALUES
                 });

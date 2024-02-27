@@ -10,7 +10,7 @@ export default function exportToGML(nodes: Array<NodeDatum>, links: Array<LinkDa
             (link.target as NodeDatum).id :
             link.target.toString();
 
-        return `edge [ source ${source} target ${target} ]`;
+        return `edge [ source ${source} target ${target} weight ${link.weight} ]`;
     });
     const stringNodes = nodes.map((node) => `node [ id ${node.id} label "${node.label}" ]`);
 

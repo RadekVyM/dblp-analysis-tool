@@ -17,6 +17,8 @@ import ComboBox from '../ComboBox'
 import { MdCheckCircle, MdFileCopy, MdGetApp } from 'react-icons/md'
 import { delay } from '@/utils/promises'
 import CheckListButton from '../CheckListButton'
+import exportToJson from '@/services/graphs/export/exportToJson'
+import { exportToMatrixCsv, exportToSimpleCsv } from '@/services/graphs/export/exportToCsv'
 
 type GraphExportDialogParams = {
     hide: () => void,
@@ -37,6 +39,9 @@ type GraphExportFormatValues = {
 }
 
 const FORMATS_MAP = new Map<GraphExportFormat, GraphExportFormatValues>([
+    [GraphExportFormat.Json, { label: 'JSON (.json)', extension: 'json', export: exportToJson }],
+    [GraphExportFormat.SimpleCsv, { label: 'Simple CSV (.csv)', extension: 'csv', export: exportToSimpleCsv }],
+    [GraphExportFormat.MatrixCsv, { label: 'Matrix CSV (.csv)', extension: 'csv', export: exportToMatrixCsv }],
     [GraphExportFormat.GraphViz, { label: 'GraphViz (.dot)', extension: 'dot', export: exportToGraphViz }],
     [GraphExportFormat.GDF, { label: 'GDF (.gdf)', extension: 'gdf', export: exportToGDF }],
     [GraphExportFormat.GML, { label: 'GML (.gml)', extension: 'gml', export: exportToGML }],
@@ -44,11 +49,13 @@ const FORMATS_MAP = new Map<GraphExportFormat, GraphExportFormatValues>([
     [GraphExportFormat.GEXF, { label: 'GEXF (.gexf)', extension: 'gexf', export: exportToGEXF }],
 ]);
 
+const DEFAULT_FORMAT = GraphExportFormat.Json;
+
 /** Dialog for exporting a coauthors graph to various formats. */
 const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen, nodes, links }, ref) => {
     const preRef = useRef<HTMLPreElement>(null);
     const [includeOnlyVisible, setIncludeOnlyVisible] = useState(true);
-    const [selectedFormat, setSelectedFormat] = useState<GraphExportFormat>(GraphExportFormat.GraphViz);
+    const [selectedFormat, setSelectedFormat] = useState<GraphExportFormat>(DEFAULT_FORMAT);
     const exportedGraph = useMemo(() => {
         if (!isOpen) {
             return '';
@@ -69,7 +76,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
 
     useEffect(() => {
         if (isOpen) {
-            setSelectedFormat(GraphExportFormat.GraphViz);
+            setSelectedFormat(DEFAULT_FORMAT);
         }
     }, [isOpen]);
 

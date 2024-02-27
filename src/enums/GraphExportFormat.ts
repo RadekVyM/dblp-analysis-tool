@@ -1,5 +1,8 @@
 /** Format to which a graph can be exported. */
 export const GraphExportFormat = {
+    SimpleCsv: 'SimpleCsv',
+    MatrixCsv: 'MatrixCsv',
+    Json: 'Json',
     GraphViz: 'GraphViz',
     GDF: 'GDF',
     GML: 'GML',
