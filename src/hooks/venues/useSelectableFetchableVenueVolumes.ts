@@ -2,6 +2,7 @@
 
 import { DblpVenue } from '@/dtos/DblpVenue'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 /**
@@ -22,6 +23,12 @@ export default function useSelectableFetchableVenueVolumes(venue: DblpVenue, def
         const firstVolumeId = venue.volumeGroups[0]?.items[0]?.volumeId;
         setSelectedVolumeIds(firstVolumeId ? new Set([firstVolumeId]) : new Set());
     }, [venue, defaultSelectedVolumeIds]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.history.replaceState) {
+            window.history.replaceState(window.history.state, '', `?${[...selectedVolumeIds].map((id) => `volumeId=${id}`).join('&')}`);
+        }
+    }, [selectedVolumeIds]);
 
     function toggleVolume(id: string) {
         setSelectedVolumeIds((old) => {

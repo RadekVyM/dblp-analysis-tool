@@ -2,12 +2,16 @@ import { tryGetCachedRecords } from '@/services/cache/cache'
 import PageContent from './(components)/PageContent'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { parseIntStrings } from '@/utils/strings'
+import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
 
 type AuthorGroupPublicationsPageParams = {
     params: {
         id: string
     },
-    searchParams: { id?: Array<string> | string, year?: Array<string> | string }
+    searchParams: {
+        // IDs of the author group members
+        id?: Array<string> | string
+    } & PublicationsSearchParams
 }
 
 export default async function AuthorGroupPublicationsPage({ params: { id }, searchParams }: AuthorGroupPublicationsPageParams) {

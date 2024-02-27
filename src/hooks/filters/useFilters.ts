@@ -18,6 +18,7 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
             map[key] = {
                 key: key,
                 title: filter.title,
+                description: filter.description,
                 selectedItems: new Map<any, any>(),
                 selectableItems: new Map<any, any>(filter.allSelectableItems),
                 allSelectableItems: new Map<any, any>(filter.allSelectableItems),

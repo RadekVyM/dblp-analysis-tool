@@ -43,16 +43,17 @@ type AuthorGroupMembersTableParams = {
 /** Displays statistics of all members of an author group. */
 export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, className }: AuthorGroupMembersStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const authorsStats = useMemo(() => {
-        if (!typesFilter || !venuesFilter || !yearsFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {
             return [];
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
         const selectedYears = yearsFilter.selectedItems;
+        const selectedAuthors = authorsFilter.selectedItems;
 
         return authors.map((a) => ({
             id: a.id,
@@ -61,10 +62,11 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                 .filter((publ) =>
                     (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
                     (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
-                    (selectedYears.size == 0 || selectedYears.has(publ.year)))
+                    (selectedYears.size == 0 || selectedYears.has(publ.year)) &&
+                    (selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))))
                 .length
         } as AuthorStats));
-    }, [authors, typesFilter, venuesFilter, yearsFilter]);
+    }, [authors, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
 
     return (
         <>

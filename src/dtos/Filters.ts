@@ -1,6 +1,7 @@
 /** Configuration of an items filter. */
 export type Filter = {
     title: string,
+    description?: string,
     allSelectableItems: Map<any, any>,
     updateSelectableItems: (filtersState: FilterStatesMap) => Map<any, any>,
     itemTitleSelector: (item: any) => any,
@@ -13,6 +14,7 @@ export type FiltersConfiguration = { [key: string]: Filter }
 export type FilterState = {
     key: string,
     title: string,
+    description?: string,
     allSelectableItems: Map<any, any>,
     selectableItems: Map<any, any>,
     selectedItems: Map<any, any>,

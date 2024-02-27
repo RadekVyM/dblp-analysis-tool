@@ -1,7 +1,7 @@
 import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
 import { getVenueTypeFromDblpString } from '@/utils/urls'
 import { VenueType } from '@/enums/VenueType'
-import VenuePage from './(components)/VenuePages'
+import VenuePage from './(components)/VenuePage'
 import VenuePublicationsPage from './(components)/VenuePublicationsPage'
 import { parseIntStrings } from '@/utils/strings'
 

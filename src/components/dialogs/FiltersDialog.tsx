@@ -9,6 +9,7 @@ import DialogBody from './DialogBody'
 import Button from '../Button'
 import { MdFilterAltOff } from 'react-icons/md'
 import { FilterState, FilterStatesMap, FiltersState } from '@/dtos/Filters'
+import { isGreater, isSmaller } from '@/utils/array'
 
 type FiltersDialogParams = {
     hide: () => void,
@@ -47,9 +48,9 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
             ref={ref}
             hide={hide}
             animation={animation}
-            className={'dialog z-20 md:max-w-3xl w-full flex-dialog min-h-[20rem] h-[60%] overflow-y-hidden'}>
+            className={'dialog z-20 md:max-w-3xl w-full flex-dialog min-h-[20rem] h-[70%] max-h-[48rem] overflow-y-hidden'}>
             <DialogContent
-                className='max-h-[40rem] min-h-[20rem] flex-1 flex flex-col'>
+                className='min-h-[20rem] flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Filters'}>
@@ -77,11 +78,19 @@ FiltersDialog.displayName = 'FiltersDialog';
 export default FiltersDialog;
 
 function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
+    const selectableItems = selectedFilter?.selectableItems ? [...selectedFilter?.selectableItems] : [];
+    selectableItems.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));
+
     return (
-        <DialogBody>
+        <DialogBody
+            className={selectedFilter?.description ? 'pt-2' : ''}>
             {
                 selectedFilter &&
                 <>
+                    {
+                        selectedFilter.description &&
+                        <span className='mb-4 inline-block text-sm text-on-surface-container-muted'>{selectedFilter.description}</span>
+                    }
                     <Button
                         className='mb-5 items-center gap-x-2'
                         variant='outline'
@@ -95,7 +104,7 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
                         role='tabpanel'
                         aria-labelledby={selectedKey}
                         className='flex flex-col gap-2'>
-                        {[...selectedFilter.selectableItems].map(([key, value]) =>
+                        {selectableItems.map(([key, value]) =>
                             <FilterItem
                                 key={`${key || 'undefined'}`}
                                 isSelected={selectedFilter.selectedItems.has(key)}

@@ -115,7 +115,8 @@ export default function AuthorsList(
                     showFiltersDialog={showFiltersDialog}
                     filtersMap={filtersMap}
                     switchSelection={switchSelection}
-                    clear={clear} />
+                    clear={clear}
+                    maxDisplayedCount={6} />
 
                 {
                     displayedNodes.length > 0 ?

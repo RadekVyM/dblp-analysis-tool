@@ -11,18 +11,24 @@ type FilterItemParams = {
 
 type FiltersListParams = {
     className?: string,
+    maxDisplayedCount?: number,
     showFiltersDialog: () => void
 } & FiltersState
 
-export default function FiltersList({ className, filtersMap, clear, switchSelection, showFiltersDialog }: FiltersListParams) {
-    const filters = useMemo(() => {
+export default function FiltersList({ className, filtersMap, maxDisplayedCount, clear, switchSelection, showFiltersDialog }: FiltersListParams) {
+    const allFilters = useMemo(() => {
         return Object.keys(filtersMap).flatMap((filterKey) => {
             const filter = filtersMap[filterKey];
 
             return [...filter.selectedItems].map(([key, value]) =>
-                ({ filter, filterKey, itemKey: key, value }))
+                ({ filter, filterKey, itemKey: key, value }));
         });
     }, [filtersMap]);
+    const filters = useMemo(() => {
+        return maxDisplayedCount ?
+            allFilters.slice(0, maxDisplayedCount) :
+            allFilters;
+    }, [allFilters, maxDisplayedCount]);
 
     if (Object.keys(filtersMap).length === 0) {
         return;
@@ -46,6 +52,14 @@ export default function FiltersList({ className, filtersMap, clear, switchSelect
                     onClick={() => switchSelection(filterKey, itemKey)}>
                     {filter.itemTitleSelector(value)}
                 </FilterItem>)}
+            {maxDisplayedCount && filters.length < allFilters.length &&
+                <li>
+                    <Button
+                        variant='outline' size='xs'
+                        onClick={() => showFiltersDialog()}>
+                        + {allFilters.length - filters.length} more
+                    </Button>
+                </li>}
         </ul>
     )
 }

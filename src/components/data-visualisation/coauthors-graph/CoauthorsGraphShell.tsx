@@ -85,7 +85,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                 'grid gap-3',
                 'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[100vh] max-h-[max(100vh,40rem)]',
                 'sm:grid-rows-[1fr_auto] sm:grid-cols-[1fr_minmax(auto,18rem)] sm:h-[100vh] sm:min-h-[30rem] sm:max-h-[min(80vh,40rem)]',
-                isFullscreen ? 'p-2 bg-surface' : '',
+                isFullscreen ? 'p-2 bg-surface lg:grid-cols-[1fr_minmax(auto,20rem)]' : '',
                 className)}>
             <DataVisualisationContainer
                 className='overflow-hidden w-full h-full'>
@@ -223,16 +223,23 @@ function useAuthors(authors: Array<DblpAuthor>, publications?: Array<DblpPublica
 
 /** Hook that handles filtering of nodes. */
 function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsChange: (ids: Set<string>) => void) {
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(publications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(
+        publications,
+        'Select only authors of publications of certain type',
+        'Select only authors that contribute to certain venues',
+        'Select only authors that published a publication in a certain year',
+        'Select only specified authors');
 
     useEffect(() => {
-        if (!typesFilter || !venuesFilter || !yearsFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {
             return;
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
         const selectedYears = yearsFilter.selectedItems;
+        const selectedAuthors = authorsFilter.selectedItems;
+
         const publs = publications.filter((publ) =>
             (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
             (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
@@ -240,11 +247,13 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         const authorsIds = new Set<string>();
 
         publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {
-            authorsIds.add(a.id);
+            if (selectedAuthors.size === 0 || selectedAuthors.has(a.id)) {
+                authorsIds.add(a.id);
+            }
         }));
 
         onFilteredAuthorsIdsChange(authorsIds);
-    }, [publications, typesFilter, venuesFilter, yearsFilter]);
+    }, [publications, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
 
     return { filtersMap, switchSelection, clear };
 }

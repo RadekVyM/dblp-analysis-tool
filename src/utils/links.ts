@@ -1,4 +1,4 @@
-import { ExternalLink } from "@/dtos/ExternalLink";
+import { ExternalLink } from '@/dtos/ExternalLink'
 
 /**
  * Converts a collection of URLs to a collection of external links which contain a title and icon URL.

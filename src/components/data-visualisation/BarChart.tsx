@@ -25,7 +25,8 @@ type BarChartParams = {
     bandThickness?: number,
     secondaryAxisThickness?: number,
     className?: string,
-    orientation?: ChartOrientation
+    orientation?: ChartOrientation,
+    onBarClick?: (key: any, value?: ChartValue) => void
 }
 
 type SecondaryAxisParams = {
@@ -48,6 +49,7 @@ type ChartParams = {
     orientation: ChartOrientation,
     className?: string,
     color: (key: any, value?: ChartValue) => string,
+    onBarClick?: (key: any, value?: ChartValue) => void
 }
 
 type PrimaryAxisLabelsParams = {
@@ -63,7 +65,7 @@ type SecondaryAxisLinesParams = {
 } & SecondaryAxisParams
 
 /** Chart that displays data as bars. */
-export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit, maxBarsCount }: BarChartParams) {
+export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit, maxBarsCount, onBarClick }: BarChartParams) {
     orientation ??= ChartOrientation.Horizontal;
     bandThickness ??= 75;
     secondaryAxisThickness ??= 40;
@@ -124,7 +126,8 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                     chartMap={chartMap}
                     keys={keys}
                     selectedUnit={selectedUnit}
-                    valuesScale={valuesScale} />
+                    valuesScale={valuesScale}
+                    onBarClick={onBarClick} />
 
                 <SecondaryAxis
                     orientation={orientation}
@@ -159,7 +162,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
     )
 }
 
-function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, color }: ChartParams) {
+function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, color, onBarClick }: ChartParams) {
     const secondaryAxisLength = orientation === ChartOrientation.Horizontal ?
         dimensions.width - padding.left - padding.right :
         dimensions.height - padding.top - padding.bottom;
@@ -200,15 +203,18 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
                     <g
                         key={key === undefined ? 'undefined' : key}>
                         <rect
-                            className={prependDashedPrefix('fill', color(key, chartValue))}
+                            className={cn(
+                                prependDashedPrefix('fill', color(key, chartValue)),
+                                onBarClick && 'cursor-pointer hover:brightness-95')}
                             x={left} y={top}
                             width={width} height={height}
-                            rx={radius} ry={radius} />
+                            rx={radius} ry={radius}
+                            onClick={onBarClick && (() => onBarClick(key, chartValue))} />
 
                         <OutlinedText
                             x={left + (width / 2)} y={top + (height / 2) + 2}
                             dominantBaseline='middle' textAnchor='middle'
-                            className='text-xs font-semibold'>
+                            className='text-xs font-semibold pointer-events-none'>
                             {displayedValue}
                         </OutlinedText>
                     </g>

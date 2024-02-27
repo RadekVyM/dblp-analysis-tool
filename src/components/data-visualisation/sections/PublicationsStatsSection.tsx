@@ -59,7 +59,8 @@ export default function PublicationsStatsSection({ publications, publicationsUrl
                     id: publ.id,
                     type: publ.type,
                     year: publ.year
-                }))} />
+                }))}
+                publicationsUrl={publicationsUrl} />
 
             <PageSubsectionTitle>Publication Venues</PageSubsectionTitle>
 

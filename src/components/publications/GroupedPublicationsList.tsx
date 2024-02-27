@@ -72,7 +72,7 @@ export default function GroupedPublicationsList({ publications, defaultSelectedY
         defaultSelectedYears.forEach((y) => {
             switchFilterSelection(PublicationFilterKey.Year, y)
         });
-    }, [defaultSelectedYears]);
+    }, [defaultSelectedYears, publications]);
 
     return (
         <>
@@ -178,7 +178,7 @@ function useDisplayedPublications(publications: Array<DblpPublication>, groupedB
     const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
     const [totalCount, setTotalCount] = useState(publications.length);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, switchSelection, clear } = usePublicationFilters(publications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(publications);
     const displayedPublications = useMemo(() => {
         let count = displayedCount;
         const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
@@ -206,22 +206,24 @@ function useDisplayedPublications(publications: Array<DblpPublication>, groupedB
     const displayedPublicationsCount = useMemo(() => groupedPublications.reduce((prev, current) => prev + current[1].length, 0), [groupedPublications]);
 
     useEffect(() => {
-        if (!typesFilter || !venuesFilter || !yearsFilter) {
+        if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {
             return;
         }
 
         const selectedTypes = typesFilter.selectedItems;
         const selectedVenues = venuesFilter.selectedItems;
         const selectedYears = yearsFilter.selectedItems;
+        const selectedAuthors = authorsFilter.selectedItems;
 
         const publs = publications.filter((publ) =>
             (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
             (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
-            (selectedYears.size == 0 || selectedYears.has(publ.year)));
+            (selectedYears.size == 0 || selectedYears.has(publ.year)) &&
+            (selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))));
         setGroupedPublications([...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])]);
         setTotalCount(publs.length);
         resetDisplayedCount();
-    }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter]);
+    }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
 
     return {
         displayedPublications,

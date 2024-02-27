@@ -13,6 +13,8 @@ import * as d3 from 'd3'
 import LineChart from '@/components/data-visualisation/LineChart'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { useRouter } from 'next/navigation'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -33,20 +35,23 @@ type PublicationsOverTimeStatsParams = {
     /** This property needs to be set to true when simplified publications are used */
     isSimplified?: boolean,
     scaffoldId?: string,
+    publicationsUrl?: string,
 }
 
 type PublicationsOverTimeBarChartParams = {
     selectedUnit: ChartUnit,
+    onBarClick?: (key: any, value?: ChartValue) => void,
 } & PublicationsOverTimeStatsParams
 
 type PublicationsOverTimeLineChartParams = {
 } & PublicationsOverTimeStatsParams
 
 /** Displays publications statistics over time. */
-export default function PublicationsOverTimeStats({ className, publications, scaffoldId, isSimplified }: PublicationsOverTimeStatsParams) {
+export default function PublicationsOverTimeStats({ className, publications, scaffoldId, isSimplified, publicationsUrl }: PublicationsOverTimeStatsParams) {
     const isLineChartHidden = publications.every((publ) => publ.year === publications[0]?.year);
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState(isLineChartHidden ? 'Bars' : 'Line');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
+    const router = useRouter();
     const items = useMemo(() => [
         {
             key: 'Line',
@@ -66,7 +71,10 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                     publications={publications}
                     scaffoldId={scaffoldId}
                     isSimplified={isSimplified}
-                    selectedUnit={barChartSelectedUnit} />),
+                    selectedUnit={barChartSelectedUnit}
+                    onBarClick={publicationsUrl ?
+                        (key, value) => router.push(createFilteredPublicationsUrlByYear(publicationsUrl, key.toString())) :
+                        undefined} />),
             secondaryContent: (
                 <ChartUnitSelection
                     className='p-3'
@@ -108,7 +116,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
     )
 }
 
-function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified }: PublicationsOverTimeBarChartParams) {
+function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified, onBarClick }: PublicationsOverTimeBarChartParams) {
     return (
         <BarChart
             orientation='Vertical'
@@ -116,6 +124,7 @@ function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified
             bandThickness={45}
             secondaryAxisThickness={60}
             className='w-full h-full pr-4 xs:pr-8 pt-7'
+            onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.year,
                 barTitle: (key) => key,
@@ -166,4 +175,9 @@ function PublicationsOverTimeTable({ publications, isSimplified }: PublicationsO
 
 function chartValueOfSimplifiedPublications(items: Array<SimplifiedOverTimePublication>) {
     return items.reduce((acc, item) => acc + item.count, 0);
+}
+
+function createFilteredPublicationsUrlByYear(publicationsUrl: string, year: string) {
+    const params = `year=${year}`;
+    return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }

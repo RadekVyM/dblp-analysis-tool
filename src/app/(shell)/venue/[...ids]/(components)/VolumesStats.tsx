@@ -26,7 +26,9 @@ export default function VolumesStats({ volumes, venueId, volumeId, venueVolumeTy
         <>
             <PublicationsStatsSection
                 title={venueVolumeType === VenueVolumeType.Volume ? undefined : 'Selected Volumes Publications'}
-                publicationsUrl={volumeId ? `/venue/${venueId}/${volumeId}/publications` : `/venue/${venueId}/publications`}
+                publicationsUrl={volumeId ?
+                    `/venue/${venueId}/${volumeId}/publications?${createVolumeIdsParams(volumes)}` :
+                    `/venue/${venueId}/publications?${createVolumeIdsParams(volumes)}`}
                 publications={allPublications}
                 maxDisplayedCount={3} />
             <CoauthorsSection
@@ -34,4 +36,8 @@ export default function VolumesStats({ volumes, venueId, volumeId, venueVolumeTy
                 publications={allPublications} />
         </>
     )
-} 
+}
+
+function createVolumeIdsParams(volumes: Array<DblpVenueVolume>) {
+    return `${volumes.map((v) => `volumeId=${v.id}`).join('&')}`;
+}
