@@ -11,7 +11,13 @@ export default function useSavedVenues() {
     const [savedVenues, setSavedVenues] = useLocalStorage(SAVED_VENUES_STORAGE_KEY, new Array<SavedVenue>());
     const isClient = useIsClient();
 
-    const saveVenue = useCallback(async (id: string, title: string) => {
+    const importVenues = useCallback((importedVenues: Array<SavedVenue>) => {
+        setSavedVenues((old) => {
+            return [...importedVenues.filter((v) => !old.some((o) => o.id === v.id)), ...old];
+        });
+    }, [setSavedVenues]);
+
+    const saveVenue = useCallback((id: string, title: string) => {
         setSavedVenues((old) => {
             const venue = old.find((v) => v.id === id);
 
@@ -23,7 +29,7 @@ export default function useSavedVenues() {
         });
     }, [setSavedVenues]);
 
-    const removeSavedVenue = useCallback(async (id: string) => {
+    const removeSavedVenue = useCallback((id: string) => {
         setSavedVenues((old) => {
             return [...(old.filter((v) => v.id !== id))];
         });
@@ -33,6 +39,7 @@ export default function useSavedVenues() {
         savedVenues,
         canUseSavedVenues: isClient,
         saveVenue,
-        removeSavedVenue
+        removeSavedVenue,
+        importVenues
     };
 }

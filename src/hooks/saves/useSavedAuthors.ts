@@ -11,6 +11,12 @@ export default function useSavedAuthors() {
     const [savedAuthors, setSavedAuthors] = useLocalStorage(SAVED_AUTHORS_STORAGE_KEY, new Array<SavedAuthor>());
     const isClient = useIsClient();
 
+    const importAuthors = useCallback((importedAuthors: Array<SavedAuthor>) => {
+        setSavedAuthors((old) => {
+            return [...importedAuthors.filter((a) => !old.some((o) => o.id === a.id)), ...old];
+        });
+    }, [setSavedAuthors]);
+
     const saveAuthor = useCallback(async (id: string, title: string) => {
         setSavedAuthors((old) => {
             const author = old.find((a) => a.id === id);
@@ -34,5 +40,6 @@ export default function useSavedAuthors() {
         savedAuthors,
         saveAuthor,
         removeSavedAuthor,
+        importAuthors
     };
 }

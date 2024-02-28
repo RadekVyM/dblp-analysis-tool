@@ -141,6 +141,10 @@ input::selection {
   }
 }
 
+.dropzone-file-area:has(+ .dropzone-file-input:hover) {
+  @apply bg-surface-dim-container;
+}
+
 .with-logo::before {
   content: "";
   background-image: url("/logo.svg");

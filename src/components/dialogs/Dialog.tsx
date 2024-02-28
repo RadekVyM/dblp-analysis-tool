@@ -30,7 +30,12 @@ export const Dialog = forwardRef<HTMLDialogElement, DialogParams>(({ hide, anima
                     onClick={() => hide()}
                     onCancel={(event) => {
                         event.preventDefault();
-                        hide();
+                        if (!event.bubbles) {
+                            // I want to hide the dialog only when the ESC key is pressed on the dialog.
+                            // When the event bubbles, for example, from a file dialog,
+                            // I do not want to hide the dialog.
+                            hide();
+                        }
                     }}
                     className={cn(className, animation)}>
                     {children}

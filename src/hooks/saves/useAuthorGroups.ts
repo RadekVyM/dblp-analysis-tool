@@ -15,10 +15,32 @@ export default function useAuthorGroups() {
     const [authorGroups, setAuthorGroups] = useLocalStorage(AUTHOR_GROUPS_STORAGE_KEY, new Array<AuthorGroup>());
     const isClient = useIsClient();
 
-    const saveAuthorGroup = useCallback((title: string) => {
+    const importAuthorGroups = useCallback((importedAuthorGroups: Array<AuthorGroup>) => {
         setAuthorGroups((old) => {
-            return [{ id: uuidv4(), title: title, authors: [] }, ...old];
+            const newAuthorGroups: Array<AuthorGroup> = [];
+
+            for (const importedAuthorGroup of importedAuthorGroups) {
+                const group = old.find((g) => g.id === importedAuthorGroup.id);
+
+                if (group) {
+                    group.title = importedAuthorGroup.title;
+                    group.authors = [...importedAuthorGroup.authors];
+                    continue;
+                }
+
+                newAuthorGroups.push(importedAuthorGroup);
+            }
+
+            return [...newAuthorGroups, ...old];
         });
+    }, [setAuthorGroups]);
+
+    const saveAuthorGroup = useCallback((title: string) => {
+        const id = uuidv4();
+        setAuthorGroups((old) => {
+            return [{ id: id, title: title, authors: [] }, ...old];
+        });
+        return id;
     }, [setAuthorGroups]);
 
     const renameAuthorGroup = useCallback((id: string, title: string) => {
@@ -70,6 +92,7 @@ export default function useAuthorGroups() {
         renameAuthorGroup,
         removeAuthorGroup,
         saveAuthorToGroup,
-        removeAuthorFromGroup
+        removeAuthorFromGroup,
+        importAuthorGroups
     };
 }
