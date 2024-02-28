@@ -40,9 +40,9 @@ const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogParams>((
             ref={ref}
             hide={hide}
             animation={animation}
-            className='dialog z-20 sm:max-w-lg w-full flex-dialog overflow-y-hidden'>
+            className='dialog sm:max-w-lg w-full max-h-[min(25rem,90%)] flex-dialog'>
             <DialogContent
-                className='max-h-[25rem] min-h-[16rem] flex-1 flex flex-col'>
+                className='max-h-full min-h-[10rem] flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Groups'} />
@@ -90,7 +90,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
             </DialogBody>
 
             <footer
-                className='px-6 pt-2 pb-6 flex gap-2 justify-end'>
+                className='px-6 pt-2 pb-4 flex gap-2 justify-end'>
                 {
                     isInputVisible ?
                         <form

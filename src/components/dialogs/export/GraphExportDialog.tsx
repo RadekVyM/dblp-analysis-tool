@@ -12,13 +12,14 @@ import exportToGML from '@/services/graphs/export/exportToGML'
 import exportToGraphML from '@/services/graphs/export/exportToGraphML'
 import exportToGraphViz from '@/services/graphs/export/exportToGraphViz'
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
-import Button from '../Button'
-import ComboBox from '../ComboBox'
+import Button from '../../Button'
+import ComboBox from '../../ComboBox'
 import { MdCheckCircle, MdFileCopy, MdGetApp } from 'react-icons/md'
 import { delay } from '@/utils/promises'
-import CheckListButton from '../CheckListButton'
+import CheckListButton from '../../CheckListButton'
 import exportToJson from '@/services/graphs/export/exportToJson'
 import { exportToMatrixCsv, exportToSimpleCsv } from '@/services/graphs/export/exportToCsv'
+import useTextFile from '@/hooks/useTextFile'
 
 type GraphExportDialogParams = {
     hide: () => void,
@@ -67,7 +68,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
         const format = FORMATS_MAP.get(selectedFormat);
         return format?.export(exportedNodes, exportedLinks) || '';
     }, [selectedFormat, includeOnlyVisible, nodes, links, isOpen]);
-    const file = useMemo(() => textToFile(exportedGraph, 'text/plain'), [exportedGraph]);
+    const { file, textFileSize } = useTextFile(exportedGraph);
     const printedText = useMemo(() => exportedGraph.substring(0, 250000), [exportedGraph]);
     const currentFormat = FORMATS_MAP.get(selectedFormat);
 
@@ -86,9 +87,9 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog z-20 max-w-3xl max-h-[40rem] w-full h-full flex-dialog overflow-y-hidden'>
+            className='dialog max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
             <DialogContent
-                className='max-h-[40rem] flex-1 flex flex-col'>
+                className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Export Graph'}>
@@ -117,7 +118,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
 
                 <footer
                     className='px-6 pb-6 pt-2 self-stretch flex'>
-                    <span className='flex-1'>{fileSizeToText(file.size)}</span>
+                    <span className='flex-1'>{textFileSize}</span>
 
                     <div
                         className='flex gap-x-2'>
@@ -162,17 +163,4 @@ function CopyToClipboardButton({ exportedGraph }: CopyToClipboardButtonParams) {
             Copy to clipboard
         </Button>
     )
-}
-
-function textToFile(text: string, type: string) {
-    const file = new Blob([text], { type: type });
-    return { url: URL.createObjectURL(file), size: file.size };
-}
-function fileSizeToText(bytes: number) {
-    const kilo = bytes / 1024;
-
-    if (kilo < 1024) {
-        return kilo.toLocaleString(undefined, { style: 'unit', unit: 'kilobyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    return (kilo / 1024).toLocaleString(undefined, { style: 'unit', unit: 'megabyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

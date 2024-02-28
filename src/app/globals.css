@@ -113,12 +113,6 @@ body {
   @apply text-on-surface bg-surface;
 }
 
-@supports selector(body:has(dialog[open])) {
-  body:has(dialog[open]) {
-    @apply overflow-y-hidden;
-  }
-}
-
 ::selection {
   @apply text-white bg-[var(--primary-dark)];
 }

@@ -5,7 +5,7 @@ import CheckListButton from '@/components/CheckListButton'
 import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
 import DialogBody from '@/components/dialogs/DialogBody'
 import DialogHeader from '@/components/dialogs/DialogHeader'
-import GraphExportDialog from '@/components/dialogs/GraphExportDialog'
+import GraphExportDialog from '@/components/dialogs/export/GraphExportDialog'
 import { CoauthorsGraphOptions } from '@/dtos/data-visualisation/graphs/CoauthorsGraph'
 import { LinkDatum, LinkDatumExtension } from '@/dtos/data-visualisation/graphs/LinkDatum'
 import { NodeDatum, NodeDatumExtension } from '@/dtos/data-visualisation/graphs/NodeDatum'
@@ -78,9 +78,9 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog z-20 max-w-md w-full flex-dialog overflow-y-hidden'>
+            className='dialog max-w-md w-full max-h-[min(40rem,90%)] flex-dialog'>
             <DialogContent
-                className='max-h-[40rem] flex-1 flex flex-col'>
+                className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Display Options'} />

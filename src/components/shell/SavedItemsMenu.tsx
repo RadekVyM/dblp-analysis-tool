@@ -3,7 +3,7 @@
 import { cn } from '@/utils/tailwindUtils'
 import { useHover, useIsClient } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
-import { MdCancel, MdClose, MdOutlineBookmarks } from 'react-icons/md'
+import { MdCancel, MdClose, MdFileUpload, MdGetApp, MdOutlineBookmarks } from 'react-icons/md'
 import Button from '../Button'
 import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import { SearchType } from '@/enums/SearchType'
@@ -19,6 +19,9 @@ import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { DEFAULT_DISPLAYED_ITEMS_COUNT } from '@/constants/visits'
 import { createPortal } from 'react-dom'
 import useShowMore from '@/hooks/useShowMore'
+import useDialog from '@/hooks/useDialog'
+import ExportItemsDialog from '../dialogs/export/ExportItemsDialog'
+import ImportItemsDialog from '../dialogs/export/ImportItemsDialog'
 
 // TODO: Do I want the hover feature?
 
@@ -173,8 +176,10 @@ function MenuContent({ hide }: MenuContentParams) {
 
     return (
         <>
-            <div
-                className='flex justify-between items-center px-5 mb-6'>
+            <header
+                className='flex justify-between items-center px-5 mb-2'>
+                <h2 className='sr-only'>Saved items</h2>
+
                 <TypeSelection
                     selectedType={selectedType}
                     setSelectedType={(type) => setSelectedType(type)} />
@@ -186,7 +191,7 @@ function MenuContent({ hide }: MenuContentParams) {
                     <MdClose
                         className='w-5 h-5' />
                 </Button>
-            </div>
+            </header>
 
             {
                 selectedType == SearchType.Author &&
@@ -199,7 +204,48 @@ function MenuContent({ hide }: MenuContentParams) {
                 <VenuesTab
                     key={SearchType.Venue} />
             }
+
+            <Footer />
         </>
+    )
+}
+
+function Footer() {
+    const [exportDialogRef, isExportDialogOpen, exportDialogAnimation, showExportDialog, hideExportDialog] = useDialog();
+    const [importDialogRef, isImportDialogOpen, importDialogAnimation, showImportDialog, hideImportDialog] = useDialog();
+
+    return (
+        <footer
+            className='flex px-5 mb-4 mt-2 gap-x-2'>
+            <Button
+                className='items-center gap-x-2'
+                size='xs'
+                variant='outline'
+                onClick={() => showExportDialog()}>
+                <MdGetApp />
+                Export
+            </Button>
+            <Button
+                className='items-center gap-x-2'
+                size='xs'
+                variant='outline'
+                onClick={() => showImportDialog()}>
+                <MdFileUpload />
+                Import
+            </Button>
+
+            <ExportItemsDialog
+                ref={exportDialogRef}
+                hide={hideExportDialog}
+                animation={exportDialogAnimation}
+                isOpen={isExportDialogOpen} />
+
+            <ImportItemsDialog
+                ref={importDialogRef}
+                hide={hideImportDialog}
+                animation={importDialogAnimation}
+                isOpen={isImportDialogOpen} />
+        </footer>
     )
 }
 
@@ -208,7 +254,7 @@ function TabPanel({ id, className, children }: TabPanelParams) {
         <div
             role='tabpanel'
             aria-labelledby={id}
-            className={cn('flex-1 flex flex-col overflow-y-auto pb-3 pl-5 pr-3 thin-scrollbar', className)}>
+            className={cn('flex-1 flex flex-col overflow-y-auto pt-3 pl-5 pr-3 thin-scrollbar', className)}>
             {children}
         </div>
     )

@@ -96,7 +96,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             id='search-view-dialog'
             ref={ref}
             className={cn(
-                `flex-dialog z-20 md:max-w-3xl w-full h-full overflow-y-hidden
+                `flex-dialog md:max-w-3xl w-full h-full max-h-[90%]
                 bg-transparent rounded-lg backdrop:backdrop-blur-md
                 focus:outline-none`)}
             hide={hide}
@@ -107,7 +107,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
             TODO: There must be a better way to do that
             */ }
             <DialogContent
-                className='dialog flex flex-col h-auto min-h-[20rem] isolate'>
+                className='dialog flex flex-col h-auto min-h-[min(15rem)] max-h-full isolate'>
                 <header
                     className='z-10 top-0 flex flex-col gap-4 px-6 pt-6 pb-2 bg-inherit'>
                     <h2 className='sr-only'>Search dblp</h2>
@@ -137,7 +137,7 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
                 </header>
 
                 <div
-                    className='grid flex-1 overflow-y-auto scroll-smooth px-6 pb-3'>
+                    className='grid flex-1 overflow-y-auto scroll-smooth thin-scrollbar px-6 pb-3'>
                     {isOpen &&
                         <ResultsList
                             query={debouncedSearchQuery}

@@ -48,9 +48,9 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
             ref={ref}
             hide={hide}
             animation={animation}
-            className={'dialog z-20 md:max-w-3xl w-full flex-dialog min-h-[20rem] h-[70%] max-h-[48rem] overflow-y-hidden'}>
+            className={'dialog md:max-w-3xl w-full flex-dialog min-h-[20rem] h-[70%] max-h-[min(48rem,90%)]'}>
             <DialogContent
-                className='min-h-[20rem] flex-1 flex flex-col'>
+                className='min-h-[20rem] max-h-full flex-1 flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Filters'}>
