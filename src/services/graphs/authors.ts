@@ -89,6 +89,29 @@ export function convertToCoauthorsGraph(
     };
 }
 
+/**
+ * Returns whether it is possible to get through an author to another (different) original author.
+ * @param allOriginalAuthorIds IDs of all orginal authors in the graph
+ * @param startAuthorId ID of the author from which the search starts
+ * @param middleAuthor The middle guy
+ * @returns True if it is possible to get through an author to another (different) original author, false else
+ */
+// Let's have this graph of authors A, B and C:
+//       C
+//       |
+//       |
+//   B — A
+// A and B are original authors.
+// If I select A, this function returns 'false' for both B and C (A is 'startAuthorId' and B or C is 'middleAuthor').
+// However, if I add an edge between B and C and select A, this function returs 'true' for C and 'false' for B:
+//       C
+//      ⁄|
+//    ⁄  |
+//   B — A
+export function canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds: Array<string>, startAuthorId: string, middleAuthor: PublicationPersonNodeDatum) {
+    return allOriginalAuthorIds.some((id) => id !== startAuthorId && middleAuthor.coauthorIds.has(id));
+}
+
 /** Saves a specified author to the nodes map. */
 function saveNode(a: DblpPublicationPerson, primaryColoredAuthorIds: string[], authorsMap: Map<string, PublicationPersonNodeDatum>) {
     const savedCoauthor = authorsMap.get(a.id);

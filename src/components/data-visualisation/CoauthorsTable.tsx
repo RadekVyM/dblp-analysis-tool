@@ -3,7 +3,7 @@
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { useMemo } from 'react'
 import Table from './Table'
-import { convertToCoauthorsGraph } from '@/services/graphs/authors'
+import { canGetToOriginalAuthorThroughAnotherAuthor, convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 
@@ -57,7 +57,7 @@ function useCoauthorsTableRows(authors: Array<DblpAuthor>, publications?: Array<
                 const commonCoauthorsCount = [...node.coauthorIds]
                     .map((id) => authorsMap.get(id))
                     .filter((a) => a &&
-                        (authors.length === 0 || canGetToIncludedAuthorThroughAnotherAuthor(authorIds, node.id, a)))
+                        (authors.length === 0 || canGetToOriginalAuthorThroughAnotherAuthor(authorIds, node.id, a)))
                     .length;
 
                 return [
@@ -67,8 +67,4 @@ function useCoauthorsTableRows(authors: Array<DblpAuthor>, publications?: Array<
                 ];
             })
     }, [authors, publications]);
-}
-
-function canGetToIncludedAuthorThroughAnotherAuthor(allIncludedAuthorIds: Array<string>, startAuthorId: string, middleAuthor: PublicationPersonNodeDatum) {
-    return allIncludedAuthorIds.some((id) => id !== startAuthorId && middleAuthor.coauthorIds.has(id));
 }

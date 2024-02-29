@@ -22,7 +22,7 @@ const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
     [VenueType.Conference]: DBLP_CONF_INDEX_ELEMENT_ID,
     [VenueType.Series]: DBLP_SERIES_INDEX_ELEMENT_ID,
-} as const
+} as const;
 
 /**
  * Extracts all the venue or venue volume information from a XML string using Cheerio.
@@ -41,7 +41,13 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const key = $('bht').attr('key');
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
-    if ($(elementsContainingVolumeRefsSelector(id)).length > 0) {
+    // Some venues are not divided into volumes.
+    // I differentiate venues and volumes by their content.
+    // It is a venue if it:
+    // - contains <ref> elements referencing volumes of a venue with specified ID
+    // - or does not contain <r> elements which represent publications
+    // However, I am not sure if this applies for all the venues. It may be wrong.
+    if ($(elementsContainingVolumeRefsSelector(id)).length > 0 || $('r').length === 0) {
         return extractVenue($, title, venueType, id);
     }
     else {
@@ -188,29 +194,47 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
 function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string): DblpVenue {
     const volumeGroups: Array<DblpVenueVolumeItemGroup> = [];
 
+    // Volumes are represented by an anchor tag (<a>) in some venues
+    // For example: https://dblp.org/db/journals/loplas/index.xml
+    const volumeGroup = extractAnchorVolumeItems($, id, venueType);
+    if (volumeGroup) {
+        volumeGroups.push(volumeGroup);
+    }
+
+    // Volumes are represented by an <ref> tag in most venues
+    // For example https://dblp.org/db/journals/corr/index.xml, https://dblp.org/db/series/ifip/index.xml
     $(elementsContainingVolumeRefsSelector(id)).each((liIndex, li) => {
         let groupTitle: string | undefined = '';
 
         $(li).contents().first().each((index, child) => {
+            // Get the title of the group if it exists
             if (child.type === 'text') {
                 groupTitle = $(child).text().trim();
                 if (groupTitle.endsWith(':')) {
+                    // Get rid of ':' at the end of the title
                     groupTitle = groupTitle.substring(0, groupTitle.length - 1);
                 }
             }
         });
 
-        const volumes = extractVolumeItems($, li, id, venueType);
+        const volumes = extractRefVolumeItems($, li, id, venueType);
+        // This ensures that there are not duplicates in the groups
+        // Without this, venues like this https://dblp.org/db/series/ifip/index.xml are not properly parsed
+        const notIncludedVolumes = volumes.filter((newItem) => !volumeGroups.some((group) => group.items.some((item) => item.volumeId === newItem.volumeId)));
 
-        if (!groupTitle) {
-            groupTitle = volumes.length > 1 ?
-                `${volumes[0].title} - ${volumes[volumes.length - 1].title}` :
-                volumes[0].title;
+        if (notIncludedVolumes.length === 0) {
+            return;
         }
 
-        if (volumes.length > 0) {
+        if (!groupTitle) {
+            groupTitle = notIncludedVolumes.length > 1 ?
+                `${notIncludedVolumes[0].title} - ${notIncludedVolumes[notIncludedVolumes.length - 1].title}` :
+                notIncludedVolumes[0].title;
+        }
+
+        if (notIncludedVolumes.length > 0) {
             volumeGroups.push(createDblpVenueVolumeItemGroup(
-                volumes,
+                notIncludedVolumes,
                 groupTitle
             ));
         }
@@ -227,8 +251,40 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
     return venue;
 }
 
-/** Extracts all the venue volume items from a XML string using Cheerio. */
-function extractVolumeItems($: cheerio.Root, li: cheerio.Element, id: string, venueType: VenueType | undefined) {
+/** Extracts all the venue volume items represented by <a> from a XML string using Cheerio. */
+function extractAnchorVolumeItems($: cheerio.Root, id: string, venueType: VenueType | undefined) {
+    const volumes: Array<DblpVenueVolumeItem> = [];
+
+    $('li > a[href$="html"]').each((aIndex, a) => {
+        const aElement = $(a);
+        const textContent = aElement.text();
+        const href = aElement.attr('href');
+
+        if (!href || href.includes('/')) {
+            return;
+        }
+
+        volumes.push(createDblpVenueVolumeItem(
+            id,
+            href.split('.')[0],
+            textContent,
+            venueType
+        ));
+    });
+
+    if (volumes.length > 0) {
+        return createDblpVenueVolumeItemGroup(
+            volumes,
+            volumes.length > 1 ?
+                `${volumes[0].title} - ${volumes[volumes.length - 1].title}` :
+                volumes[0].title
+        );
+    }
+    return null;
+}
+
+/** Extracts all the venue volume items represented by <ref> from a XML string using Cheerio. */
+function extractRefVolumeItems($: cheerio.Root, li: cheerio.Element, id: string, venueType: VenueType | undefined) {
     const volumes: Array<DblpVenueVolumeItem> = [];
 
     $(volumeRefSelector(id), li).each((refIndex, ref) => {

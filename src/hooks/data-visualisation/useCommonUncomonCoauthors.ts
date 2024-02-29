@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { getUniqueCoauthors } from '@/services/graphs/authors'
+import { canGetToOriginalAuthorThroughAnotherAuthor, getUniqueCoauthors } from '@/services/graphs/authors'
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 
@@ -37,7 +37,7 @@ export default function useCommonUncommonCoauthors(
             return getUniqueCoauthors([author], [], (a) => a.id === author.id || !authorsMap.has(a.id))
                 .map((a) => authorsMap.get(a.id))
                 .filter((a) => a &&
-                    (allOriginalAuthorIds.length === 0 || canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, a)));
+                    (allOriginalAuthorIds.length === 0 || canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, a)));
         }
         return [];
     }, [author, authorsMap, allOriginalAuthorIds]);
@@ -52,33 +52,16 @@ export default function useCommonUncommonCoauthors(
                 [],
                 (a) => {
                     const mapAuthor = authorsMap.get(a.id);
-                    return !mapAuthor || a.id === author.id || canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor);
+                    return !mapAuthor || a.id === author.id || canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor);
                 });
         }
 
         // Skip the selected author and all authors in the graph - if they are in the graph, they are common
         return getUniqueCoauthors([author], [], (a) => {
             const mapAuthor = authorsMap.get(a.id);
-            return a.id === author.id || (!!mapAuthor && canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor));
+            return a.id === author.id || (!!mapAuthor && canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor));
         });
     }, [author, authorsMap, isOriginalAuthor, allOriginalAuthorIds]);
 
     return { commonCoauthors, uncommonCoauthors };
-}
-
-/** Returns whether it is possible to get through included author to another (different) included author. */
-// Let's have this graph of authors A, B and C:
-//       C
-//       |
-//       |
-//   B — A
-// A and B are included authors.
-// If I select A, this function returns 'false' for both B and C (A is 'startAuthorId' and B or C is 'middleAuthor').
-// However, if I add an edge between B and C and select A, this function returs 'true' for C and 'false' for B:
-//       C
-//      ⁄|
-//    ⁄  |
-//   B — A
-function canGetToIncludedAuthorThroughAnotherAuthor(allIncludedAuthorIds: Array<string>, startAuthorId: string, middleAuthor: PublicationPersonNodeDatum) {
-    return allIncludedAuthorIds.some((id) => id !== startAuthorId && middleAuthor.coauthorIds.has(id));
 }
