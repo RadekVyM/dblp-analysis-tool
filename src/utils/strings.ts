@@ -28,13 +28,14 @@ export function removeAccents(str: string): string {
 }
 
 /**
- * Returns whether a string includes a specified phrase. Accents and character case are ignored.
+ * Returns whether a string includes specified phrases. Accents and character case are ignored.
  * @param str Input string
- * @param phrase Specified phrase
- * @returns Whether a string includes a specified phrase
+ * @param phrases Specified phrases
+ * @returns Whether a string includes specified phrases
  */
-export function searchIncludes(str: string, phrase: string) {
-    return removeAccents(str).toLowerCase().includes(phrase);
+export function searchIncludes(str: string, ...phrases: Array<string>) {
+    const searchedString = removeAccents(str).toLowerCase();
+    return phrases.length === 0 || phrases.some((s) => searchedString.includes(s));
 }
 
 /**

@@ -83,11 +83,16 @@ export default FiltersDialog;
 function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
     const [searchQuery, setSearchQuery] = useState('');
     const selectableItems = useMemo(() => {
+        const searchQueries = removeAccents(searchQuery.trim())
+            .split(' ')
+            .filter((s) => s)
+            .map((s) => s.toLowerCase());
+
         const items = selectedFilter?.selectableItems ?
             [...selectedFilter?.selectableItems]
                 .filter(([key, value]) =>
                     isNullOrWhiteSpace(searchQuery) ||
-                    searchIncludes(selectedFilter.itemTitleSelector(value) as string, searchQuery)) :
+                    searchIncludes(selectedFilter.itemTitleSelector(value) as string, ...searchQueries)) :
             [];
 
         items.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));

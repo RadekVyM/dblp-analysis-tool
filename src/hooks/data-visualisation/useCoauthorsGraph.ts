@@ -160,7 +160,8 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
 function updateNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
     const searchQuery = removeAccents(graph.searchQuery.trim())
         .split(' ')
-        .filter((s) => s);
+        .filter((s) => s)
+        .map((s) => s.toLowerCase());
 
     for (const node of graph.nodes) {
         const matchesSearchQuery = searchQuery.length === 0 ||
