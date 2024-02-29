@@ -33,6 +33,11 @@ type SelectedAuthorContentParams = {
     onCoauthorHoverChange: (id: string, isHovered: boolean) => void
 }
 
+type SectionHeadingParams = {
+    children: React.ReactNode,
+    info?: string
+}
+
 /** Displays basic information about currently selected author in the coauthors graph and their coauthors.  */
 export default function SelectedAuthor({
     selectedAuthor,
@@ -151,9 +156,12 @@ function SelectedAuthorContent({
             {
                 displayedCommonCoauthors.length > 0 &&
                 <section>
-                    <h5 className='font-bold mx-4 mt-4 text-sm'>
-                        Common coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are common with an original author`} />
-                    </h5>
+                    <SectionHeading
+                        info={allIncludedAuthorIds.length > 0 ?
+                            `${selectedAuthor.person.name}'s coauthors that are common with an original author` :
+                            `${selectedAuthor.person.name}'s coauthors that are in the graph`}>
+                        Common coauthors
+                    </SectionHeading>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
                         {displayedCommonCoauthors.map((a) =>
@@ -163,7 +171,8 @@ function SelectedAuthorContent({
                                 onAuthorClick={onCoauthorClick}
                                 person={a.person}
                                 onHoverChange={onCoauthorHoverChange}
-                                after={selectedAuthor.coauthorIds.has(a.person.id) && <span> <MdLibraryBooks title='Coauthor of the same publication' className='inline' /></span>} />)}
+                                after={selectedAuthor.coauthorIds.has(a.person.id) &&
+                                    <span> <MdLibraryBooks title='Coauthor of the same publication' className='inline' /></span>} />)}
                     </ul>
                 </section>
             }
@@ -171,13 +180,16 @@ function SelectedAuthorContent({
                 displayedUncommonCoauthors.length > 0 &&
                 <section>
                     {
-                        displayedCommonCoauthors.length === 0 || (allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id) ?
-                            <h5 className='font-bold mx-4 mt-4 text-sm'>
+                        allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
+                            <SectionHeading>
                                 Coauthors
-                            </h5> :
-                            <h5 className='font-bold mx-4 mt-4 text-sm'>
-                                Uncommon coauthors <MdInfo className='inline' title={`List of ${selectedAuthor.person.name}'s coauthors that are not common with any original author`} />
-                            </h5>
+                            </SectionHeading> :
+                            <SectionHeading
+                                info={allIncludedAuthorIds.length !== 0 ?
+                                    `${selectedAuthor.person.name}'s coauthors that are not common with any original author` :
+                                    `${selectedAuthor.person.name}'s coauthors that are not in the graph`}>
+                                Uncommon coauthors
+                            </SectionHeading>
                     }
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
@@ -206,6 +218,14 @@ function SelectedAuthorContent({
                 className='h-[10px]'
                 aria-hidden />
         </div>
+}
+
+function SectionHeading({ children, info }: SectionHeadingParams) {
+    return (
+        <h5 className='font-bold mx-4 mt-4 text-sm'>
+            {children} {info && <MdInfo className='inline' title={info} />}
+        </h5>
+    )
 }
 
 function useDisplayedCoauthors(

@@ -4,7 +4,7 @@ import useLazyListCount from '@/hooks/useLazyListCount'
 import { isGreater } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
-import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
+import { MdArrowDropDown, MdArrowDropUp, MdInfo } from 'react-icons/md'
 
 type TableParams = {
     className?: string,
@@ -23,6 +23,7 @@ type SortButtonParams = {
 
 type TableColumnHeaderParams = {
     className?: string,
+    info?: string,
     sortingTitle: string,
     children: React.ReactNode,
     column: TableColumn,
@@ -41,6 +42,7 @@ export type TableColumnHeader = {
     column: TableColumn,
     title: React.ReactNode,
     sortingTitle: string,
+    info?: string,
     className?: string,
     sort?: (first: TableData, second: TableData) => number
 }
@@ -72,6 +74,7 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
                                 className={header.className}
                                 column={header.column}
                                 sortingTitle={header.sortingTitle}
+                                info={header.info}
                                 currentSorting={sorting}
                                 updateSorting={updateSorting}>
                                 {header.title}
@@ -113,11 +116,11 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
 }
 
 
-function TableColumnHeader({ className, column, sortingTitle, children, currentSorting, updateSorting }: TableColumnHeaderParams) {
+function TableColumnHeader({ className, column, sortingTitle, children, currentSorting, info, updateSorting }: TableColumnHeaderParams) {
     return (
         <th scope='col' className={cn('text-start px-3 py-2', className)}>
-            <div className='flex gap-2'>
-                <span>{children}</span>
+            <div className='flex gap-2 items-center'>
+                <span>{children}</span> {info && <MdInfo className='inline' title={info} />}
                 <SortButton
                     title={sortingTitle}
                     onClick={() => updateSorting(column)}

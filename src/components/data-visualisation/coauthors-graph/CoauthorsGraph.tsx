@@ -6,12 +6,13 @@ import * as d3 from 'd3'
 import { MouseEvent, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import LoadingWheel from '../../LoadingWheel'
 import { cn } from '@/utils/tailwindUtils'
-import { EdgeRect } from '@/dtos/Rect'
+import { EdgeRect, PointRect } from '@/dtos/Rect'
 import { CoauthorsGraphState } from '@/dtos/data-visualisation/graphs/CoauthorsGraph'
 import { ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
 import { clamp } from '@/utils/numbers'
+import { distance, rectArea, scaleToLength, triangleArea } from '@/utils/geometry'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -186,6 +187,8 @@ function useCanvas(
     onNodeClick: (id: string) => void,
     onNodeHoverChange: (id: string | null, isHovered: boolean) => void
 ) {
+    // Hovering a link does not change the graph state, so the link label is stored outside of it
+    const [linkLabel, setLinkLabel] = useState<{ label: string, point: [number, number], linkIndex: number } | null>(null);
     const canvas = ref.current?.element;
     const simulation = useMemo(() => d3.forceSimulation(nodes).stop(), [nodes]);
 
@@ -216,11 +219,21 @@ function useCanvas(
             zoomTransform.scale,
             graph.justDimInvisibleNodes);
 
+        if (linkLabel && graph.showLinkWeightOnHover) {
+            drawLinkLabel(
+                context,
+                dimensions,
+                zoomTransform.scale,
+                linkLabel.point,
+                linkLabel.label);
+        }
+
         context.restore();
-    }, [zoomTransform, links, nodes, dimensions, graph]);
+    }, [zoomTransform, links, nodes, dimensions, graph, graph.showLinkWeightOnHover, linkLabel]);
 
     function onClick(event: MouseEvent) {
-        const node = findNode(event);
+        const point = getGraphPoint(event);
+        const node = findNode(point);
 
         if (node) {
             onNodeClick(node.person.id);
@@ -228,7 +241,13 @@ function useCanvas(
     }
 
     function onPointerMove(event: MouseEvent) {
-        const node = findNode(event);
+        const point = getGraphPoint(event);
+        const node = findNode(point);
+        const link = findLink(point);
+
+        setLinkLabel(link && link.index && !node ?
+            { point: point, label: link.publicationsCount.toString(), linkIndex: link.index } :
+            null);
 
         if (node && (node.isVisible || graph.justDimInvisibleNodes)) {
             onNodeHoverChange(node.person.id, true);
@@ -242,11 +261,25 @@ function useCanvas(
         if (graph.hoveredAuthorId) {
             onNodeHoverChange(graph.hoveredAuthorId, false);
         }
+        setLinkLabel(null);
     }
 
-    function findNode(event: MouseEvent) {
+    function findNode(point: [number, number]) {
+        return simulation.find(point[0], point[1], 10);
+    }
+
+    function findLink(point: [number, number]) {
+        for (const link of links) {
+            if (isPointOnLink(link, point)) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    function getGraphPoint(event: MouseEvent): [number, number] {
         const point = invertPoint(d3.pointer(event), zoomTransform);
-        return simulation.find(toDefaultX(point[0], dimensions), toDefaultY(point[1], dimensions), 10);
+        return [toDefaultX(point[0], dimensions), toDefaultY(point[1], dimensions)];
     }
 
     return {
@@ -254,6 +287,27 @@ function useCanvas(
         onCanvasPointerMove: onPointerMove,
         onCanvasPointerLeave: onPointerLeave,
     };
+}
+
+/** Draws a label at the specified point. */
+function drawLinkLabel(
+    context: CanvasRenderingContext2D,
+    dimensions: { width: number; height: number },
+    scale: number,
+    point: [number, number],
+    label: string
+) {
+    const computedStyle = getComputedStyle(context.canvas);
+    const offset = -0.2;
+    const x = toDimensionsX(point[0], dimensions) + offset;
+    const y = toDimensionsY(point[1], dimensions) + offset;
+
+    context.save();
+    setDefaultLabelStyle(context, computedStyle, scale);
+    context.textAlign = 'right';
+    context.textBaseline = 'bottom';
+    drawLabel(x, y, label, context);
+    context.restore();
 }
 
 /** Draws all nodes onto the canvas context. This function decides which nodes should be drawn highlighted or dim. */
@@ -395,14 +449,7 @@ function drawNodeLabels(
     nodes: Array<PublicationPersonNodeDatum>,
     computedStyle: CSSStyleDeclaration
 ) {
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.strokeStyle = computedStyle.getPropertyValue('--surface');
-    context.fillStyle = computedStyle.getPropertyValue('--on-surface');
-    context.lineWidth = 4 / scale;
-    context.lineCap = 'round';
-    context.lineJoin = 'round';
-    context.font = `bold ${13 / scale}px ${inter.style.fontFamily}`;
+    setDefaultLabelStyle(context, computedStyle, scale);
 
     const highlightedNodes: Array<PublicationPersonNodeDatum> = [];
 
@@ -412,21 +459,25 @@ function drawNodeLabels(
             continue;
         }
 
-        drawLabel(node, context);
+        drawNodeLabel(node, context);
     }
 
     context.fillStyle = computedStyle.getPropertyValue('--primary');
     context.font = `bold ${15 / scale}px ${inter.style.fontFamily}`;
 
     for (const node of highlightedNodes) {
-        drawLabel(node, context);
+        drawNodeLabel(node, context);
     }
 }
 
-function drawLabel(node: PublicationPersonNodeDatum, context: CanvasRenderingContext2D) {
-    context.moveTo(node.canvasX, node.canvasY);
-    context.strokeText(node.person.name, node.canvasX, node.canvasY);
-    context.fillText(node.person.name, node.canvasX, node.canvasY);
+function drawNodeLabel(node: PublicationPersonNodeDatum, context: CanvasRenderingContext2D) {
+    drawLabel(node.canvasX, node.canvasY, node.person.name, context);
+}
+
+function drawLabel(x: number, y: number, label: string, context: CanvasRenderingContext2D) {
+    context.moveTo(x, y);
+    context.strokeText(label, x, y);
+    context.fillText(label, x, y);
 }
 
 function addNodeToPath(context: CanvasRenderingContext2D, node: PublicationPersonNodeDatum, radius?: number) {
@@ -494,6 +545,18 @@ function drawLine(
         context.stroke();
         context.closePath();
     }
+}
+
+/** Sets default styling for drawing a label on canvas. */
+function setDefaultLabelStyle(context: CanvasRenderingContext2D, computedStyle: CSSStyleDeclaration, scale: number) {
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.strokeStyle = computedStyle.getPropertyValue('--surface');
+    context.fillStyle = computedStyle.getPropertyValue('--on-surface');
+    context.lineWidth = 4 / scale;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+    context.font = `bold ${13 / scale}px ${inter.style.fontFamily}`;
 }
 
 /** Translates the point according to the zoom transform and converts it to the default coordinates of the graph that is generated by the simulation. */
@@ -570,6 +633,48 @@ function getGraphRect(nodes: Array<PublicationPersonNodeDatum>) {
         right: maxX,
         bottom: maxY
     } as EdgeRect
+}
+
+function isPointOnLink(link: PublicationPersonLinkDatum, point: [number, number]) {
+    if (typeof link.source !== 'object' || typeof link.target !== 'object') {
+        // The simulation is not finished yet 
+        return false;
+    }
+
+    const source = link.source as PublicationPersonNodeDatum;
+    const target = link.target as PublicationPersonNodeDatum;
+    const rect = getLinkRect(source, target);
+
+    if (!rect) {
+        return false;
+    }
+
+    const sumOfTriangles =
+        triangleArea(point, rect.a, rect.b) +
+        triangleArea(point, rect.b, rect.c) +
+        triangleArea(point, rect.c, rect.d) +
+        triangleArea(point, rect.d, rect.a);
+    const rectA = rectArea(rect);
+
+    return sumOfTriangles - rectA < 1;
+}
+
+function getLinkRect(source: PublicationPersonNodeDatum, target: PublicationPersonNodeDatum) {
+    if (target.x === undefined || source.x === undefined || target.y === undefined || source.y === undefined) {
+        return null;
+    }
+
+    const thickness = 2;
+    const vector: [number, number] = [target.x - source.x, target.y - source.y];
+    const up: [number, number] = scaleToLength([vector[1], -vector[0]], thickness / 2);
+    const down: [number, number] = scaleToLength([-vector[1], vector[0]], thickness / 2);
+
+    return {
+        a: [target.x + up[0], target.y + up[1]],
+        b: [target.x + down[0], target.y + down[1]],
+        c: [source.x + down[0], source.y + down[1]],
+        d: [source.x + up[0], source.y + up[1]],
+    } as PointRect;
 }
 
 /** Extracts a color of a node if it exists. */

@@ -20,6 +20,7 @@ export type CoauthorsGraphDisplayOptions = {
     justDimInvisibleNodes: boolean,
     showNeighborLabelsOfHighlightedNodes: boolean,
     alwaysShowLabelsOfOriginalAuthorsNodes: boolean,
+    showLinkWeightOnHover: boolean,
 }
 
 /**

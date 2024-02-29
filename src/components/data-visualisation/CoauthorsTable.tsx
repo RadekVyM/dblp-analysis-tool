@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import Table from './Table'
 import { convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
+import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 
 type CoauthorsTableParams = {
     authors: Array<DblpAuthor>,
@@ -23,18 +24,18 @@ export default function CoauthorsTable({ authors, publications }: CoauthorsTable
                 {
                     column: 0,
                     sortingTitle: 'Sort by author name',
-                    title: 'Couthor',
+                    title: 'Coauthor',
                     className: 'w-[20rem]'
                 },
                 {
                     column: 1,
-                    sortingTitle: 'Sort by common coauthors count',
-                    title: 'Common coauthors count'
+                    sortingTitle: 'Sort by coauthors count',
+                    title: 'Coauthors count',
                 },
                 {
                     column: 2,
-                    sortingTitle: 'Sort by common publications count',
-                    title: 'Common publications count'
+                    sortingTitle: 'Sort by publications count',
+                    title: 'Publications count',
                 }
             ]}
             isFirstColumnHeader />
@@ -43,14 +44,31 @@ export default function CoauthorsTable({ authors, publications }: CoauthorsTable
 
 function useCoauthorsTableRows(authors: Array<DblpAuthor>, publications?: Array<DblpPublication>) {
     return useMemo(() => {
-        const { nodes } = convertToCoauthorsGraph(authors.flatMap((a) => a.publications).concat(publications || []));
+        const uniquePublications = new Map<string, DblpPublication>();
+        authors.forEach((a) => a.publications.forEach((p) => uniquePublications.set(p.id, p)));
+        publications?.forEach((p) => uniquePublications.set(p.id, p));
+
+        const { nodes, authorsMap } = convertToCoauthorsGraph([...uniquePublications.values()]);
+        const authorIds = authors.map((a) => a.id);
 
         return nodes
             .filter((a) => !authors.some((aa) => aa.id === a.person.id))
-            .map((node, index) => ([
-                { value: node.person.name, presentedContent: node.person.name },
-                { value: node.coauthorIds.size, presentedContent: node.coauthorIds.size },
-                { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
-            ]))
+            .map((node, index) => {
+                const commonCoauthorsCount = [...node.coauthorIds]
+                    .map((id) => authorsMap.get(id))
+                    .filter((a) => a &&
+                        (authors.length === 0 || canGetToIncludedAuthorThroughAnotherAuthor(authorIds, node.id, a)))
+                    .length;
+
+                return [
+                    { value: node.person.name, presentedContent: node.person.name },
+                    { value: commonCoauthorsCount, presentedContent: commonCoauthorsCount },
+                    { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
+                ];
+            })
     }, [authors, publications]);
+}
+
+function canGetToIncludedAuthorThroughAnotherAuthor(allIncludedAuthorIds: Array<string>, startAuthorId: string, middleAuthor: PublicationPersonNodeDatum) {
+    return allIncludedAuthorIds.some((id) => id !== startAuthorId && middleAuthor.coauthorIds.has(id));
 }

@@ -77,6 +77,7 @@ export function convertToCoauthorsGraph(
     const links = [...linksMap.values()];
     nodes.sort((a, b) => b.personOccurrenceCount - a.personOccurrenceCount);
 
+    links.forEach((l) => l.weight = l.publicationsCount = l.publicationsCount / 2);
     const childrenStats = setChildren(links, authorsMap);
 
     return {

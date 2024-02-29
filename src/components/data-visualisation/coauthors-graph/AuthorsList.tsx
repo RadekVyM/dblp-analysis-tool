@@ -3,16 +3,14 @@
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import AuthorListItem from './AuthorListItem'
 import useLazyListCount from '@/hooks/useLazyListCount'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import FiltersList from '@/components/FiltersList'
 import FiltersDialog from '@/components/dialogs/FiltersDialog'
 import useDialog from '@/hooks/useDialog'
 import { FiltersState } from '@/dtos/Filters'
-import { MdCancel, MdInfo, MdSearch } from 'react-icons/md'
-import { isNullOrWhiteSpace } from '@/utils/strings'
-import { cn } from '@/utils/tailwindUtils'
-import { useDebounce } from 'usehooks-ts'
+import { MdInfo } from 'react-icons/md'
 import CheckListButton from '@/components/CheckListButton'
+import SearchBox from '@/components/SearchBox'
 
 type AuthorsListParams = {
     nodes: Array<PublicationPersonNodeDatum>
@@ -41,12 +39,6 @@ type OptionsParams = {
     toggleOriginalAuthorsAlwaysIncluded: () => void,
     toggleOnlyCommonCoauthors: () => void,
     toggleIntersectionOfCoauthors: () => void,
-}
-
-type SearchBoxParams = {
-    className?: string,
-    searchQuery: string,
-    onSearchQueryChange: (query: string) => void
 }
 
 const COUNT_INCREASE = 60;
@@ -106,6 +98,7 @@ export default function AuthorsList(
                     className='sticky top-0 bg-surface-container z-30'>
                     <SearchBox
                         className='mx-4 mb-2'
+                        placeholder='Search authors...'
                         searchQuery={searchQuery}
                         onSearchQueryChange={onSearchQueryChange} />
                 </div>
@@ -199,41 +192,6 @@ function Options({
                         <span>Intersection of coauthors <MdInfo className='inline' title={`Show only common coauthors of all original authors`} /></span>
                     </CheckListButton>
                 </>
-            }
-        </div>
-    )
-}
-
-function SearchBox({ className, searchQuery, onSearchQueryChange }: SearchBoxParams) {
-    const [localSearchQuery, setSearchQuery] = useState(searchQuery);
-    const debouncedSearchQuery = useDebounce(localSearchQuery, 750);
-
-    useEffect(() => {
-        onSearchQueryChange(debouncedSearchQuery);
-    }, [debouncedSearchQuery]);
-
-    return (
-        <div
-            className={cn('relative rounded-lg border border-outline bg-surface-container hover:bg-surface-dim-container transition-colors', className)}>
-            <input
-                type='text'
-                value={localSearchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder='Search authors...'
-                className='w-full h-8 px-8 bg-transparent text-sm rounded-lg' />
-            <div
-                className='absolute top-0 grid place-items-center w-8 h-full pointer-events-none rounded-lg'>
-                <MdSearch
-                    className='w-4 h-4' />
-            </div>
-            {
-                !isNullOrWhiteSpace(searchQuery) &&
-                <button
-                    type='button'
-                    className='absolute top-0 right-0 grid place-items-center w-8 h-full rounded-lg'
-                    onClick={() => setSearchQuery('')}>
-                    <MdCancel />
-                </button>
             }
         </div>
     )

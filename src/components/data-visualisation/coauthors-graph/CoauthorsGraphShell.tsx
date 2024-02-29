@@ -150,7 +150,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                             switchSelection={switchSelection}
                             clear={clear}
                             onAuthorClick={setSelectedAuthorId}
-                            title={`All authors`}
+                            title={`All Authors`}
                             onAuthorHoverChange={onCoauthorHoverChange}
                             isOriginalAuthorsAlwaysIncludedOptionVisible={allAuthors.ids.length > 0}
                             isOnlyCommonCoauthorsOptionVisible={allAuthors.ids.length > 1}

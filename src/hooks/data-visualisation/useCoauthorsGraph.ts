@@ -16,6 +16,7 @@ const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     onlyCommonCoauthors: false,
     intersectionOfCoauthors: false,
     originalAuthorsAlwaysIncluded: true,
+    showLinkWeightOnHover: true,
     selectedAuthorId: null,
     hoveredAuthorId: null,
     filteredAuthorsIds: new Set(),

@@ -96,7 +96,7 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                                     setSelectedUnit={setBarChartSelectedUnit}
                                     unitsId={scaffoldId || ''} />
                                 <MaxCountInput
-                                    label={'Venues Count:'}
+                                    label={'Venues count:'}
                                     scaffoldId={scaffoldId || ''}
                                     maxCount={maxBarsCount}
                                     setMaxCount={setMaxBarsCount} />

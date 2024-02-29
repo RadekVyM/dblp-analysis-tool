@@ -1,4 +1,4 @@
-import { Rect } from '@/dtos/Rect'
+import { PointRect, Rect } from '@/dtos/Rect'
 
 const SegmentOrientation = {
     Colinear: 'Colinear',
@@ -7,6 +7,26 @@ const SegmentOrientation = {
 } as const
 
 type SegmentOrientation = keyof typeof SegmentOrientation
+
+/**
+ * Computes the triangle area.
+ * @param a First point of the triangle
+ * @param b Second point of the triangle
+ * @param c Third point of the triangle
+ * @returns Triangle area
+ */
+export function triangleArea(a: [number, number], b: [number, number], c: [number, number]) {
+    return Math.abs((b[0] * a[1] - a[0] * b[1]) + (c[0] * b[1] - b[0] * c[1]) + (a[0] * c[1] - c[0] * a[1])) / 2;
+}
+
+/**
+ * Computes the rectangle area.
+ * @param rect Rectangle
+ * @returns Rectangle area
+ */
+export function rectArea(rect: PointRect) {
+    return distance(rect.a, rect.b) * distance(rect.a, rect.d);
+}
 
 /**
  * Scales the vector to a certain length.
@@ -18,7 +38,7 @@ export function scaleToLength(vec: [number, number], length: number): [number, n
     if (length < 0) {
         throw new Error('Length of a vector cannot be negative');
     }
-    
+
     const [x, y] = vec;
     const oldLength = Math.sqrt((x * x) + (y * y));
 
@@ -88,7 +108,7 @@ function orientation(first: [number, number], second: [number, number], third: [
     const [x3, y3] = third;
 
     const val = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2);
-    
+
     if (val === 0) {
         // third point lies on the line that goes through the segment formed by the first and second point
         return SegmentOrientation.Colinear;
@@ -108,4 +128,4 @@ function isPointOnSegment(first: [number, number], second: [number, number], thi
     const [x3, y3] = third;
 
     return x3 <= Math.max(x1, x2) && x3 <= Math.min(x1, x2) && (y3 <= Math.max(y1, y2) && y3 <= Math.min(y1, y2));
- }
+}

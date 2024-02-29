@@ -67,7 +67,7 @@ export default function VenueTopAuthorsStats({ className, authors, scaffoldId, t
                                     setSelectedUnit={setBarChartSelectedUnit}
                                     unitsId={scaffoldId || ''} />
                                 <MaxCountInput
-                                    label={'Authors Count:'}
+                                    label={'Authors count:'}
                                     scaffoldId={scaffoldId || ''}
                                     maxCount={maxBarsCount}
                                     setMaxCount={setMaxBarsCount} />

@@ -36,7 +36,8 @@ export default function useCommonUncommonCoauthors(
         if (author) {
             return getUniqueCoauthors([author], [], (a) => a.id === author.id || !authorsMap.has(a.id))
                 .map((a) => authorsMap.get(a.id))
-                .filter((a) => a && canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, a));
+                .filter((a) => a &&
+                    (allOriginalAuthorIds.length === 0 || canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, a)));
         }
         return [];
     }, [author, authorsMap, allOriginalAuthorIds]);
@@ -56,8 +57,11 @@ export default function useCommonUncommonCoauthors(
         }
 
         // Skip the selected author and all authors in the graph - if they are in the graph, they are common
-        return getUniqueCoauthors([author], [], (a) => a.id === author.id || authorsMap.has(a.id));
-    }, [author, authorsMap, isOriginalAuthor]);
+        return getUniqueCoauthors([author], [], (a) => {
+            const mapAuthor = authorsMap.get(a.id);
+            return a.id === author.id || (!!mapAuthor && canGetToIncludedAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor));
+        });
+    }, [author, authorsMap, isOriginalAuthor, allOriginalAuthorIds]);
 
     return { commonCoauthors, uncommonCoauthors };
 }

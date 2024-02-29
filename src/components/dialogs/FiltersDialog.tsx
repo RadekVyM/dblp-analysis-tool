@@ -10,6 +10,9 @@ import Button from '../Button'
 import { MdFilterAltOff } from 'react-icons/md'
 import { FilterState, FilterStatesMap, FiltersState } from '@/dtos/Filters'
 import { isGreater, isSmaller } from '@/utils/array'
+import SearchBox from '../SearchBox'
+import { cn } from '@/utils/tailwindUtils'
+import { isNullOrWhiteSpace, removeAccents, searchIncludes } from '@/utils/strings'
 
 type FiltersDialogParams = {
     hide: () => void,
@@ -78,19 +81,40 @@ FiltersDialog.displayName = 'FiltersDialog';
 export default FiltersDialog;
 
 function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
-    const selectableItems = selectedFilter?.selectableItems ? [...selectedFilter?.selectableItems] : [];
-    selectableItems.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));
+    const [searchQuery, setSearchQuery] = useState('');
+    const selectableItems = useMemo(() => {
+        const items = selectedFilter?.selectableItems ?
+            [...selectedFilter?.selectableItems]
+                .filter(([key, value]) =>
+                    isNullOrWhiteSpace(searchQuery) ||
+                    searchIncludes(selectedFilter.itemTitleSelector(value) as string, searchQuery)) :
+            [];
+
+        items.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));
+
+        return items;
+    }, [selectedFilter?.selectableItems, searchQuery]);
+
+    useEffect(() => {
+        setSearchQuery('');
+    }, [selectedKey]);
 
     return (
         <DialogBody
-            className={selectedFilter?.description ? 'pt-2' : ''}>
+            className={cn('isolate pt-0')}>
             {
                 selectedFilter &&
                 <>
                     {
                         selectedFilter.description &&
-                        <span className='mb-4 inline-block text-sm text-on-surface-container-muted'>{selectedFilter.description}</span>
+                        <span className='mb-2 mt-2 inline-block text-sm text-on-surface-container-muted'>{selectedFilter.description}</span>
                     }
+                    <div
+                        className='z-20 bg-surface-container sticky top-0 pt-2 pb-4'>
+                        <SearchBox
+                            searchQuery={searchQuery}
+                            onSearchQueryChange={setSearchQuery} />
+                    </div>
                     <Button
                         className='mb-5 items-center gap-x-2'
                         variant='outline'

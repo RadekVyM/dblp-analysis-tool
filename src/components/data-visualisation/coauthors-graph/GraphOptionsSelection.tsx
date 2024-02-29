@@ -117,6 +117,12 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
                         onClick={() => setOptions({ alwaysShowLabelsOfOriginalAuthorsNodes: !options.alwaysShowLabelsOfOriginalAuthorsNodes })}>
                         Always show labels of nodes of original authors
                     </CheckListButton>
+                    <CheckListButton
+                        className='w-full'
+                        isSelected={options.showLinkWeightOnHover}
+                        onClick={() => setOptions({ showLinkWeightOnHover: !options.showLinkWeightOnHover })}>
+                        Show link weights on hover
+                    </CheckListButton>
                 </DialogBody>
             </DialogContent>
         </Dialog>

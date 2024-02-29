@@ -25,15 +25,18 @@ export default function VolumesStats({ volumes, venueId, volumeId, venueVolumeTy
     return (
         <>
             <PublicationsStatsSection
-                title={venueVolumeType === VenueVolumeType.Volume ? undefined : 'Selected Volumes Publications'}
+                title={venueVolumeType === VenueVolumeType.Volume ? undefined : 'Publications of Selected Volumes'}
                 publicationsUrl={volumeId ?
                     `/venue/${venueId}/${volumeId}/publications?${createVolumeIdsParams(volumes)}` :
                     `/venue/${venueId}/publications?${createVolumeIdsParams(volumes)}`}
                 publications={allPublications}
                 maxDisplayedCount={3} />
             <CoauthorsSection
+                title={venueVolumeType === VenueVolumeType.Volume ? 'Authors' : 'Authors of Selected Volumes'}
                 authors={[]}
-                publications={allPublications} />
+                publications={allPublications}
+                tableCoauthorsExplanation={`Total number of coauthors of publications from the ${venueVolumeType === VenueVolumeType.Volume ? 'venue' : 'selected volumes'}`}
+                tablePublicationsExplanation={`Total number of unique publications from the ${venueVolumeType === VenueVolumeType.Volume ? 'venue' : 'selected volumes'}`} />
         </>
     )
 }

@@ -28,6 +28,16 @@ export function removeAccents(str: string): string {
 }
 
 /**
+ * Returns whether a string includes a specified phrase. Accents and character case are ignored.
+ * @param str Input string
+ * @param phrase Specified phrase
+ * @returns Whether a string includes a specified phrase
+ */
+export function searchIncludes(str: string, phrase: string) {
+    return removeAccents(str).toLowerCase().includes(phrase);
+}
+
+/**
  * Parses all passed strings if they are integers.
  * @param numberStrings String or array of strings
  * @returns Array of numbers
