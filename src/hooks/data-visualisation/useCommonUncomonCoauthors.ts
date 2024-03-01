@@ -59,7 +59,7 @@ export default function useCommonUncommonCoauthors(
         // Skip the selected author and all authors in the graph - if they are in the graph, they are common
         return getUniqueCoauthors([author], [], (a) => {
             const mapAuthor = authorsMap.get(a.id);
-            return a.id === author.id || (!!mapAuthor && canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor));
+            return a.id === author.id || (!!mapAuthor && (allOriginalAuthorIds.length === 0 || canGetToOriginalAuthorThroughAnotherAuthor(allOriginalAuthorIds, author.id, mapAuthor)));
         });
     }, [author, authorsMap, isOriginalAuthor, allOriginalAuthorIds]);
 

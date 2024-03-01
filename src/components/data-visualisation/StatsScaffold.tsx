@@ -47,7 +47,7 @@ export default function StatsScaffold({ className, items, scaffoldId, sideTabsLe
                 selectedId={selectedKey}
                 setSelectedId={(id) => onKeySelected(id)} />
             <DataVisualisationContainer
-                className='overflow-hidden sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
+                className='overflow-clip min-h-0 sm:row-start-1 sm:row-end-2 sm:col-start-1 sm:col-end-2'>
                 {selectedItem?.content}
             </DataVisualisationContainer>
             {

@@ -10,7 +10,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { useState, useMemo, useEffect } from 'react'
 import { MdBarChart, MdSsidChart, MdTableChart } from 'react-icons/md'
 import * as d3 from 'd3'
-import LineChart from '@/components/data-visualisation/LineChart'
+import LineChart, { LineChartData } from '@/components/data-visualisation/LineChart'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
@@ -20,8 +20,8 @@ import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
     id: string,
-    type: PublicationType,
     year: number,
+    type: PublicationType,
 }
 
 /** These items are already grouped. */
@@ -145,13 +145,12 @@ function PublicationsOverTimeLineChart({ publications, isSimplified }: Publicati
             className='w-full h-full pr-4 xs:pr-8 pt-7'
             data={{
                 examinedProperty: (item) => item.year,
-                barTitle: (key) => key,
-                color: (key) => 'primary',
+                pointTitle: (key) => key,
                 sortKeys: (pair1, pair2) => isGreater(pair1.key, pair2.key),
                 value: isSimplified ? (items) => chartValueOfSimplifiedPublications(items as Array<SimplifiedOverTimePublication>) : undefined,
                 fillMissingNumberKeys: true,
                 items: publications
-            } as BarChartData<OverTimePublication | SimplifiedOverTimePublication>} />
+            } as LineChartData<OverTimePublication | SimplifiedOverTimePublication>} />
     )
 }
 

@@ -11,7 +11,7 @@ import { useState, useMemo } from 'react'
 import { MdBarChart, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
-import { getVenueTypeFromDblpString } from '@/utils/urls'
+import { createLocalPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { VENUE_TYPE_COLOR } from '@/constants/client/publications'
 import ItemsStats from '@/components/ItemsStats'
 import MaxCountInput from '../MaxCountInput'
@@ -19,6 +19,8 @@ import { sortByPresentedContent } from '@/utils/table'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
 import { toVenuesSearchParamsString } from '@/utils/publicationsSearchParams'
+import { SearchType } from '@/enums/SearchType'
+import { VenueType } from '@/enums/VenueType'
 
 type VenuePublication = {
     id: string,
@@ -133,7 +135,8 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, o
             onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.venueId,
-                barTitle: (key, value) => value?.items[0]?.venueTitle || key,
+                barTitle: (key, value) => getVenueTypeFromDblpString(key) === VenueType.Book ? 'Books' : value?.items[0]?.venueTitle || key,
+                barLink: (key, value) => getVenueTypeFromDblpString(key) === VenueType.Book ? undefined : createLocalPath(key, SearchType.Venue),
                 color: (key, value) => {
                     const type = key ? getVenueTypeFromDblpString(key) : null;
 

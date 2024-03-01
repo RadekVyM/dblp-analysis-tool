@@ -12,10 +12,12 @@ import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartDat
 import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { Dimensions, EdgeRect } from '@/dtos/Rect'
+import Link from 'next/link'
 
 export type BarChartData<T> = {
     color: (key: any, value?: ChartValue) => string,
     barTitle?: (key: any, value?: ChartValue) => string,
+    barLink?: (key: any, value?: ChartValue) => string,
 } & ChartData<T>
 
 type BarChartParams = {
@@ -53,7 +55,7 @@ type ChartParams = {
 }
 
 type PrimaryAxisLabelsParams = {
-    labels: Array<{ key: any, label: any }>,
+    labels: Array<{ key: any, label: any, link?: string }>,
     orientation: ChartOrientation,
     dimensions: Dimensions,
     padding: EdgeRect,
@@ -93,11 +95,16 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                 orientation={orientation || ChartOrientation.Horizontal}
                 labels={keys.map((key) => {
                     let label = key;
+                    let link = undefined;
                     if (data.barTitle) {
                         const value = chartMap.get(key);
                         label = data.barTitle(key, value);
                     }
-                    return { key, label };
+                    if (data.barLink) {
+                        const value = chartMap.get(key);
+                        link = data.barLink(key, value);
+                    }
+                    return { key, label, link };
                 })}
                 dimensions={dimensions}
                 padding={chartPadding}
@@ -331,7 +338,9 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
                                         orientation === ChartOrientation.Horizontal ?
                                             'text-end' :
                                             'text-center')}>
-                                    {label.label}
+                                    {label.link ?
+                                        <Link prefetch={false} href={label.link} className='hover:underline'>{label.label}</Link> :
+                                        <>{label.label}</>}
                                 </span>
                             </div>
                         )

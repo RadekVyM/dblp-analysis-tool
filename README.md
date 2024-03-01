@@ -29,10 +29,7 @@ npm install
 
 ```
 MONGODB_URI=mongodb://127.0.0.1:27017/dblp-analysis-tool
-SESSION_SECRET='super_secret_secret'
 ```
-
-`SESSION_SECRET` can be an arbitrary string.
 
 ### Development with hot reload
 

@@ -15,7 +15,6 @@ services:
     environment:
       NODE_ENV: production
       MONGODB_URI: "mongodb://mongodb:27017/dblp-analysis-tool"
-      SESSION_SECRET: "9b4f808b903433f7938ead04bb7b5f7aa8b2da1a8af73ec44a0d8d6c0c6b4ef2c06f92b8362ba40c536beca38e03c5759b8bf021aac7324f96ae413670ad9083"
 
   mongodb:
     container_name: mongodb

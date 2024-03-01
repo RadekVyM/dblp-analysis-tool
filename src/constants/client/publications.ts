@@ -5,7 +5,7 @@ import { prependDashedPrefix } from '@/utils/tailwindUtils'
 export const VENUE_TYPE_COLOR = {
     [VenueType.Conference]: 'conference-and-workshop-papers',
     [VenueType.Journal]: 'journal-articles',
-    [VenueType.Series]: 'parts-in-books-or-collections',
+    [VenueType.Series]: 'editorship',
     [VenueType.Book]: 'books-and-theses',
 } as const
 

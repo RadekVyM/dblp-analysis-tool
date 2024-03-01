@@ -18,6 +18,8 @@ import { toAuthorsSearchParamsString, toTypesSearchParamsString, toVenuesSearchP
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
 
 type AuthorStats = {
     id: string,
@@ -152,6 +154,7 @@ function AuthorGroupMembersBarChart({ authors, onBarClick }: AuthorGroupMembersB
             data={{
                 examinedProperty: (item) => item.id,
                 barTitle: (key, value) => value?.items[0]?.name || key,
+                barLink: (key, value) => createLocalPath(key, SearchType.Author),
                 color: (key) => 'primary',
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
                 value: (items) => items.reduce((acc, item) => acc + item.publicationsCount, 0),

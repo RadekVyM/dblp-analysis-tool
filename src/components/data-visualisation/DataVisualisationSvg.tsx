@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useImperativeHandle, CSSProperties } from 'react'
+import { forwardRef, useEffect, useRef, useImperativeHandle, CSSProperties, PointerEventHandler } from 'react'
 import { cn } from '@/utils/tailwindUtils'
 import useDimensions from '@/hooks/useDimensions'
 import useZoom, { OnZoomChangeCallback, ZoomScaleExtent, ZoomTransform } from '@/hooks/useZoom'
@@ -15,6 +15,8 @@ type DataVisualisationSvgParams = {
     zoomScaleExtent?: ZoomScaleExtent,
     onDimensionsChange?: (width: number, height: number) => void,
     onZoomChange?: OnZoomChangeCallback,
+    onPointerMove?: PointerEventHandler<HTMLDivElement>,
+    onPointerLeave?: PointerEventHandler<HTMLDivElement>
 }
 
 export type DataVisualisationSvgRef = {
@@ -30,6 +32,8 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     zoomScaleExtent,
     onDimensionsChange,
     onZoomChange,
+    onPointerMove,
+    onPointerLeave,
     className,
     style,
     innerClassName },
@@ -55,7 +59,9 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
         <div
             ref={outerRef}
             style={style}
-            className={cn('relative isolate w-full h-full overflow-x-auto', className)}>
+            className={cn('relative isolate w-full h-full overflow-x-auto', className)}
+            onPointerMove={onPointerMove}
+            onPointerLeave={onPointerLeave}>
             {before}
             <svg
                 ref={innerRef}
