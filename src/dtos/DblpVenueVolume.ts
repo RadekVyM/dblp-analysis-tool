@@ -7,7 +7,8 @@ import { convertToExternalLinks } from '@/utils/links'
 /** Venue volume stored in dblp. */
 export type DblpVenueVolume = {
     readonly venueId: string,
-    readonly publications: Array<DblpPublication>
+    readonly publications: Array<DblpPublication>,
+    readonly venueTitle?: string,
 } & DblpVenueBase
 
 /** Creates an object of a venue volume stored in dblp. */
@@ -18,6 +19,7 @@ export function createDblpVenueVolume(
     publications: Array<DblpPublication>,
     type?: VenueType,
     links?: Array<string>,
+    venueTitle?: string
 ): DblpVenueVolume {
     return {
         id,
@@ -26,6 +28,7 @@ export function createDblpVenueVolume(
         publications,
         type,
         venueVolumeType: VenueVolumeType.Volume,
-        links: links ? convertToExternalLinks(links) : []
+        links: links ? convertToExternalLinks(links) : [],
+        venueTitle
     }
 }

@@ -6,7 +6,7 @@ import { useIsClient, useLocalStorage } from 'usehooks-ts'
 
 const SAVED_VENUES_STORAGE_KEY = 'SAVED_VENUES_STORAGE_KEY';
 
-/** Hook that handles loading of saved venues and provides operations for adding and deleting a saved venue. */
+/** Hook that handles loading of saved venues or volumes and provides operations for adding and deleting a saved venue or volume. */
 export default function useSavedVenues() {
     const [savedVenues, setSavedVenues] = useLocalStorage(SAVED_VENUES_STORAGE_KEY, new Array<SavedVenue>());
     const isClient = useIsClient();
@@ -17,7 +17,7 @@ export default function useSavedVenues() {
         });
     }, [setSavedVenues]);
 
-    const saveVenue = useCallback((id: string, title: string) => {
+    const saveVenue = useCallback((id: string, title: string, venueId: string, volumeId?: string) => {
         setSavedVenues((old) => {
             const venue = old.find((v) => v.id === id);
 
@@ -25,7 +25,7 @@ export default function useSavedVenues() {
                 return [venue, ...(old.filter((v) => v.id !== id))];
             }
 
-            return [{ title: title, id: id }, ...old];
+            return [{ title: title, id: id, venueId: venueId, volumeId: volumeId }, ...old];
         });
     }, [setSavedVenues]);
 

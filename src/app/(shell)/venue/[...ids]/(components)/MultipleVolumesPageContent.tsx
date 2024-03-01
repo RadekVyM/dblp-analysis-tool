@@ -10,6 +10,8 @@ import DividedDefinitionList, { DefinitionListItem } from '@/components/DividedD
 import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
 import VenueTopAuthorsStats from '@/components/data-visualisation/stats/VenueTopAuthorsStats'
 import { cn } from '@/utils/tailwindUtils'
+import { useMemo } from 'react'
+import ExportVenueButton from './ExportVenueButton'
 
 type MultipleVolumesPageContentParams = {
     venue: DblpVenue,
@@ -29,6 +31,10 @@ type GeneralStasSectionParams = {
 */
 export default function MultipleVolumesPageContent({ venue, venueVolumeType, venueId, volumeId, defaultSelectedVolumeIds }: MultipleVolumesPageContentParams) {
     const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue, defaultSelectedVolumeIds);
+    const exportedObject = useMemo(() => ({
+        venue: venue,
+        selectedVolumes: selectedVolumes
+    }), [venue, selectedVolumes]);
 
     return (
         <>
@@ -49,6 +55,11 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
                     venueId={venueId}
                     volumeId={volumeId} />
             }
+
+            <ExportVenueButton
+                exportedObject={exportedObject}
+                venueTitle={venue.title}
+                disabled={!venue} />
         </>
     )
 }

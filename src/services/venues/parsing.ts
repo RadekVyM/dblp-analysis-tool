@@ -317,6 +317,11 @@ function extractRefVolumeItems($: cheerio.Root, li: cheerio.Element, id: string,
 /** Extracts all the venue volume information from a XML string using Cheerio. */
 function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string, additionalVolumeId?: string): DblpVenueVolume {
     const publications = extractPublicationsFromXml($);
+    let venueTitle: string | undefined = undefined;
+
+    $(`h1 > ${volumeRefSelector(id)}`).each((index, ref) => {
+        venueTitle = $(ref).text();
+    });
 
     const volume = createDblpVenueVolume(
         additionalVolumeId ? additionalVolumeId : id,
@@ -324,7 +329,8 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
         he.decode(title),
         publications,
         venueType,
-        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id, additionalVolumeId)}`]
+        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id, additionalVolumeId)}`],
+        venueTitle
     );
 
     return volume;

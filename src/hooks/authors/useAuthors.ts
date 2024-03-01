@@ -34,8 +34,9 @@ export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, a
 
     return {
         authors,
-        error
-    }
+        error,
+        isDone: authors.length === authorIds.length
+    };
 }
 
 async function fetchAuthors(

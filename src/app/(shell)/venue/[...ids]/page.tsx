@@ -1,6 +1,5 @@
 import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
 import { getVenueTypeFromDblpString } from '@/utils/urls'
-import { VenueType } from '@/enums/VenueType'
 import VenuePage from './(components)/VenuePage'
 import VenuePublicationsPage from './(components)/VenuePublicationsPage'
 import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
@@ -22,13 +21,13 @@ export default async function VenuePages({ params: { ids }, searchParams }: Venu
     const defaultSelectedVolumeIds = searchParams.volumeId ?
         (typeof searchParams.volumeId === 'string' ? [searchParams.volumeId] : searchParams.volumeId) :
         undefined;
-    const venueId = ids[0];
-    const venueType = getVenueTypeFromDblpString(venueId);
-    const volumeId = ids.length > 1 && venueType === VenueType.Book ?
-        ids[1] :
-        undefined;
     const isPublicationsPage = (ids.length > 1 && ids[1].toLowerCase() === 'publications') ||
         (ids.length > 2 && ids[2].toLowerCase() === 'publications');
+    const venueId = ids[0];
+    const venueType = getVenueTypeFromDblpString(venueId);
+    const volumeId = ids.length > 1 && ids[1].toLowerCase() !== 'publications' ?
+        ids[1] :
+        undefined;
     const venueOrVolume = await fetchVenueOrVolume(venueId, volumeId);
 
     if (isPublicationsPage) {

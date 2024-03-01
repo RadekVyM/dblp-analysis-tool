@@ -5,12 +5,13 @@ import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { VenueType } from '@/enums/VenueType'
 import { DblpVenue } from '@/dtos/DblpVenue'
 import LinksList from '@/components/LinksList'
-import { cn } from '@/utils/tailwindUtils'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import AddToVisitedVenues from './AddToVisitedVenues'
 import SaveVenueButton from './SaveVenueButton'
-import VolumesStats from './VolumesStats'
 import MultipleVolumesPageContent from './MultipleVolumesPageContent'
+import VenueVolumePageContent from './VenueVolumePageContent'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
 
 type VenuePageParams = {
     venueOrVolume: DblpVenueBase,
@@ -27,7 +28,8 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
             {
                 venueType !== VenueType.Book &&
                 <AddToVisitedVenues
-                    id={venueId}
+                    venueId={venueId}
+                    volumeId={volumeId}
                     title={venueOrVolume.title} />
             }
 
@@ -35,26 +37,33 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
                 className='mb-12'>
                 <PageTitle
                     title={venueOrVolume.title}
-                    subtitle={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
+                    annotation={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
+                    subtitle={venueOrVolume.venueVolumeType === 'Volume' ? (venueOrVolume as DblpVenueVolume).venueTitle : undefined}
+                    subtitleHref={createLocalPath(venueId, SearchType.Venue)}
                     className='pb-3' />
 
                 <LinksList
-                    className={cn('mt-4', 'mb-7')}
+                    className={'mt-4 mb-7'}
                     links={venueOrVolume.links} />
 
-                {
-                    venueType !== VenueType.Book &&
-                    <SaveVenueButton
-                        title={venueOrVolume.title}
-                        venueId={venueOrVolume.id} />
-                }
+                <div
+                    className='flex gap-x-2'>
+                    {
+                        <SaveVenueButton
+                            title={venueOrVolume.title}
+                            venueId={venueId}
+                            volumeId={volumeId} />
+                    }
+                    <div
+                        id='export-venue-button-container'>
+                    </div>
+                </div>
             </header>
 
             {
                 venueOrVolume.venueVolumeType === 'Volume' ?
-                    <VolumesStats
-                        venueVolumeType={venueOrVolume.venueVolumeType}
-                        volumes={[venueOrVolume as DblpVenueVolume]}
+                    <VenueVolumePageContent
+                        venueVolume={venueOrVolume as DblpVenueVolume}
                         venueId={venueId}
                         volumeId={volumeId} /> :
                     <MultipleVolumesPageContent

@@ -12,7 +12,7 @@ import { ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
 import { clamp } from '@/utils/numbers'
-import { distance, rectArea, scaleToLength, triangleArea } from '@/utils/geometry'
+import { distance, polygonArea, scaleToLength, triangleArea } from '@/utils/geometry'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -654,7 +654,7 @@ function isPointOnLink(link: PublicationPersonLinkDatum, point: [number, number]
         triangleArea(point, rect.b, rect.c) +
         triangleArea(point, rect.c, rect.d) +
         triangleArea(point, rect.d, rect.a);
-    const rectA = rectArea(rect);
+    const rectA = polygonArea(rect);
 
     return sumOfTriangles - rectA < 1;
 }

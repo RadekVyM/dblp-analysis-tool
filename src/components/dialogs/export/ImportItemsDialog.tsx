@@ -151,7 +151,7 @@ function useItemsFromJson(json: string | null) {
 
     const savedAuthors = useMemo(() => retreiveValidItems<SavedAuthor>(jsonObj['savedAuthors']), [jsonObj]);
     const authorGroups = useMemo(() => retreiveValidItems<AuthorGroup>(jsonObj['authorGroups'], (item) => 'authors' in item), [jsonObj]);
-    const savedVenues = useMemo(() => retreiveValidItems<SavedVenue>(jsonObj['savedVenues']), [jsonObj]);
+    const savedVenues = useMemo(() => retreiveValidItems<SavedVenue>(jsonObj['savedVenues'], (item) => 'venueId' in item), [jsonObj]);
 
     return {
         savedAuthors,
@@ -174,7 +174,7 @@ function useImportSavedItems() {
 
     function importSavedItems(
         savedAuthors: Array<SavedItem>,
-        savedVenues: Array<SavedItem>,
+        savedVenues: Array<SavedVenue>,
         authorGroups: Array<AuthorGroup>
     ) {
         importAuthors(savedAuthors);

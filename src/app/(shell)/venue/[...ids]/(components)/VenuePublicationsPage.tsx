@@ -34,7 +34,7 @@ export default async function VenuePublicationsPage({
                 <PageTitle
                     title={venueOrVolume.title}
                     titleHref={volumeId ? `/venue/${venueId}/${volumeId}` : `/venue/${venueId}`}
-                    subtitle={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
+                    annotation={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
                     className='pb-3' />
             </header>
 

@@ -11,7 +11,7 @@ export default function useVisitedVenues() {
     const [visitedVenues, setVisitedVenues] = useLocalStorage(VISITED_VENUES_STORAGE_KEY, new Array<VisitedVenue>());
     const isClient = useIsClient();
 
-    const visitedVenue = useCallback(async (id: string, title: string) => {
+    const visitedVenue = useCallback(async (id: string, title: string, venueId: string, volumeId?: string) => {
         setVisitedVenues((old) => {
             const venue = old.find((v) => v.id === id);
 
@@ -20,7 +20,7 @@ export default function useVisitedVenues() {
                 return [venue, ...(old.filter((v) => v.id !== id))];
             }
 
-            return [{ title: title, id: id, visitsCount: 1 }, ...old];
+            return [{ title: title, id: id, visitsCount: 1, venueId: venueId, volumeId: volumeId }, ...old];
         });
     }, [setVisitedVenues]);
 

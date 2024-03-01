@@ -1,6 +1,7 @@
 import SiteHeader from '@/components/shell/SiteHeader'
 import { UNDOCKED_SIDE_MENU_CLASSES } from '@/constants/sideMenu'
 import { cn } from '@/utils/tailwindUtils'
+import Link from 'next/link'
 
 export default function ShellLayout({
     children,
@@ -41,8 +42,11 @@ function Scaffold({
             <footer
                 className='row-start-3 row-end-4 col-start-1 col-end-2 border-t border-gray-200 dark:border-gray-800'>
                 <div
-                    className='max-w-screen-xl px-4 py-5 mx-auto w-full'>
-                    <span className='text-sm'>© 2023 Radek Vymětalík</span>
+                    className='max-w-screen-xl px-4 py-5 mx-auto w-full flex justify-between'>
+                    <span className='text-sm'>© 2024 Radek Vymětalík</span>
+                    <span className='text-sm'>
+                        Data source: <Link className='hover:underline' href='https://dblp.org' prefetch={false}>dblp.org</Link>
+                    </span>
                 </div>
             </footer>
         </div>

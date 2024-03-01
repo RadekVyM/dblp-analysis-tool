@@ -140,7 +140,7 @@ function ErrorPageTitle({ title }: ErrorPageTitleParams) {
     return (
         <PageTitle
             className='mb-2'
-            subtitle='error'
+            annotation='error'
             title={title} />
     )
 }

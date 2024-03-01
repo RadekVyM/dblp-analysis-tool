@@ -90,13 +90,13 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
             {
                 publication.type == PublicationType.JournalArticles && publication.journal ?
                     <>
-                        {publication.volume ? <>Volume {publication.volume} of</> : ''} {
+                        {
                             publication.venueId ?
                                 <Link
                                     prefetch={false}
                                     className='hover:underline'
                                     href={createLocalVenuePath(publication)}>
-                                    {addMissingNoun(publication.journal, 'journal')}
+                                    {publication.volume ? <>Volume {publication.volume} of </> : ''}{addMissingNoun(publication.journal, 'journal')}
                                 </Link> :
                                 addMissingNoun(publication.journal, 'journal')
                         }

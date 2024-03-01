@@ -10,6 +10,7 @@ export type EdgeRect = {
     bottom: number,
 }
 
+/** Polygon that consists of four points. */
 export type PointRect = {
     a: [number, number],
     b: [number, number],

@@ -1,6 +1,7 @@
 'use client'
 
 import Button from '@/components/Button'
+import ExportButton from '@/components/ExportButton'
 import ConfirmDialog from '@/components/dialogs/ConfirmDialog'
 import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
 import DialogBody from '@/components/dialogs/DialogBody'
@@ -17,6 +18,8 @@ import { MdDelete, MdDriveFileRenameOutline } from 'react-icons/md'
 type AuthorGroupButtonsParams = {
     authorGroupId: string,
     authorGroupTitle: string,
+    exportedObject: any,
+    isLoadingDone: boolean
 }
 
 type RenameAuthorGroupDialogParams = {
@@ -27,7 +30,7 @@ type RenameAuthorGroupDialogParams = {
     isOpen: boolean
 }
 
-export function AuthorGroupButtons({ authorGroupId, authorGroupTitle }: AuthorGroupButtonsParams) {
+export function AuthorGroupButtons({ authorGroupId, authorGroupTitle, exportedObject, isLoadingDone }: AuthorGroupButtonsParams) {
     const { removeAuthorGroup, renameAuthorGroup } = useAuthorGroups();
     const [renameDialogRef, isRenameDialogOpen, renameDialogAnimation, showRenameDialog, hideRenameDialog] = useDialog();
     const [removeDialogRef, isRemoveDialogOpen, removeDialogAnimation, showRemoveDialog, hideRemoveDialog] = useDialog();
@@ -62,6 +65,10 @@ export function AuthorGroupButtons({ authorGroupId, authorGroupTitle }: AuthorGr
                 <MdDelete />
                 Remove
             </Button>
+            <ExportButton
+                disabled={!isLoadingDone}
+                exportedObject={exportedObject}
+                fileName={`${authorGroupTitle}.json`} />
 
             <RenameAuthorGroupDialog
                 ref={renameDialogRef}

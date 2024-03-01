@@ -3,9 +3,9 @@
 import { useMemo } from 'react'
 
 /**
- * 
- * @param text 
- * @returns 
+ * Hook that creates a text file from a specified text.
+ * @param text Text that is converted to a text file
+ * @returns Text file and its size in a human readable format
  */
 export default function useTextFile(text: string) {
     const file = useMemo(() => textToFile(text, 'text/plain'), [text]);

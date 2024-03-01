@@ -61,7 +61,7 @@ export default function PageContent({
                 <PageTitle
                     title={authorGroup.title}
                     titleHref={`/authorgroup/${authorGroup.id}?${authorGroup.authors.map((a) => `id=${a.id}`).join('&')}`}
-                    subtitle='Author group'
+                    annotation='Author group'
                     className='pb-3' />
             </header>
 

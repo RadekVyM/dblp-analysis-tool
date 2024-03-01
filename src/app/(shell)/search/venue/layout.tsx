@@ -11,7 +11,7 @@ export default function SearchVenueLayout({ children }: SearchVenueLayoutParams)
     return (
         <PageContainer>
             <PageTitle
-                subtitle='search'
+                annotation='search'
                 title='Venues' />
             <Suspense>
                 <VenueSelection

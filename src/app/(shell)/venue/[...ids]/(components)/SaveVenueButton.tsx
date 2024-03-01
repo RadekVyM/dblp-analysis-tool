@@ -2,28 +2,29 @@
 
 import Button from '@/components/Button'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
-import useNotifications from '@/hooks/useNotifications'
 import { cn } from '@/utils/tailwindUtils'
 import { useMemo } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 
 type SaveVenueButtonParams = {
     className?: string,
+    volumeId?: string,
     venueId: string,
     title: string
 }
 
 /** Button that allows the user to save a venue for easier access to a list. */
-export default function SaveVenueButton({ className, venueId, title }: SaveVenueButtonParams) {
+export default function SaveVenueButton({ className, venueId, volumeId, title }: SaveVenueButtonParams) {
+    const id = volumeId ? `${venueId}/${volumeId}` : venueId;
     const { removeSavedVenue, saveVenue, savedVenues, canUseSavedVenues } = useSavedVenues();
-    const isSaved = useMemo(() => savedVenues.some((v) => v.id === venueId), [savedVenues, venueId]);
+    const isSaved = useMemo(() => savedVenues.some((v) => v.id === id), [savedVenues, venueId, volumeId]);
 
     function updateSaved() {
         if (isSaved) {
-            removeSavedVenue(venueId);
+            removeSavedVenue(id);
         }
         else {
-            saveVenue(venueId, title);
+            saveVenue(id, title, venueId, volumeId);
         }
     }
 

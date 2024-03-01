@@ -3,7 +3,7 @@ import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import AddToRecentlySeen from './(components)/AddToRecentlySeen'
 import LinksList from '@/components/LinksList'
-import { DblpAuthorInfo } from '@/dtos/DblpAuthor'
+import { DblpAuthor, DblpAuthorInfo } from '@/dtos/DblpAuthor'
 import SaveAuthorButtons from './(components)/SaveAuthorButtons'
 import { cn } from '@/utils/tailwindUtils'
 import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
@@ -11,6 +11,8 @@ import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
 import SameNameAuthors from './(components)/SameNameAuthors'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
 
 type AuthorPageParams = {
     params: {
@@ -20,9 +22,7 @@ type AuthorPageParams = {
 
 type AuthorInfoParams = {
     className?: string,
-    info: DblpAuthorInfo,
-    authorId: string,
-    authorName: string
+    author: DblpAuthor
 }
 
 type AwardsParams = {
@@ -41,17 +41,12 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
             <header>
                 <PageTitle
                     title={author.name}
-                    subtitle='Author'
+                    annotation='Author'
                     className='pb-3' />
 
-                {
-                    author.info &&
-                    <AuthorInfo
-                        className='mb-12'
-                        info={author.info}
-                        authorId={author.id}
-                        authorName={author.name} />
-                }
+                <AuthorInfo
+                    className='mb-12'
+                    author={author} />
             </header>
 
             {
@@ -70,7 +65,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                 author.publications.length > 0 &&
                 <>
                     <PublicationsStatsSection
-                        publicationsUrl={`/author/${id}/publications`}
+                        publicationsUrl={`${createLocalPath(id, SearchType.Author)}/publications`}
                         publications={author.publications}
                         maxDisplayedCount={3} />
 
@@ -85,21 +80,27 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
     )
 }
 
-async function AuthorInfo({ className, info, authorId, authorName }: AuthorInfoParams) {
+async function AuthorInfo({ className, author }: AuthorInfoParams) {
     return (
-        <div className={cn('flex flex-col gap-7', info.aliases.length > 0 || info.affiliations.length > 0 ? '' : 'mt-4', className)}>
-            <AliasesAffiliations
-                info={info} />
+        <div
+            className={cn(
+                'flex flex-col gap-7',
+                author.info && (author.info.aliases.length > 0 || author.info.affiliations.length > 0) ? '' : 'mt-4',
+                className)}>
+            {
+                author.info &&
+                <AliasesAffiliations
+                    info={author.info} />
+            }
 
             {
-                info.links.length > 0 &&
+                author.info && author.info.links.length > 0 &&
                 <LinksList
-                    links={info.links} />
+                    links={author.info.links} />
             }
 
             <SaveAuthorButtons
-                authorId={authorId}
-                authorName={authorName} />
+                author={author} />
         </div>
     )
 }

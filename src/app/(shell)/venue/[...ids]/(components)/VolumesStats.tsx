@@ -6,6 +6,8 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { useMemo } from 'react'
 import { VenueVolumeType } from '@/enums/VenueVolumeType'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
 
 type VolumesStatsParams = {
     volumes: Array<DblpVenueVolume>,
@@ -26,9 +28,7 @@ export default function VolumesStats({ volumes, venueId, volumeId, venueVolumeTy
         <>
             <PublicationsStatsSection
                 title={venueVolumeType === VenueVolumeType.Volume ? undefined : 'Publications of Selected Volumes'}
-                publicationsUrl={volumeId ?
-                    `/venue/${venueId}/${volumeId}/publications?${createVolumeIdsParams(volumes)}` :
-                    `/venue/${venueId}/publications?${createVolumeIdsParams(volumes)}`}
+                publicationsUrl={`${createLocalPath(venueId, SearchType.Venue, volumeId)}/publications?${createVolumeIdsParams(volumes)}`}
                 publications={allPublications}
                 maxDisplayedCount={3} />
             <CoauthorsSection

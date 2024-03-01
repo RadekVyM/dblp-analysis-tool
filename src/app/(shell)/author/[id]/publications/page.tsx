@@ -27,7 +27,7 @@ export default async function AuthorPublicationsPage({ params: { id }, searchPar
                 <PageTitle
                     title={author.name}
                     titleHref={`/author/${id}`}
-                    subtitle='Author'
+                    annotation='Author'
                     className='pb-3' />
 
                 {

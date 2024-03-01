@@ -9,7 +9,7 @@ export default function SearchAurhorLayout({ children }: SearchAurhorLayoutParam
     return (
         <PageContainer>
             <PageTitle
-                subtitle='search'
+                annotation='search'
                 title='Authors' />
             {children}
         </PageContainer>

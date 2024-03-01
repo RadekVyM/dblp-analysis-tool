@@ -8,11 +8,12 @@ import { useMemo } from 'react'
 import { MdBookmarks } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa'
 import AddToGroupDialog from './AddToGroupDialog'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
+import ExportButton from '@/components/ExportButton'
 
 type SaveAuthorButtonsParams = {
     className?: string,
-    authorId: string,
-    authorName: string
+    author: DblpAuthor
 }
 
 type GroupButtonParams = {
@@ -21,16 +22,16 @@ type GroupButtonParams = {
 }
 
 /** Buttons that allow the user to save an author for easier access to a list or an author group. */
-export default function SaveAuthorButtons({ className, authorId, authorName }: SaveAuthorButtonsParams) {
+export default function SaveAuthorButtons({ className, author }: SaveAuthorButtonsParams) {
     const { removeSavedAuthor, saveAuthor, savedAuthors, canUseSavedAuthors } = useSavedAuthors();
-    const isSaved = useMemo(() => savedAuthors.some((v) => v.id === authorId), [savedAuthors, authorId]);
+    const isSaved = useMemo(() => savedAuthors.some((v) => v.id === author.id), [savedAuthors, author.id]);
 
     function updateSaved() {
         if (isSaved) {
-            removeSavedAuthor(authorId);
+            removeSavedAuthor(author.id);
         }
         else {
-            saveAuthor(authorId, authorName);
+            saveAuthor(author.id, author.name);
         }
     }
 
@@ -46,8 +47,11 @@ export default function SaveAuthorButtons({ className, authorId, authorName }: S
                 <span className='hidden xs:block'>{canUseSavedAuthors && isSaved ? 'Saved' : 'Save'}</span>
             </Button>
             <GroupButton
-                authorId={authorId}
-                authorName={authorName} />
+                authorId={author.id}
+                authorName={author.name} />
+            <ExportButton
+                exportedObject={author}
+                fileName={`${author.name}.json`} />
         </div>
     )
 }

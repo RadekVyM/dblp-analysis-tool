@@ -1,4 +1,4 @@
-import { PointRect, Rect } from '@/dtos/Rect'
+import { PointRect as Polygon, Rect } from '@/dtos/Rect'
 
 const SegmentOrientation = {
     Colinear: 'Colinear',
@@ -20,12 +20,12 @@ export function triangleArea(a: [number, number], b: [number, number], c: [numbe
 }
 
 /**
- * Computes the rectangle area.
- * @param rect Rectangle
- * @returns Rectangle area
+ * Computes the polygon area.
+ * @param polygon Polygon
+ * @returns Polygon area
  */
-export function rectArea(rect: PointRect) {
-    return distance(rect.a, rect.b) * distance(rect.a, rect.d);
+export function polygonArea(polygon: Polygon) {
+    return distance(polygon.a, polygon.b) * distance(polygon.a, polygon.d);
 }
 
 /**

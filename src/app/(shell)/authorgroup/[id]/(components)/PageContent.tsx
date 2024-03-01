@@ -27,13 +27,18 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
     const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const authorGroup = authorGroups.find((g) => g.id === authorGroupId);
     const authorIds = useMemo(() => authorGroup?.authors.map((a) => a.id) || [], [authorGroup]);
-    const { authors, error } = useAuthors(cachedAuthors, authorIds);
+    const { authors, error, isDone } = useAuthors(cachedAuthors, authorIds);
     const {
         selectedAuthorIds,
         selectedAuthors,
         allPublications,
         toggleAuthor
     } = useSelectedAuthorGroupMembers(authors, authorGroup);
+    const exportedObject = useMemo(() => ({
+        id: authorGroup?.id,
+        title: authorGroup?.title,
+        authors: authors
+    }), [authorGroup, authors]);
     const isClient = useIsClient();
 
     if (!isClient || !canUseAuthorGroups) {
@@ -55,12 +60,14 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                 className='mb-12'>
                 <PageTitle
                     title={authorGroup.title}
-                    subtitle='Author group'
+                    annotation='Author group'
                     className='pb-3 mb-4' />
 
                 <AuthorGroupButtons
                     authorGroupId={authorGroup.id}
-                    authorGroupTitle={authorGroup.title} />
+                    authorGroupTitle={authorGroup.title}
+                    exportedObject={exportedObject}
+                    isLoadingDone={isDone} />
             </header>
 
             <AuthorGroupMembers
