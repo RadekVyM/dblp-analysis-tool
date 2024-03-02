@@ -5,6 +5,7 @@ import Button, { ButtonParams } from './Button'
 import useTextFile from '@/hooks/useTextFile'
 import { useMemo } from 'react'
 import { cn } from '@/utils/tailwindUtils'
+import { useIsClient } from 'usehooks-ts'
 
 type ExportButtonParams = {
     exportedObject: any,
@@ -14,6 +15,7 @@ type ExportButtonParams = {
 export default function ExportButton({ exportedObject, children, className, fileName, disabled, ...rest }: ExportButtonParams) {
     const jsonObject = useMemo(() => JSON.stringify(exportedObject), [exportedObject]);
     const { file } = useTextFile(jsonObject);
+    const isClient = useIsClient();
 
     return (
         <Button
@@ -22,7 +24,7 @@ export default function ExportButton({ exportedObject, children, className, file
             variant='outline'
             download={fileName}
             target='_blank'
-            href={file.url}
+            href={isClient ? file.url : undefined}
             {...rest}>
             {
                 children ||

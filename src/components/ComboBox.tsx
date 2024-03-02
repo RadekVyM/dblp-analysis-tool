@@ -54,7 +54,7 @@ export default function ComboBox({ items, className, id, selectedKey, onKeySelec
                     'absolute w-full left-0 right-0 z-50 mt-2 max-h-56 flex flex-col p-2 gap-y-1',
                     'overflow-y-auto thin-scrollbar',
                     'rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none',
-                    'bg-surface-container text-on-surface-container border border-outline drop-shadow-lg',
+                    'bg-surface-container text-on-surface-container border border-outline shadow-lg',
                     expanded ? '' : 'invisible')}>
                 {items.map((item) =>
                     <li

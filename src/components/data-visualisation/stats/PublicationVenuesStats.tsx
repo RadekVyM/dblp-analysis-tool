@@ -135,8 +135,8 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, o
             onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.venueId,
-                barTitle: (key, value) => getVenueTypeFromDblpString(key) === VenueType.Book ? 'Books' : value?.items[0]?.venueTitle || key,
-                barLink: (key, value) => getVenueTypeFromDblpString(key) === VenueType.Book ? undefined : createLocalPath(key, SearchType.Venue),
+                barTitle: (key, value) => key && getVenueTypeFromDblpString(key) === VenueType.Book ? 'Books' : value?.items[0]?.venueTitle || key,
+                barLink: (key, value) => !key || getVenueTypeFromDblpString(key) === VenueType.Book ? undefined : createLocalPath(key, SearchType.Venue),
                 color: (key, value) => {
                     const type = key ? getVenueTypeFromDblpString(key) : null;
 

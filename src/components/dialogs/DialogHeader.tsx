@@ -22,7 +22,8 @@ export default function DialogHeader({ hide, heading, children }: DialogHeaderPa
                 <Button
                     title='Close'
                     variant='icon-outline'
-                    onClick={() => hide()}>
+                    onClick={() => hide()}
+                    className='p-0'>
                     <MdClose
                         className='w-5 h-5' />
                 </Button>

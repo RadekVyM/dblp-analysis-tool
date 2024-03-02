@@ -161,6 +161,8 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                     valuesScale={valuesScale}
                     className='absolute inset-0'
                     style={{
+                        width: `max(calc(100% - ${secondaryAxisThickness}px),${dimensions.width}px)`,
+                        height: `max(calc(100% - ${secondaryAxisThickness}px),${dimensions.height}px)`,
                         left: orientation === ChartOrientation.Horizontal ? undefined : secondaryAxisThickness,
                         bottom: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
                     }} />

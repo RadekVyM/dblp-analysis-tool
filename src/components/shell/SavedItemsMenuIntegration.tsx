@@ -73,7 +73,8 @@ export function SavedItemsMenuIntegration() {
             <ClientButton
                 ref={savedItemsMenuButtonRef}
                 variant={savedItemsButtonVariant}
-                onClick={onSavedItemsMenuButtonClick}>
+                onClick={onSavedItemsMenuButtonClick}
+                className='p-0'>
                 <MdBookmarks />
             </ClientButton>
 

@@ -119,7 +119,8 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                             size='sm'
                             variant='icon-outline'
                             title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                            onClick={toggleFullscreen}>
+                            onClick={toggleFullscreen}
+                            className='p-0'>
                             {isFullscreen ? <MdFullscreenExit className='w-5 h-5' /> : <MdFullscreen className='w-5 h-5' />}
                         </Button>
                     }

@@ -38,7 +38,7 @@ const ConfirmDialog = forwardRef<HTMLDialogElement, ConfirmDialogParams>((
             ref={ref}
             hide={hide}
             animation={animation}
-            className={'dialog md:max-w-md w-full max-h-[min(40rem,90%)] flex-dialog'}>
+            className={'dialog md:max-w-md w-full max-h-[min(40rem,90%)] min-h-48 flex-dialog'}>
             <DialogContent
                 className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader

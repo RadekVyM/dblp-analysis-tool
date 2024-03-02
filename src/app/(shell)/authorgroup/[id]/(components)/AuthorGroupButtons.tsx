@@ -116,9 +116,9 @@ const RenameAuthorGroupDialog = forwardRef<HTMLDialogElement, RenameAuthorGroupD
             ref={ref}
             hide={hide}
             animation={animation}
-            className={'dialog md:max-w-md w-full flex-dialog max-h-[min(40rem,90%)]'}>
+            className={'dialog md:max-w-md w-full max-h-[min(15rem,90%)] h-auto'}>
             <DialogContent
-                className='max-h-full flex-1 flex flex-col'>
+                className='max-h-full flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Rename Author Group'} />

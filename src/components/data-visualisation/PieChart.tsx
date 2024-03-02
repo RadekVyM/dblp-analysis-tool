@@ -132,7 +132,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
 function PieChartLegend({ data, arcs, hoveredSlice, onSliceHover }: PieChartLegendParams) {
     return (
         <ul
-            className='flex flex-wrap @xl:flex-col gap-5 @xl:self-center'>
+            className='flex flex-wrap @xl:flex-nowrap @xl:flex-col gap-5 @xl:self-center'>
             {arcs.map((arc) =>
                 <li
                     onPointerOver={() => onSliceHover(arc)}

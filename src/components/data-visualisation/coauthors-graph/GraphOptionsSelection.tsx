@@ -78,15 +78,15 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog sm:max-w-md w-full max-h-[min(40rem,90%)] flex-dialog'>
+            className='dialog sm:max-w-md w-full max-h-[min(25rem,90%)] h-auto'>
             <DialogContent
-                className='max-h-full flex-1 flex flex-col'>
+                className='max-h-full flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Display Options'} />
 
                 <DialogBody
-                    className='flex flex-col gap-3 items-start'>
+                    className='flex-1 flex flex-col gap-3 items-start'>
                     <Button
                         variant='outline'
                         size='sm'

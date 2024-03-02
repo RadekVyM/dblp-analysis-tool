@@ -40,9 +40,9 @@ const AddToGroupDialog = forwardRef<HTMLDialogElement, AddToGroupDialogParams>((
             ref={ref}
             hide={hide}
             animation={animation}
-            className='dialog sm:max-w-lg w-full max-h-[min(25rem,90%)] flex-dialog'>
+            className='dialog sm:max-w-lg w-full max-h-[min(25rem,90%)] h-auto flex-dialog'>
             <DialogContent
-                className='max-h-full min-h-[10rem] flex-1 flex flex-col'>
+                className='flex-1 max-h-full min-h-[10rem] flex flex-col'>
                 <DialogHeader
                     hide={hide}
                     heading={'Groups'} />
@@ -83,7 +83,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                             authorId={authorId}
                             authorGroups={authorGroups}
                             onAuthorGroupClick={onAuthorGroupClick} /> :
-                        <div className='flex-1 self-center grid place-content-center'>
+                        <div className='h-full grid place-content-center'>
                             <span className='text-on-surface-container-muted text-sm'>No groups found</span>
                         </div>
                 }
