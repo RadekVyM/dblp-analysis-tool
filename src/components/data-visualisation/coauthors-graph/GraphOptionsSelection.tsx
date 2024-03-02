@@ -78,7 +78,7 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog max-w-md w-full max-h-[min(40rem,90%)] flex-dialog'>
+            className='dialog sm:max-w-md w-full max-h-[min(40rem,90%)] flex-dialog'>
             <DialogContent
                 className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader

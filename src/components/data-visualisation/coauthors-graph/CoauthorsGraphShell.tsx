@@ -14,7 +14,8 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import Button from '@/components/Button'
 import useFullscreen from '@/hooks/useFullscreen'
 import GraphStats from './GrapStats'
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
+import { MdFullscreen, MdFullscreenExit, MdInfo } from 'react-icons/md'
+import CoauthorsGraphInfoButton from './CoauthorsGraphInfoButton'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -122,6 +123,8 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                             {isFullscreen ? <MdFullscreenExit className='w-5 h-5' /> : <MdFullscreen className='w-5 h-5' />}
                         </Button>
                     }
+
+                    <CoauthorsGraphInfoButton />
                 </div>
 
                 <GraphStats
