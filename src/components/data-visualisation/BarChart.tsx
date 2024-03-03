@@ -13,12 +13,17 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { Dimensions, EdgeRect } from '@/dtos/Rect'
 import Link from 'next/link'
+import { createPortal } from 'react-dom'
+import { useDebounce } from 'usehooks-ts'
+import { clamp } from '@/utils/numbers'
+import Popover from '../Popover'
 
 export type BarChartData<T> = {
     color: (key: any, value?: ChartValue) => string,
     barTitle?: (key: any, value?: ChartValue) => string,
     barLink?: (key: any, value?: ChartValue) => string,
-    gradient?: (key: any, value?: ChartValue) => LinearGradient
+    gradient?: (key: any, value?: ChartValue) => LinearGradient,
+    popoverContent?: (key: any, value?: ChartValue) => React.ReactNode | undefined,
 } & ChartData<T>
 
 type BarChartParams = {
@@ -54,7 +59,7 @@ type ChartParams = {
     gradient?: (key: any, value?: ChartValue) => LinearGradient,
     color: (key: any, value?: ChartValue) => string,
     onBarClick?: (key: any, value?: ChartValue) => void,
-    onHoverChange: (isHovered: boolean, key: any, value?: ChartValue) => void,
+    popoverContent?: (key: any, value?: ChartValue) => React.ReactNode | undefined
 }
 
 type BarParams = {
@@ -68,19 +73,13 @@ type BarParams = {
     displayedValue: string,
     color: (key: any, value?: ChartValue) => string,
     onBarClick?: (key: any, value?: ChartValue) => void,
-    onHoverChange: (isHovered: boolean, key: any, value?: ChartValue) => void,
+    popoverContent?: (key: any, value?: ChartValue) => React.ReactNode | undefined
 }
 
 type GradientsParams = {
     chartMap: d3.InternMap<any, ChartValue>,
     keys: Array<any>,
     gradient: (key: any, value?: ChartValue) => LinearGradient,
-}
-
-type PopoverParams = {
-    top: number,
-    left: number,
-    className?: string
 }
 
 type PrimaryAxisLabelsParams = {
@@ -115,19 +114,9 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
         svgContainerRef,
         dimensions
     } = useChartDimensions(keys.length, bandThickness, orientation);
-    const {
-        containerRef,
-        popoverRef,
-        position,
-        hoveredBar,
-        onHoverChange,
-        onPointerMove,
-        onPointerLeave
-    } = useBarHover(svgContainerRef);
 
     return (
         <div
-            ref={containerRef}
             className={cn(
                 className,
                 'overflow-auto relative',
@@ -135,9 +124,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                 orientation === ChartOrientation.Horizontal ?
                     'grid-cols-[minmax(8rem,0.25fr)_1fr]' :
                     'grid-rows-[1fr_minmax(2rem,auto)]'
-            )}
-            onPointerMove={onPointerMove}
-            onPointerLeave={onPointerLeave}>
+            )}>
             <PrimaryAxisLabels
                 orientation={orientation || ChartOrientation.Horizontal}
                 labels={keys.map((key) => {
@@ -183,7 +170,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                     selectedUnit={selectedUnit}
                     valuesScale={valuesScale}
                     onBarClick={onBarClick}
-                    onHoverChange={onHoverChange} />
+                    popoverContent={data.popoverContent} />
 
                 <SecondaryAxis
                     orientation={orientation}
@@ -216,78 +203,11 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                         bottom: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
                     }} />
             </div>
-
-            {hoveredBar &&
-                <Popover
-                    ref={popoverRef}
-                    left={position[0]}
-                    top={position[1]} />}
         </div>
     )
 }
 
-const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, className }, ref) => {
-    return (
-        <div
-            ref={ref}
-            style={{
-                top: top,
-                left: left
-            }}
-            className={cn('absolute bg-surface-container p-5 border border-outline', className)}>
-            hello
-        </div>
-    )
-});
-
-Popover.displayName = 'Popover';
-
-function useBarHover(svgContainerRef: React.RefObject<HTMLDivElement>) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const popoverRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState<[number, number]>([0, 0]);
-    const [hoveredBar, setHoveredBar] = useState<{ key: any, value?: ChartValue } | null>(null);
-
-    const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
-        if (!popoverRef.current) {
-            return;
-        }
-
-        const popoverRect = popoverRef.current.getBoundingClientRect();
-        const containerRect = (e.currentTarget as Element).getBoundingClientRect();
-        const mouseX = e.clientX - containerRect.left;
-        const mouseY = e.clientY - containerRect.top;
-
-        const y = Math.min(mouseY, containerRect.height - popoverRect.height);
-
-        setPosition([mouseX, y]);
-    }, [setPosition, popoverRef.current]);
-
-    const onPointerLeave = useCallback((e: PointerEvent<HTMLDivElement>) => {
-        setHoveredBar(null);
-    }, [setHoveredBar]);
-
-    const onHoverChange = useCallback((isHovered: boolean, key: any, value?: ChartValue) => {
-        setHoveredBar((old) => {
-            if (isHovered) {
-                return { key, value };
-            }
-            return null;
-        });
-    }, [setHoveredBar]);
-
-    return {
-        containerRef,
-        popoverRef,
-        position,
-        hoveredBar,
-        onHoverChange,
-        onPointerMove,
-        onPointerLeave
-    };
-}
-
-function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, gradient, color, onBarClick, onHoverChange }: ChartParams) {
+function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, gradient, color, onBarClick, popoverContent }: ChartParams) {
     const secondaryAxisLength = orientation === ChartOrientation.Horizontal ?
         dimensions.width - padding.left - padding.right :
         dimensions.height - padding.top - padding.bottom;
@@ -343,33 +263,58 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
                         displayedValue={displayedValue}
                         onBarClick={onBarClick}
                         color={color}
-                        onHoverChange={onHoverChange} />
+                        popoverContent={popoverContent} />
                 )
             })}
         </svg>
     )
 }
 
-function Bar({ chartKey, left, top, width, height, radius, chartValue, displayedValue, color, onBarClick, onHoverChange }: BarParams) {
-    return (
-        <g
-            onPointerEnter={() => onHoverChange(true, chartKey, chartValue)}
-            onPointerLeave={() => onHoverChange(false, chartKey, chartValue)}>
-            <rect
-                className={cn(onBarClick && 'cursor-pointer hover:brightness-95')}
-                style={{ fill: color(chartKey, chartValue) }}
-                x={left} y={top}
-                width={width} height={height}
-                rx={radius} ry={radius}
-                onClick={onBarClick && (() => onBarClick(chartKey, chartValue))} />
+function Bar({ chartKey, left, top, width, height, radius, chartValue, displayedValue, color, onBarClick, popoverContent }: BarParams) {
+    const {
+        isHovered,
+        position,
+        popoverRef,
+        onPointerLeave,
+        onPointerMove
+    } = useBarHover();
+    const isVisible = useDebounce(isHovered, 20);
+    const popoverChildren = useMemo(
+        () => popoverContent ? popoverContent(chartKey, chartValue) : undefined,
+        [popoverContent, chartKey, chartValue]);
 
-            <OutlinedText
-                x={left + (width / 2)} y={top + (height / 2) + 2}
-                dominantBaseline='middle' textAnchor='middle'
-                className='text-xs font-semibold pointer-events-none'>
-                {displayedValue}
-            </OutlinedText>
-        </g>
+    return (
+        <>
+            <g
+                onPointerMove={onPointerMove}
+                onPointerLeave={onPointerLeave}
+                onClick={onBarClick && (() => onBarClick(chartKey, chartValue))}>
+                <rect
+                    className={cn(onBarClick && 'cursor-pointer hover:brightness-95')}
+                    style={{ fill: color(chartKey, chartValue) }}
+                    x={left} y={top}
+                    width={width} height={height}
+                    rx={radius} ry={radius} />
+
+                <OutlinedText
+                    x={left + (width / 2)} y={top + (height / 2) + 2}
+                    dominantBaseline='middle' textAnchor='middle'
+                    className={cn('text-xs font-semibold', onBarClick && 'cursor-pointer')}>
+                    {displayedValue}
+                </OutlinedText>
+            </g>
+
+            {
+                isHovered && popoverChildren &&
+                <Popover
+                    ref={popoverRef}
+                    left={position[0]}
+                    top={position[1]}
+                    className={isHovered && isVisible ? 'visible' : 'invisible'}>
+                    {popoverChildren}
+                </Popover>
+            }
+        </>
     )
 }
 
@@ -576,4 +521,43 @@ function useValuesTicks(
                 offset: (orientation === ChartOrientation.Horizontal ? valuesScale(value) : 1 - valuesScale(value)) * length
             }));
     }, [valuesScale, dimensions, selectedUnit, orientation, padding]);
+}
+
+function useBarHover() {
+    const popoverRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState<[number, number]>([0, 0]);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const onPointerMove = useCallback((e: PointerEvent<SVGGElement>) => {
+        const container = document.getElementById('popover-container');
+        setIsHovered(true);
+
+        if (!popoverRef.current || !container) {
+            return;
+        }
+
+        const popoverRect = popoverRef.current.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        const idealX = mouseX - popoverRect.width;
+        const idealY = mouseY - popoverRect.height;
+        const x = clamp(idealX, 0, containerRect.width - popoverRect.width);
+        const y = clamp(idealY, 0, containerRect.height - popoverRect.height);
+
+        setPosition([x, y]);
+    }, [setPosition, setIsHovered, popoverRef.current]);
+
+    const onPointerLeave = useCallback((e: PointerEvent<SVGGElement>) => {
+        setIsHovered(false);
+    }, [setIsHovered]);
+
+    return {
+        popoverRef,
+        position,
+        isHovered,
+        onPointerMove,
+        onPointerLeave
+    };
 }

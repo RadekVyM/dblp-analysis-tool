@@ -21,6 +21,8 @@ import { useRouter } from 'next/navigation'
 import { toVenuesSearchParamsString } from '@/utils/publicationsSearchParams'
 import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
+import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
+import * as d3 from 'd3'
 
 type VenuePublication = {
     id: string,
@@ -146,6 +148,19 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, o
                     return 'var(--primary)';
                 },
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
+                popoverContent: (key, value) => {
+                    if (!value) {
+                        return undefined;
+                    }
+
+                    const publications = value.items as Array<VenuePublication>;
+                    const rolled = d3.rollup(publications, (items) => items.length, (item) => item.type);
+
+                    return (
+                        <PublicationTypesPopoverContent
+                            publicationTypes={rolled} />
+                    )
+                },
                 items: publications
             } as BarChartData<VenuePublication>} />
     )

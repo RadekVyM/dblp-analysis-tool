@@ -20,11 +20,15 @@ import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
+import * as d3 from 'd3'
+import { PublicationType } from '@/enums/PublicationType'
+import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
 
 type AuthorStats = {
     id: string,
     name: string,
-    publicationsCount: number
+    publicationsCount: number,
+    publicationTypes: d3.InternMap<PublicationType, number>
 }
 
 type AuthorGroupMembersStatsParams = {
@@ -72,7 +76,8 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                     (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
                     (selectedYears.size == 0 || selectedYears.has(publ.year)) &&
                     (selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))))
-                .length
+                .length,
+            publicationTypes: d3.rollup(a.publications, (items) => items.length, (item) => item.type)
         } as AuthorStats));
     }, [authors, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
     const router = useRouter();
@@ -158,6 +163,18 @@ function AuthorGroupMembersBarChart({ authors, onBarClick }: AuthorGroupMembersB
                 color: (key) => 'var(--primary)',
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
                 value: (items) => items.reduce((acc, item) => acc + item.publicationsCount, 0),
+                popoverContent: (key, value) => {
+                    if (!value?.items[0]) {
+                        return undefined;
+                    }
+
+                    const author = value?.items[0] as AuthorStats;
+
+                    return (
+                        <PublicationTypesPopoverContent
+                            publicationTypes={author.publicationTypes} />
+                    )
+                },
                 items: authors
             } as BarChartData<AuthorStats>} />
     )

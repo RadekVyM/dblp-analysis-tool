@@ -17,6 +17,7 @@ import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
 import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
 import { PUBLICATION_TYPE_COLOR } from '@/constants/client/publications'
+import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -141,6 +142,19 @@ function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified
                 },
                 sortKeys: (pair1, pair2) => isGreater(pair1.key, pair2.key),
                 value: isSimplified ? (items) => chartValueOfSimplifiedPublications(items as Array<SimplifiedOverTimePublication>) : undefined,
+                popoverContent: (key, value) => {
+                    if (!value || isSimplified) {
+                        return undefined;
+                    }
+
+                    const publications = value.items as Array<OverTimePublication>;
+                    const rolled = d3.rollup(publications, (items) => items.length, (item) => item.type);
+
+                    return (
+                        <PublicationTypesPopoverContent
+                            publicationTypes={rolled} />
+                    )
+                },
                 fillMissingNumberKeys: true,
                 items: publications
             } as BarChartData<OverTimePublication | SimplifiedOverTimePublication>} />
