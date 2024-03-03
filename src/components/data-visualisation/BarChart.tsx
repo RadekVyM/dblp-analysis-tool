@@ -1,10 +1,10 @@
 'use client'
 
 import { DataVisualisationSvg } from './DataVisualisationSvg'
-import { useState, useMemo, useRef, forwardRef, CSSProperties } from 'react'
+import { useState, useMemo, useRef, forwardRef, CSSProperties, useCallback, PointerEvent } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
-import { cn, prependDashedPrefix } from '@/utils/tailwindUtils'
+import { cn } from '@/utils/tailwindUtils'
 import useDimensions from '@/hooks/useDimensions'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { ChartOrientation } from '@/enums/ChartOrientation'
@@ -18,6 +18,7 @@ export type BarChartData<T> = {
     color: (key: any, value?: ChartValue) => string,
     barTitle?: (key: any, value?: ChartValue) => string,
     barLink?: (key: any, value?: ChartValue) => string,
+    gradient?: (key: any, value?: ChartValue) => LinearGradient
 } & ChartData<T>
 
 type BarChartParams = {
@@ -50,8 +51,36 @@ type ChartParams = {
     valuesScale: d3.ScaleLinear<number, number, never>,
     orientation: ChartOrientation,
     className?: string,
+    gradient?: (key: any, value?: ChartValue) => LinearGradient,
     color: (key: any, value?: ChartValue) => string,
-    onBarClick?: (key: any, value?: ChartValue) => void
+    onBarClick?: (key: any, value?: ChartValue) => void,
+    onHoverChange: (isHovered: boolean, key: any, value?: ChartValue) => void,
+}
+
+type BarParams = {
+    chartKey: any,
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+    radius: number,
+    chartValue: ChartValue | undefined,
+    displayedValue: string,
+    color: (key: any, value?: ChartValue) => string,
+    onBarClick?: (key: any, value?: ChartValue) => void,
+    onHoverChange: (isHovered: boolean, key: any, value?: ChartValue) => void,
+}
+
+type GradientsParams = {
+    chartMap: d3.InternMap<any, ChartValue>,
+    keys: Array<any>,
+    gradient: (key: any, value?: ChartValue) => LinearGradient,
+}
+
+type PopoverParams = {
+    top: number,
+    left: number,
+    className?: string
 }
 
 type PrimaryAxisLabelsParams = {
@@ -65,6 +94,12 @@ type PrimaryAxisLabelsParams = {
 
 type SecondaryAxisLinesParams = {
 } & SecondaryAxisParams
+
+type LinearGradient = {
+    key: string,
+    orientation: ChartOrientation,
+    stops: Array<{ offset: string, color: string }>
+}
 
 /** Chart that displays data as bars. */
 export default function BarChart({ data, className, bandThickness, secondaryAxisThickness, orientation, selectedUnit, maxBarsCount, onBarClick }: BarChartParams) {
@@ -80,17 +115,29 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
         svgContainerRef,
         dimensions
     } = useChartDimensions(keys.length, bandThickness, orientation);
+    const {
+        containerRef,
+        popoverRef,
+        position,
+        hoveredBar,
+        onHoverChange,
+        onPointerMove,
+        onPointerLeave
+    } = useBarHover(svgContainerRef);
 
     return (
         <div
+            ref={containerRef}
             className={cn(
                 className,
-                'overflow-auto',
+                'overflow-auto relative',
                 'grid thin-scrollbar scroll-gutter-stable box-border min-h-0 min-w-0',
                 orientation === ChartOrientation.Horizontal ?
                     'grid-cols-[minmax(8rem,0.25fr)_1fr]' :
                     'grid-rows-[1fr_minmax(2rem,auto)]'
-            )}>
+            )}
+            onPointerMove={onPointerMove}
+            onPointerLeave={onPointerLeave}>
             <PrimaryAxisLabels
                 orientation={orientation || ChartOrientation.Horizontal}
                 labels={keys.map((key) => {
@@ -129,12 +176,14 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                     padding={chartPadding}
                     dimensions={dimensions}
                     color={data.color}
+                    gradient={data.gradient}
                     orientation={orientation}
                     chartMap={chartMap}
                     keys={keys}
                     selectedUnit={selectedUnit}
                     valuesScale={valuesScale}
-                    onBarClick={onBarClick} />
+                    onBarClick={onBarClick}
+                    onHoverChange={onHoverChange} />
 
                 <SecondaryAxis
                     orientation={orientation}
@@ -167,11 +216,78 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
                         bottom: orientation === ChartOrientation.Horizontal ? secondaryAxisThickness : undefined,
                     }} />
             </div>
+
+            {hoveredBar &&
+                <Popover
+                    ref={popoverRef}
+                    left={position[0]}
+                    top={position[1]} />}
         </div>
     )
 }
 
-function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, color, onBarClick }: ChartParams) {
+const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, className }, ref) => {
+    return (
+        <div
+            ref={ref}
+            style={{
+                top: top,
+                left: left
+            }}
+            className={cn('absolute bg-surface-container p-5 border border-outline', className)}>
+            hello
+        </div>
+    )
+});
+
+Popover.displayName = 'Popover';
+
+function useBarHover(svgContainerRef: React.RefObject<HTMLDivElement>) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const popoverRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState<[number, number]>([0, 0]);
+    const [hoveredBar, setHoveredBar] = useState<{ key: any, value?: ChartValue } | null>(null);
+
+    const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
+        if (!popoverRef.current) {
+            return;
+        }
+
+        const popoverRect = popoverRef.current.getBoundingClientRect();
+        const containerRect = (e.currentTarget as Element).getBoundingClientRect();
+        const mouseX = e.clientX - containerRect.left;
+        const mouseY = e.clientY - containerRect.top;
+
+        const y = Math.min(mouseY, containerRect.height - popoverRect.height);
+
+        setPosition([mouseX, y]);
+    }, [setPosition, popoverRef.current]);
+
+    const onPointerLeave = useCallback((e: PointerEvent<HTMLDivElement>) => {
+        setHoveredBar(null);
+    }, [setHoveredBar]);
+
+    const onHoverChange = useCallback((isHovered: boolean, key: any, value?: ChartValue) => {
+        setHoveredBar((old) => {
+            if (isHovered) {
+                return { key, value };
+            }
+            return null;
+        });
+    }, [setHoveredBar]);
+
+    return {
+        containerRef,
+        popoverRef,
+        position,
+        hoveredBar,
+        onHoverChange,
+        onPointerMove,
+        onPointerLeave
+    };
+}
+
+function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientation, padding, className, gradient, color, onBarClick, onHoverChange }: ChartParams) {
     const secondaryAxisLength = orientation === ChartOrientation.Horizontal ?
         dimensions.width - padding.left - padding.right :
         dimensions.height - padding.top - padding.bottom;
@@ -191,6 +307,12 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
                 height: orientation === ChartOrientation.Horizontal ? dimensions.height : undefined
             }}
             className={cn(className, 'w-full h-full relative')}>
+            {gradient &&
+                <Gradients
+                    chartMap={chartMap}
+                    keys={keys}
+                    gradient={gradient} />}
+
             {dimensions.width !== 0 && dimensions.height !== 0 && keys.map((key, index) => {
                 const chartValue = chartMap.get(key);
                 const value = chartValue?.value || 0;
@@ -206,30 +328,75 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
                 const top = padding.top + (orientation === ChartOrientation.Horizontal ? offset : secondaryAxisLength - length);
                 const width = orientation === ChartOrientation.Horizontal ? length : barHeight;
                 const height = orientation === ChartOrientation.Horizontal ? barHeight : length;
-                const radius = Math.min(8, barHeight / 2, width / 2);
+                const radius = Math.min(6, barHeight / 2, width / 2);
 
                 return (
-                    <g
-                        key={key === undefined ? 'undefined' : key}>
-                        <rect
-                            className={cn(
-                                prependDashedPrefix('fill', color(key, chartValue)),
-                                onBarClick && 'cursor-pointer hover:brightness-95')}
-                            x={left} y={top}
-                            width={width} height={height}
-                            rx={radius} ry={radius}
-                            onClick={onBarClick && (() => onBarClick(key, chartValue))} />
-
-                        <OutlinedText
-                            x={left + (width / 2)} y={top + (height / 2) + 2}
-                            dominantBaseline='middle' textAnchor='middle'
-                            className='text-xs font-semibold pointer-events-none'>
-                            {displayedValue}
-                        </OutlinedText>
-                    </g>
+                    <Bar
+                        key={key === undefined ? 'undefined' : key}
+                        left={left}
+                        top={top}
+                        width={width}
+                        height={height}
+                        radius={radius}
+                        chartKey={key}
+                        chartValue={chartValue}
+                        displayedValue={displayedValue}
+                        onBarClick={onBarClick}
+                        color={color}
+                        onHoverChange={onHoverChange} />
                 )
             })}
         </svg>
+    )
+}
+
+function Bar({ chartKey, left, top, width, height, radius, chartValue, displayedValue, color, onBarClick, onHoverChange }: BarParams) {
+    return (
+        <g
+            onPointerEnter={() => onHoverChange(true, chartKey, chartValue)}
+            onPointerLeave={() => onHoverChange(false, chartKey, chartValue)}>
+            <rect
+                className={cn(onBarClick && 'cursor-pointer hover:brightness-95')}
+                style={{ fill: color(chartKey, chartValue) }}
+                x={left} y={top}
+                width={width} height={height}
+                rx={radius} ry={radius}
+                onClick={onBarClick && (() => onBarClick(chartKey, chartValue))} />
+
+            <OutlinedText
+                x={left + (width / 2)} y={top + (height / 2) + 2}
+                dominantBaseline='middle' textAnchor='middle'
+                className='text-xs font-semibold pointer-events-none'>
+                {displayedValue}
+            </OutlinedText>
+        </g>
+    )
+}
+
+function Gradients({ chartMap, keys, gradient }: GradientsParams) {
+    return (
+        <defs>
+            {keys.map((key, index) => {
+                const chartValue = chartMap.get(key);
+                const grad = gradient(key, chartValue);
+
+                return (
+                    <linearGradient
+                        key={grad.key}
+                        id={grad.key}
+                        x1={0}
+                        x2={grad.orientation === ChartOrientation.Horizontal ? 1 : 0}
+                        y1={0}
+                        y2={grad.orientation === ChartOrientation.Horizontal ? 0 : 1}>
+                        {grad.stops.map((stop) =>
+                            <stop
+                                key={`${stop.offset}-${stop.color}`}
+                                offset={stop.offset}
+                                stopColor={stop.color} />)}
+                    </linearGradient>
+                )
+            })}
+        </defs>
     )
 }
 

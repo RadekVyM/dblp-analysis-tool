@@ -243,11 +243,17 @@ function useCanvas(
     function onPointerMove(event: MouseEvent) {
         const point = getGraphPoint(event);
         const node = findNode(point);
-        const link = findLink(point);
 
-        setLinkLabel(link && link.index && !node ?
-            { point: point, label: link.publicationsCount.toString(), linkIndex: link.index } :
-            null);
+        if (!node) {
+            const link = findLink(point);
+
+            setLinkLabel(link && link.index !== undefined ?
+                { point: point, label: link.publicationsCount.toString(), linkIndex: link.index } :
+                null);
+        }
+        else {
+            setLinkLabel(null);
+        }
 
         if (node && (node.isVisible || graph.justDimInvisibleNodes)) {
             onNodeHoverChange(node.person.id, true);
@@ -270,6 +276,10 @@ function useCanvas(
 
     function findLink(point: [number, number]) {
         for (const link of links) {
+            if (link.isIgnored || link.isDim || (!link.isVisible && !graph.justDimInvisibleNodes)) {
+                continue;
+            }
+
             if (isPointOnLink(link, point)) {
                 return link;
             }

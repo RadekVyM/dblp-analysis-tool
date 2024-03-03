@@ -141,9 +141,9 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, o
                     const type = key ? getVenueTypeFromDblpString(key) : null;
 
                     if (type) {
-                        return VENUE_TYPE_COLOR[type];
+                        return `var(--${VENUE_TYPE_COLOR[type]})`;
                     }
-                    return 'primary';
+                    return 'var(--primary)';
                 },
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
                 items: publications

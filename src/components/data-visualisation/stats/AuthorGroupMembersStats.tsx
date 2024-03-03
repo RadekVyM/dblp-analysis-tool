@@ -155,7 +155,7 @@ function AuthorGroupMembersBarChart({ authors, onBarClick }: AuthorGroupMembersB
                 examinedProperty: (item) => item.id,
                 barTitle: (key, value) => value?.items[0]?.name || key,
                 barLink: (key, value) => createLocalPath(key, SearchType.Author),
-                color: (key) => 'primary',
+                color: (key) => 'var(--primary)',
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
                 value: (items) => items.reduce((acc, item) => acc + item.publicationsCount, 0),
                 items: authors

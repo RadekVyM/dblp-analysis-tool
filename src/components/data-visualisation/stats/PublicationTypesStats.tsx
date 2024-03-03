@@ -100,7 +100,7 @@ function PublicationTypesStatsBarChart({ publications, selectedUnit, onBarClick 
             data={{
                 examinedProperty: (item) => item.type,
                 barTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
-                color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
+                color: (key) => `var(--${PUBLICATION_TYPE_COLOR[key as PublicationType]})`,
                 items: publications
             } as BarChartData<TypePublication>} />
     )

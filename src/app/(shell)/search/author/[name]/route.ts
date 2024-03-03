@@ -31,5 +31,5 @@ export async function GET(request: Request, { params }: { params: { name: string
         console.log(`Error occured at "/search/author/${params.name}" endpoint: ${error}`);
     }
 
-    redirect(localUrl);
+    redirect(encodeURI(localUrl));
 }

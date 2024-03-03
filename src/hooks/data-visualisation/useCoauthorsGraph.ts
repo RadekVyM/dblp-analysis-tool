@@ -204,7 +204,7 @@ function updateLinksVisualState(graph: CoauthorsGraphState, allAuthors: AllAutho
         const isVisible = source.isVisible && target.isVisible;
         const isHighlighted = isNodeHoveredOrSelected(source.person, graph.hoveredAuthorId, graph.selectedAuthorId) ||
             isNodeHoveredOrSelected(target.person, graph.hoveredAuthorId, graph.selectedAuthorId);
-        const isDim = !isHighlighted && !!(graph.hoveredAuthorId || graph.selectedAuthorId)
+        const isDim = (!isHighlighted && !!(graph.hoveredAuthorId || graph.selectedAuthorId))
             || (!graph.hoveredAuthorId && !graph.selectedAuthorId && graph.justDimInvisibleNodes && !isVisible);
 
         link.isIgnored = isIgnored;

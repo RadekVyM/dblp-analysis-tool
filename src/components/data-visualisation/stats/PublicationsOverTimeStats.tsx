@@ -16,6 +16,7 @@ import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUni
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
 import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
+import { PUBLICATION_TYPE_COLOR } from '@/constants/client/publications'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -41,6 +42,7 @@ type PublicationsOverTimeStatsParams = {
 
 type PublicationsOverTimeBarChartParams = {
     selectedUnit: ChartUnit,
+    displayTypesDistribution?: boolean,
     onBarClick?: (key: any, value?: ChartValue) => void,
 } & PublicationsOverTimeStatsParams
 
@@ -117,7 +119,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
     )
 }
 
-function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified, onBarClick }: PublicationsOverTimeBarChartParams) {
+function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified, displayTypesDistribution, onBarClick }: PublicationsOverTimeBarChartParams) {
     return (
         <BarChart
             orientation='Vertical'
@@ -129,7 +131,14 @@ function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified
             data={{
                 examinedProperty: (item) => item.year,
                 barTitle: (key) => key,
-                color: (key) => 'primary',
+                gradient: displayTypesDistribution ? barGradient : undefined,
+                color: (key, value) => {
+                    if (displayTypesDistribution && !isSimplified && value) {
+                        return `url(#${key})`;
+                    }
+
+                    return 'var(--primary)';
+                },
                 sortKeys: (pair1, pair2) => isGreater(pair1.key, pair2.key),
                 value: isSimplified ? (items) => chartValueOfSimplifiedPublications(items as Array<SimplifiedOverTimePublication>) : undefined,
                 fillMissingNumberKeys: true,
@@ -180,4 +189,43 @@ function chartValueOfSimplifiedPublications(items: Array<SimplifiedOverTimePubli
 function createFilteredPublicationsUrlByYear(publicationsUrl: string, year: number) {
     const params = toYearsSearchParamsString(year);
     return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
+}
+
+/** Gradient displaying distribution of publication types in a year. */
+function barGradient(key: any, value?: ChartValue | undefined) {
+    if (!value) {
+        return {
+            key: key,
+            stops: [{ color: 'var(--primary)', offset: '0%' }],
+            orientation: 'Vertical'
+        };
+    }
+
+    const publications = value.items as Array<OverTimePublication>;
+    const rolled = d3.rollup(publications, (items) => items.length, (item) => item.type);
+
+    const keys = [...rolled.keys()];
+    keys.sort((first, second) => isGreater(rolled.get(first), rolled.get(second)));
+    const colors: Array<{ start: string; end: string; color: string }> = [];
+
+    let n = 0;
+
+    for (const key of keys) {
+        const value = rolled.get(key)!;
+        const color = `var(--${PUBLICATION_TYPE_COLOR[key]})`;
+
+        colors.push({
+            start: `${(n / publications.length) * 100}%`,
+            end: `${((n + value) / publications.length) * 100}%`,
+            color: color
+        });
+
+        n += value;
+    }
+
+    return {
+        key: key,
+        stops: colors.flatMap((c) => [{ color: c.color, offset: c.start }, { color: c.color, offset: c.end }]),
+        orientation: 'Vertical'
+    };
 }

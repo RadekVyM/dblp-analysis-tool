@@ -13,6 +13,7 @@ import CountPercentageTable from '@/components/data-visualisation/CountPercentag
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import MaxCountInput from '../MaxCountInput'
 import { sortByPresentedContent } from '@/utils/table'
+import { SEARCH_AUTHOR } from '@/constants/urls'
 
 type VenueTopAuthor = {
     nameId: string,
@@ -104,7 +105,8 @@ function VenueTopAuthorsBarChart({ authors, selectedUnit, maxBarsCount, totalPub
             data={{
                 examinedProperty: (item) => item.nameId,
                 barTitle: (key, value) => value?.items[0]?.name || key,
-                color: (key) => 'primary',
+                barLink: (key, value) => `${SEARCH_AUTHOR}/${key}`,
+                color: (key) => 'var(--primary)',
                 sortKeys: (pair1, pair2) => isSmaller(pair1.value?.value, pair2.value?.value),
                 value: (items) => items.reduce((acc, item) => acc + item.publicationsCount, 0),
                 items: authors,

@@ -10,8 +10,8 @@ const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_D
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
 
 // This tool works with normalized author and venue IDs, also referred to as local IDs.
-// These have slashes replaced by three underscores.
-const ID_LOCAL_SEPARATOR = '___'; // Single '-' cannot be used, PIDs can contain '-'
+// These have slashes replaced by two underscores.
+const ID_LOCAL_SEPARATOR = '__'; // Single '-' cannot be used, PIDs can contain '-'
 const ID_DBLP_SEPARATOR = '/';
 
 /**

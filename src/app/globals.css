@@ -88,13 +88,13 @@
     --outline: #374151;
     --outline-variant: #1f2937;
 
-    --books-and-theses: #ffeeb3;
-    --journal-articles: #fcd2e5;
-    --conference-and-workshop-papers: #d4e5fc;
-    --parts-in-books-or-collections: #ffd5a6;
-    --editorship: #c8e8e5;
-    --reference-works: #e3f0aa;
-    --data-and-artifacts: #d9b898;
+    --books-and-theses: #ffe382;
+    --journal-articles: #ffa3cd;
+    --conference-and-workshop-papers: #9cc6ff;
+    --parts-in-books-or-collections: #ffb073;
+    --editorship: #a7ebe4;
+    --reference-works: #dcf084;
+    --data-and-artifacts: #c7a583;
     --informal-and-other: #d7d9db;
   }
 }
