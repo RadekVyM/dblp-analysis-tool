@@ -80,9 +80,9 @@ const ImportItemsDialog = forwardRef<HTMLDialogElement, ImportItemsDialogParams>
                                     flex flex-col items-center justify-center
                                     mb-4 w-full cursor-pointer'>
                                 <MdOutlineUploadFile
-                                    className='w-8 h-8 mb-4 text-gray-500 dark:text-gray-400' />
+                                    className='w-8 h-8 mb-4 text-on-surface-muted' />
                                 <p
-                                    className='mb-2 text-sm text-gray-500 dark:text-gray-400'>
+                                    className='mb-2 text-sm text-on-surface-muted'>
                                     <span className='font-semibold'>Click to upload</span> or drag and drop
                                 </p>
                             </div>
@@ -92,13 +92,13 @@ const ImportItemsDialog = forwardRef<HTMLDialogElement, ImportItemsDialogParams>
                             type='file'
                             accept='application/JSON'
                             className={withFile ?
-                                `block w-full text-sm text-gray-600 dark:text-gray-400
+                                `block w-full text-sm text-on-surface-muted
                                 file:mr-4 file:py-1 file:px-3
                                 file:rounded-md file:border-0
                                 file:text-sm file:font-semibold
                                 file:cursor-pointer
-                                file:bg-black file:text-white dark:file:bg-gray-50 dark:file:text-black
-                                hover:file:bg-gray-800 dark:hover:file:bg-gray-200` :
+                                file:bg-secondary file:text-on-secondary
+                                hover:file:bg-secondary-dim hover:file:text-on-secondary-dim` :
                                 'dropzone-file-input row-start-1 row-end-2 col-start-1 col-end-2 rounded-lg opacity-0 cursor-pointer'}
                             onChange={(e) => {
                                 e.preventDefault();

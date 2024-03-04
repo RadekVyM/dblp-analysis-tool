@@ -37,9 +37,9 @@ export default function CoauthorsGraphShell({ authors, publications, className }
     const selectedAuthor = useMemo(
         () => graph.selectedAuthorId ? graph.authorsMap.get(graph.selectedAuthorId) : undefined,
         [graph.selectedAuthorId, graph.authorsMap]);
-    // Original authors are excluded
     const displayedNodes = useMemo(
         () => graph.nodes.filter((a) => a.isVisible),
+        // Dependency array contains all properties that modify the isVisible property of nodes
         [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, graph.intersectionOfCoauthors, graph.onlyCommonCoauthors, authors]);
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,

@@ -1,9 +1,8 @@
 'use client'
 
 import useNotifications, { Notification } from '@/hooks/useNotifications'
-import { useHover, useIsClient } from 'usehooks-ts'
+import { useIsClient } from 'usehooks-ts'
 import Button from '../Button'
-import { useEffect, useRef } from 'react'
 import { MdCheckCircle, MdClose, MdReportProblem } from 'react-icons/md'
 import { cn } from '@/utils/tailwindUtils'
 import { NotificationType } from '@/enums/NotificationType'
@@ -41,30 +40,27 @@ function NotificationItem({ notification, removeNotification }: NotificationItem
     const { progress, paused, start, pause, resume, stop } = useTimer(4500, () => {
         removeNotification(notification);
     });
-    const itemRef = useRef(null);
-    const isHovered = useHover(itemRef);
 
     if (notification.autoclose) {
         start();
     }
 
-    useEffect(() => {
-        if (!notification.autoclose) {
-            return
-        }
-
-        if (isHovered) {
-            pause();
-        }
-        else {
-            resume();
-        }
-    }, [isHovered]);
-
     return (
         <li
-            ref={itemRef}
-            aria-atomic='true' role={notificationRole(notification.type)}
+            onPointerEnter={() => {
+                if (!notification.autoclose) {
+                    return;
+                }
+                pause();
+            }}
+            onPointerLeave={() => {
+                if (!notification.autoclose) {
+                    return;
+                }
+                resume();
+            }}
+            aria-atomic='true'
+            role={notificationRole(notification.type)}
             className='pointer-events-auto bg-surface-container border border-outline rounded-lg shadow-2xl w-full overflow-hidden animate-slideUpIn'>
             <div
                 className='flex gap-4 items-center pl-3 pr-2 py-2'>

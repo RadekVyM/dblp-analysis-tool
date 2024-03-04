@@ -98,7 +98,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
             icon: (<MdTableChart />),
 
         },
-    ], [publications, scaffoldId, isSimplified, publicationsUrl, barChartSelectedUnit, isLineChartHidden]);
+    ], [publications, scaffoldId, isSimplified, publicationsUrl, barChartSelectedUnit, isLineChartHidden, router]);
 
     useEffect(() => {
         if (isLineChartHidden && selectedPublTypesStatsVisual === 'Line') {
@@ -190,10 +190,22 @@ function PublicationsOverTimeTable({ publications, isSimplified }: PublicationsO
             examinedValues={years}
             items={publications}
             totalCount={isSimplified ? publications.reduce((acc, item) => acc + (item as SimplifiedOverTimePublication).count, 0) : undefined}
-            itemsCount={isSimplified ? (items) => (items.length > 0 ? items[0].count : 0) : undefined}
-            toPresentedContent={(year: number) => year.toString()}
-            filter={(p: OverTimePublication | SimplifiedOverTimePublication, year: number) => p.year === year} />
+            itemsCount={isSimplified ? tableItemsCount : undefined}
+            toPresentedContent={tableToPresentedContent}
+            filter={tableFilter} />
     )
+}
+
+function tableFilter(p: OverTimePublication | SimplifiedOverTimePublication, year: number) {
+    return p.year === year;
+}
+
+function tableToPresentedContent(year: number) {
+    return year.toString();
+}
+
+function tableItemsCount(items: Array<any>) {
+    return items.length > 0 ? items[0].count : 0;
 }
 
 function chartValueOfSimplifiedPublications(items: Array<SimplifiedOverTimePublication>) {

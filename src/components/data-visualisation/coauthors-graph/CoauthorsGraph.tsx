@@ -3,7 +3,7 @@
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { PublicationPersonLinkDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonLinkDatum'
 import * as d3 from 'd3'
-import { MouseEvent, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { MouseEvent, RefObject, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import LoadingWheel from '../../LoadingWheel'
 import { cn } from '@/utils/tailwindUtils'
 import { EdgeRect, PointRect } from '@/dtos/Rect'
@@ -84,6 +84,10 @@ const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
         };
     }, [dimensions, computedNodes]);
 
+    const zoomToCenter = useCallback(() => {
+        graphRef.current?.zoomTo({ scale: zoomScaleExtent.min || 1, x: 0, y: 0 });
+    }, [zoomScaleExtent.min]);
+
     useImperativeHandle(ref, () => ({
         graphRef: graphRef,
         zoomToCenter: zoomToCenter
@@ -99,10 +103,6 @@ const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
 
         return () => { clearTimeout(timeout); };
     }, [zoomScaleExtent]);
-
-    function zoomToCenter() {
-        graphRef.current?.zoomTo({ scale: zoomScaleExtent.min || 1, x: 0, y: 0 });
-    }
 
     return (
         <div
@@ -152,7 +152,8 @@ function useComputedNodesAndLinks(graph: CoauthorsGraphState, ignoredNodeIds?: A
 
         return runGraphSimulationInWorker(
             filteredNodes,
-            graph,
+            graph.links,
+            graph.authorsMap,
             (nodes, links) => {
                 setComputedNodes(nodes);
                 setComputedLinks(links);
@@ -171,7 +172,7 @@ function useComputedNodesAndLinks(graph: CoauthorsGraphState, ignoredNodeIds?: A
             },
             (p) => setProgress(p));
         */
-    }, [graph.nodes, graph.links, ignoredNodeIds]);
+    }, [graph.nodes, graph.links, graph.authorsMap, ignoredNodeIds]);
 
     return { computedNodes, computedLinks, progress };
 }
@@ -229,7 +230,7 @@ function useCanvas(
         }
 
         context.restore();
-    }, [zoomTransform, links, nodes, dimensions, graph, graph.showLinkWeightOnHover, linkLabel]);
+    }, [canvas, zoomTransform, links, nodes, dimensions, graph, graph.showLinkWeightOnHover, linkLabel]);
 
     function onClick(event: MouseEvent) {
         const point = getGraphPoint(event);
@@ -737,8 +738,9 @@ function runGraphSimulation(
 
 /** Runs the graph simulation using web worker. */
 function runGraphSimulationInWorker(
-    filteredNodes: PublicationPersonNodeDatum[],
-    graph: CoauthorsGraphState,
+    filteredNodes: Array<PublicationPersonNodeDatum>,
+    links: Array<PublicationPersonLinkDatum>,
+    authorsMap: Map<string, PublicationPersonNodeDatum>,
     onFinished: (nodes: Array<PublicationPersonNodeDatum>, links: Array<PublicationPersonLinkDatum>) => void,
     onProgress: (progress: number) => void,
 ): () => void {
@@ -753,8 +755,8 @@ function runGraphSimulationInWorker(
             case 'end':
                 // Different instances are sent back from the web worker
                 // I need to map their computed values to my instances
-                mapComputedNodesAndLinks(event, filteredNodes, graph);
-                onFinished([...filteredNodes], [...graph.links]);
+                mapComputedNodesAndLinks(event, filteredNodes, links, authorsMap);
+                onFinished([...filteredNodes], [...links]);
                 break;
         }
     };
@@ -768,7 +770,7 @@ function runGraphSimulationInWorker(
     // Start the simulation in the web worker
     graphWorker.postMessage({
         nodes: filteredNodes,
-        links: graph.links,
+        links: links,
         graphWidth: DEFAULT_GRAPH_WIDTH,
         graphHeight: DEFAULT_GRAPH_HEIGHT
     } as CoauthorsGraphWorkerData);
@@ -779,7 +781,8 @@ function runGraphSimulationInWorker(
 function mapComputedNodesAndLinks(
     event: MessageEvent<CoauthorsGraphWorkerResult>,
     filteredNodes: Array<PublicationPersonNodeDatum>,
-    graph: CoauthorsGraphState
+    links: Array<PublicationPersonLinkDatum>,
+    authorsMap: Map<string, PublicationPersonNodeDatum>
 ) {
     const eventNodes = event.data.nodes || [];
     const eventLinks = event.data.links || [];
@@ -793,7 +796,7 @@ function mapComputedNodesAndLinks(
         node.vx = eventNodes[index].vx;
         node.vy = eventNodes[index].vy;
     });
-    graph.links.forEach((link, index) => {
+    links.forEach((link, index) => {
         link.index = eventLinks[index].index;
         link.source = getNode(eventLinks[index].source);
         link.target = getNode(eventLinks[index].target);
@@ -801,7 +804,7 @@ function mapComputedNodesAndLinks(
 
     function getNode(computedNode: string | number | PublicationPersonNodeDatum) {
         return typeof computedNode === 'object' ?
-            graph.authorsMap.get((computedNode as PublicationPersonNodeDatum).person.id) || computedNode :
+            authorsMap.get((computedNode as PublicationPersonNodeDatum).person.id) || computedNode :
             computedNode;
     }
 }

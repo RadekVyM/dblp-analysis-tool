@@ -30,6 +30,7 @@ type RenameAuthorGroupDialogParams = {
     isOpen: boolean
 }
 
+/** Buttons that allow the user to rename, remove and export an author group. */
 export function AuthorGroupButtons({ authorGroupId, authorGroupTitle, exportedObject, isLoadingDone }: AuthorGroupButtonsParams) {
     const { removeAuthorGroup, renameAuthorGroup } = useAuthorGroups();
     const [renameDialogRef, isRenameDialogOpen, renameDialogAnimation, showRenameDialog, hideRenameDialog] = useDialog();

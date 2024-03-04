@@ -8,7 +8,7 @@ export const loadingWheelVariants = cva(
             thickness: {
                 default: 'border-4',
                 xs: 'border-2',
-                sm: 'border-3',
+                sm: 'border-4',
                 lg: 'border-6',
             },
         },

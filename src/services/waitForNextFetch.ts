@@ -16,7 +16,7 @@ import { delay } from '@/utils/promises'
  * However, that hopefully should not happen too often, and even if it happens, it is not the end of the world.
  * @param signal Abort signal of the incoming request
  */
-export default async function waitForNextFetch(signal: AbortSignal) {
+export default async function waitForNextFetch(signal?: AbortSignal) {
     await connectDb();
 
     const res = await LastDblpFetch.find<LastDblpFetchSchema>({}).sort({ lastFetchAt: 'desc' }).limit(1);
@@ -33,7 +33,7 @@ export default async function waitForNextFetch(signal: AbortSignal) {
         // If the incoming request is aborted, delete the fetch record in the database  
         await LastDblpFetch.findByIdAndDelete(fetch._id);
     };
-    signal.addEventListener('abort', abortListener);
+    signal?.addEventListener('abort', abortListener);
 
     const waitFor = newTime - new Date().getTime();
     if (waitFor > 0) {
@@ -46,7 +46,7 @@ export default async function waitForNextFetch(signal: AbortSignal) {
         await LastDblpFetch.findByIdAndDelete(oldRecordId);
     }
 
-    signal.removeEventListener('abort', abortListener);
+    signal?.removeEventListener('abort', abortListener);
 }
 
 function getNewTime(nowTime: number, res: Array<LastDblpFetchSchema>) {

@@ -116,7 +116,7 @@ const MenuContainer = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className
         if (isNotMobile) {
             savedItemsMenuHoverChanged(isContainerHovered);
         }
-    }, [isContainerHovered]);
+    }, [isContainerHovered, isNotMobile]);
 
     return (
         <div

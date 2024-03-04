@@ -122,11 +122,27 @@ function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAutho
             examinedValueSortTitle='Sort by author name'
             examinedValues={authors}
             items={authors}
-            itemsCount={(items) => (items.length > 0 ? items[0].publicationsCount : 0)}
+            itemsCount={tableItemsCount}
             totalCount={totalPublicationsCount}
-            toPresentedContent={(author: VenueTopAuthor) => author.name}
-            filter={(a: VenueTopAuthor, author: VenueTopAuthor) => a.nameId === author.nameId}
+            toPresentedContent={tableToPresentedContent}
+            filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
-            rowKey={(author: VenueTopAuthor) => author.nameId} />
+            rowKey={tableRowKey} />
     )
+}
+
+function tableToPresentedContent(author: VenueTopAuthor) {
+    return author.name;
+}
+
+function tableRowKey(author: VenueTopAuthor) {
+    return author.nameId;
+}
+
+function tableFilter(a: VenueTopAuthor, author: VenueTopAuthor) {
+    return a.nameId === author.nameId;
+}
+
+function tableItemsCount(items: Array<any>) {
+    return items.length > 0 ? items[0].publicationsCount : 0;
 }

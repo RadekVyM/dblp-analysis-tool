@@ -2,7 +2,6 @@
 
 import { DblpVenue } from '@/dtos/DblpVenue'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 /**
@@ -26,7 +25,9 @@ export default function useSelectableFetchableVenueVolumes(venue: DblpVenue, def
 
     useEffect(() => {
         if (typeof window !== 'undefined' && window.history.replaceState) {
-            window.history.replaceState(window.history.state, '', `?${[...selectedVolumeIds].map((id) => `volumeId=${id}`).join('&')}`);
+            const oldParams = window.location.search.replaceAll('?', '').split('&').filter((p) => !p.startsWith('volumeId='));
+            const newParams = [...selectedVolumeIds].map((id) => `volumeId=${id}`);
+            window.history.replaceState(window.history.state, '', `?${[...oldParams, ...newParams].join('&')}`);
         }
     }, [selectedVolumeIds]);
 

@@ -1,7 +1,7 @@
 'use client'
 
 import useVisitedVenues from '@/hooks/visits/useVisitedVenues'
-import { useEffect } from 'react'
+import { useEffectOnce } from 'usehooks-ts'
 
 type AddToVisitedVenuesParams = {
     venueId: string,
@@ -13,9 +13,9 @@ type AddToVisitedVenuesParams = {
 export default function AddToVisitedVenues({ venueId, volumeId, title }: AddToVisitedVenuesParams) {
     const { visitedVenue } = useVisitedVenues();
 
-    useEffect(() => {
+    useEffectOnce(() => {
         visitedVenue(volumeId ? `${venueId}/${volumeId}` : venueId, title, venueId, volumeId);
-    }, []);
+    });
 
     return (
         <></>

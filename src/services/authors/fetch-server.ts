@@ -10,6 +10,7 @@ import { getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
 import { cacheRecord, tryGetCachedRecord } from '../cache/cache'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { serverError } from '@/utils/errors'
+import waitForNextFetch from '../waitForNextFetch'
 
 /**
  * Requests a part of the authors index.
@@ -39,11 +40,12 @@ export async function fetchAuthorsIndexLength(): Promise<number> {
  * @param id Normalized ID of the author
  * @returns Object containing all the author information
  */
-export async function fetchAuthor(id: string): Promise<DblpAuthor> {
+export async function fetchAuthor(id: string, signal?: AbortSignal): Promise<DblpAuthor> {
     return await withCache<DblpAuthor>(
         async (value: DblpAuthor) => await cacheRecord(id, value),
         async () => await tryGetCachedRecord(id),
         async () => {
+            await waitForNextFetch(signal);
             const xml = await fetchAuthorXml(id);
             return extractAuthor(xml, id);
         }

@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -19,57 +21,58 @@ module.exports = {
     },
   ],
   theme: {
+    colors: {
+      current: colors.current,
+      transparent: colors.transparent,
+      white: colors.white,
+      black: colors.black,
+      gray: colors.gray,
+
+      primary: 'var(--primary)',
+      'on-primary': 'var(--on-primary)',
+      secondary: 'var(--secondary)',
+      'on-secondary': 'var(--on-secondary)',
+      'secondary-dim': 'var(--secondary-dim)',
+      'on-secondary-dim': 'var(--on-secondary-dim)',
+
+      surface: 'var(--surface)',
+      'on-surface': 'var(--on-surface)',
+      'on-surface-muted': 'var(--on-surface-muted)',
+
+      'surface-dim': 'var(--surface-dim)',
+      'on-surface-dim': 'var(--on-surface-dim)',
+      'on-surface-dim-muted': 'var(--on-surface-dim-muted)',
+
+      'surface-container': 'var(--surface-container)',
+      'on-surface-container': 'var(--on-surface-container)',
+      'on-surface-container-muted': 'var(--on-surface-container-muted)',
+
+      'surface-dim-container': 'var(--surface-dim-container)',
+      'on-surface-dim-container': 'var(--on-surface-dim-container)',
+      'on-surface-dim-container-muted': 'var(--on-surface-dim-container-muted)',
+
+      outline: 'var(--outline)',
+      'outline-variant': 'var(--outline-variant)',
+
+      danger: 'var(--danger)',
+      'on-danger': 'var(--on-danger)',
+      'danger-dim': 'var(--danger-dim)',
+      'on-danger-dim': 'var(--on-danger-dim)',
+
+      backdrop: 'var(--backdrop)',
+
+      'books-and-theses': 'var(--books-and-theses)',
+      'journal-articles': 'var(--journal-articles)',
+      'conference-and-workshop-papers': 'var(--conference-and-workshop-papers)',
+      'parts-in-books-or-collections': 'var(--parts-in-books-or-collections)',
+      'editorship': 'var(--editorship)',
+      'reference-works': 'var(--reference-works)',
+      'data-and-artifacts': 'var(--data-and-artifacts)',
+      'informal-and-other': 'var(--informal-and-other)',
+    },
     extend: {
-      colors: {
-        primary: 'var(--primary)',
-        'on-primary': 'var(--on-primary)',
-        secondary: 'var(--secondary)',
-        'on-secondary': 'var(--on-secondary)',
-        'secondary-dim': 'var(--secondary-dim)',
-        'on-secondary-dim': 'var(--on-secondary-dim)',
-
-        surface: 'var(--surface)',
-        'on-surface': 'var(--on-surface)',
-        'on-surface-muted': 'var(--on-surface-muted)',
-
-        'surface-dim': 'var(--surface-dim)',
-        'on-surface-dim': 'var(--on-surface-dim)',
-        'on-surface-dim-muted': 'var(--on-surface-dim-muted)',
-
-        'surface-container': 'var(--surface-container)',
-        'on-surface-container': 'var(--on-surface-container)',
-        'on-surface-container-muted': 'var(--on-surface-container-muted)',
-
-        'surface-dim-container': 'var(--surface-dim-container)',
-        'on-surface-dim-container': 'var(--on-surface-dim-container)',
-        'on-surface-dim-container-muted': 'var(--on-surface-dim-container-muted)',
-
-        outline: 'var(--outline)',
-        'outline-variant': 'var(--outline-variant)',
-
-        danger: 'var(--danger)',
-        'on-danger': 'var(--on-danger)',
-        'danger-dim': 'var(--danger-dim)',
-        'on-danger-dim': 'var(--on-danger-dim)',
-
-        backdrop: 'var(--backdrop)',
-
-        'books-and-theses': 'var(--books-and-theses)',
-        'journal-articles': 'var(--journal-articles)',
-        'conference-and-workshop-papers': 'var(--conference-and-workshop-papers)',
-        'parts-in-books-or-collections': 'var(--parts-in-books-or-collections)',
-        'editorship': 'var(--editorship)',
-        'reference-works': 'var(--reference-works)',
-        'data-and-artifacts': 'var(--data-and-artifacts)',
-        'informal-and-other': 'var(--informal-and-other)',
-      },
       screens: {
         'xs': '400px'
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       keyframes: {
         fadeIn: {

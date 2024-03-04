@@ -20,7 +20,7 @@ export type DblpAuthorHomonym = {
 /** Additional information of an author stored in dblp. */
 export type DblpAuthorInfo = {
     readonly disambiguation: boolean,
-    readonly date: Date,
+    readonly mdate: Date,
     readonly aliases: Array<{ title: string, id?: string }>,
     readonly affiliations: Array<string>,
     readonly awards: Array<{ title: string, label: string }>,
@@ -47,7 +47,7 @@ export function createDblpAuthor(
 /** Creates an object of some additional information of an author stored in dblp. */
 export function createDblpAuthorInfo(
     disambiguation: boolean,
-    date: string,
+    mdate: string,
     info: {
         aliases?: Array<{ title: string, id?: string }>,
         affiliations?: Array<string>,
@@ -57,7 +57,7 @@ export function createDblpAuthorInfo(
 ): DblpAuthorInfo {
     return {
         disambiguation,
-        date: new Date(date),
+        mdate: new Date(mdate),
         aliases: info.aliases || [],
         affiliations: info.affiliations || [],
         awards: info.awards || [],

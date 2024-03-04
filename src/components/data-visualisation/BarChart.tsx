@@ -108,7 +108,7 @@ export default function BarChart({ data, className, bandThickness, secondaryAxis
         orientation == ChartOrientation.Horizontal ?
             { left: 40, top: 0, right: 40, bottom: 0 } :
             { left: 0, top: 10, right: 0, bottom: 10 }, [orientation]);
-    const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, orientation, maxBarsCount);
+    const { chartMap, keys, valuesScale } = useRolledChartData(data, selectedUnit, maxBarsCount);
     const {
         svgContainerRef,
         dimensions

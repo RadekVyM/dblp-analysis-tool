@@ -15,6 +15,7 @@ import { VenueVolumeType } from '@/enums/VenueVolumeType'
 import { DblpVenue } from '@/dtos/DblpVenue'
 import { createDblpVenueAuthorsInfo } from '@/dtos/DblpVenueInfo'
 import { createDblpVenuePublicationsInfo } from '@/dtos/DblpVenuePublicationsInfo'
+import waitForNextFetch from '../waitForNextFetch'
 
 const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_HTML,
@@ -59,11 +60,12 @@ export async function fetchVenuesIndexLength(type: VenueType) {
  * @param additionalVolumeId Normalized ID of the venue volume
  * @returns Object containing all the venue or venue volume information
  */
-export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string) {
+export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string, signal?: AbortSignal) {
     return await withCache<DblpVenueBase>(
         async (value: DblpVenueBase) => await cacheVenueOrVolume(value, id, additionalVolumeId),
         async () => await tryGetCachedVenueOrVolume(id, additionalVolumeId),
         async () => {
+            await waitForNextFetch(signal);
             const xml = await fetchVenueOrVolumeXml(id, additionalVolumeId);
             const venueOrVolume = extractVenueOrVolume(xml, id, additionalVolumeId);
 

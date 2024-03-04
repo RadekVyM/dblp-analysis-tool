@@ -35,11 +35,18 @@ type PublicationTypesBarChartParams = {
     onBarClick?: (key: any, value?: ChartValue) => void,
 } & PublicationTypesStatsParams
 
+type PublicationTypesPieChartParams = {
+    onSliceClick?: (key: any, value?: ChartValue) => void,
+} & PublicationTypesStatsParams
+
 /** Displays publications statistics by type of a publication. */
 export default function PublicationTypesStats({ className, publications, scaffoldId, publicationsUrl }: PublicationTypesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
     const router = useRouter();
+    const onItemClick = publicationsUrl ?
+        (key: any, value?: ChartValue) => router.push(createFilteredPublicationsUrlByType(publicationsUrl, key)) :
+        undefined;
 
     return (
         <StatsScaffold
@@ -54,9 +61,7 @@ export default function PublicationTypesStats({ className, publications, scaffol
                             publications={publications}
                             scaffoldId={scaffoldId}
                             selectedUnit={barChartSelectedUnit}
-                            onBarClick={publicationsUrl ?
-                                (key, value) => router.push(createFilteredPublicationsUrlByType(publicationsUrl, key)) :
-                                undefined} />),
+                            onBarClick={onItemClick} />),
                     secondaryContent: (
                         <ChartUnitSelection
                             className='p-3'
@@ -69,7 +74,10 @@ export default function PublicationTypesStats({ className, publications, scaffol
                 },
                 {
                     key: 'Pie',
-                    content: (<PublicationTypesStatsPieChart publications={publications} />),
+                    content: (
+                        <PublicationTypesStatsPieChart
+                            publications={publications}
+                            onSliceClick={onItemClick} />),
                     title: 'Pie chart',
                     icon: (<MdIncompleteCircle />),
 
@@ -106,15 +114,16 @@ function PublicationTypesStatsBarChart({ publications, selectedUnit, onBarClick 
     )
 }
 
-function PublicationTypesStatsPieChart({ publications }: PublicationTypesStatsParams) {
+function PublicationTypesStatsPieChart({ publications, onSliceClick }: PublicationTypesPieChartParams) {
     return (
         <PieChart
             className='w-full h-full px-5 xs:px-10 py-7'
             arcClassName='stroke-surface-container stroke-[0.1rem]'
+            onSliceClick={onSliceClick}
             data={{
-                slice: (item) => item.type,
+                examinedProperty: (item) => item.type,
                 sliceTitle: (key) => PUBLICATION_TYPE_TITLE[key as PublicationType],
-                color: (key) => PUBLICATION_TYPE_COLOR[key as PublicationType],
+                color: (key) => `var(--${PUBLICATION_TYPE_COLOR[key as PublicationType]})`,
                 items: publications
             } as PieChartData<TypePublication>} />
     )
@@ -129,10 +138,18 @@ function PublicationTypesTable({ publications }: PublicationTypesStatsParams) {
             examinedValueSortTitle='Sort by publication type'
             examinedValues={types}
             items={publications}
-            toPresentedContent={(type: PublicationType) => PUBLICATION_TYPE_TITLE[type]}
-            filter={(p: TypePublication, type: PublicationType) => p.type === type}
+            toPresentedContent={tableToPresentedContent}
+            filter={tableFilter}
             sortExaminedValue={sortByPresentedContent} />
     )
+}
+
+function tableToPresentedContent(type: PublicationType) {
+    return PUBLICATION_TYPE_TITLE[type];
+}
+
+function tableFilter(p: TypePublication, type: PublicationType) {
+    return p.type === type;
 }
 
 function createFilteredPublicationsUrlByType(publicationsUrl: string, type: PublicationType) {

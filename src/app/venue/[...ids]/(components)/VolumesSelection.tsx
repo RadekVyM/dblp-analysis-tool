@@ -128,7 +128,7 @@ function VolumeItem({ item, isSelected, onFetched, toggleVolume }: VolumeItemPar
         if (volume) {
             onFetched(volume);
         }
-    }, [volume]);
+    }, [volume, onFetched]);
 
     return (
         <CheckListButton
@@ -136,7 +136,7 @@ function VolumeItem({ item, isSelected, onFetched, toggleVolume }: VolumeItemPar
             disabled={isLoading}
             surface='default'
             onClick={() => toggleVolume(item.volumeId)}
-            disabledCheckmark={<LoadingWheel className='w-3 h-3' thickness='xs' />}>
+            disabledCheckmark={<LoadingWheel className='w-3 h-3 text-on-surface-container' thickness='xs' />}>
             {item.title}
         </CheckListButton>
     )

@@ -15,6 +15,7 @@ type AuthorPublicationsPageParams = {
     searchParams: {} & PublicationsSearchParams
 }
 
+/** Page displaying all publications of an author. */
 export default async function AuthorPublicationsPage({ params: { id }, searchParams }: AuthorPublicationsPageParams) {
     const author = await fetchAuthor(id);
     const { years, types, venues, authors } = parsePublicationsSearchParams(searchParams);

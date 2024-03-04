@@ -7,16 +7,18 @@ import OutlinedText from './OutlinedText'
 import { cn, prependDashedPrefix } from '@/utils/tailwindUtils'
 import removeOverlaps, { Label } from '@/utils/simulatedAnnealing'
 import { distance, intersect, overlapArea } from '@/utils/geometry'
+import { ChartData } from '@/dtos/data-visualisation/ChartData'
+import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartData'
+import { ChartUnit } from '@/enums/ChartUnit'
+import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
+import { isGreater } from '@/utils/array'
 
 export type PieChartData<T> = {
     color: (key: any) => string,
     sliceTitle?: (key: any) => string,
-    /** Defines a property that specifies a slice of the chart. Items are assigned to a slice based on this property. */
-    slice: (item: T) => any,
-    items: Array<T>
-}
+} & ChartData<T>
 
-type ArcData = { key: any, value: number }
+type ArcData = { key: any, value: number, chartValue?: ChartValue, keyIndex: number }
 
 type PieArc = d3.PieArcDatum<ArcData>
 
@@ -28,10 +30,10 @@ type PieLabel = Label<PieArc> & {
 
 type PieChartParams = {
     data: PieChartData<any>,
-    padding?: { left: number, top: number, right: number, bottom: number },
     className?: string,
     innerClassName?: string,
     arcClassName?: string,
+    onSliceClick?: (key: any, value?: ChartValue) => void
 }
 
 type PieChartLegendParams = {
@@ -42,6 +44,7 @@ type PieChartLegendParams = {
 }
 
 type PieChartSlicesParams = {
+    onSliceClick?: (key: any, value?: ChartValue) => void,
     onSliceHover: (arc: PieArc | null) => void,
     color: (key: any) => string,
     hoveredSlice: PieArc | null,
@@ -51,6 +54,7 @@ type PieChartSlicesParams = {
 }
 
 type PieChartSliceParams = {
+    onSliceClick?: (key: any, value?: ChartValue) => void,
     onSliceHover: (arc: PieArc | null) => void,
     color: (key: any) => string,
     hoveredSlice: PieArc | null,
@@ -69,29 +73,36 @@ type PieChartLabelPolylineParams = {
     label: PieLabel
 }
 
-const pie = d3.pie<any, { key: any, value: number }>()
-    .sort((a, b) => d3.ascending(a.value, b.value))
+const pie = d3.pie<any, ArcData>()
+    .sort((a, b) => d3.ascending(a.keyIndex, b.keyIndex))
     .value((pair) => pair.value);
 
+function sortKeys(pair1: { key: any, value?: ChartValue }, pair2: { key: any, value?: ChartValue }) {
+    return isGreater(pair1.value?.value, pair2.value?.value);
+}
+
 /** Displays data in a pie chart. */
-export default function PieChart({ data, padding, className, innerClassName, arcClassName }: PieChartParams) {
+export default function PieChart({ data, className, innerClassName, arcClassName, onSliceClick }: PieChartParams) {
     const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
-    const [rolled, setRolled] = useState<d3.InternMap<any, number>>(new d3.InternMap<any, number>());
     const [hoveredSlice, setHoveredSlice] = useState<PieArc | null>(null);
+    const { chartMap, keys } = useRolledChartData(data, ChartUnit.Count, undefined, sortKeys);
 
     const arcs = useMemo(() => {
-        const newArcs = pie(Array.from(rolled).map<ArcData>((pair) => ({ key: pair[0], value: pair[1] })));
-        newArcs.sort((a, b) => a.value - b.value);
+        const newArcs = pie(keys.map<ArcData>((key, index) => {
+            const value = chartMap.get(key);
+            return {
+                key: key,
+                value: value?.value || 0,
+                chartValue: value,
+                keyIndex: index
+            };
+        }));
         return newArcs;
-    }, [rolled]);
+    }, [chartMap, keys]);
 
     const defaultRadius = useMemo(() =>
         Math.min((dimensions?.width || 1) * 0.4, (dimensions?.height || 1) * 0.4) - 1,
         [dimensions]);
-
-    useEffect(() =>
-        setRolled(d3.rollup(data.items, r => r.length, data.slice)),
-        [data]);
 
     return (
         <div
@@ -114,6 +125,7 @@ export default function PieChart({ data, padding, className, innerClassName, arc
                             defaultRadius={defaultRadius}
                             color={data.color}
                             onSliceHover={(arc) => setHoveredSlice(arc)}
+                            onSliceClick={onSliceClick}
                             hoveredSlice={hoveredSlice}
                             className={arcClassName} />
 
@@ -137,11 +149,14 @@ function PieChartLegend({ data, arcs, hoveredSlice, onSliceHover }: PieChartLege
                 <li
                     onPointerOver={() => onSliceHover(arc)}
                     onPointerOut={() => onSliceHover(null)}
+                    style={{
+                        '--marker-color': data.color(arc.data.key)
+                    } as React.CSSProperties}
                     className={cn(
                         'grid grid-cols-[auto,1fr] gap-4 items-center',
-                        'before:content-[""] before:block before:rounded-md before:w-3 before:h-3 before:transition-all before:outline-transparent before:outline before:outline-offset-2 before:outline-2',
-                        `before:${prependDashedPrefix('bg', data.color(arc.data.key))}`,
-                        arc.data.key == hoveredSlice?.data.key ? `before:${prependDashedPrefix('outline', data.color(arc.data.key))}` : '')}
+                        'before:content-[""] before:block before:rounded-md before:w-3 before:h-3 before:transition-all before:outline before:outline-offset-2 before:outline-2',
+                        'before:bg-[var(--marker-color)]',
+                        arc.data.key == hoveredSlice?.data.key ? 'before:outline-[var(--marker-color)]' : 'before:outline-transparent')}
                     key={`legend-label-${arc.data.key}`}>
                     <span
                         className='text-sm'>
@@ -152,11 +167,12 @@ function PieChartLegend({ data, arcs, hoveredSlice, onSliceHover }: PieChartLege
     )
 }
 
-function PieChartSlices({ arcs, className, defaultRadius, hoveredSlice, color, onSliceHover }: PieChartSlicesParams) {
+function PieChartSlices({ arcs, className, defaultRadius, hoveredSlice, color, onSliceHover, onSliceClick }: PieChartSlicesParams) {
     return (
         <>
             {arcs.length > 0 && arcs.map((arc) =>
                 <PieChartSlice
+                    onSliceClick={onSliceClick}
                     color={color}
                     onSliceHover={onSliceHover}
                     hoveredSlice={hoveredSlice}
@@ -168,34 +184,33 @@ function PieChartSlices({ arcs, className, defaultRadius, hoveredSlice, color, o
     )
 }
 
-function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onSliceHover }: PieChartSliceParams) {
+function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onSliceHover, onSliceClick }: PieChartSliceParams) {
     const [radiusAddition, setRadiusAddition] = useState(0);
     const wholeArc = createWholeArc(defaultRadius + radiusAddition);
 
     useEffect(() => {
-        setRadiusAdditionAnimated(hoveredSlice == arc ? 5 : 0)
-    }, [hoveredSlice]);
-
-    function setRadiusAdditionAnimated(to: number) {
-        const old = radiusAddition;
+        const from = radiusAddition;
+        const to = hoveredSlice === arc ? 5 : 0;
 
         d3.selection()
             .transition(`slice-reveal-animation-${arc.data.key}`)
             .duration(150)
             .ease(d3.easeSinInOut)
             .tween('percentVisible', () => {
-                const percentInterpolate = d3.interpolate(old, to);
+                const percentInterpolate = d3.interpolate(from, to);
                 return t => setRadiusAddition(percentInterpolate(t));
             });
-    }
+    }, [hoveredSlice, arc]);
 
     return (
         <path
             strokeLinejoin='round'
             strokeLinecap='round'
+            onClick={() => onSliceClick && onSliceClick(arc.data.key, arc.data.chartValue)}
             onPointerOver={() => onSliceHover(arc)}
             onPointerOut={() => onSliceHover(null)}
-            className={cn(prependDashedPrefix('fill', color(arc.data.key)), className)}
+            style={{ fill: color(arc.data.key) }}
+            className={cn(onSliceClick && 'cursor-pointer', className)}
             d={wholeArc(arc as unknown as d3.DefaultArcObject) || ''} />
     )
 }
@@ -296,8 +311,9 @@ function handleOverlappingLabels(newLabels: Array<PieLabel>) {
                 const cos = Math.cos(rand);
 
                 //const [x, y] = scaleToLength([label.anchorY, -label.anchorX], Math.random());
+                // Place the labels around the edge in the same distance from the center
                 const [x, y] = [((label.x * cos) - (label.y * sin)) - label.x, ((label.y * cos) + (label.x * sin)) - label.y];
-                return [x, y]
+                return [x, y];
             },
             linesIntersect: (first, second) => {
                 const f = first as PieLabel;

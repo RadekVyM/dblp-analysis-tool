@@ -2,6 +2,7 @@ import Button from '@/components/Button'
 import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 import { VenueType } from '@/enums/VenueType'
 
+/** Landing page. */
 export default async function HomePage() {
     return (
         <main

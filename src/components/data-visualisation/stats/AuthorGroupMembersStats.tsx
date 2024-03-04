@@ -187,14 +187,30 @@ function AuthorGroupMembersTable({ authors, totalPublicationsCount }: AuthorGrou
             examinedValueSortTitle='Sort by member name'
             examinedValues={authors}
             items={authors}
-            itemsCount={(items) => (items.length > 0 ? items[0].publicationsCount : 0)}
+            itemsCount={tableItemsCount}
             totalCount={totalPublicationsCount}
-            toPresentedContent={(a: AuthorStats) => a.name}
-            filter={(a: AuthorStats, ea: AuthorStats) => a.id === ea.id}
+            toPresentedContent={tableToPresentedContent}
+            filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
-            rowKey={(a: AuthorStats) => a.id}
+            rowKey={tableRowKey}
             hideFooter />
     )
+}
+
+function tableRowKey(a: AuthorStats) {
+    return a.id;
+}
+
+function tableFilter(a: AuthorStats, ea: AuthorStats) {
+    return a.id === ea.id;
+}
+
+function tableToPresentedContent(a: AuthorStats) {
+    return a.name;
+}
+
+function tableItemsCount(items: Array<any>) {
+    return items.length > 0 ? items[0].publicationsCount : 0;
 }
 
 function createFilteredPublicationsUrlByType(

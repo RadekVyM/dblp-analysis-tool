@@ -1,8 +1,6 @@
 import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/fetch'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import { fetchAuthor } from '@/services/authors/fetch-server'
-import { tryGetCachedRecord } from '@/services/cache/cache'
-import waitForNextFetch from '@/services/waitForNextFetch'
 import { iteratorToStream } from '@/utils/readableStreams'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -10,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // https://nextjs.org/docs/app/building-your-application/routing/route-handlers#streaming
 // https://developer.mozilla.org/en-US/docs/Web/API/Streams_API/Using_readable_streams
 
+/** Endpoint for loading information about multiple authors at once. */
 export async function GET(request: NextRequest, { searchParams }: { searchParams: { authorIds: string } }) {
     const authorIds = request.nextUrl.searchParams.get('authorIds');
 
@@ -33,16 +32,8 @@ export async function GET(request: NextRequest, { searchParams }: { searchParams
 
 async function* fetchAuthors(authorIds: Array<string>, signal: AbortSignal) {
     for (const id of authorIds) {
-        const cachedAuthor = await tryGetCachedRecord<DblpAuthor>(id);
-
-        if (cachedAuthor) {
-            yield authorToJson(cachedAuthor);
-        }
-        else {
-            await waitForNextFetch(signal);
-            const author = await fetchAuthor(id);
-            yield authorToJson(author);
-        }
+        const author = await fetchAuthor(id, signal);
+        yield authorToJson(author);
     }
 }
 

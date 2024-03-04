@@ -50,7 +50,7 @@ export default function LineChart({ data, className, secondaryAxisThickness }: L
     const primaryAxisThickness = 40;
     // Padding of the chart, axes excluded
     const chartPadding: EdgeRect = { left: 20, top: 10, right: 10, bottom: 20 }
-    const { chartMap, keys, valuesScale } = useRolledChartData(data, ChartUnit.Count, ChartOrientation.Horizontal);
+    const { chartMap, keys, valuesScale } = useRolledChartData(data, ChartUnit.Count);
     const [dimensions, setDimensions] = useState<Dimensions>({ width: 0, height: 0 });
     const primaryScale = useMemo(() =>
         d3.scaleBand([0, 1]).domain(keys),
@@ -98,7 +98,7 @@ function Chart({ chartMap, keys, valuesScale, dimensions, chartPadding, primaryA
 
             return { x, y, key, value };
         });
-    }, [chartMap, keys, chartPadding, secondaryAxisLength, primaryAxisLength]);
+    }, [chartMap, keys, chartPadding, secondaryAxisLength, primaryAxisLength, secondaryAxisThickness, valuesScale, primaryScale]);
     const ticks = useBandTicks(keys, primaryAxisLength);
 
     return (

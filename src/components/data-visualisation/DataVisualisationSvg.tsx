@@ -47,7 +47,7 @@ export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisu
     useImperativeHandle(ref, () => ({
         element: innerRef.current!,
         zoomTo
-    }), [innerRef.current, zoomTo]);
+    }), [zoomTo]);
 
     useEffect(() => {
         if (dimensions && onDimensionsChange) {

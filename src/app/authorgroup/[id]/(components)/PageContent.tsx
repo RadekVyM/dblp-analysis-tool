@@ -23,6 +23,7 @@ type PageContentParams = {
     cachedAuthors: Array<DblpAuthor>
 }
 
+/** Content of the author group page. */
 export default function PageContent({ cachedAuthors, authorGroupId }: PageContentParams) {
     const { authorGroups, canUseAuthorGroups } = useAuthorGroups();
     const authorGroup = authorGroups.find((g) => g.id === authorGroupId);

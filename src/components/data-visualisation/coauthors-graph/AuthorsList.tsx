@@ -75,7 +75,7 @@ export default function AuthorsList(
     useEffect(() => {
         resetDisplayedCount();
         listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [nodes, filteredAuthorsIds]);
+    }, [nodes, filteredAuthorsIds, resetDisplayedCount]);
 
     return (
         <article

@@ -1,16 +1,16 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
-import AddToRecentlySeen from './(components)/AddToRecentlySeen'
+import AddToVisitedAuthors from './(components)/AddToVisitedAuthors'
 import LinksList from '@/components/LinksList'
-import { DblpAuthor, DblpAuthorInfo } from '@/dtos/DblpAuthor'
+import { DblpAuthor } from '@/dtos/DblpAuthor'
 import SaveAuthorButtons from './(components)/SaveAuthorButtons'
 import { cn } from '@/utils/tailwindUtils'
 import PublicationsStatsSection from '@/components/data-visualisation/sections/PublicationsStatsSection'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './(components)/AliasesAffiliations'
 import CoauthorsSection from '@/components/data-visualisation/sections/CoauthorsSection'
-import SameNameAuthors from './(components)/SameNameAuthors'
+import SameNameAuthorsSection from './(components)/SameNameAuthorsSection'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 
@@ -29,12 +29,13 @@ type AwardsParams = {
     awards: Array<{ title: string, label: string }>,
 }
 
+/** Page displaying all the information about an author. */
 export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
     const author = await fetchAuthor(id);
 
     return (
         <PageContainer>
-            <AddToRecentlySeen
+            <AddToVisitedAuthors
                 id={id}
                 title={author.name} />
 
@@ -51,7 +52,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
 
             {
                 author.homonyms.length > 0 &&
-                <SameNameAuthors
+                <SameNameAuthorsSection
                     homonyms={author.homonyms} />
             }
 

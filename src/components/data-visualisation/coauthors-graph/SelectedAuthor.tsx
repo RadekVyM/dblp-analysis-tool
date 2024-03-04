@@ -333,7 +333,7 @@ function useDisplayedCoauthors(
     useEffect(() => {
         resetDisplayedCount();
         listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    }, [fetchedAuthor?.id]);
+    }, [fetchedAuthor?.id, listRef, resetDisplayedCount]);
 
     return {
         displayedCommonCoauthors,

@@ -32,7 +32,7 @@ export default function CountPercentageTable({ items, examinedValues, examinedVa
                 { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
             ];
         }),
-        [examinedValues, items, toPresentedContent, filter]);
+        [examinedValues, items, totalCount, itemsCount, toPresentedContent, filter]);
     const footer = [
         { value: 'Totals', presentedContent: 'Totals' },
         { value: totalCount || items.length, presentedContent: totalCount || items.length },

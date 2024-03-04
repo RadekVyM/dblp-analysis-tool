@@ -7,6 +7,7 @@ type AliasesAffiliationsParams = {
     className?: string
 }
 
+/** Displays all aliases and affiliations of an author. */
 export default function AliasesAffiliations({ info, compact, className }: AliasesAffiliationsParams) {
     return (
         (info.aliases.length > 0 || info.affiliations.length > 0) &&

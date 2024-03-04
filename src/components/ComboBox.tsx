@@ -1,10 +1,10 @@
 'use client'
 
 import { cn } from '@/utils/tailwindUtils'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md'
 import ClientButton from './ClientButton'
-import { useDebounce, useOnClickOutside } from 'usehooks-ts'
+import { useOnClickOutside } from 'usehooks-ts'
 
 type ComboBoxParams = {
     id: string,
@@ -60,6 +60,7 @@ export default function ComboBox({ items, className, id, selectedKey, onKeySelec
                     <li
                         key={item.key}
                         role='option'
+                        aria-selected={selectedKey === item.key}
                         className={cn(
                             selectedKey === item.key ? 'bg-surface-dim-container text-on-surface-dim-container' : '',
                             'flex rounded-md',

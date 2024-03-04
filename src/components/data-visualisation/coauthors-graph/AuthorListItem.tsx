@@ -2,8 +2,6 @@
 
 import ListButton, { ListButtonParams } from '@/components/ListButton'
 import { DblpPublicationPerson } from '@/dtos/DblpPublication'
-import { useEffect, useRef } from 'react'
-import { useHover } from 'usehooks-ts'
 
 type AuthorListItemParams = {
     person: DblpPublicationPerson,
@@ -14,16 +12,10 @@ type AuthorListItemParams = {
 
 /** List item for an author in a list that displays authors in the coauthors graph. */
 export default function AuthorListItem({ person, onAuthorClick, onHoverChange, after, ...rest }: AuthorListItemParams) {
-    const listItemRef = useRef<HTMLLIElement>(null);
-    const isHovered = useHover(listItemRef);
-
-    useEffect(() => {
-        onHoverChange(person.id, isHovered);
-    }, [isHovered]);
-
     return (
         <li
-            ref={listItemRef}>
+            onPointerEnter={() => onHoverChange(person.id, true)}
+            onPointerLeave={() => onHoverChange(person.id, false)}>
             <ListButton
                 {...rest}
                 size='sm'

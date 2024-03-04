@@ -8,17 +8,19 @@ import AliasesAffiliations from './AliasesAffiliations'
 
 const DEFAULT_DISPLAYED_ITEMS_COUNT = 5;
 
-type SameNameAuthorsParams = {
+type SameNameAuthorsSectionParams = {
     homonyms: Array<DblpAuthorHomonym>
 }
 
-export default function SameNameAuthors({ homonyms }: SameNameAuthorsParams) {
+/** Page section displaying a list of authors with the same name. */
+export default function SameNameAuthorsSection({ homonyms }: SameNameAuthorsSectionParams) {
     const [homonymsDisplayedCount, areHomonymsExpanded, expandHomonyms, collapseHomonyms]
         = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, homonyms.length);
 
     return (
         <PageSection>
             <PageSectionTitle className='text-xl'>Authors with the same name</PageSectionTitle>
+
             <ul className='flex flex-col gap-2'>
                 {homonyms.slice(0, homonymsDisplayedCount).map((homonym) =>
                     <ListLink

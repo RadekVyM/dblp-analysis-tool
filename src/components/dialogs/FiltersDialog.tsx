@@ -98,7 +98,7 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
         items.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));
 
         return items;
-    }, [selectedFilter?.selectableItems, searchQuery]);
+    }, [selectedFilter, searchQuery]);
 
     useEffect(() => {
         setSearchQuery('');
@@ -161,6 +161,7 @@ function FilterItem({ children, isSelected, onClick }: FilterItemParams) {
 }
 
 function useFiltersDialogState(filtersMap: FilterStatesMap, isDialogOpen: boolean) {
+    const defaultKey = Object.keys(filtersMap)[0];
     const [selectedKey, setSelectedKey] = useState<any>(Object.keys(filtersMap)[0]);
     const tabs = useMemo(
         () => Object.keys(filtersMap).map((key) => {
@@ -176,9 +177,9 @@ function useFiltersDialogState(filtersMap: FilterStatesMap, isDialogOpen: boolea
 
     useEffect(() => {
         if (isDialogOpen) {
-            setSelectedKey(Object.keys(filtersMap)[0]);
+            setSelectedKey(defaultKey);
         }
-    }, [isDialogOpen]);
+    }, [isDialogOpen, defaultKey]);
 
     return {
         selectedKey,

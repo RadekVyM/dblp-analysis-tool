@@ -173,11 +173,19 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
             examinedValueSortTitle='Sort by venue'
             examinedValues={venues}
             items={publications}
-            toPresentedContent={(venue: VenuePair) => venue.title}
-            filter={(p: VenuePublication, venue: VenuePair) => p.venueId === venue.venueId}
+            toPresentedContent={tableToPresentedContent}
+            filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
             rowKey={venueTableRowKey} />
     )
+}
+
+function tableToPresentedContent(venue: VenuePair) {
+    return venue.title;
+}
+
+function tableFilter(p: VenuePublication, venue: VenuePair) {
+    return p.venueId === venue.venueId;
 }
 
 function venueTableRowKey(venue: VenuePair) {

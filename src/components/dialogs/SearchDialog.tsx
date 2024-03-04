@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent, useCallback } from 'react'
+import { forwardRef, useState, useEffect, useRef, FormEvent, KeyboardEvent, FocusEvent, useCallback, useMemo } from 'react'
 import { useDebounce } from 'usehooks-ts'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { MdSearch, MdClose, MdCancel } from 'react-icons/md'
@@ -85,11 +85,11 @@ export const SearchDialog = forwardRef<HTMLDialogElement, SearchDialogParams>(({
         if (isOpen) {
             setSelectedSearchType(pathname.startsWith('/search/venue') ? SearchType.Venue : SearchType.Author);
         }
-    }, [isOpen]);
+    }, [isOpen, pathname]);
 
     useEffect(() => {
         inputRef.current?.focus();
-    }, [selectedSearchType]);
+    }, [selectedSearchType, inputRef]);
 
     return (
         <Dialog
@@ -211,9 +211,11 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
         selectedSearchType == SearchType.Venue ? MAX_HITS_COUNT : 0,
         selectedSearchType == SearchType.Venue ? MAX_DISPLAYED_COMPLETIONS_COUNT : 0);
 
-    const completions = mergeCompletions(
-        authorsResult.authors?.completions.items || [],
-        venuesResult.venues?.completions.items || []);
+    const completions = useMemo(
+        () => mergeCompletions(
+            authorsResult.authors?.completions.items || [],
+            venuesResult.venues?.completions.items || []),
+        [authorsResult.authors, venuesResult.venues]);
 
     useEffect(() => {
         const urls = completions
@@ -221,7 +223,7 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
             .concat(...(authorsResult.authors?.hits.items.map(i => i.info.localUrl) || []), ...(venuesResult.venues?.hits.items.map(i => i.info.localUrl) || []));
 
         setUrls(urls);
-    }, [authorsResult.authors, venuesResult.venues]);
+    }, [authorsResult.authors, venuesResult.venues, completions]);
 
     return (
         <>
@@ -311,7 +313,7 @@ function ResultsListItem({ url, selectedUrl, text, onClick }: ResultsListItemPar
         if (selectedUrl == url) {
             liRef.current?.scrollIntoView({ block: 'center' });
         }
-    }, [selectedUrl]);
+    }, [selectedUrl, url, liRef]);
 
     return (<li ref={liRef}>
         <ListLink
@@ -340,7 +342,7 @@ function useSearchInputState(selectedSearchType: SearchType, isDialogOpen: boole
         if (isDialogOpen) {
             inputRef.current?.focus();
         }
-    }, [isDialogOpen]);
+    }, [isDialogOpen, searchParams]);
 
     useEffect(() => {
         setSelectedUrl(undefined);

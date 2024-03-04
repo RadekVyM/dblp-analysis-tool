@@ -206,7 +206,7 @@ function useDisplayedPublications(
         setGroupedPublications(grouped);
         setTotalCount(publs.length);
         resetDisplayedCount();
-    }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
+    }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter, authorsFilter, resetDisplayedCount]);
 
     return {
         displayedPublications,

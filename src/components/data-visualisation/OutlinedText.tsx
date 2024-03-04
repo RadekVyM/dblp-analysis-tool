@@ -13,13 +13,13 @@ export default function OutlinedText({ children, className, ...rest }: OutlinedT
             <text
                 {...rest}
                 strokeLinecap='round' strokeLinejoin='round'
-                className={cn('stroke-white dark:stroke-black stroke-[4] select-none', className)}>
+                className={cn('stroke-surface stroke-[4] select-none', className)}>
                 {children}
             </text>
 
             <text
                 {...rest}
-                className={cn('fill-black dark:fill-white', className)}>
+                className={cn('fill-on-surface', className)}>
                 {children}
             </text>
         </>

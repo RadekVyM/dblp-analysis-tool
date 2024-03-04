@@ -7,6 +7,5 @@ export type ChartData<T> = {
     fillMissingNumberKeys?: boolean,
     examinedProperty: (item: T) => any,
     value?: (item: Array<T>) => number,
-    secondaryExaminedProperty?: (item: { key: any, value?: ChartValue }) => Map<any, Array<number>>,
     sortKeys?: (pair1: { key: any, value?: ChartValue }, pair2: { key: any, value?: ChartValue }) => number,
 }

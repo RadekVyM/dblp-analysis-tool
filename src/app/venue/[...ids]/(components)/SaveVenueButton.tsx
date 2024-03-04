@@ -17,7 +17,7 @@ type SaveVenueButtonParams = {
 export default function SaveVenueButton({ className, venueId, volumeId, title }: SaveVenueButtonParams) {
     const id = volumeId ? `${venueId}/${volumeId}` : venueId;
     const { removeSavedVenue, saveVenue, savedVenues, canUseSavedVenues } = useSavedVenues();
-    const isSaved = useMemo(() => savedVenues.some((v) => v.id === id), [savedVenues, venueId, volumeId]);
+    const isSaved = useMemo(() => savedVenues.some((v) => v.id === id), [savedVenues, id]);
 
     function updateSaved() {
         if (isSaved) {

@@ -49,7 +49,7 @@ export function SavedItemsMenuIntegration() {
         }
 
         changeState(isHovered);
-    }, [isHovered]);
+    }, [isHovered, isNotMobile]);
 
     function changeState(isHovering: boolean) {
         if (savedItemsMenuState != SavedItemsMenuState.Docked) {

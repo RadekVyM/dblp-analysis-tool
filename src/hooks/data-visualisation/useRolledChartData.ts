@@ -11,11 +11,16 @@ import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
  * Hook that converts input data into data that is presentable in a 2D chart, such as bar, point or line chart.
  * @param data Input chart data
  * @param unit Unit in which chart values are displayed
- * @param orientation Orientation of the chart
  * @param maxKeysCount Maximum number of keys
+ * @param defaultSortKeys Default function used to sort keys
  * @returns 
  */
-export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orientation: ChartOrientation, maxKeysCount?: number) {
+export function useRolledChartData(
+    data: ChartData<any>,
+    unit: ChartUnit,
+    maxKeysCount?: number,
+    defaultSortKeys?: (pair1: { key: any, value?: ChartValue }, pair2: { key: any, value?: ChartValue }) => number
+) {
     // Chart map maps each examined property value to a count of items with that property value
     const chartMap = useMemo<d3.InternMap<any, ChartValue>>(
         () => {
@@ -36,7 +41,7 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
         }, [data, unit]);
     const valuesScale = useMemo(
         () => d3.scaleLinear([0, getTopDomainValue()] as [number, number], [0, 1]),
-        [chartMap, unit, orientation]);
+        [chartMap, unit]);
     const keys = useMemo(
         () => {
             let rolledKeys = [...chartMap.keys()];
@@ -45,16 +50,17 @@ export function useRolledChartData(data: ChartData<any>, unit: ChartUnit, orient
                 const max = d3.max(rolledKeys);
                 rolledKeys = d3.range(min, max + 1);
             }
-            if (data.sortKeys) {
+            const sortFunction = data.sortKeys || defaultSortKeys;
+            if (sortFunction) {
                 rolledKeys.sort((key1, key2) => {
                     const value1 = chartMap.get(key1);
                     const value2 = chartMap.get(key2);
 
-                    return data.sortKeys ? data.sortKeys({ key: key1, value: value1 }, { key: key2, value: value2 }) : 0;
+                    return sortFunction ? sortFunction({ key: key1, value: value1 }, { key: key2, value: value2 }) : 0;
                 });
             }
             return maxKeysCount ? rolledKeys.slice(0, maxKeysCount) : rolledKeys;
-        }, [chartMap, maxKeysCount]);
+        }, [chartMap, maxKeysCount, data.fillMissingNumberKeys, data.sortKeys, defaultSortKeys]);
 
     function getTopDomainValue() {
         if (unit === ChartUnit.Percentage) {

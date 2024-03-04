@@ -1,19 +1,10 @@
-import { tryGetCachedVenueOrVolume } from '@/services/cache/venues'
 import { fetchVenueOrVolume } from '@/services/venues/fetch-server'
-import waitForNextFetch from '@/services/waitForNextFetch'
 import { NextRequest, NextResponse } from 'next/server'
 
+/** Endpoint for loading a venue or venue volume information. */
 export async function GET(request: NextRequest, { params }: { params: { venueId: string, volumeId: string } }) {
     try {
-        const cachedVenue = await tryGetCachedVenueOrVolume(params.venueId, params.volumeId);
-
-        if (cachedVenue) {
-            return NextResponse.json(cachedVenue);
-        }
-
-        await waitForNextFetch(request.signal);
-
-        const venue = await fetchVenueOrVolume(params.venueId, params.volumeId);
+        const venue = await fetchVenueOrVolume(params.venueId, params.volumeId, request.signal);
         return NextResponse.json(venue);
     }
     catch (error) {

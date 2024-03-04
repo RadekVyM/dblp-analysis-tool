@@ -9,6 +9,7 @@ import Link from 'next/link'
 import LinkArrow from '@/components/LinkArrow'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
+import LoadingWheel from '@/components/LoadingWheel'
 
 type MembersParams = {
     authorGroup: AuthorGroup,
@@ -31,6 +32,7 @@ type Member = {
     fetchedData?: DblpAuthor
 }
 
+/** Page section displaying all members of an author group. These members can be selected or deselected. */
 export default function AuthorGroupMembers({ authors, authorGroup, selectedAuthorIds, toggleAuthor }: MembersParams) {
     const members = useMemo(() => {
         const sortedAuthors = [...authorGroup.authors];
@@ -62,17 +64,22 @@ export default function AuthorGroupMembers({ authors, authorGroup, selectedAutho
                         <div
                             className='grid grid-cols-[1fr_auto]'>
                             {
-                                member.fetchedData ?
-                                    <MemberInfo
-                                        author={member.fetchedData} /> :
-                                    <span>Downloading...</span>
+                                member.fetchedData &&
+                                <MemberInfo
+                                    author={member.fetchedData} />
                             }
-                            <input
-                                title='Hide/Show'
-                                type='checkbox'
-                                checked={selectedAuthorIds.has(member.id)}
-                                onChange={() => toggleAuthor(member.id)}
-                                className='accent-on-surface-container w-4 h-4 self-end col-start-2' />
+                            {
+                                member.fetchedData ?
+                                    <input
+                                        title='Hide/Show'
+                                        type='checkbox'
+                                        checked={selectedAuthorIds.has(member.id)}
+                                        onChange={() => toggleAuthor(member.id)}
+                                        className='accent-on-surface-container w-4 h-4 self-end col-start-2' /> :
+                                    <LoadingWheel
+                                        className='w-4 h-4 self-end col-start-2 text-on-surface-container'
+                                        thickness='xs' />
+                            }
                         </div>
                     </li>)}
             </ul>
