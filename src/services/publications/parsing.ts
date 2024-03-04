@@ -58,9 +58,10 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         const venueUrl = !url ? undefined : (urlIndexOfHash < 0 ? url : url.slice(0, urlIndexOfHash));
         const venueIdFromUrl = venueUrl ? extractNormalizedIdFromDblpUrlPath(venueUrl) : null;
 
+        const seriesVenueId = seriesUrl ? extractNormalizedIdFromDblpUrlPath(seriesUrl) || [null, null] : [null, null];
         const venueId = venueIdFromUrl ?
             venueIdFromUrl :
-            seriesUrl ? extractNormalizedIdFromDblpUrlPath(seriesUrl) || [null, null] : [null, null];
+            seriesVenueId;
 
         publications.push(createDblpPublication(
             key,
@@ -74,6 +75,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             pages,
             journal,
             series,
+            seriesVenueId[0] ? seriesVenueId[0] : undefined,
             volume,
             number,
             venueId[0] ? venueId[0] : undefined,

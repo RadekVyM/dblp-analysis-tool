@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useMemo, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogContent } from './Dialog'
 import Tabs from '../Tabs'
 import CheckListButton from '../CheckListButton'
@@ -13,6 +13,7 @@ import { isGreater, isSmaller } from '@/utils/array'
 import SearchBox from '../SearchBox'
 import { cn } from '@/utils/tailwindUtils'
 import { isNullOrWhiteSpace, removeAccents, searchIncludes } from '@/utils/strings'
+import useLazyListCount from '@/hooks/useLazyListCount'
 
 type FiltersDialogParams = {
     hide: () => void,
@@ -80,7 +81,10 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
 FiltersDialog.displayName = 'FiltersDialog';
 export default FiltersDialog;
 
+const COUNT_INCREASE = 80;
+
 function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
+    const targerObserver = useRef<HTMLDivElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const selectableItems = useMemo(() => {
         const searchQueries = removeAccents(searchQuery.trim())
@@ -99,9 +103,12 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
 
         return items;
     }, [selectedFilter, searchQuery]);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(selectableItems.length, COUNT_INCREASE, targerObserver);
+    const displayedSelectableItems = useMemo(() => selectableItems.slice(0, displayedCount), [displayedCount, selectableItems]);
 
     useEffect(() => {
         setSearchQuery('');
+        resetDisplayedCount();
     }, [selectedKey]);
 
     return (
@@ -133,7 +140,7 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
                         role='tabpanel'
                         aria-labelledby={selectedKey}
                         className='flex flex-col gap-2'>
-                        {selectableItems.map(([key, value]) =>
+                        {displayedSelectableItems.map(([key, value]) =>
                             <FilterItem
                                 key={`${key || 'undefined'}`}
                                 isSelected={selectedFilter.selectedItems.has(key)}
@@ -141,6 +148,10 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
                                 {selectedFilter.itemTitleSelector(value)}
                             </FilterItem>)}
                     </ul>
+                    <div
+                        ref={targerObserver}
+                        className='h-[3px]'
+                        aria-hidden />
                 </>
             }
         </DialogBody>

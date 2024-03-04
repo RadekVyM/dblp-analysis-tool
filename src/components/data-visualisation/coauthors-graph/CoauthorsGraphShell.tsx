@@ -27,6 +27,9 @@ type ShouldRenderGraphParams = {
     onRenderItClick: () => void
 }
 
+const GRAPH_IS_HUGE_SINCE_NODES_COUNT = 2500;
+const GRAPH_IS_HUGE_SINCE_LINKS_COUNT = 5000;
+
 /** Shell for the entire coauthors graph and its menus. */
 export default function CoauthorsGraphShell({ authors, publications, className }: CoauthorsGraphShellParams) {
     const rootRef = useRef<HTMLDivElement>(null);
@@ -44,7 +47,9 @@ export default function CoauthorsGraphShell({ authors, publications, className }
     const { filtersMap, switchSelection, clear } = useFilters(
         allAuthors.publications,
         (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
-    const isGraphHuge = useMemo(() => graph.nodes.length > 2000, [graph.nodes.length]);
+    const isGraphHuge = useMemo(
+        () => graph.nodes.length > GRAPH_IS_HUGE_SINCE_NODES_COUNT || graph.links.length > GRAPH_IS_HUGE_SINCE_LINKS_COUNT,
+        [graph.nodes.length, graph.links.length]);
     const [shouldRenderGraph, setShouldRenderGraph] = useState(false);
     const { isFullscreen, isFullscreenEnabled, toggleFullscreen } = useFullscreen(rootRef);
 

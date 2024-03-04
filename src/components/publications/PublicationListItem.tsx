@@ -109,7 +109,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                         prefetch={false}
                                         className='hover:underline'
                                         href={createLocalVenuePath(publication)}>
-                                        {addMissingNoun(publication.booktitle, 'conference')}
+                                        {publication.volume ? <>Volume {publication.volume} of </> : ''}{addMissingNoun(publication.booktitle, 'conference')}
                                     </Link> :
                                     addMissingNoun(publication.booktitle, 'conference')
                             }
@@ -122,11 +122,26 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                         prefetch={false}
                                         className='hover:underline'
                                         href={createLocalVenuePath(publication)}>
-                                        {publication.booktitle}
+                                        {publication.volume ? <>Volume {publication.volume} of </> : ''}{publication.booktitle}
                                     </Link> :
                                     publication.booktitle
                             }
                         </>
+            }
+            {
+                publication.seriesVenueId && publication.series &&
+                <>
+                    {
+                        (publication.journal || publication.booktitle) &&
+                        <span>, </span>
+                    }
+                    <Link
+                        prefetch={false}
+                        className='hover:underline'
+                        href={createLocalPath(publication.seriesVenueId, SearchType.Venue)}>
+                        {publication.series}
+                    </Link>
+                </>
             }
         </p>
     )

@@ -19,7 +19,7 @@ export default function SameNameAuthorsSection({ homonyms }: SameNameAuthorsSect
 
     return (
         <PageSection>
-            <PageSectionTitle className='text-xl'>Authors with the same name</PageSectionTitle>
+            <PageSectionTitle className='text-xl'>Authors With the Same Name</PageSectionTitle>
 
             <ul className='flex flex-col gap-2'>
                 {homonyms.slice(0, homonymsDisplayedCount).map((homonym) =>
