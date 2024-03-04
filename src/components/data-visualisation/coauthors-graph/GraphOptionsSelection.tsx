@@ -43,7 +43,7 @@ export default function GraphOptionsSelection({ options, nodes, links, setOption
                 variant='outline'
                 onClick={() => showOptionsDialog()}>
                 <MdSettings />
-                Display options
+                <span className='hidden @sm:inline'>Display options</span>
             </Button>
             <Button
                 className='items-center gap-x-2'
@@ -51,7 +51,7 @@ export default function GraphOptionsSelection({ options, nodes, links, setOption
                 variant='outline'
                 onClick={() => showExportDialog()}>
                 <MdGetApp />
-                Export graph
+                <span className='hidden @sm:inline'>Export graph</span>
             </Button>
             <GraphOptionsDialog
                 ref={optionsDialogRef}

@@ -15,11 +15,14 @@ import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import useCommonUncommonCoauthors from '@/hooks/data-visualisation/useCommonUncomonCoauthors'
 import { MdInfo, MdLibraryBooks } from 'react-icons/md'
+import { useDebounce } from 'usehooks-ts'
+import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
+import Popover from '@/components/Popover'
 
 const COUNT_INCREASE = 60;
 
 type SelectedAuthorParams = {
-    onBackClick: () => void,
+    onBackClick: () => void
 } & SelectedAuthorContentParams
 
 type SelectedAuthorContentParams = {
@@ -27,6 +30,7 @@ type SelectedAuthorContentParams = {
     allIncludedAuthorIds: Array<string>,
     selectedAuthor: PublicationPersonNodeDatum,
     authorsMap: Map<string, PublicationPersonNodeDatum>,
+    popoverContainerRef?: React.RefObject<HTMLDivElement>,
     addAuthor: (author: DblpAuthor) => void,
     removeAuthor: (id: string) => void,
     onCoauthorClick: (id: string | null) => void,
@@ -35,7 +39,12 @@ type SelectedAuthorContentParams = {
 
 type SectionHeadingParams = {
     children: React.ReactNode,
-    info?: string
+    info?: string,
+    popoverContainerRef?: React.RefObject<HTMLDivElement>,
+}
+
+type SamePublicationTagParams = {
+    popoverContainerRef?: React.RefObject<HTMLDivElement>
 }
 
 /** Displays basic information about currently selected author in the coauthors graph and their coauthors.  */
@@ -44,6 +53,7 @@ export default function SelectedAuthor({
     authorsMap,
     allIncludedAuthorIds,
     originalAuthorIds,
+    popoverContainerRef,
     addAuthor,
     removeAuthor,
     onBackClick,
@@ -76,6 +86,7 @@ export default function SelectedAuthor({
                 originalAuthorIds={originalAuthorIds}
                 selectedAuthor={selectedAuthor}
                 authorsMap={authorsMap}
+                popoverContainerRef={popoverContainerRef}
                 addAuthor={addAuthor}
                 removeAuthor={removeAuthor}
                 onCoauthorClick={onCoauthorClick}
@@ -89,6 +100,7 @@ function SelectedAuthorContent({
     authorsMap,
     allIncludedAuthorIds,
     originalAuthorIds,
+    popoverContainerRef,
     addAuthor,
     removeAuthor,
     onCoauthorClick,
@@ -157,6 +169,7 @@ function SelectedAuthorContent({
                 displayedCommonCoauthors.length > 0 &&
                 <section>
                     <SectionHeading
+                        popoverContainerRef={popoverContainerRef}
                         info={allIncludedAuthorIds.length > 0 ?
                             `${selectedAuthor.person.name}'s coauthors that are common with an original author` :
                             `${selectedAuthor.person.name}'s coauthors that are in the graph`}>
@@ -172,7 +185,7 @@ function SelectedAuthorContent({
                                 person={a.person}
                                 onHoverChange={onCoauthorHoverChange}
                                 after={selectedAuthor.coauthorIds.has(a.person.id) &&
-                                    <span> <MdLibraryBooks title='Coauthor of the same publication' className='inline' /></span>} />)}
+                                    <span> <SamePublicationTag popoverContainerRef={popoverContainerRef} /></span>} />)}
                     </ul>
                 </section>
             }
@@ -185,6 +198,7 @@ function SelectedAuthorContent({
                                 Coauthors
                             </SectionHeading> :
                             <SectionHeading
+                                popoverContainerRef={popoverContainerRef}
                                 info={allIncludedAuthorIds.length !== 0 ?
                                     `${selectedAuthor.person.name}'s coauthors that are not common with any original author` :
                                     `${selectedAuthor.person.name}'s coauthors that are not in the graph`}>
@@ -220,11 +234,77 @@ function SelectedAuthorContent({
         </div>
 }
 
-function SectionHeading({ children, info }: SectionHeadingParams) {
+function SectionHeading({ children, info, popoverContainerRef }: SectionHeadingParams) {
+    const {
+        isHovered: isPopoverHovered,
+        position,
+        popoverRef,
+        onPointerLeave,
+        onPointerMove
+    } = usePopoverAnchorHover(popoverContainerRef);
+    const isPopoverVisible = useDebounce(isPopoverHovered, 100);
+
     return (
-        <h5 className='font-bold mx-4 mt-4 text-sm'>
-            {children} {info && <MdInfo className='inline' title={info} />}
-        </h5>
+        <>
+            <h5 className='font-bold mx-4 mt-4 text-sm'>
+                {children} {info &&
+                    <MdInfo
+                        onPointerLeave={onPointerLeave}
+                        onPointerMove={onPointerMove}
+                        className='inline'
+                        aria-label={info} />}
+            </h5>
+
+            {
+                isPopoverHovered &&
+                <Popover
+                    ref={popoverRef}
+                    containerRef={popoverContainerRef}
+                    left={position[0]}
+                    top={position[1]}
+                    className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
+                    <div
+                        className='px-2 py-1 text-xs'>
+                        {info}
+                    </div>
+                </Popover>
+            }
+        </>
+    )
+}
+
+function SamePublicationTag({ popoverContainerRef }: SamePublicationTagParams) {
+    const {
+        isHovered: isPopoverHovered,
+        position,
+        popoverRef,
+        onPointerLeave,
+        onPointerMove
+    } = usePopoverAnchorHover(popoverContainerRef);
+    const isPopoverVisible = useDebounce(isPopoverHovered, 100);
+
+    return (
+        <>
+            <MdLibraryBooks
+                onPointerLeave={onPointerLeave}
+                onPointerMove={onPointerMove}
+                className='inline'
+                aria-label='Coauthor of the same publication' />
+            {
+                isPopoverHovered &&
+                <Popover
+                    ref={popoverRef}
+                    containerRef={popoverContainerRef}
+                    left={position[0]}
+                    top={position[1]}
+                    className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
+                    <div
+                        className='px-2 py-1 text-xs'>
+                        Coauthor of the same publication
+                    </div>
+                </Popover>
+            }
+        </>
     )
 }
 

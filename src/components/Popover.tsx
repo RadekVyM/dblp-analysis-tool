@@ -8,10 +8,11 @@ type PopoverParams = {
     top: number,
     left: number,
     className?: string,
-    children?: React.ReactNode
+    children?: React.ReactNode,
+    containerRef?: React.RefObject<HTMLDivElement>
 }
 
-const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, className, children }, ref) => {
+const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, className, children, containerRef }, ref) => {
     return (
         createPortal(
             <div
@@ -23,7 +24,7 @@ const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, classNam
                 className={cn('absolute bg-surface-container border border-outline rounded-lg shadow-lg', className)}>
                 {children}
             </div>,
-            document.getElementById('popover-container')!)
+            containerRef?.current || document.getElementById('popover-container')!)
     )
 });
 

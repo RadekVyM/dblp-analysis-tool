@@ -83,7 +83,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
         <div
             ref={rootRef}
             className={cn(
-                'grid gap-3',
+                'relative grid gap-3',
                 'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[100vh] max-h-[max(100vh,40rem)]',
                 'sm:grid-rows-[1fr_auto] sm:grid-cols-[1fr_minmax(auto,18rem)] sm:h-[100vh] sm:min-h-[30rem] sm:max-h-[min(80vh,40rem)]',
                 isFullscreen ? 'p-2 bg-surface lg:grid-cols-[1fr_minmax(auto,20rem)]' : '',
@@ -105,7 +105,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
             <DataVisualisationContainer
                 className='sm:row-start-2 sm:row-end-3 sm:col-start-1 sm:col-end-2 px-3 py-3 flex gap-x-2'>
                 <div
-                    className='flex flex-1 gap-x-2'>
+                    className='@container flex flex-1 gap-x-2'>
                     <GraphOptionsSelection
                         nodes={graph.nodes}
                         links={graph.links}
@@ -142,6 +142,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                             authorsMap={graph.authorsMap}
                             allIncludedAuthorIds={allAuthors.ids}
                             originalAuthorIds={allAuthors.originalAuthorsIds}
+                            popoverContainerRef={rootRef}
                             addAuthor={addAdditionalAuthor}
                             removeAuthor={removeAdditionalAuthor}
                             onCoauthorClick={setSelectedAuthorId}

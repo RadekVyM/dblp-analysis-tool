@@ -1,7 +1,7 @@
 'use client'
 
 import { DataVisualisationSvg } from './DataVisualisationSvg'
-import { useState, useMemo, useRef, forwardRef, CSSProperties, useCallback, PointerEvent } from 'react'
+import { useState, useMemo, useRef, forwardRef, CSSProperties } from 'react'
 import * as d3 from 'd3'
 import OutlinedText from './OutlinedText'
 import { cn } from '@/utils/tailwindUtils'
@@ -13,10 +13,9 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { Dimensions, EdgeRect } from '@/dtos/Rect'
 import Link from 'next/link'
-import { createPortal } from 'react-dom'
 import { useDebounce } from 'usehooks-ts'
-import { clamp } from '@/utils/numbers'
-import Popover from '../Popover'
+import Popover from '@/components/Popover'
+import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
 
 export type BarChartData<T> = {
     color: (key: any, value?: ChartValue) => string,
@@ -272,13 +271,13 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
 
 function Bar({ chartKey, left, top, width, height, radius, chartValue, displayedValue, color, onBarClick, popoverContent }: BarParams) {
     const {
-        isHovered,
+        isHovered: isPopoverHovered,
         position,
         popoverRef,
         onPointerLeave,
         onPointerMove
-    } = useBarHover();
-    const isVisible = useDebounce(isHovered, 20);
+    } = usePopoverAnchorHover();
+    const isPopoverVisible = useDebounce(isPopoverHovered, 100);
     const popoverChildren = useMemo(
         () => popoverContent ? popoverContent(chartKey, chartValue) : undefined,
         [popoverContent, chartKey, chartValue]);
@@ -305,12 +304,12 @@ function Bar({ chartKey, left, top, width, height, radius, chartValue, displayed
             </g>
 
             {
-                isHovered && popoverChildren &&
+                isPopoverHovered && popoverChildren &&
                 <Popover
                     ref={popoverRef}
                     left={position[0]}
                     top={position[1]}
-                    className={isHovered && isVisible ? 'visible' : 'invisible'}>
+                    className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
                     {popoverChildren}
                 </Popover>
             }
@@ -379,7 +378,8 @@ function SecondaryAxis({ valuesScale, dimensions, selectedUnit, padding, orienta
 }
 
 function SecondaryAxisLines({ valuesScale, dimensions, selectedUnit, padding, orientation, className, style }: SecondaryAxisLinesParams) {
-    const [svgDimensions, setSvgDimensions] = useState<Dimensions>({ width: 0, height: 0 });
+    const [svgWidth, setSvgWidth] = useState<number>(0);
+    const [svgHeight, setSvgHeight] = useState<number>(0);
     const ticks = useValuesTicks(valuesScale, orientation, dimensions, padding, selectedUnit);
 
     return (
@@ -387,19 +387,22 @@ function SecondaryAxisLines({ valuesScale, dimensions, selectedUnit, padding, or
             className={className}
             style={style}>
             <DataVisualisationSvg
-                onDimensionsChange={(width, height) => setSvgDimensions({ width, height })}>
+                onDimensionsChange={(width, height) => {
+                    setSvgWidth(width);
+                    setSvgHeight(height);
+                }}>
                 {dimensions.width !== 0 && dimensions.height !== 0 && ticks.map((tick, index) => {
                     const x1 = orientation === ChartOrientation.Horizontal ?
                         padding.left + tick.offset :
                         padding.left;
                     const x2 = orientation === ChartOrientation.Horizontal ?
                         x1 :
-                        padding.left + svgDimensions.width;
+                        padding.left + svgWidth;
                     const y1 = orientation === ChartOrientation.Horizontal ?
                         padding.top :
                         padding.top + tick.offset;
                     const y2 = orientation === ChartOrientation.Horizontal ?
-                        padding.top + svgDimensions.height :
+                        padding.top + svgHeight :
                         y1;
 
                     return (
@@ -521,43 +524,4 @@ function useValuesTicks(
                 offset: (orientation === ChartOrientation.Horizontal ? valuesScale(value) : 1 - valuesScale(value)) * length
             }));
     }, [valuesScale, dimensions, selectedUnit, orientation, padding]);
-}
-
-function useBarHover() {
-    const popoverRef = useRef<HTMLDivElement>(null);
-    const [position, setPosition] = useState<[number, number]>([0, 0]);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
-    const onPointerMove = useCallback((e: PointerEvent<SVGGElement>) => {
-        const container = document.getElementById('popover-container');
-        setIsHovered(true);
-
-        if (!popoverRef.current || !container) {
-            return;
-        }
-
-        const popoverRect = popoverRef.current.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-
-        const idealX = mouseX - popoverRect.width;
-        const idealY = mouseY - popoverRect.height;
-        const x = clamp(idealX, 0, containerRect.width - popoverRect.width);
-        const y = clamp(idealY, 0, containerRect.height - popoverRect.height);
-
-        setPosition([x, y]);
-    }, [setPosition, setIsHovered, popoverRef.current]);
-
-    const onPointerLeave = useCallback((e: PointerEvent<SVGGElement>) => {
-        setIsHovered(false);
-    }, [setIsHovered]);
-
-    return {
-        popoverRef,
-        position,
-        isHovered,
-        onPointerMove,
-        onPointerLeave
-    };
 }
