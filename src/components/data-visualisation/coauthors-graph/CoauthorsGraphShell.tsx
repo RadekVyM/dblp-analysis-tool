@@ -16,6 +16,7 @@ import useFullscreen from '@/hooks/useFullscreen'
 import GraphStats from './GrapStats'
 import { MdFullscreen, MdFullscreenExit, MdInfo } from 'react-icons/md'
 import CoauthorsGraphInfoButton from './CoauthorsGraphInfoButton'
+import filterPublications from '@/services/publications/filters'
 
 type CoauthorsGraphShellParams = {
     authors: Array<DblpAuthor>,
@@ -252,10 +253,7 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         const selectedYears = yearsFilter.selectedItems;
         const selectedAuthors = authorsFilter.selectedItems;
 
-        const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
-            (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
-            (selectedYears.size == 0 || selectedYears.has(publ.year)));
+        const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears);
         const authorsIds = new Set<string>();
 
         publs.forEach(p => [...p.authors, ...p.editors].forEach(a => {

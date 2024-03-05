@@ -20,6 +20,8 @@ export type DblpPublication = {
     readonly number?: string,
     readonly venueId?: string,
     readonly volumeId?: string,
+    readonly publisher?: string,
+    readonly groupTitle: string | null,
     readonly authors: Array<DblpPublicationPerson>,
     readonly editors: Array<DblpPublicationPerson>
 }
@@ -39,6 +41,7 @@ export function createDblpPublication(
     year: number,
     date: string,
     type: PublicationType,
+    groupTitle: string | null,
     month?: string,
     ee?: string,
     booktitle?: string,
@@ -50,6 +53,7 @@ export function createDblpPublication(
     number?: string,
     venueId?: string,
     volumeId?: string,
+    publisher?: string,
     authors?: Array<DblpPublicationPerson>,
     editors?: Array<DblpPublicationPerson>
 ): DblpPublication {
@@ -70,6 +74,8 @@ export function createDblpPublication(
         number,
         venueId,
         volumeId,
+        publisher,
+        groupTitle,
         authors: authors || [],
         editors: editors || []
     }
@@ -88,5 +94,5 @@ export function getVenueTitle(publication: DblpPublication): string {
         return venueTitle ? `${title} (${venueTitle})` : title;
     }
 
-    return 'Not Listed Publications';
+    return 'Unlisted Publications';
 }

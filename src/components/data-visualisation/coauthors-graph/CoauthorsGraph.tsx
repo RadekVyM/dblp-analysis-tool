@@ -108,7 +108,7 @@ const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
         <div
             className={cn(className, 'grid')}>
             {
-                (computedNodes && computedNodes.length > 0) && (computedLinks && computedLinks.length > 0) &&
+                (computedNodes && computedNodes.length > 0) && computedLinks &&
                 <DataVisualisationCanvas
                     ref={graphRef}
                     className='w-full h-full row-start-1 row-end-2 col-start-1 col-end-2'
@@ -196,7 +196,7 @@ function useCanvas(
     useEffect(() => {
         const context = canvas?.getContext('2d');
 
-        if (!context || links.length === 0) {
+        if (!context || nodes.length === 0) {
             return;
         }
 

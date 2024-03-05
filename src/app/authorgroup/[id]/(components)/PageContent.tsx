@@ -84,7 +84,7 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                         title='Publications of Selected Members'
                         publicationsUrl={publicationsUrl}
                         publications={allPublications}
-                        maxDisplayedCount={3} >
+                        maxDisplayedCount={3}>
                         <PageSubsectionTitle>Publications by Member</PageSubsectionTitle>
 
                         <AuthorGroupMembersStats

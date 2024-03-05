@@ -7,6 +7,7 @@ export const VENUE_TYPE_COLOR = {
     [VenueType.Journal]: 'journal-articles',
     [VenueType.Series]: 'editorship',
     [VenueType.Book]: 'books-and-theses',
+    [VenueType.Reference]: 'reference-works',
 } as const
 
 export const PUBLICATION_TYPE_COLOR = {
@@ -55,6 +56,7 @@ export const VENUE_TYPE_TITLE = {
     [VenueType.Journal]: 'Journal',
     [VenueType.Series]: 'Series',
     [VenueType.Book]: 'Book',
+    [VenueType.Reference]: 'Encyclopedia, Handbook',
 } as const
 
 function createColorMap(prefix: string) {

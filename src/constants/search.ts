@@ -7,6 +7,7 @@ export const JOURNALS_DBLP_KEY = 'journals';
 export const CONF_DBLP_KEY = 'conf';
 export const SERIES_DBLP_KEY = 'series';
 export const BOOKS_DBLP_KEY = 'books';
+export const REFERENCE_DBLP_KEY = 'reference';
 
 export const JOURNALS_DBLP_SEARCH_TYPE = 'Journal';
 export const CONF_DBLP_SEARCH_TYPE = 'Conference_or_Workshop';

@@ -1,7 +1,7 @@
 'use client'
 
-import { DblpPublication } from '@/dtos/DblpPublication'
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
+import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import { group, isGreater, isSmaller } from '@/utils/array'
@@ -15,9 +15,15 @@ import FiltersList from '@/components/FiltersList'
 import PublicationListItem from './PublicationListItem'
 import Badge from '../Badge'
 import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
+import PublicationVenuesStats from '../data-visualisation/stats/PublicationVenuesStats'
+import { PageSubsectionTitle } from '../shell/PageSection'
+import PublicationTypesStats from '../data-visualisation/stats/PublicationTypesStats'
+import PublicationsOverTimeStats from '../data-visualisation/stats/PublicationsOverTimeStats'
+import filterPublications from '@/services/publications/filters'
 
 type GroupedPublicationsListParams = {
-    publications: Array<DblpPublication>
+    publications: Array<DblpPublication>,
+    additionalPublicationsStats?: (publications: Array<DblpPublication>) => React.ReactNode
 } & DefaultSelectedPublicationsParams
 
 type PublicationsListParams = {
@@ -31,12 +37,13 @@ type PublicationGroup = {
     count: number
 }
 
-type GroupedBy = 'year' | 'type' | 'venue'
+type GroupedBy = 'year' | 'type' | 'venue' | 'groupTitle'
 
 const GROUPED_BY_FUNC = {
     'year': byYear,
     'type': byType,
     'venue': byVenue,
+    'groupTitle': byGroupTitle,
 } as const
 
 const DISPLAYED_COUNT_INCREASE = 25;
@@ -47,12 +54,18 @@ export default function GroupedPublicationsList({
     defaultSelectedYears,
     defaultSelectedTypes,
     defaultSelectedVenueIds,
-    defaultSelectedAuthors }: GroupedPublicationsListParams
-) {
+    defaultSelectedAuthors,
+    additionalPublicationsStats
+}: GroupedPublicationsListParams) {
     const observerTarget = useRef<HTMLDivElement>(null);
-    const [groupedBy, setGroupedBy] = useState<GroupedBy>('year'); // Grouping selection is not used yet
+    const groupedBy = useMemo(() => {
+        const groupTitles = new Set<string | null>();
+        publications.forEach((p) => groupTitles.add(p.groupTitle));
+        return groupTitles.size > 1 ? 'groupTitle' : 'year';
+    }, [publications]);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const {
+        filteredPublications,
         displayedPublications,
         displayedPublicationsCount,
         filtersMap,
@@ -92,6 +105,42 @@ export default function GroupedPublicationsList({
                 switchSelection={switchFilterSelection}
                 clear={clearFilters} />
 
+            <PageSubsectionTitle>Publication Types</PageSubsectionTitle>
+
+            <PublicationTypesStats
+                scaffoldId='publication-types-stats'
+                className='mb-10'
+                publications={filteredPublications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    date: publ.date
+                }))} />
+
+            <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
+
+            <PublicationsOverTimeStats
+                scaffoldId='publications-over-time-stats'
+                className='mb-10'
+                publications={filteredPublications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    year: publ.year
+                }))} />
+
+            <PageSubsectionTitle>Publication Venues</PageSubsectionTitle>
+
+            <PublicationVenuesStats
+                scaffoldId='publication-venues-stats'
+                className='mb-10'
+                publications={filteredPublications.map((publ) => ({
+                    id: publ.id,
+                    type: publ.type,
+                    venueId: publ.venueId || null,
+                    venueTitle: getVenueTitle(publ)
+                }))} />
+
+            {additionalPublicationsStats && additionalPublicationsStats(filteredPublications)}
+
             <PublicationsList
                 groupedBy={groupedBy}
                 publications={displayedPublications} />
@@ -115,10 +164,10 @@ function PublicationsList({ publications, groupedBy, className }: PublicationsLi
                         <header
                             id={getElementId(key)}
                             className='mb-6 flex gap-3 items-center'>
-                            <h4
-                                className='font-semibold'>
+                            <PageSubsectionTitle
+                                className='m-0'>
                                 {getTitleFromKey(key, groupedBy)}
-                            </h4>
+                            </PageSubsectionTitle>
                             <Badge
                                 title={`${keyPublications.count} publications`}>
                                 {keyPublications.count}
@@ -184,6 +233,7 @@ function useDisplayedPublications(
         return newDisplayedPublications;
     }, [groupedPublications, displayedCount]);
     const displayedPublicationsCount = useMemo(() => groupedPublications.reduce((prev, current) => prev + current[1].length, 0), [groupedPublications]);
+    const filteredPublications = useMemo(() => groupedPublications.flatMap((g) => g[1]), [groupedPublications]);
 
     useEffect(() => {
         if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {
@@ -195,11 +245,8 @@ function useDisplayedPublications(
         const selectedYears = yearsFilter.selectedItems;
         const selectedAuthors = authorsFilter.selectedItems;
 
-        const publs = publications.filter((publ) =>
-            (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
-            (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
-            (selectedYears.size == 0 || selectedYears.has(publ.year)) &&
-            (selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))));
+        const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears, selectedAuthors);
+        publs.sort((p1, p2) => isSmaller(p1.year, p2.year));
         const grouped = [...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])];
         grouped.sort(([key1], [key2]) => isSmaller(key1, key2));
 
@@ -209,6 +256,7 @@ function useDisplayedPublications(
     }, [publications, groupedBy, typesFilter, venuesFilter, yearsFilter, authorsFilter, resetDisplayedCount]);
 
     return {
+        filteredPublications,
         displayedPublications,
         displayedPublicationsCount,
         filtersMap,
@@ -218,15 +266,19 @@ function useDisplayedPublications(
 }
 
 function byYear(publ: DblpPublication) {
-    return publ.year
+    return publ.year;
 }
 
 function byType(publ: DblpPublication) {
-    return publ.type
+    return publ.type;
 }
 
 function byVenue(publ: DblpPublication) {
-    return publ.journal || publ.booktitle
+    return publ.journal || publ.booktitle;
+}
+
+function byGroupTitle(publ: DblpPublication) {
+    return publ.groupTitle;
 }
 
 function getTitleFromKey(key: any, groupedBy: GroupedBy) {
@@ -236,7 +288,9 @@ function getTitleFromKey(key: any, groupedBy: GroupedBy) {
         case 'year':
             return key;
         case 'venue':
-            return key || 'Not Listed Publications';
+            return key || 'Unlisted Publications';
+        case 'groupTitle':
+            return key || 'Ungrouped Publications';
     }
 }
 

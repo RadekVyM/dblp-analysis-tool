@@ -4,6 +4,7 @@ export const PublicationFilterKey = {
     Venue: 'Venue',
     Year: 'Year',
     Author: 'Author',
+    Group: 'Group',
 } as const;
 
 /** Key of a publication filter. */

@@ -23,6 +23,7 @@ import { SearchType } from '@/enums/SearchType'
 import * as d3 from 'd3'
 import { PublicationType } from '@/enums/PublicationType'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
+import filterPublications from '@/services/publications/filters'
 
 type AuthorStats = {
     id: string,
@@ -34,8 +35,9 @@ type AuthorStats = {
 type AuthorGroupMembersStatsParams = {
     /** All authors of an author group */
     authors: Array<DblpAuthor>,
-    /** All publications of all authors of an author group */
+    /** All analysed publications of all authors of an author group */
     allPublications: Array<DblpPublication>,
+    disableFilters?: boolean,
     scaffoldId?: string,
     publicationsUrl?: string,
     className?: string,
@@ -53,13 +55,17 @@ type AuthorGroupMembersTableParams = {
 }
 
 /** Displays statistics of all members of an author group. */
-export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, publicationsUrl, className }: AuthorGroupMembersStatsParams) {
+export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, publicationsUrl, className, disableFilters }: AuthorGroupMembersStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
-    const authorsStats = useMemo(() => {
+    const filteredPublicationIds = useMemo(() => {
+        if (disableFilters) {
+            return new Set(allPublications.map((p) => p.id));
+        }
+
         if (!typesFilter || !venuesFilter || !yearsFilter || !authorsFilter) {
-            return [];
+            return new Set<string>();
         }
 
         const selectedTypes = typesFilter.selectedItems;
@@ -67,19 +73,20 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
         const selectedYears = yearsFilter.selectedItems;
         const selectedAuthors = authorsFilter.selectedItems;
 
-        return authors.map((a) => ({
-            id: a.id,
-            name: a.name,
-            publicationsCount: a.publications
-                .filter((publ) =>
-                    (selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
-                    (selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
-                    (selectedYears.size == 0 || selectedYears.has(publ.year)) &&
-                    (selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))))
-                .length,
-            publicationTypes: d3.rollup(a.publications, (items) => items.length, (item) => item.type)
-        } as AuthorStats));
-    }, [authors, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
+        return new Set(filterPublications(allPublications, selectedTypes, selectedVenues, selectedYears, selectedAuthors).map((p) => p.id));
+    }, [allPublications, disableFilters, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
+    const authorsStats = useMemo(() => {
+        return authors.map((a) => {
+            const authorPublications = a.publications.filter((p) => filteredPublicationIds.has(p.id));
+
+            return {
+                id: a.id,
+                name: a.name,
+                publicationsCount: authorPublications.length,
+                publicationTypes: d3.rollup(authorPublications, (items) => items.length, (item) => item.type)
+            } as AuthorStats;
+        });
+    }, [authors, filteredPublicationIds]);
     const router = useRouter();
 
     return (
@@ -105,7 +112,7 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                                         yearsFilter?.selectedItems,
                                         authorsFilter?.selectedItems)) :
                                     undefined} />),
-                        secondaryContent: (
+                        secondaryContent: disableFilters ? undefined : (
                             <FiltersList
                                 className='p-2 min-h-0 max-h-20 overflow-y-auto thin-scrollbar'
                                 showFiltersDialog={showFiltersDialog}

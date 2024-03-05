@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
+import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { useIsClient } from 'usehooks-ts'
@@ -16,6 +16,7 @@ import { error as createError } from '@/utils/errors'
 import useSelectedAuthorGroupMembers from '@/hooks/useSelectedAuthorGroupMembers'
 import AuthorGroupMembers from '../../(components)/AuthorGroupMembers'
 import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
+import AuthorGroupMembersStats from '@/components/data-visualisation/stats/AuthorGroupMembersStats'
 
 type PageContentParams = {
     authorGroupId: string,
@@ -74,7 +75,7 @@ export default function PageContent({
             <PageSection>
                 <header
                     className='mb-4 flex gap-3 items-center'>
-                    <PageSectionTitle className='text-xl mb-0'>Publications</PageSectionTitle>
+                    <PageSectionTitle className='text-xl mb-0'>Publications of Selected Members</PageSectionTitle>
                 </header>
 
                 <GroupedPublicationsList
@@ -82,7 +83,18 @@ export default function PageContent({
                     defaultSelectedYears={defaultSelectedYears}
                     defaultSelectedTypes={defaultSelectedTypes}
                     defaultSelectedVenueIds={defaultSelectedVenueIds}
-                    defaultSelectedAuthors={defaultSelectedAuthors} />
+                    defaultSelectedAuthors={defaultSelectedAuthors}
+                    additionalPublicationsStats={(filteredPublications) =>
+                        <>
+                            <PageSubsectionTitle>Publications by Member</PageSubsectionTitle>
+
+                            <AuthorGroupMembersStats
+                                className='mb-10'
+                                disableFilters
+                                authors={selectedAuthors}
+                                allPublications={filteredPublications}
+                                scaffoldId='author-group-members-publications' />
+                        </>} />
             </PageSection>
 
             <ScrollToTopButton />

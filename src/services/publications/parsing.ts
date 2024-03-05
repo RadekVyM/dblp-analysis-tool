@@ -8,10 +8,12 @@ import { convertDblpIdToNormalizedId, extractNormalizedIdFromDblpUrlPath } from 
  * @param $ Cheerio object with a loaded XML string
  * @returns List of all publications in the XML string
  */
-export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublication> {
+export function extractPublicationsFromXml($: cheerio.Root, groupElement?: cheerio.Element, groupTitle?: string): Array<DblpPublication> {
     const publications: Array<DblpPublication> = [];
+    const selector = 'r > *';
+    const children = groupElement ? $(groupElement).find(selector) : $(selector);
 
-    $('r > *').each((index, el) => {
+    children.each((index, el) => {
         const elem = $(el);
         const key = elem.attr('key') || '';
 
@@ -31,6 +33,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
         const volume = elem.find('volume').first().text();
         const number = elem.find('number').first().text();
         const url = elem.find('url').first().text();
+        const publisher = elem.find('publisher').first().text();
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
         const authors = getPeople($, elem.children('author'));
@@ -50,7 +53,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             type = PublicationType.DataAndArtifacts;
         else if (tagName === 'inproceedings')
             type = PublicationType.ConferenceAndWorkshopPapers;
-        else if (tagName === 'book')
+        else if (tagName === 'book' || tagName.includes('thesis'))
             type = PublicationType.BooksAndTheses;
 
         // Remove volume segment from the URL path
@@ -69,6 +72,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             parseInt(year),
             date || new Date().toString(),
             type,
+            groupTitle || null,
             month,
             ee,
             booktitle === '' ? undefined : booktitle,
@@ -80,6 +84,7 @@ export function extractPublicationsFromXml($: cheerio.Root): Array<DblpPublicati
             number,
             venueId[0] ? venueId[0] : undefined,
             venueId[1] ? venueId[1] : undefined,
+            publisher,
             authors,
             editors,
         ));

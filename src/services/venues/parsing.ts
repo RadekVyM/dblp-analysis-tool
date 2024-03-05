@@ -17,6 +17,7 @@ import { DBLP_URL } from '@/constants/urls'
 import { DblpVenueVolumeItemGroup, createDblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
 import { DblpVenueTopAuthor, createDblpVenueTopAuthor } from '@/dtos/DblpVenueTopAuthor'
 import { DblpVenueYearlyPublicationsCount, craeteDblpVenueYearlyPublicationsCount } from '@/dtos/DblpVenuePublicationsInfo'
+import { DblpPublication } from '@/dtos/DblpPublication'
 
 const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
@@ -89,7 +90,7 @@ export function extractVenueAuthorsInfo(xml: string): { topAuthors: Array<DblpVe
 
     return {
         topAuthors: authors,
-        totalAuthorsCount: parseInt(totalAuthorsCount)
+        totalAuthorsCount: parseInt(totalAuthorsCount) - 1 // '0no0coauthors' needs to be subtracted
     };
 }
 
@@ -130,8 +131,9 @@ export function extractVenueYearlyPublications(svg: string): Array<DblpVenueYear
  * @returns List of found venues
  */
 export function extractVenuesIndex(html: string, type: VenueType, count?: number) {
-    if (type === VenueType.Book) {
+    if (type === VenueType.Book || type === VenueType.Reference) {
         // Books index is not searchable
+        // References can be searched as a venue
         return [];
     }
 
@@ -165,8 +167,9 @@ export function extractVenuesIndex(html: string, type: VenueType, count?: number
  * @returns The venues index length
  */
 export function extractVenuesIndexLength(html: string, type: VenueType) {
-    if (type === VenueType.Book) {
+    if (type === VenueType.Book || type === VenueType.Reference) {
         // Books index is not searchable
+        // References can be searched as a venue
         return 0;
     }
 
@@ -316,8 +319,15 @@ function extractRefVolumeItems($: cheerio.Root, li: cheerio.Element, id: string,
 
 /** Extracts all the venue volume information from a XML string using Cheerio. */
 function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string, additionalVolumeId?: string): DblpVenueVolume {
-    const publications = extractPublicationsFromXml($);
+    const publications: Array<DblpPublication> = [];
     let venueTitle: string | undefined = undefined;
+
+    $('dblpcites').each((index, ref) => {
+        const title = $(ref).prev('h2').text();
+        const extractedPublications = extractPublicationsFromXml($, ref, title);
+
+        publications.push(...extractedPublications);
+    });
 
     $(`h1 > ${volumeRefSelector(id)}`).each((index, ref) => {
         venueTitle = $(ref).text();

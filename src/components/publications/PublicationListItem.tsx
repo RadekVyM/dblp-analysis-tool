@@ -52,21 +52,45 @@ export default function PublicationListItem({ publication }: PublicationListItem
                     <PeopleItems
                         people={publication.authors.concat(...publication.editors)} />
                 </ul>
-                <div
+                <dl
                     className='flex gap-1 mt-1 items-center max-w-full flex-wrap'>
-                    <span
-                        className={cn('flex gap-2 px-2 py-1 text-xs bg-surface-container text-on-surface-container rounded-lg border border-outline overflow-ellipsis')}>
+                    <Chip
+                        term='Publication type'
+                        className='flex gap-2'>
                         <MdLibraryBooks
                             className={cn(PUBLICATION_TYPE_TEXT_COLOR[publication.type], 'w-4 h-4')} />
                         {PUBLICATION_TYPE_TITLE_SINGULAR[publication.type]}
-                    </span>
-                    <span
-                        className='px-2 py-1 bg-surface-container text-on-surface-container text-xs rounded-lg border border-outline'>
+                    </Chip>
+                    <Chip
+                        term='Published at'>
                         {publication.month && `${publication.month} `}{publication.year}
-                    </span>
-                </div>
+                    </Chip>
+                    {
+                        publication.publisher &&
+                        <Chip
+                            term='Publisher'>
+                            {publication.publisher}
+                        </Chip>
+                    }
+                </dl>
             </article>
         </li>
+    )
+}
+
+type ChipParams = {
+    term: string,
+    children: React.ReactNode,
+    className?: string
+}
+
+function Chip({ term, children, className }: ChipParams) {
+    return (
+        <div
+            className={cn('px-2 py-1 bg-surface-container text-on-surface-container text-xs rounded-lg border border-outline overflow-ellipsis')}>
+            <dt className='sr-only'>{term}</dt>
+            <dd className={className}>{children}</dd>
+        </div>
     )
 }
 
@@ -91,7 +115,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                 publication.type == PublicationType.JournalArticles && publication.journal ?
                     <>
                         {
-                            publication.venueId ?
+                            publication.venueId && publication.seriesVenueId !== publication.venueId ?
                                 <Link
                                     prefetch={false}
                                     className='hover:underline'
@@ -104,7 +128,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                     publication.type == PublicationType.ConferenceAndWorkshopPapers && publication.booktitle ?
                         <>
                             {
-                                publication.venueId ?
+                                publication.venueId && publication.seriesVenueId !== publication.venueId ?
                                     <Link
                                         prefetch={false}
                                         className='hover:underline'
@@ -117,7 +141,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                         publication.booktitle &&
                         <>
                             {
-                                publication.venueId ?
+                                publication.venueId && publication.seriesVenueId !== publication.venueId ?
                                     <Link
                                         prefetch={false}
                                         className='hover:underline'

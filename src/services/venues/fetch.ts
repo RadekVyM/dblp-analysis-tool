@@ -50,8 +50,9 @@ export async function fetchSearchResultWithQuery(
 
 /** Returns a prefix of a query based on the venue type */
 function getQueryPrefix(type: VenueType): string {
-    if (type === VenueType.Book) {
+    if (type === VenueType.Book || type === VenueType.Reference) {
         // Searching the books index is not supported
+        // References can be searched as a venue
         return '';
     }
 
