@@ -5,6 +5,16 @@ import { PublicationPersonLinkDatum, PublicationPersonLinkDatumExtension } from 
 import { PublicationPersonNodeDatum, PublicationPersonNodeDatumExtension } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 import { removeAccents } from '@/utils/strings'
 
+type CoauthorsGraphResult = {
+    nodes: Array<PublicationPersonNodeDatum>,
+    links: Array<PublicationPersonLinkDatum>,
+    authorsMap: Map<string, PublicationPersonNodeDatum>,
+    minCoauthorsCount: number,
+    maxCoauthorsCount: number,
+    minCoauthoredPublicationsCount: number,
+    maxCoauthoredPublicationsCount: number,
+}
+
 const DEFAULT_LINK_VALUES: PublicationPersonLinkDatumExtension = {
     publicationsCount: 1,
     intensity: 1,
@@ -61,7 +71,7 @@ export function convertToCoauthorsGraph(
     publications: Array<DblpPublication>,
     ignoredAuthorIds: Array<string> = [],
     primaryColoredAuthorIds: Array<string> = []
-) {
+): CoauthorsGraphResult {
     const authorsMap = new Map<string, PublicationPersonNodeDatum>();
     const linksMap = new Map<string, PublicationPersonLinkDatum>();
 

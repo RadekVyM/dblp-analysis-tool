@@ -1,5 +1,6 @@
 import { STREAMED_OBJECTS_SEPARATOR } from '@/constants/fetch'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
+import waitForNextFetchClient from '@/services/waitForNextFetchClient';
 import { useMemo } from 'react'
 import useSWRSubscription, { SWRSubscriptionOptions } from 'swr/subscription'
 
@@ -44,6 +45,8 @@ async function fetchAuthors(
     onAuthorFetched: (authors: Array<DblpAuthor>) => void,
     signal: AbortSignal
 ) {
+    await waitForNextFetchClient();
+
     const response = await fetch(`/api/authors?authorIds=${JSON.stringify(authorIds)}`, { signal: signal });
 
     if (!response.body) {

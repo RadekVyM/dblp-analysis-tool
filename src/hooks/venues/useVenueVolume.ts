@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable'
-import useSWR from 'swr'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
+import waitForNextFetchClient from '@/services/waitForNextFetchClient';
 
 /**
  * Hook that fetches a venue volume with a specified ID.
@@ -26,6 +26,8 @@ export default function useVenueVolume(venueId: string, volumeId: string, should
  * @returns An object of a fetched venue volume
  */
 async function volumeFetcher(url: string) {
+    await waitForNextFetchClient();
+
     const response = await fetch(url);
     return await response.json() as DblpVenueVolume;
 }

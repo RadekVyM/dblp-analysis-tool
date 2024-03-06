@@ -11,8 +11,9 @@ import { delay } from '@/utils/promises'
  * This is needed because dblp.org recommends waiting one or two seconds between requests: https://dblp.org/faq/1474706.html
  * 
  * This implementation is not perfect.
+ * It stores records with the time of the last request to the database.
  * If there are two requests sent almost at the same time, they may load the same record from the database.
- * This will result in two requests being sent to the dblp.org at the same time.
+ * This will result in two requests being sent to the dblp.org (almost) at the same time.
  * However, that hopefully should not happen too often, and even if it happens, it is not the end of the world.
  * @param signal Abort signal of the incoming request
  */

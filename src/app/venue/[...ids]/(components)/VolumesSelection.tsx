@@ -16,6 +16,7 @@ import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import LinkArrow from '@/components/LinkArrow'
 import useShowMore from '@/hooks/useShowMore'
+import { isNullOrWhiteSpace } from '@/utils/strings'
 
 const DEFAULT_DISPLAYED_ITEMS_COUNT = 10;
 const DEFAULT_DISPLAYED_UNGROUPED_SHORT_ITEMS_COUNT = 24;
@@ -31,7 +32,9 @@ type VolumesSelectionParams = {
 }
 
 type VolumeItemParams = {
-    item: DblpVenueVolumeItem,
+    title: string,
+    venueId: string,
+    volumeId: string,
     isSelected: boolean,
     maxTitleLength?: number,
     onFetched: (volume: DblpVenueVolume) => void,
@@ -88,7 +91,9 @@ export default function VolumesSelection({ groups, selectedVolumeIds, title, wid
                         {groups.slice(0, displayedCount).map((group) =>
                             <VolumeItem
                                 key={group.items[0].volumeId}
-                                item={group.items[0]}
+                                title={group.items[0].title}
+                                venueId={group.items[0].venueId}
+                                volumeId={group.items[0].volumeId}
                                 isSelected={selectedVolumeIds.has(group.items[0].volumeId)}
                                 toggleVolume={toggleVolume}
                                 onFetched={onFetchedVolume} />)}
@@ -120,7 +125,9 @@ function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolu
         return (
             <VolumeItem
                 key={item.volumeId}
-                item={item}
+                title={item.title !== group.title && !isNullOrWhiteSpace(group.title) ? `${group.title}: ${item.title}` : item.title}
+                venueId={item.venueId}
+                volumeId={item.volumeId}
                 isSelected={selectedVolumeIds.has(item.volumeId)}
                 toggleVolume={toggleVolume}
                 onFetched={onFetchedVolume} />
@@ -167,7 +174,9 @@ function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolu
                 {group.items.map((item) =>
                     <VolumeItem
                         key={item.volumeId}
-                        item={item}
+                        title={item.title}
+                        venueId={item.venueId}
+                        volumeId={item.volumeId}
                         maxTitleLength={36}
                         isSelected={selectedVolumeIds.has(item.volumeId)}
                         toggleVolume={toggleVolume}
@@ -177,9 +186,9 @@ function VolumeItemGroup({ group, selectedVolumeIds, onFetchedVolume, toggleVolu
     )
 }
 
-function VolumeItem({ item, isSelected, maxTitleLength, onFetched, toggleVolume }: VolumeItemParams) {
-    const { volume, error, isLoading } = useVenueVolume(item.venueId, item.volumeId, isSelected);
-    const itemTitle = item.title.slice(0, maxTitleLength).trim();
+function VolumeItem({ title, venueId, volumeId, isSelected, maxTitleLength, onFetched, toggleVolume }: VolumeItemParams) {
+    const { volume, error, isLoading } = useVenueVolume(venueId, volumeId, isSelected);
+    const itemTitle = title.slice(0, maxTitleLength).trim();
 
     useEffect(() => {
         if (volume) {
@@ -193,15 +202,15 @@ function VolumeItem({ item, isSelected, maxTitleLength, onFetched, toggleVolume 
             <LoadingCheckbox
                 isChecked={isSelected}
                 isLoading={isLoading}
-                onChange={() => toggleVolume(item.volumeId)} />
+                onChange={() => toggleVolume(volumeId)} />
             <Link
                 prefetch={false}
                 className='link-heading block w-fit text-on-surface-muted hover:text-on-surface transition-colors'
-                href={createLocalPath(item.venueId, SearchType.Venue, item.volumeId)}
-                title={itemTitle.length < item.title.length ? item.title : undefined}>
+                href={createLocalPath(venueId, SearchType.Venue, volumeId)}
+                title={itemTitle.length < title.length ? title : undefined}>
                 <span
                     className='inline font-semibold text-on-surface text-sm'>
-                    {itemTitle}{itemTitle.length < item.title.length && '...'}
+                    {itemTitle}{itemTitle.length < title.length && '...'}
                 </span>
                 <LinkArrow
                     className='w-5 h-4 ml-[-0.2rem] mt-[-0.15rem]' />

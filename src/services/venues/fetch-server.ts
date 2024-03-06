@@ -161,7 +161,6 @@ async function fetchVenueOrVolumeXml(id: string, additionalVolumeId?: string): P
 
 async function fetchAdditionalVenueInfoXml(id: string): Promise<string> {
     const url = `${DBLP_URL}/search/publ/api?q=stream:${convertNormalizedIdToDblpPath(id).substring(1)}:&compl=author&p=0&h=0&c=1000&format=xml`;
-    console.log(url)
     return fetchXml(url);
 }
 

@@ -1,5 +1,6 @@
 import useSWRImmutable from 'swr/immutable'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
+import waitForNextFetchClient from '@/services/waitForNextFetchClient';
 
 /**
  * Hook that fetches an author with a specified ID.
@@ -22,6 +23,7 @@ export default function useAuthor(authorId: string) {
  * @returns An object of a fetched author
  */
 async function authorFetcher(authorId: string, signal?: AbortSignal) {
+    await waitForNextFetchClient();
     const response = await fetch(`/api/author/${authorId}`, { signal: signal });
     return await response.json() as DblpAuthor;
 }

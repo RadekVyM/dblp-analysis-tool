@@ -12,7 +12,6 @@ import MultipleVolumesPageContent from './MultipleVolumesPageContent'
 import VenueVolumePageContent from './VenueVolumePageContent'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
-import { ID_LOCAL_SEPARATOR } from '@/constants/urls'
 
 type VenuePageParams = {
     venueOrVolume: DblpVenueBase,

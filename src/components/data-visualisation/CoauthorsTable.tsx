@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import Table from './Table'
 import { canGetToOriginalAuthorThroughAnotherAuthor, convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
-import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
 
 type CoauthorsTableParams = {
     authors: Array<DblpAuthor>,

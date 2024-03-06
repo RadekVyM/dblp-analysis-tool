@@ -1,7 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Gabarito } from 'next/font/google'
-import Notifications from '@/components/shell/Notifications'
 import { UNDOCKED_SIDE_MENU_CLASSES } from '@/constants/sideMenu'
 import SiteHeader from '@/components/shell/SiteHeader'
 import { cn } from '@/utils/tailwindUtils'
@@ -47,7 +46,6 @@ export default async function RootLayout({
             className='row-start-3 row-end-4 col-start-1 col-end-2' />
         </div>
 
-        <Notifications />
         <Popovers />
       </body>
     </html>
