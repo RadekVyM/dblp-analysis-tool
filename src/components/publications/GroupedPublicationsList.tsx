@@ -37,13 +37,13 @@ type PublicationGroup = {
     count: number
 }
 
-type GroupedBy = 'year' | 'type' | 'venue' | 'groupTitle'
+type GroupedBy = 'year' | 'type' | 'venue' | 'group'
 
 const GROUPED_BY_FUNC = {
     'year': byYear,
     'type': byType,
     'venue': byVenue,
-    'groupTitle': byGroupTitle,
+    'group': byGroup,
 } as const
 
 const DISPLAYED_COUNT_INCREASE = 25;
@@ -61,7 +61,7 @@ export default function GroupedPublicationsList({
     const groupedBy = useMemo(() => {
         const groupTitles = new Set<string | null>();
         publications.forEach((p) => groupTitles.add(p.groupTitle));
-        return groupTitles.size > 1 ? 'groupTitle' : 'year';
+        return groupTitles.size > 1 ? 'group' : 'year';
     }, [publications]);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const {
@@ -160,13 +160,13 @@ function PublicationsList({ publications, groupedBy, className }: PublicationsLi
 
                 return (
                     <li
-                        key={key || getTitleFromKey(key, groupedBy)}>
+                        key={key || getGroupTitle(groupedBy, key, keyPublications)}>
                         <header
                             id={getElementId(key)}
                             className='mb-6 flex gap-3 items-center'>
                             <PageSubsectionTitle
                                 className='m-0'>
-                                {getTitleFromKey(key, groupedBy)}
+                                {getGroupTitle(groupedBy, key, keyPublications)}
                             </PageSubsectionTitle>
                             <Badge
                                 title={`${keyPublications.count} publications`}>
@@ -248,7 +248,7 @@ function useDisplayedPublications(
         const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears, selectedAuthors);
         publs.sort((p1, p2) => isSmaller(p1.year, p2.year));
         const grouped = [...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])];
-        grouped.sort(([key1], [key2]) => isSmaller(key1, key2));
+        grouped.sort(([key1], [key2]) => isGreater(key1, key2));
 
         setGroupedPublications(grouped);
         setTotalCount(publs.length);
@@ -277,11 +277,11 @@ function byVenue(publ: DblpPublication) {
     return publ.journal || publ.booktitle;
 }
 
-function byGroupTitle(publ: DblpPublication) {
-    return publ.groupTitle;
+function byGroup(publ: DblpPublication) {
+    return publ.groupIndex;
 }
 
-function getTitleFromKey(key: any, groupedBy: GroupedBy) {
+function getGroupTitle(groupedBy: GroupedBy, key: any, publicationGroup: PublicationGroup) {
     switch (groupedBy) {
         case 'type':
             return PUBLICATION_TYPE_TITLE[key as PublicationType];
@@ -289,8 +289,8 @@ function getTitleFromKey(key: any, groupedBy: GroupedBy) {
             return key;
         case 'venue':
             return key || 'Unlisted Publications';
-        case 'groupTitle':
-            return key || 'Ungrouped Publications';
+        case 'group':
+            return publicationGroup.publications[0].groupTitle || 'Ungrouped Publications';
     }
 }
 

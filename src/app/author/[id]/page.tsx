@@ -66,11 +66,13 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                 author.publications.length > 0 &&
                 <>
                     <PublicationsStatsSection
+                        id='author-publications'
                         publicationsUrl={`${createLocalPath(id, SearchType.Author)}/publications`}
                         publications={author.publications}
                         maxDisplayedCount={3} />
 
                     <CoauthorsSection
+                        id='author-coauthors'
                         authors={[author]}
                         tableCoauthorsExplanation={`Total number of coauthors that are common with ${author.name} and that are coauthors of the same publication as the author and ${author.name}`}
                         tablePublicationsExplanation={`Total number of unique publications that are common with ${author.name}`} />

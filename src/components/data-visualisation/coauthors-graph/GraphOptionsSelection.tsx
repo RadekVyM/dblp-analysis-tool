@@ -14,6 +14,7 @@ import { forwardRef } from 'react'
 import { MdGetApp, MdSettings } from 'react-icons/md'
 
 type GraphOptionsSelectionParams = {
+    id: string,
     options: CoauthorsGraphOptions,
     nodes: Array<NodeDatum & NodeDatumExtension>,
     links: Array<LinkDatum & LinkDatumExtension>,
@@ -31,7 +32,7 @@ type GraphOptionsDialogParams = {
 }
 
 /** Displays options and actions of the coauthors graph that can specified or invoked. */
-export default function GraphOptionsSelection({ options, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
+export default function GraphOptionsSelection({ id, options, nodes, links, setOptions, zoomToCenter }: GraphOptionsSelectionParams) {
     const [optionsDialogRef, isOptionsDialogOpen, optionsDialogAnimationClass, showOptionsDialog, hideOptionsDialog] = useDialog();
     const [exportDialogRef, isExportDialogOpen, exportDialogAnimationClass, showExportDialog, hideExportDialog] = useDialog();
 
@@ -62,6 +63,7 @@ export default function GraphOptionsSelection({ options, nodes, links, setOption
                 setOptions={setOptions}
                 zoomToCenter={zoomToCenter} />
             <GraphExportDialog
+                id={id}
                 ref={exportDialogRef}
                 hide={hideExportDialog}
                 animation={exportDialogAnimationClass}

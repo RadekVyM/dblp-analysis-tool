@@ -323,8 +323,15 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
     let venueTitle: string | undefined = undefined;
 
     $('dblpcites').each((index, ref) => {
-        const title = $(ref).prev('h2').text();
-        const extractedPublications = extractPublicationsFromXml($, ref, title);
+        let prev: cheerio.Cheerio = $(ref).prev();
+        let title: string | undefined = undefined;
+
+        while ($(prev).length > 0 && $(prev).prop('tagName').toLowerCase() !== 'h2') {
+            prev = $(prev).prev();
+        }
+
+        title = $(prev).text();
+        const extractedPublications = extractPublicationsFromXml($, ref, title, index);
 
         publications.push(...extractedPublications);
     });

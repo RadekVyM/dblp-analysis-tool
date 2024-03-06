@@ -6,9 +6,17 @@ import { convertDblpIdToNormalizedId, extractNormalizedIdFromDblpUrlPath } from 
 /**
  * Extracts publications information from a XML string using Cheerio.
  * @param $ Cheerio object with a loaded XML string
+ * @param groupElement Selected element in which the publications should be looked for
+ * @param groupTitle Title of a group to which these publications belong
+ * @param groupIndex Order of a group to which these publications belong
  * @returns List of all publications in the XML string
  */
-export function extractPublicationsFromXml($: cheerio.Root, groupElement?: cheerio.Element, groupTitle?: string): Array<DblpPublication> {
+export function extractPublicationsFromXml(
+    $: cheerio.Root,
+    groupElement?: cheerio.Element,
+    groupTitle?: string,
+    groupIndex?: number
+): Array<DblpPublication> {
     const publications: Array<DblpPublication> = [];
     const selector = 'r > *';
     const children = groupElement ? $(groupElement).find(selector) : $(selector);
@@ -73,6 +81,7 @@ export function extractPublicationsFromXml($: cheerio.Root, groupElement?: cheer
             date || new Date().toString(),
             type,
             groupTitle || null,
+            groupIndex || null,
             month,
             ee,
             booktitle === '' ? undefined : booktitle,

@@ -7,6 +7,7 @@ import LinkArrow from '@/components/LinkArrow'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import { PublicationType } from '@/enums/PublicationType'
+import { getVenueTitleFromId } from '@/dtos/DblpVenue'
 
 type PublicationListItemParams = {
     publication: DblpPublication
@@ -138,19 +139,26 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                     addMissingNoun(publication.booktitle, 'conference')
                             }
                         </> :
-                        publication.booktitle &&
-                        <>
-                            {
-                                publication.venueId && publication.seriesVenueId !== publication.venueId ?
-                                    <Link
-                                        prefetch={false}
-                                        className='hover:underline'
-                                        href={createLocalVenuePath(publication)}>
-                                        {publication.volume ? <>Volume {publication.volume} of </> : ''}{publication.booktitle}
-                                    </Link> :
-                                    publication.booktitle
-                            }
-                        </>
+                        publication.booktitle ?
+                            <>
+                                {
+                                    publication.venueId && publication.seriesVenueId !== publication.venueId ?
+                                        <Link
+                                            prefetch={false}
+                                            className='hover:underline'
+                                            href={createLocalVenuePath(publication)}>
+                                            {publication.booktitle}
+                                        </Link> :
+                                        publication.booktitle
+                                }
+                            </> :
+                            publication.venueId && publication.seriesVenueId !== publication.venueId &&
+                            <Link
+                                prefetch={false}
+                                className='hover:underline'
+                                href={createLocalVenuePath(publication)}>
+                                {getVenueTitleFromId(publication.venueId)}
+                            </Link>
             }
             {
                 publication.seriesVenueId && publication.series &&
@@ -163,7 +171,9 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                         prefetch={false}
                         className='hover:underline'
                         href={createLocalPath(publication.seriesVenueId, SearchType.Venue)}>
-                        {publication.series}
+                        {publication.type !== PublicationType.JournalArticles && publication.type !== PublicationType.ConferenceAndWorkshopPapers ?
+                            <>Volume {publication.volume} of </> :
+                            ''}{publication.series}
                     </Link>
                 </>
             }

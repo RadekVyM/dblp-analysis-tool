@@ -10,6 +10,7 @@ import { getUniqueCoauthors } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
 
 type CoauthorsSectionParams = {
+    id: string,
     authors: Array<DblpAuthor>,
     publications?: Array<DblpPublication>,
     title?: React.ReactNode,
@@ -19,7 +20,7 @@ type CoauthorsSectionParams = {
 }
 
 /** Page section that displays the coauthors graph and table. */
-export default function CoauthorsSection({ authors, publications, tableCoauthorsExplanation, tablePublicationsExplanation, title }: CoauthorsSectionParams) {
+export default function CoauthorsSection({ id, authors, publications, tableCoauthorsExplanation, tablePublicationsExplanation, title }: CoauthorsSectionParams) {
     return (
         <PageSection>
             <PageSectionTitle
@@ -34,6 +35,7 @@ export default function CoauthorsSection({ authors, publications, tableCoauthors
             <PageSubsectionTitle>Coauthorship Graph</PageSubsectionTitle>
 
             <CoauthorsGraphShell
+                id={id}
                 authors={authors}
                 publications={publications} />
 

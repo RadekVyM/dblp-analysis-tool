@@ -1,6 +1,11 @@
 import { VenueType } from '@/enums/VenueType'
 import { BOOKS_DBLP_KEY, CONF_DBLP_KEY, JOURNALS_DBLP_KEY, REFERENCE_DBLP_KEY, SERIES_DBLP_KEY } from './search'
 
+// This tool works with normalized author and venue IDs, also referred to as local IDs.
+// These have slashes replaced by two underscores.
+export const ID_LOCAL_SEPARATOR = '__'; // Single '-' cannot be used, PIDs can contain '-'
+export const ID_DBLP_SEPARATOR = '/';
+
 export const DBLP_URL = 'https://dblp.org';
 export const DBLP_SEARCH_AUTHOR_API = '/search/author/api';
 export const DBLP_SEARCH_VENUE_API = '/search/venue/api';

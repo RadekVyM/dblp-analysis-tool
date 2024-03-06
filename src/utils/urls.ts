@@ -3,16 +3,11 @@ import { normalizeQuery } from '@/utils/searchQuery'
 import { SearchParams } from '@/dtos/search/SearchParams'
 import { BOOKS_DBLP_KEY, CONF_DBLP_KEY, JOURNALS_DBLP_KEY, REFERENCE_DBLP_KEY, SERIES_DBLP_KEY } from '@/constants/search'
 import { VenueType } from '@/enums/VenueType'
-import { SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'
+import { ID_DBLP_SEPARATOR, ID_LOCAL_SEPARATOR, SEARCH_AUTHOR, SEARCH_VENUE, VENUE_PATH_SEGMENTS } from '@/constants/urls'
 import { isNullOrWhiteSpace } from './strings'
 
 const venueIdContainingUrlSegments = [JOURNALS_DBLP_KEY, CONF_DBLP_KEY, SERIES_DBLP_KEY, BOOKS_DBLP_KEY, REFERENCE_DBLP_KEY];
 const idContainingUrlSegments = ['pid', ...venueIdContainingUrlSegments];
-
-// This tool works with normalized author and venue IDs, also referred to as local IDs.
-// These have slashes replaced by two underscores.
-const ID_LOCAL_SEPARATOR = '__'; // Single '-' cannot be used, PIDs can contain '-'
-const ID_DBLP_SEPARATOR = '/';
 
 /**
  * Returns whether the URL contains an ID of an author or venue.

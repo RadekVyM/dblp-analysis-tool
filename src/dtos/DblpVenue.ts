@@ -5,6 +5,7 @@ import { convertToExternalLinks } from '@/utils/links'
 import { DblpVenueVolumeItemGroup } from './DblpVenueVolumeItemGroup'
 import { DblpVenueAuthorsInfo } from './DblpVenueInfo'
 import { DblpVenuePublicationsInfo } from './DblpVenuePublicationsInfo'
+import { ID_LOCAL_SEPARATOR } from '@/constants/urls'
 
 /** Venue stored in dblp. */
 export type DblpVenue = {
@@ -33,4 +34,17 @@ export function createDblpVenue(
         venueAuthorsInfo,
         venuePublicationsInfo
     };
+}
+
+/**
+ * Returns simplified title of a venue from its ID.
+ * @param venueId ID of a venue
+ * @returns ID of a venue in upper case
+ */
+export function getVenueTitleFromId(venueId: string) {
+    return venueId
+        .toLocaleUpperCase()
+        .split(ID_LOCAL_SEPARATOR)
+        .slice(1)
+        .join(' ');
 }

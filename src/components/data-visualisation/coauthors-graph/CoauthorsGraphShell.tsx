@@ -14,11 +14,12 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import Button from '@/components/Button'
 import useFullscreen from '@/hooks/useFullscreen'
 import GraphStats from './GrapStats'
-import { MdFullscreen, MdFullscreenExit, MdInfo } from 'react-icons/md'
+import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 import CoauthorsGraphInfoButton from './CoauthorsGraphInfoButton'
 import filterPublications from '@/services/publications/filters'
 
 type CoauthorsGraphShellParams = {
+    id: string,
     authors: Array<DblpAuthor>,
     publications?: Array<DblpPublication>,
     className?: string
@@ -32,7 +33,7 @@ const GRAPH_IS_HUGE_SINCE_NODES_COUNT = 2500;
 const GRAPH_IS_HUGE_SINCE_LINKS_COUNT = 5000;
 
 /** Shell for the entire coauthors graph and its menus. */
-export default function CoauthorsGraphShell({ authors, publications, className }: CoauthorsGraphShellParams) {
+export default function CoauthorsGraphShell({ id, authors, publications, className }: CoauthorsGraphShellParams) {
     const rootRef = useRef<HTMLDivElement>(null);
     // Additional authors are authors whose all coauthors are included in the graph
     const { additionalAuthors, addAdditionalAuthor, removeAdditionalAuthor, allAuthors } = useAuthors(authors, publications);
@@ -113,6 +114,7 @@ export default function CoauthorsGraphShell({ authors, publications, className }
                 <div
                     className='@container flex flex-1 gap-x-2'>
                     <GraphOptionsSelection
+                        id={id}
                         nodes={graph.nodes}
                         links={graph.links}
                         options={graph}

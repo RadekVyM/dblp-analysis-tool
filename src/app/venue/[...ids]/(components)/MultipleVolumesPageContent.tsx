@@ -30,7 +30,13 @@ type GeneralStasSectionParams = {
  * This includes volumes selection and all the volumes statistics.
 */
 export default function MultipleVolumesPageContent({ venue, venueVolumeType, venueId, volumeId, defaultSelectedVolumeIds }: MultipleVolumesPageContentParams) {
-    const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue, defaultSelectedVolumeIds);
+    const {
+        selectedVolumes,
+        selectedVolumeIds,
+        toggleVolume,
+        toggleVolumes,
+        onFetchedVolume
+    } = useSelectableFetchableVenueVolumes(venue.volumeGroups, defaultSelectedVolumeIds);
     const exportedObject = useMemo(() => ({
         venue: venue,
         selectedVolumes: selectedVolumes
@@ -43,6 +49,7 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
 
             <VolumesSelection
                 toggleVolume={toggleVolume}
+                toggleVolumes={toggleVolumes}
                 selectedVolumeIds={selectedVolumeIds}
                 groups={venue.volumeGroups}
                 onFetchedVolume={onFetchedVolume} />
@@ -50,6 +57,7 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
             {
                 selectedVolumes.length > 0 &&
                 <VolumesStats
+                    id='venue'
                     venueVolumeType={venueVolumeType}
                     volumes={selectedVolumes}
                     venueId={venueId}

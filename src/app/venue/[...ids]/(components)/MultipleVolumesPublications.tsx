@@ -26,12 +26,19 @@ export default function MultipleVolumesPublications({
     defaultSelectedVolumeIds,
     defaultSelectedAuthors
 }: MultipleVolumesPublicationsParams) {
-    const { selectedVolumes, selectedVolumeIds, toggleVolume, onFetchedVolume } = useSelectableFetchableVenueVolumes(venue, defaultSelectedVolumeIds);
+    const {
+        selectedVolumes,
+        selectedVolumeIds,
+        toggleVolume,
+        toggleVolumes,
+        onFetchedVolume
+    } = useSelectableFetchableVenueVolumes(venue.volumeGroups, defaultSelectedVolumeIds);
 
     return (
         <>
             <VolumesSelection
                 toggleVolume={toggleVolume}
+                toggleVolumes={toggleVolumes}
                 selectedVolumeIds={selectedVolumeIds}
                 groups={venue.volumeGroups}
                 onFetchedVolume={onFetchedVolume} />

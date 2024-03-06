@@ -3,7 +3,7 @@ import PageTitle from '@/components/shell/PageTitle'
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { VenueType } from '@/enums/VenueType'
-import { DblpVenue } from '@/dtos/DblpVenue'
+import { DblpVenue, getVenueTitleFromId } from '@/dtos/DblpVenue'
 import LinksList from '@/components/LinksList'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import AddToVisitedVenues from './AddToVisitedVenues'
@@ -12,6 +12,7 @@ import MultipleVolumesPageContent from './MultipleVolumesPageContent'
 import VenueVolumePageContent from './VenueVolumePageContent'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
+import { ID_LOCAL_SEPARATOR } from '@/constants/urls'
 
 type VenuePageParams = {
     venueOrVolume: DblpVenueBase,
@@ -23,6 +24,13 @@ type VenuePageParams = {
 
 /** Page displaying content of a venue. */
 export default async function VenuePage({ venueOrVolume, venueType, venueId, volumeId, defaultSelectedVolumeIds }: VenuePageParams) {
+    const displaySubtitle = venueOrVolume.venueVolumeType === 'Volume' &&
+        volumeId &&
+        (venueOrVolume as DblpVenueVolume).type !== VenueType.Book;
+    const subtitle = displaySubtitle ?
+        ((venueOrVolume as DblpVenueVolume).venueTitle || getVenueTitleFromId((venueOrVolume as DblpVenueVolume).venueId)) :
+        undefined;
+
     return (
         <PageContainer>
             {
@@ -38,7 +46,7 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
                 <PageTitle
                     title={venueOrVolume.title}
                     annotation={venueOrVolume.type ? VENUE_TYPE_TITLE[venueOrVolume.type] : undefined}
-                    subtitle={venueOrVolume.venueVolumeType === 'Volume' ? (venueOrVolume as DblpVenueVolume).venueTitle : undefined}
+                    subtitle={subtitle}
                     subtitleHref={createLocalPath(venueId, SearchType.Venue)}
                     className='pb-3' />
 

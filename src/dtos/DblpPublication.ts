@@ -1,5 +1,6 @@
 import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
+import { VenueType } from '@/enums/VenueType'
 import { getVenueTypeFromDblpString } from '@/utils/urls'
 
 /** Publication stored in dblp. */
@@ -22,6 +23,7 @@ export type DblpPublication = {
     readonly volumeId?: string,
     readonly publisher?: string,
     readonly groupTitle: string | null,
+    readonly groupIndex: number | null,
     readonly authors: Array<DblpPublicationPerson>,
     readonly editors: Array<DblpPublicationPerson>
 }
@@ -42,6 +44,7 @@ export function createDblpPublication(
     date: string,
     type: PublicationType,
     groupTitle: string | null,
+    groupIndex: number | null,
     month?: string,
     ee?: string,
     booktitle?: string,
@@ -76,6 +79,7 @@ export function createDblpPublication(
         volumeId,
         publisher,
         groupTitle,
+        groupIndex,
         authors: authors || [],
         editors: editors || []
     }
@@ -90,7 +94,12 @@ export function getVenueTitle(publication: DblpPublication): string {
     if (publication.venueId) {
         const venueType = getVenueTypeFromDblpString(publication.venueId);
         const venueTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
-        const title = publication.journal || publication.booktitle || publication.series || 'undefined';
+        const title = publication.journal ||
+            publication.booktitle ||
+            publication.series ||
+            (venueType === VenueType.Reference && publication.groupTitle) || // Some encyclopedias do not have a title, but are grouped by a venue
+            'undefined';
+
         return venueTitle ? `${title} (${venueTitle})` : title;
     }
 

@@ -22,6 +22,7 @@ import { exportToMatrixCsv, exportToSimpleCsv } from '@/services/graphs/export/e
 import useTextFile from '@/hooks/useTextFile'
 
 type GraphExportDialogParams = {
+    id: string,
     hide: () => void,
     animation: string,
     isOpen: boolean,
@@ -53,7 +54,7 @@ const FORMATS_MAP = new Map<GraphExportFormat, GraphExportFormatValues>([
 const DEFAULT_FORMAT = GraphExportFormat.Json;
 
 /** Dialog for exporting a coauthors graph to various formats. */
-const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ hide, animation, isOpen, nodes, links }, ref) => {
+const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ id, hide, animation, isOpen, nodes, links }, ref) => {
     const preRef = useRef<HTMLPreElement>(null);
     const [includeOnlyVisible, setIncludeOnlyVisible] = useState(true);
     const [selectedFormat, setSelectedFormat] = useState<GraphExportFormat>(DEFAULT_FORMAT);
@@ -94,7 +95,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                     hide={hide}
                     heading={'Export Graph'}>
                     <ComboBox
-                        id='graph-format-combobox'
+                        id={`${id}-graph-format-combobox`}
                         items={[...FORMATS_MAP].map(([key, format]) => ({ key: key, label: format.label })).filter((v) => v.key !== GraphExportFormat.MatrixCsv || nodes.length < 4000)}
                         selectedKey={selectedFormat}
                         onKeySelectionChange={(key) => setSelectedFormat(key as GraphExportFormat)} />

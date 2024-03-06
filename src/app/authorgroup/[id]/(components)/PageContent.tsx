@@ -81,6 +81,7 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                 selectedAuthors.length > 0 &&
                 <>
                     <PublicationsStatsSection
+                        id='author-group-publications'
                         title='Publications of Selected Members'
                         publicationsUrl={publicationsUrl}
                         publications={allPublications}
@@ -94,6 +95,7 @@ export default function PageContent({ cachedAuthors, authorGroupId }: PageConten
                             publicationsUrl={publicationsUrl} />
                     </PublicationsStatsSection>
                     <CoauthorsSection
+                        id='author-group-coauthors'
                         title='Coauthors of Selected Members'
                         authors={selectedAuthors}
                         tableCoauthorsExplanation={`Total number of coauthors that are common with any selected member and that are coauthors of the same publication as the author and selected member`}

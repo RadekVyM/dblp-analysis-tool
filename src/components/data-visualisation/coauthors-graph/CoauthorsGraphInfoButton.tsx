@@ -60,11 +60,12 @@ const CoauthorsGraphInfoDialog = forwardRef<HTMLDialogElement, CoauthorsGraphInf
                         className='mb-3'>
                         This graph consists of all coauthors (and coeditors) of a <dfn className='italic'>set of publications</dfn>. This set contains all publications by
                     </Paragraph>
-                        
+
                     <ul
                         className='list-disc marker:text-primary pl-5 mb-5'>
-                        <li>all original authors</li>
-                        <li>or all selected volumes of a venue.</li>
+                        <li>all original authors,</li>
+                        <li>all selected volumes of a venue</li>
+                        <li>or all selected tables of contents of a venue.</li>
                     </ul>
 
                     <Paragraph>
@@ -90,7 +91,7 @@ const CoauthorsGraphInfoDialog = forwardRef<HTMLDialogElement, CoauthorsGraphInf
 
 CoauthorsGraphInfoDialog.displayName = 'CoauthorsGraphInfoDialog';
 
-function Paragraph({ children, className } : { children: React.ReactNode, className?: string }) {
+function Paragraph({ children, className }: { children: React.ReactNode, className?: string }) {
     return (
         <p className={cn('mb-5', className)}>{children}</p>
     )
