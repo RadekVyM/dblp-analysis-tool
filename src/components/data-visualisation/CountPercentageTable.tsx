@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 type CountPercentageTableParams = {
     filter: (item: any, examinedValue: any) => boolean,
     toPresentedContent: (examinedValue: any) => string,
+    toHref?: (examinedValue: any) => string | undefined,
     rowKey?: (examinedValue: any) => string,
     /** Returns count of items in a group. */
     itemsCount?: (filteredItems: Array<any>) => number,
@@ -19,7 +20,20 @@ type CountPercentageTableParams = {
 }
 
 /** Table that groups items by a property and displays counts of the items in the groups. */
-export default function CountPercentageTable({ items, examinedValues, examinedValueTitle, examinedValueSortTitle, totalCount, hideFooter, itemsCount, sortExaminedValue, filter, toPresentedContent, rowKey }: CountPercentageTableParams) {
+export default function CountPercentageTable({
+    items,
+    examinedValues,
+    examinedValueTitle,
+    examinedValueSortTitle,
+    totalCount,
+    hideFooter,
+    itemsCount,
+    sortExaminedValue,
+    filter,
+    toPresentedContent,
+    toHref,
+    rowKey
+}: CountPercentageTableParams) {
     const rows = useMemo(() =>
         examinedValues.map((examinedValue, index) => {
             const filteredItems = items.filter((item) => filter(item, examinedValue));
@@ -27,12 +41,12 @@ export default function CountPercentageTable({ items, examinedValues, examinedVa
             const percentage = count / (totalCount || items.length);
 
             return [
-                { value: examinedValue, presentedContent: toPresentedContent(examinedValue) },
+                { value: examinedValue, presentedContent: toPresentedContent(examinedValue), href: toHref && toHref(examinedValue) },
                 { value: count, presentedContent: count },
                 { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
             ];
         }),
-        [examinedValues, items, totalCount, itemsCount, toPresentedContent, filter]);
+        [examinedValues, items, totalCount, itemsCount, toPresentedContent, toHref, filter]);
     const footer = [
         { value: 'Totals', presentedContent: 'Totals' },
         { value: totalCount || items.length, presentedContent: totalCount || items.length },

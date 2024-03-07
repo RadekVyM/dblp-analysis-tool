@@ -125,6 +125,7 @@ function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAutho
             itemsCount={tableItemsCount}
             totalCount={totalPublicationsCount}
             toPresentedContent={tableToPresentedContent}
+            toHref={tableToHref}
             filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
             rowKey={tableRowKey} />
@@ -133,6 +134,10 @@ function VenueTopAuthorsTable({ authors, totalPublicationsCount }: VenueTopAutho
 
 function tableToPresentedContent(author: VenueTopAuthor) {
     return author.name;
+}
+
+function tableToHref(author: VenueTopAuthor) {
+    return `${SEARCH_AUTHOR}/${author.nameId}`;
 }
 
 function tableRowKey(author: VenueTopAuthor) {

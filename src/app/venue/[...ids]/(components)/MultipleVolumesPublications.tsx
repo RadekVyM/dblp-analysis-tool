@@ -5,6 +5,12 @@ import useSelectableFetchableVenueVolumes from '@/hooks/venues/useSelectableFetc
 import VolumePublicationsSection from './VolumePublicationsSection'
 import VolumesSelection from './VolumesSelection'
 import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
+import { VenuePageContent } from '@/enums/VenuePageContent'
+import { useState } from 'react'
+import Tabs from '@/components/Tabs'
+import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
+import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
+import useVenueVolumesTitle from '@/hooks/venues/useVenueVolumesTitle'
 
 type MultipleVolumesPublicationsParams = {
     venue: DblpVenue,
@@ -33,24 +39,73 @@ export default function MultipleVolumesPublications({
         toggleVolumes,
         onFetchedVolume
     } = useSelectableFetchableVenueVolumes(venue.volumeGroups, defaultSelectedVolumeIds);
+    const [selectedPageContent, setSelectedPageContent] = useState<VenuePageContent>(venue.publications ?
+        VenuePageContent.Publications :
+        VenuePageContent.Volumes);
+    const { hasWideVolumeTitles, volumesTitle } = useVenueVolumesTitle(venue);
 
     return (
         <>
-            <VolumesSelection
-                toggleVolume={toggleVolume}
-                toggleVolumes={toggleVolumes}
-                selectedVolumeIds={selectedVolumeIds}
-                groups={venue.volumeGroups}
-                onFetchedVolume={onFetchedVolume} />
+            {
+                venue.publications &&
+                <Tabs
+                    className='mb-8'
+                    legend='Select currently displayed page content'
+                    selectedId={selectedPageContent}
+                    setSelectedId={setSelectedPageContent}
+                    tabsId='venue-page-content'
+                    items={[
+                        {
+                            id: VenuePageContent.Publications,
+                            content: 'Venue',
+                        },
+                        {
+                            id: VenuePageContent.Volumes,
+                            content: volumesTitle,
+                        }
+                    ]} />
+            }
 
             {
-                selectedVolumes.length > 0 &&
-                <VolumePublicationsSection
-                    volumes={selectedVolumes}
-                    defaultSelectedYears={defaultSelectedYears}
-                    defaultSelectedTypes={defaultSelectedTypes}
-                    defaultSelectedVenueIds={defaultSelectedVenueIds}
-                    defaultSelectedAuthors={defaultSelectedAuthors} />
+                selectedPageContent === VenuePageContent.Publications && venue.publications &&
+                <PageSection>
+                    <header
+                        className='mb-4 flex gap-3 items-center'>
+                        <PageSectionTitle className='text-xl mb-0'>Venue Publications</PageSectionTitle>
+                    </header>
+
+                    <GroupedPublicationsList
+                        publications={venue.publications}
+                        defaultSelectedYears={defaultSelectedYears}
+                        defaultSelectedTypes={defaultSelectedTypes}
+                        defaultSelectedVenueIds={defaultSelectedVenueIds}
+                        defaultSelectedAuthors={defaultSelectedAuthors} />
+                </PageSection>
+            }
+
+            {
+                selectedPageContent === VenuePageContent.Volumes &&
+                <>
+                    <VolumesSelection
+                        title={volumesTitle}
+                        toggleVolume={toggleVolume}
+                        toggleVolumes={toggleVolumes}
+                        wideItems={hasWideVolumeTitles}
+                        selectedVolumeIds={selectedVolumeIds}
+                        groups={venue.volumeGroups}
+                        onFetchedVolume={onFetchedVolume} />
+
+                    {
+                        selectedVolumes.length > 0 &&
+                        <VolumePublicationsSection
+                            title={`Publications of Selected ${volumesTitle}`}
+                            volumes={selectedVolumes}
+                            defaultSelectedYears={defaultSelectedYears}
+                            defaultSelectedTypes={defaultSelectedTypes}
+                            defaultSelectedVenueIds={defaultSelectedVenueIds}
+                            defaultSelectedAuthors={defaultSelectedAuthors} />
+                    }
+                </>
             }
         </>
     );

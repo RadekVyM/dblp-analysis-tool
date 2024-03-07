@@ -110,10 +110,13 @@ function PeopleItems({ people }: PeopleItemsParams) {
 }
 
 function PublicationInfo({ publication }: PublicationListItemParams) {
+    const isJournalArticle = publication.type == PublicationType.JournalArticles && publication.journal;
+    const isConferencePaper = publication.type == PublicationType.ConferenceAndWorkshopPapers && publication.booktitle;
+
     return (
         <p className='text-sm'>
             {
-                publication.type == PublicationType.JournalArticles && publication.journal ?
+                isJournalArticle ?
                     <>
                         {
                             publication.venueId && publication.seriesVenueId !== publication.venueId ?
@@ -126,7 +129,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                 addMissingNoun(publication.journal, 'journal')
                         }
                     </> :
-                    publication.type == PublicationType.ConferenceAndWorkshopPapers && publication.booktitle ?
+                    isConferencePaper ?
                         <>
                             {
                                 publication.venueId && publication.seriesVenueId !== publication.venueId ?
@@ -170,8 +173,11 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                     <Link
                         prefetch={false}
                         className='hover:underline'
-                        href={createLocalPath(publication.seriesVenueId, SearchType.Venue)}>
-                        {publication.type !== PublicationType.JournalArticles && publication.type !== PublicationType.ConferenceAndWorkshopPapers ?
+                        href={createLocalPath(
+                            publication.seriesVenueId,
+                            SearchType.Venue,
+                            publication.venueId === publication.seriesVenueId ? publication.volumeId : undefined)}>
+                        {!isJournalArticle && !isConferencePaper ?
                             <>Volume {publication.volume} of </> :
                             ''}{publication.series}
                     </Link>

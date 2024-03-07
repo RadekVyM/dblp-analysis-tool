@@ -3,6 +3,7 @@
 import useLazyListCount from '@/hooks/useLazyListCount'
 import { isGreater } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
+import Link from 'next/link'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { MdArrowDropDown, MdArrowDropUp, MdInfo } from 'react-icons/md'
 
@@ -49,7 +50,8 @@ export type TableColumnHeader = {
 
 export type TableData = {
     value: any,
-    presentedContent: React.ReactNode
+    presentedContent: React.ReactNode,
+    href?: string
 }
 
 const DISPLAYED_COUNT_INCREASE = 50
@@ -88,8 +90,21 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
                                 key={`row-${rowKey ? rowKey(row) : row.map(d => d.value).join('-')}`}
                                 className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
                                 {row.map((col, index) => isFirstColumnHeader && index === 0 ?
-                                    <th key={`row-value-${index}`} scope='row' className='text-start px-3 py-2 text-sm'>{col.presentedContent}</th> :
-                                    <td key={`row-value-${index}`} className='px-3 py-2 border-l border-outline'>{col.presentedContent}</td>)}
+                                    <th
+                                        key={`row-value-${index}`}
+                                        scope='row'
+                                        className='text-start px-3 py-2 text-sm'>
+                                        {col.href ?
+                                            <Link className='hover:underline' prefetch={false} href={col.href}>{col.presentedContent}</Link> :
+                                            col.presentedContent}
+                                    </th> :
+                                    <td
+                                        key={`row-value-${index}`}
+                                        className='px-3 py-2 border-l border-outline'>
+                                        {col.href ?
+                                            <Link className='hover:underline' prefetch={false} href={col.href}>{col.presentedContent}</Link> :
+                                            col.presentedContent}
+                                    </td>)}
                             </tr>
                         )
                     })}

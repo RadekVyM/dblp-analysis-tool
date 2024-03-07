@@ -5,6 +5,8 @@ import { useMemo } from 'react'
 import Table from './Table'
 import { canGetToOriginalAuthorThroughAnotherAuthor, convertToCoauthorsGraph } from '@/services/graphs/authors'
 import { DblpPublication } from '@/dtos/DblpPublication'
+import { createLocalPath } from '@/utils/urls'
+import { SearchType } from '@/enums/SearchType'
 
 type CoauthorsTableParams = {
     authors: Array<DblpAuthor>,
@@ -60,7 +62,7 @@ function useCoauthorsTableRows(authors: Array<DblpAuthor>, publications?: Array<
                     .length;
 
                 return [
-                    { value: node.person.name, presentedContent: node.person.name },
+                    { value: node.person.name, presentedContent: node.person.name, href: createLocalPath(node.person.id, SearchType.Author) },
                     { value: commonCoauthorsCount, presentedContent: commonCoauthorsCount },
                     { value: node.personOccurrenceCount, presentedContent: node.personOccurrenceCount }
                 ];

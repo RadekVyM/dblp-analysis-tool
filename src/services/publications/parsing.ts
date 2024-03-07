@@ -51,7 +51,7 @@ export function extractPublicationsFromXml(
 
         let type: PublicationType = PublicationType.InformalAndOther;
 
-        if (editors.length > 0)
+        if (editors.length > 0 || tagName === 'proceedings')
             type = PublicationType.Editorship;
         else if (tagName === 'incollection')
             type = encyclopedia ? PublicationType.ReferenceWorks : PublicationType.PartsInBooksOrCollections;

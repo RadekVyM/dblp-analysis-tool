@@ -197,6 +197,7 @@ function AuthorGroupMembersTable({ authors, totalPublicationsCount }: AuthorGrou
             itemsCount={tableItemsCount}
             totalCount={totalPublicationsCount}
             toPresentedContent={tableToPresentedContent}
+            toHref={tableToHref}
             filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
             rowKey={tableRowKey}
@@ -214,6 +215,10 @@ function tableFilter(a: AuthorStats, ea: AuthorStats) {
 
 function tableToPresentedContent(a: AuthorStats) {
     return a.name;
+}
+
+function tableToHref(a: AuthorStats) {
+    return createLocalPath(a.id, SearchType.Author);
 }
 
 function tableItemsCount(items: Array<any>) {

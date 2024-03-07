@@ -2,6 +2,7 @@
 
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { DblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup';
+import { isNullOrWhiteSpace } from '@/utils/strings';
 import { useEffect, useMemo, useState } from 'react'
 
 /**
@@ -29,7 +30,7 @@ export default function useSelectableFetchableVenueVolumes(
 
     useEffect(() => {
         if (!disableSearchParamsUpdate && typeof window !== 'undefined' && window.history.replaceState) {
-            const oldParams = window.location.search.replaceAll('?', '').split('&').filter((p) => !p.startsWith('volumeId='));
+            const oldParams = window.location.search.replaceAll('?', '').split('&').filter((p) => !p.startsWith('volumeId=') && !isNullOrWhiteSpace(p));
             const newParams = [...selectedVolumeIds].map((id) => `volumeId=${id}`);
             window.history.replaceState(window.history.state, '', `?${[...oldParams, ...newParams].join('&')}`);
         }

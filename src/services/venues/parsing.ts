@@ -18,6 +18,9 @@ import { DblpVenueVolumeItemGroup, createDblpVenueVolumeItemGroup } from '@/dtos
 import { DblpVenueTopAuthor, createDblpVenueTopAuthor } from '@/dtos/DblpVenueTopAuthor'
 import { DblpVenueYearlyPublicationsCount, craeteDblpVenueYearlyPublicationsCount } from '@/dtos/DblpVenuePublicationsInfo'
 import { DblpPublication } from '@/dtos/DblpPublication'
+import * as d3 from 'd3'
+import { PublicationType } from '@/enums/PublicationType'
+import { isGreater } from '@/utils/array'
 
 const DBLP_INDEX_ELEMENT_IDS = {
     [VenueType.Journal]: DBLP_JOURNALS_INDEX_ELEMENT_ID,
@@ -42,17 +45,32 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const key = $('bht').attr('key');
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
-    // Some venues are not divided into volumes.
-    // I differentiate venues and volumes by their content.
-    // It is a venue if it:
-    // - contains <ref> elements referencing volumes of a venue with specified ID
-    // - or does not contain <r> elements which represent publications
-    // However, I am not sure if this applies for all the venues. It may be wrong.
     if ($(elementsContainingVolumeRefsSelector(id)).length > 0 || $('r').length === 0) {
         return extractVenue($, title, venueType, id);
     }
     else {
-        return extractVenueVolume($, title, venueType, id, additionalVolumeId);
+        const venueVolume = extractVenueVolume($, title, venueType, id, additionalVolumeId);
+
+        if (additionalVolumeId) {
+            return venueVolume;
+        }
+
+        const volumeGroups = getVolumeGroups(venueVolume);
+
+        if (volumeGroups.reduce((prev, curr) => prev + curr.items.length, 0) > 0) {
+            // These are venues that contain only publications which lead to tables of contents (volumes)
+            // For example: https://dblp.org/db/conf/icarcv/index.html
+            return createDblpVenue(
+                venueVolume.id,
+                venueVolume.title,
+                volumeGroups,
+                venueVolume.type,
+                venueVolume.links.map((l) => l.url),
+                venueVolume.publications
+            );
+        }
+
+        return venueVolume;
     }
 }
 
@@ -88,9 +106,16 @@ export function extractVenueAuthorsInfo(xml: string): { topAuthors: Array<DblpVe
         ));
     });
 
+    // '0no0coauthors' needs to be subtracted
+    const parsedTotalAuthorsCount = parseInt(totalAuthorsCount) - 1;
+
+    if (parsedTotalAuthorsCount <= 0) {
+        return null;
+    }
+
     return {
         topAuthors: authors,
-        totalAuthorsCount: parseInt(totalAuthorsCount) - 1 // '0no0coauthors' needs to be subtracted
+        totalAuthorsCount: parsedTotalAuthorsCount
     };
 }
 
@@ -231,7 +256,7 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
 
         if (!groupTitle) {
             groupTitle = notIncludedVolumes.length > 1 ?
-                `${notIncludedVolumes[0].title} - ${notIncludedVolumes[notIncludedVolumes.length - 1].title}` :
+                `${notIncludedVolumes[notIncludedVolumes.length - 1].title} - ${notIncludedVolumes[0].title}` :
                 notIncludedVolumes[0].title;
         }
 
@@ -254,7 +279,7 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
     return venue;
 }
 
-/** Extracts all the venue volume items represented by <a> from a XML string using Cheerio. */
+/** Extracts all the venue volume items represented by \<a\> from a XML string using Cheerio. */
 function extractAnchorVolumeItems($: cheerio.Root, id: string, venueType: VenueType | undefined) {
     const volumes: Array<DblpVenueVolumeItem> = [];
 
@@ -279,14 +304,14 @@ function extractAnchorVolumeItems($: cheerio.Root, id: string, venueType: VenueT
         return createDblpVenueVolumeItemGroup(
             volumes,
             volumes.length > 1 ?
-                `${volumes[0].title} - ${volumes[volumes.length - 1].title}` :
+                `${volumes[volumes.length - 1].title} - ${volumes[0].title}` :
                 volumes[0].title
         );
     }
     return null;
 }
 
-/** Extracts all the venue volume items represented by <ref> from a XML string using Cheerio. */
+/** Extracts all the venue volume items represented by \<ref\> from a XML string using Cheerio. */
 function extractRefVolumeItems($: cheerio.Root, li: cheerio.Element, id: string, venueType: VenueType | undefined) {
     const volumes: Array<DblpVenueVolumeItem> = [];
 
@@ -353,13 +378,44 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
     return volume;
 }
 
-/** Returns a selector of <ref> elements. */
+/** Returns a selector of \<ref\> elements. */
 function volumeRefSelector(venueId: string) {
     return `ref[href*="${convertNormalizedIdToDblpPath(venueId)}"]`;
 }
 
-/** Returns a selector of elements that contain <ref> elements. */
+/** Returns a selector of elements that contain \<ref\> elements. */
 function elementsContainingVolumeRefsSelector(venueId: string) {
     const ref = volumeRefSelector(venueId);
     return `tr:has(${ref}), li:has(${ref})`;
+}
+
+/** Converts publications, which lead to tables of contents, to volume groups.  */
+function getVolumeGroups(venueVolume: DblpVenueVolume) {
+    const volumes = d3.rollup(
+        venueVolume.publications.filter((publ) => publ.volumeId),
+        (publs) => publs.map((publ) => ({
+            title: (publ.type !== PublicationType.JournalArticles && publ.type == PublicationType.ConferenceAndWorkshopPapers && `Volume ${publ.volume}`) ||
+                (publs.length === 1 ? (publ.groupTitle || publ.title) : publ.title),
+            venueId: publ.venueId,
+            volumeId: publ.volumeId,
+            type: venueVolume.type
+        } as DblpVenueVolumeItem)),
+        (publ) => publ.groupIndex);
+
+    if (volumes.size === 1) {
+        // There are no publication groups, or just one
+        // Each DblpVenueVolumeItem can represent its own DblpVenueVolumeItemGroup
+        return [...volumes.values()][0].map((item) => ({
+            title: item.title,
+            items: [item],
+        } as DblpVenueVolumeItemGroup));
+    }
+
+    const keys = [...volumes.keys()];
+    keys.sort((key1, key2) => isGreater(key1, key2));
+
+    return keys.map((key) => ({
+        title: venueVolume.publications.find((p) => p.groupIndex === key)?.groupTitle,
+        items: volumes.get(key),
+    } as DblpVenueVolumeItemGroup));
 }

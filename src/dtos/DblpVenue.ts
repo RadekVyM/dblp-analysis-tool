@@ -6,10 +6,12 @@ import { DblpVenueVolumeItemGroup } from './DblpVenueVolumeItemGroup'
 import { DblpVenueAuthorsInfo } from './DblpVenueInfo'
 import { DblpVenuePublicationsInfo } from './DblpVenuePublicationsInfo'
 import { ID_LOCAL_SEPARATOR } from '@/constants/urls'
+import { DblpPublication } from './DblpPublication'
 
 /** Venue stored in dblp. */
 export type DblpVenue = {
     readonly volumeGroups: Array<DblpVenueVolumeItemGroup>,
+    readonly publications?: Array<DblpPublication>,
     venueAuthorsInfo?: DblpVenueAuthorsInfo,
     venuePublicationsInfo?: DblpVenuePublicationsInfo,
 } & DblpVenueBase
@@ -21,6 +23,7 @@ export function createDblpVenue(
     volumeGroups: Array<DblpVenueVolumeItemGroup>,
     type?: VenueType,
     links?: Array<string>,
+    publications?: Array<DblpPublication>,
     venueAuthorsInfo?: DblpVenueAuthorsInfo,
     venuePublicationsInfo?: DblpVenuePublicationsInfo,
 ): DblpVenue {
@@ -31,6 +34,7 @@ export function createDblpVenue(
         volumeGroups,
         venueVolumeType: VenueVolumeType.Venue,
         links: links ? convertToExternalLinks(links) : [],
+        publications,
         venueAuthorsInfo,
         venuePublicationsInfo
     };

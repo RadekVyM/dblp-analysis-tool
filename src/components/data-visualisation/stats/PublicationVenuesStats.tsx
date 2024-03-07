@@ -174,6 +174,7 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
             examinedValues={venues}
             items={publications}
             toPresentedContent={tableToPresentedContent}
+            toHref={tableToHref}
             filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
             rowKey={venueTableRowKey} />
@@ -182,6 +183,10 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
 
 function tableToPresentedContent(venue: VenuePair) {
     return venue.title;
+}
+
+function tableToHref(venue: VenuePair) {
+    return venue.venueId ? createLocalPath(venue.venueId, SearchType.Venue) : undefined;
 }
 
 function tableFilter(p: VenuePublication, venue: VenuePair) {

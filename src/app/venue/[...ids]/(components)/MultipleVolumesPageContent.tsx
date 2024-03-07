@@ -10,8 +10,12 @@ import DividedDefinitionList, { DefinitionListItem } from '@/components/DividedD
 import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
 import VenueTopAuthorsStats from '@/components/data-visualisation/stats/VenueTopAuthorsStats'
 import { cn } from '@/utils/tailwindUtils'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import ExportVenueButton from './ExportVenueButton'
+import VenueContent from './VenueContent'
+import Tabs from '@/components/Tabs'
+import { VenuePageContent } from '@/enums/VenuePageContent'
+import useVenueVolumes from '@/hooks/venues/useVenueVolumesTitle'
 
 type MultipleVolumesPageContentParams = {
     venue: DblpVenue,
@@ -21,7 +25,7 @@ type MultipleVolumesPageContentParams = {
     defaultSelectedVolumeIds?: Array<string>,
 }
 
-type GeneralStasSectionParams = {
+type GeneralStatsSectionParams = {
     venue: DblpVenue
 }
 
@@ -41,27 +45,66 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
         venue: venue,
         selectedVolumes: selectedVolumes
     }), [venue, selectedVolumes]);
+    const [selectedPageContent, setSelectedPageContent] = useState<VenuePageContent>(venue.publications ?
+        VenuePageContent.Publications :
+        VenuePageContent.Volumes);
+    const { hasWideVolumeTitles, volumesTitle } = useVenueVolumes(venue);
 
     return (
         <>
-            <GeneralStasSection
+            <GeneralStatsSection
                 venue={venue} />
 
-            <VolumesSelection
-                toggleVolume={toggleVolume}
-                toggleVolumes={toggleVolumes}
-                selectedVolumeIds={selectedVolumeIds}
-                groups={venue.volumeGroups}
-                onFetchedVolume={onFetchedVolume} />
+            {
+                venue.publications &&
+                <Tabs
+                    className='mb-8'
+                    legend='Select currently displayed page content'
+                    selectedId={selectedPageContent}
+                    setSelectedId={setSelectedPageContent}
+                    tabsId='venue-page-content'
+                    items={[
+                        {
+                            id: VenuePageContent.Publications,
+                            content: 'Venue',
+                        },
+                        {
+                            id: VenuePageContent.Volumes,
+                            content: volumesTitle,
+                        }
+                    ]} />
+            }
 
             {
-                selectedVolumes.length > 0 &&
-                <VolumesStats
+                selectedPageContent === VenuePageContent.Publications && venue.publications &&
+                <VenueContent
                     id='venue'
-                    venueVolumeType={venueVolumeType}
-                    volumes={selectedVolumes}
-                    venueId={venueId}
-                    volumeId={volumeId} />
+                    publications={venue.publications}
+                    venueId={venueId} />
+            }
+
+            {
+                selectedPageContent === VenuePageContent.Volumes &&
+                <>
+                    <VolumesSelection
+                        title={volumesTitle}
+                        wideItems={hasWideVolumeTitles}
+                        toggleVolume={toggleVolume}
+                        toggleVolumes={toggleVolumes}
+                        selectedVolumeIds={selectedVolumeIds}
+                        groups={venue.volumeGroups}
+                        onFetchedVolume={onFetchedVolume} />
+
+                    {
+                        selectedVolumes.length > 0 &&
+                        <VolumesStats
+                            id='venue-volumes'
+                            venueVolumeType={venueVolumeType}
+                            volumes={selectedVolumes}
+                            venueId={venueId}
+                            volumeId={volumeId} />
+                    }
+                </>
             }
 
             <ExportVenueButton
@@ -72,7 +115,7 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
     )
 }
 
-function GeneralStasSection({ venue }: GeneralStasSectionParams) {
+function GeneralStatsSection({ venue }: GeneralStatsSectionParams) {
     if (!venue.venueAuthorsInfo && !venue.venuePublicationsInfo) {
         return undefined;
     }
