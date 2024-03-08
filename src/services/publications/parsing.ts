@@ -25,7 +25,9 @@ export function extractPublicationsFromXml(
         const elem = $(el);
         const key = elem.attr('key') || '';
 
-        if (key === 'dblpnote/ellipsis') {
+        if (!key || key.startsWith('dblpnote')) {
+            // https://dblp.org/rec/dblpnote/ellipsis.html
+            // https://dblp.org/rec/dblpnote/neverpublished.html
             return;
         }
 
@@ -45,24 +47,11 @@ export function extractPublicationsFromXml(
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
         const authors = getPeople($, elem.children('author'));
-        const informal = elem.attr('publtype') === 'informal';
-        const encyclopedia = elem.attr('publtype') === 'encyclopedia';
+        const isInformal = elem.attr('publtype') === 'informal';
+        const isEncyclopedia = elem.attr('publtype') === 'encyclopedia';
         const tagName = elem.prop('tagName').toLowerCase();
 
-        let type: PublicationType = PublicationType.InformalAndOther;
-
-        if (editors.length > 0 || tagName === 'proceedings')
-            type = PublicationType.Editorship;
-        else if (tagName === 'incollection')
-            type = encyclopedia ? PublicationType.ReferenceWorks : PublicationType.PartsInBooksOrCollections;
-        else if (tagName === 'article' && !informal)
-            type = PublicationType.JournalArticles;
-        else if (tagName === 'data' && !informal)
-            type = PublicationType.DataAndArtifacts;
-        else if (tagName === 'inproceedings')
-            type = PublicationType.ConferenceAndWorkshopPapers;
-        else if (tagName === 'book' || tagName.includes('thesis'))
-            type = PublicationType.BooksAndTheses;
+        const type = determinePublicationType(tagName, editors, isEncyclopedia, isInformal);
 
         // Remove volume segment from the URL path
         const urlIndexOfHash = url?.indexOf('#');
@@ -100,6 +89,26 @@ export function extractPublicationsFromXml(
     });
 
     return publications;
+}
+
+/** Determines the publication type based on the retrieved information. */
+function determinePublicationType(tagName: any, editors: DblpPublicationPerson[], isEncyclopedia: boolean, isInformal: boolean) {
+    if (editors.length > 0 || tagName === 'proceedings')
+        return PublicationType.Editorship;
+    else if (tagName === 'incollection')
+        return isEncyclopedia ?
+            PublicationType.ReferenceWorks :
+            PublicationType.PartsInBooksOrCollections;
+    else if (tagName === 'article' && !isInformal)
+        return PublicationType.JournalArticles;
+    else if (tagName === 'data' && !isInformal)
+        return PublicationType.DataAndArtifacts;
+    else if (tagName === 'inproceedings')
+        return PublicationType.ConferenceAndWorkshopPapers;
+    else if (tagName === 'book' || tagName.includes('thesis'))
+        return PublicationType.BooksAndTheses;
+
+    return PublicationType.InformalAndOther;
 }
 
 /** Gets a list of all people found in the passed elements. */

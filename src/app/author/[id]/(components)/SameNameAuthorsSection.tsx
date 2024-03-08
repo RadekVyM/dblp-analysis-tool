@@ -5,6 +5,7 @@ import ListLink from '@/components/ListLink'
 import useShowMore from '@/hooks/useShowMore'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import AliasesAffiliations from './AliasesAffiliations'
+import { useRef } from 'react'
 
 const DEFAULT_DISPLAYED_ITEMS_COUNT = 5;
 
@@ -14,14 +15,17 @@ type SameNameAuthorsSectionParams = {
 
 /** Page section displaying a list of authors with the same name. */
 export default function SameNameAuthorsSection({ homonyms }: SameNameAuthorsSectionParams) {
+    const homonymsListRef = useRef<HTMLUListElement>(null);
     const [homonymsDisplayedCount, areHomonymsExpanded, expandHomonyms, collapseHomonyms]
-        = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, homonyms.length);
+        = useShowMore(DEFAULT_DISPLAYED_ITEMS_COUNT, homonyms.length, homonymsListRef);
 
     return (
         <PageSection>
             <PageSectionTitle className='text-xl'>Authors With the Same Name</PageSectionTitle>
 
-            <ul className='flex flex-col gap-2'>
+            <ul
+                ref={homonymsListRef}
+                className='flex flex-col gap-2'>
                 {homonyms.slice(0, homonymsDisplayedCount).map((homonym) =>
                     <ListLink
                         key={homonym.url}

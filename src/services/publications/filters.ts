@@ -17,7 +17,7 @@ export default function filterPublications(
     selectedAuthors?: Map<any, any>,
 ) {
     return publications.filter((publ) => (!selectedTypes || selectedTypes.size == 0 || selectedTypes.has(publ.type)) &&
-        (!selectedVenues || selectedVenues.size == 0 || selectedVenues.has(publ.venueId)) &&
+        (!selectedVenues || selectedVenues.size == 0 || selectedVenues.has(publ.venueId) || (publ.seriesVenueId && publ.series && selectedVenues.has(publ.seriesVenueId))) &&
         (!selectedYears || selectedYears.size == 0 || selectedYears.has(publ.year)) &&
         (!selectedAuthors || selectedAuthors.size == 0 || [...publ.authors, ...publ.editors].some((a) => selectedAuthors.has(a.id))));
 }

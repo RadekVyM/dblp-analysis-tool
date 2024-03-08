@@ -1,4 +1,6 @@
-import './globals.css'
+import '@/css/colors.css'
+import '@/css/globals.css'
+import '@/css/button.css'
 import type { Metadata } from 'next'
 import { Inter, Gabarito } from 'next/font/google'
 import { UNDOCKED_SIDE_MENU_CLASSES } from '@/constants/sideMenu'

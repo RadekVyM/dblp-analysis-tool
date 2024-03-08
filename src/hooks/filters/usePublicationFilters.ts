@@ -88,6 +88,9 @@ export default function usePublicationFilters(
                                 getVenueTitle(publication);
                             map.set(publication.venueId, title);
                         }
+                        if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
+                            map.set(publication.seriesVenueId, publication.series);
+                        }
                     }
 
                     // If I do not use "if (!map.has(venueId))", I do not get stable results.
@@ -206,6 +209,9 @@ function getAllPublicationVenues(publications: Array<DblpPublication>): Map<stri
         if (!map.has(publication.venueId)) {
             map.set(publication.venueId, getVenueTitle(publication));
         }
+        if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
+            map.set(publication.seriesVenueId, publication.series);
+        }
     }
 
     return map;
@@ -236,7 +242,7 @@ function getAllPublicationAuthors(publications: Array<DblpPublication>): Map<str
 }
 
 function getPublicationsByVenue(publications: Array<DblpPublication>, selectedVenues: Map<any, any>) {
-    return selectedVenues.size === 0 ? publications : publications.filter((p) => selectedVenues.has(p.venueId));
+    return selectedVenues.size === 0 ? publications : publications.filter((p) => selectedVenues.has(p.venueId) || (p.seriesVenueId && p.series && selectedVenues.has(p.seriesVenueId)));
 }
 
 function getPublicationsByYear(publications: Array<DblpPublication>, selectedYears: Map<any, any>) {

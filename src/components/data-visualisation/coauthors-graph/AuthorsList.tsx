@@ -132,7 +132,7 @@ export default function AuthorsList(
                         </> :
                         <div
                             className='flex-1 grid place-content-center'>
-                            <span className='text-on-surface-muted text-sm'>No coauthors found</span>
+                            <span className='text-on-surface-muted text-sm'>No authors found</span>
                         </div>
                 }
             </div>

@@ -17,7 +17,7 @@ export default function MaxCountInput({ scaffoldId, maxCount, label, setMaxCount
             </label>
             <input
                 id={`${scaffoldId}-limit-input`}
-                className='pl-2 ml-3 min-w-0 w-24 h-7 border border-outline rounded-md text-sm'
+                className='pl-2 ml-3 min-w-0 w-24 h-7 border border-outline rounded-md text-sm bg-surface-container text-on-surface-container'
                 value={maxCount}
                 min={1}
                 step={1}

@@ -1,0 +1,91 @@
+:root {
+  --side-bar-width: 17rem;
+
+  --primary-light: #2ed7a7;
+  --primary-dark: #16775c;
+
+  --primary: var(--primary-dark);
+  --on-primary: #ffffff;
+  --secondary: #1f2937;
+  --on-secondary: #ffffff;
+  --secondary-dim: #000;
+  --on-secondary-dim: #ffffff;
+
+  --surface: #f3f4f5;
+  --on-surface: #000;
+  --on-surface-muted: #6b7280;
+
+  --surface-dim: #e5e7eb;
+  --on-surface-dim: #000;
+  --on-surface-dim-muted: #6b7280;
+
+  --surface-container: #ffffff;
+  --on-surface-container: #000;
+  --on-surface-container-muted: #6b7280;
+
+  --surface-dim-container: #f3f4f6;
+  --on-surface-dim-container: #000;
+  --on-surface-dim-container-muted: #6b7280;
+
+  --outline: #d1d5db;
+  --outline-variant: #e5e7eb;
+
+  --danger: #b91c1c;
+  --on-danger: #ffffff;
+
+  --danger-dim: #991b1b;
+  --on-danger-dim: #ffffff;
+
+  --backdrop: rgba(0, 0, 0, 0.1);
+
+  --books-and-theses: #ffdc63;
+  --journal-articles: #ffa3cd;
+  --conference-and-workshop-papers: #94b5e0;
+  --parts-in-books-or-collections: #fcbf79;
+  --editorship: #87c9c3;
+  --reference-works: #d3e38f;
+  --data-and-artifacts: #b58b62;
+  --informal-and-other: #b1b2b3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: var(--primary-light);
+    --on-primary: #ffffff;
+    --secondary: #f3f4f6;
+    --on-secondary: #000;
+    --secondary-dim: #d1d5db;
+    --on-secondary-dim: #000;
+
+    --surface: #000;
+    --on-surface: #f3f4f5;
+    --on-surface-muted: #9ca3af;
+
+    --surface-dim: #1f2937;
+    --on-surface-dim: #f3f4f5;
+
+    --surface-container: #111827;
+    --on-surface-container: #f3f4f5;
+
+    --surface-dim-container: #1f2937;
+    --on-surface-dim-container: #f3f4f5;
+
+    --outline: #374151;
+    --outline-variant: #1f2937;
+
+    --books-and-theses: #ffe382;
+    --journal-articles: #ffa3cd;
+    --conference-and-workshop-papers: #9cc6ff;
+    --parts-in-books-or-collections: #ffb073;
+    --editorship: #a7ebe4;
+    --reference-works: #dcf084;
+    --data-and-artifacts: #c7a583;
+    --informal-and-other: #d7d9db;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

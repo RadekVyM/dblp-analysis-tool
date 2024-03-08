@@ -98,15 +98,20 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
             <DataVisualisationContainer
                 className='overflow-hidden w-full h-full'>
                 {
-                    !isGraphHuge || shouldRenderGraph ?
-                        <CoauthorsGraph
-                            ref={graphRef}
-                            className='w-full h-full'
-                            graph={graph}
-                            onAuthorClick={setSelectedAuthorId}
-                            onHoverChange={onCoauthorHoverChange} /> :
-                        <ShouldRenderGraph
-                            onRenderItClick={() => setShouldRenderGraph(true)} />
+                    allAuthors.publications.length === 0 || graph.nodes.length === 0 ?
+                        <div
+                            className='w-full h-full grid place-content-center'>
+                            <span className='text-on-surface-muted text-sm'>No authors found</span>
+                        </div> :
+                        !isGraphHuge || shouldRenderGraph ?
+                            <CoauthorsGraph
+                                ref={graphRef}
+                                className='w-full h-full'
+                                graph={graph}
+                                onAuthorClick={setSelectedAuthorId}
+                                onHoverChange={onCoauthorHoverChange} /> :
+                            <ShouldRenderGraph
+                                onRenderItClick={() => setShouldRenderGraph(true)} />
                 }
             </DataVisualisationContainer>
             <DataVisualisationContainer

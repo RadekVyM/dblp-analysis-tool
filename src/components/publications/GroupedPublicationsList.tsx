@@ -248,7 +248,9 @@ function useDisplayedPublications(
         const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears, selectedAuthors);
         publs.sort((p1, p2) => isSmaller(p1.year, p2.year));
         const grouped = [...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])];
-        grouped.sort(([key1], [key2]) => isGreater(key1, key2));
+        grouped.sort(groupedBy === 'year' ?
+            ([key1], [key2]) => isSmaller(key1, key2) :
+            ([key1], [key2]) => isGreater(key1, key2));
 
         setGroupedPublications(grouped);
         setTotalCount(publs.length);

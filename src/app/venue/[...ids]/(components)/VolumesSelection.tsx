@@ -2,8 +2,7 @@
 
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
-import { DblpVenueVolumeItem } from '@/dtos/DblpVenueVolumeItem'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import useVenueVolume from '@/hooks/venues/useVenueVolume'
 import { DblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
 import ListButton from '@/components/ListButton'
@@ -61,9 +60,10 @@ type LoadingCheckbox = {
  * Handles fetching of the volumes from the server when they are selected.
  */
 export default function VolumesSelection({ groups, selectedVolumeIds, title, wideItems, onFetchedVolume, toggleVolume, toggleVolumes }: VolumesSelectionParams) {
+    const homonymsListRef = useRef<HTMLUListElement>(null);
     const isGrouped = groups.some((g) => g.items.length > 1);
     const defaultDisplayedItemsCount = !wideItems && !isGrouped ? DEFAULT_DISPLAYED_UNGROUPED_SHORT_ITEMS_COUNT : DEFAULT_DISPLAYED_ITEMS_COUNT;
-    const [displayedCount, expanded, expand, collapse] = useShowMore(defaultDisplayedItemsCount, groups.length);
+    const [displayedCount, expanded, expand, collapse] = useShowMore(defaultDisplayedItemsCount, groups.length, homonymsListRef);
 
     return (
         <PageSection>
@@ -72,6 +72,7 @@ export default function VolumesSelection({ groups, selectedVolumeIds, title, wid
             {
                 isGrouped ?
                     <ul
+                        ref={homonymsListRef}
                         className='flex flex-col gap-y-2'>
                         {groups.slice(0, displayedCount).map((group) =>
                             <VolumeItemGroup
@@ -84,6 +85,7 @@ export default function VolumesSelection({ groups, selectedVolumeIds, title, wid
                                 onFetchedVolume={onFetchedVolume} />)}
                     </ul> :
                     <ul
+                        ref={homonymsListRef}
                         className={cn(
                             'grid gap-x-4 gap-y-2',
                             !wideItems && 'xs:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]'

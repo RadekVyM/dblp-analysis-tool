@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply box-border grid place-content-center items-center grid-flow-col rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-default {
+    @apply bg-secondary text-on-secondary border border-secondary hover:bg-secondary-dim hover:text-on-secondary-dim;
+  }
+
+  .btn-destructive {
+    @apply bg-danger text-on-danger border border-danger hover:bg-danger-dim hover:text-on-danger-dim;
+  }
+
+  .btn-outline {
+    @apply bg-surface-container text-on-surface-container border border-outline hover:bg-surface-dim-container hover:text-on-surface-dim-container;
+  }
+
+  .btn-xs {
+    @apply min-h-[1.75rem] px-2 py-1 text-xs;
+  }
+
+  .btn-sm {
+    @apply min-h-[2rem] px-3 py-1;
+  }
+
+  .btn-md {
+    @apply min-h-[2.25rem] px-3 py-1;
+  }
+
+  .btn-lg {
+    @apply min-h-[2.75rem] px-6 py-1;
+  }
+}

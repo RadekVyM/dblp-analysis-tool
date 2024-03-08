@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @apply overflow-y-scroll;
+}
+
+body {
+  @apply text-on-surface bg-surface;
+}
+
+::selection {
+  @apply text-white bg-[var(--primary-dark)];
+}
+
+input::selection {
+  @apply text-white bg-gray-800;
+}
+
+@media (prefers-color-scheme: dark) {
+  input::selection {
+    @apply text-gray-900 bg-gray-100;
+  }
+}
+
+.dialog {
+  @apply bg-surface-container border border-outline-variant text-on-surface-container rounded-lg backdrop:backdrop-blur-md;
+}
+
+.flex-dialog[open] {
+  @apply flex flex-col;
+}
+
+@supports selector(.has-focus-visible-outline:has(:focus-visible)) {
+  .has-focus-visible-outline:has(:focus-visible) {
+    @apply outline outline-2 outline-offset-4;
+  }
+}
+
+.dropzone-file-area:has(+ .dropzone-file-input:hover) {
+  @apply bg-surface-dim-container;
+}
+
+.with-logo::before {
+  content: "";
+  background-image: url("/logo.svg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  @apply block self-stretch w-7 h-8 xs:w-8 xs:h-10;
+}
+
+@media (prefers-color-scheme: dark) {
+  .with-logo::before {
+    background-image: url("/logo_dark.svg");
+  }
+}
+
+.link-heading svg {
+  @apply translate-x-0 transition-transform;
+}
+
+.link-heading:hover svg {
+  @apply translate-x-1/4 transition-transform;
+}
+
+.thin-scrollbar {
+  scrollbar-color: var(--outline) transparent;
+  scrollbar-width: thin;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  --thumb: var(--outline-variant);
+
+  background: var(--thumb);
+  border-radius: 0.2rem;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  --thumb: var(--outline);
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}

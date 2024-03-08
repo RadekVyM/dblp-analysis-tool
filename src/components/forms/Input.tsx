@@ -1,6 +1,6 @@
 'use client'
 import { cn } from '@/utils/tailwindUtils'
-import { forwardRef } from 'react';
+import { forwardRef } from 'react'
 
 type InputParams = {
     label: React.ReactNode,
