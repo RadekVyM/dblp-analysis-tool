@@ -20,6 +20,7 @@ import CheckListButton from '../../CheckListButton'
 import exportToJson from '@/services/graphs/export/exportToJson'
 import { exportToMatrixCsv, exportToSimpleCsv } from '@/services/graphs/export/exportToCsv'
 import useTextFile from '@/hooks/useTextFile'
+import { useCopyToClipboard } from 'usehooks-ts'
 
 type GraphExportDialogParams = {
     id: string,
@@ -145,6 +146,7 @@ export default GraphExportDialog;
 
 function CopyToClipboardButton({ exportedGraph }: CopyToClipboardButtonParams) {
     const [success, setSuccess] = useState(false);
+    const [copiedValue, copyToClipboard] = useCopyToClipboard();
 
     useEffect(() => {
         setSuccess(false);
@@ -154,7 +156,7 @@ function CopyToClipboardButton({ exportedGraph }: CopyToClipboardButtonParams) {
         <Button
             variant='outline'
             onClick={async () => {
-                await navigator.clipboard.writeText(exportedGraph);
+                await copyToClipboard(exportedGraph);
                 setSuccess(true);
                 await delay(2000);
                 setSuccess(false);
