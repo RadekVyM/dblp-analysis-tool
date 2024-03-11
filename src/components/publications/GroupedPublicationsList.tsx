@@ -136,7 +136,9 @@ export default function GroupedPublicationsList({
                     id: publ.id,
                     type: publ.type,
                     venueId: publ.venueId || null,
-                    venueTitle: getVenueTitle(publ)
+                    venueTitle: getVenueTitle(publ),
+                    serieId: publ.seriesVenueId,
+                    serieTitle: publ.series
                 }))} />
 
             {additionalPublicationsStats && additionalPublicationsStats(filteredPublications)}

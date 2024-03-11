@@ -19,6 +19,15 @@ export function isNumber(str: string): boolean {
 }
 
 /**
+ * Returns a string of numbers that occur in a string.
+ * @param str Input string
+ * @returns String of numbers
+ */
+export function extractOnlyNumbers(str: string): string {
+    return str.replace(/[^0-9]/g, '');
+}
+
+/**
  * Removes accents from a string.
  * @param str Input string
  * @returns Input string without accents
@@ -28,7 +37,7 @@ export function removeAccents(str: string): string {
 }
 
 /**
- * Returns whether a string includes specified phrases. Accents and character case are ignored.
+ * Returns whether a string includes at least one of the specified phrases. Accents and character case are ignored.
  * @param str Input string
  * @param phrases Specified phrases
  * @returns Whether a string includes specified phrases
@@ -76,14 +85,14 @@ export function prettifyXml(xml: string) {
             tabsCount -= 1;
             closedPrevious = true;
         }
-        else if (line.startsWith('<') && !line.endsWith('/>')) {
+        else if (line.startsWith('<') && !(line.endsWith('/>') || line.includes('</'))) {
             if (rootFound && !closedPrevious) {
                 tabsCount += 1;
             }
             closedPrevious = false;
             rootFound = true;
         }
-        else if (line.startsWith('<') && line.endsWith('/>') && rootFound) {
+        else if (line.startsWith('<') && (line.endsWith('/>') || line.includes('</')) && rootFound) {
             if (!closedPrevious) {
                 tabsCount += 1;
             }

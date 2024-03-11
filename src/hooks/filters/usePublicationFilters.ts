@@ -83,13 +83,12 @@ export default function usePublicationFilters(
 
                     for (const publication of publicationsByAuthor) {
                         if (!map.has(publication.venueId)) {
-                            const title = publication.venueId && getVenueTypeFromDblpString(publication.venueId) === VenueType.Book ?
-                                'Book contents' :
-                                getVenueTitle(publication);
+                            const title = getRightVenueTitle(getVenueTitle(publication), publication.venueId);
                             map.set(publication.venueId, title);
                         }
                         if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
-                            map.set(publication.seriesVenueId, publication.series);
+                            const title = getRightVenueTitle(publication.series, publication.seriesVenueId);
+                            map.set(publication.seriesVenueId, title);
                         }
                     }
 
@@ -207,10 +206,10 @@ function getAllPublicationVenues(publications: Array<DblpPublication>): Map<stri
 
     for (const publication of publications) {
         if (!map.has(publication.venueId)) {
-            map.set(publication.venueId, getVenueTitle(publication));
+            map.set(publication.venueId, getRightVenueTitle(getVenueTitle(publication), publication.venueId));
         }
         if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
-            map.set(publication.seriesVenueId, publication.series);
+            map.set(publication.seriesVenueId, getRightVenueTitle(publication.series, publication.seriesVenueId));
         }
     }
 
@@ -259,6 +258,12 @@ function getPublicationsByAuthor(publications: Array<DblpPublication>, selectedA
 
 function canReturnAllSelectable(state: FilterStatesMap, key: PublicationFilterKey) {
     return Object.keys(state).every((k) => k === key || state[k].selectedItems.size === 0);
+}
+
+function getRightVenueTitle(title: string, venueId?: string) {
+    return venueId && getVenueTypeFromDblpString(venueId) === VenueType.Book ?
+        'Book contents' :
+        title;
 }
 
 function getSelectedItems(state: FilterStatesMap) {

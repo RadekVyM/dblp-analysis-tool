@@ -4,7 +4,7 @@ import { SimpleSearchResultItem } from '@/dtos/search/SimpleSearchResult'
 import * as cheerio from 'cheerio'
 import { convertDblpUrlToLocalPath, convertNormalizedIdToDblpPath, extractNormalizedIdFromDblpUrlPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
-import { isNumber } from '@/utils/strings'
+import { extractOnlyNumbers, isNumber } from '@/utils/strings'
 import { DBLP_CONF_INDEX_ELEMENT_ID, DBLP_JOURNALS_INDEX_ELEMENT_ID, DBLP_SERIES_INDEX_ELEMENT_ID } from '@/constants/html'
 import { DblpVenue, createDblpVenue } from '@/dtos/DblpVenue'
 import he from 'he'
@@ -256,7 +256,7 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
 
         if (!groupTitle) {
             groupTitle = notIncludedVolumes.length > 1 ?
-                `${notIncludedVolumes[notIncludedVolumes.length - 1].title} - ${notIncludedVolumes[0].title}` :
+                combinedVenueTitle(notIncludedVolumes[0].title, notIncludedVolumes[notIncludedVolumes.length - 1].title) :
                 notIncludedVolumes[0].title;
         }
 
@@ -277,6 +277,15 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
     );
 
     return venue;
+}
+
+function combinedVenueTitle(firstVolumeTitle: string, lastVolumeTitle: string) {
+    const firstNumber = parseInt(extractOnlyNumbers(firstVolumeTitle));
+    const lastNumber = parseInt(extractOnlyNumbers(lastVolumeTitle));
+
+    return firstNumber <= lastNumber ?
+        `${firstVolumeTitle} - ${lastVolumeTitle}` :
+        `${lastVolumeTitle} - ${firstVolumeTitle}`;
 }
 
 /** Extracts all the venue volume items represented by \<a\> from a XML string using Cheerio. */

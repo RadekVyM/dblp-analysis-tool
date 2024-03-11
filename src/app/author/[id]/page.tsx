@@ -74,6 +74,7 @@ export default async function AuthorPage({ params: { id } }: AuthorPageParams) {
                     <CoauthorsSection
                         id='author-coauthors'
                         authors={[author]}
+                        totalAuthorsCountDecrease={1}
                         tableCoauthorsExplanation={`Total number of coauthors that are common with ${author.name} and that are coauthors of the same publication as the author and ${author.name}`}
                         tablePublicationsExplanation={`Total number of unique publications that are common with ${author.name}`} />
                 </>

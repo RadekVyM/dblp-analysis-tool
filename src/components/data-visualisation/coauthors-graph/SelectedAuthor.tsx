@@ -18,6 +18,7 @@ import { MdInfo, MdLibraryBooks } from 'react-icons/md'
 import { useDebounce } from 'usehooks-ts'
 import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
 import Popover from '@/components/Popover'
+import Badge from '@/components/Badge'
 
 const COUNT_INCREASE = 60;
 
@@ -111,7 +112,12 @@ function SelectedAuthorContent({
     const { author: fetchedAuthor, error, isLoading } = useAuthor(selectedAuthor.person.id);
     // Included author is an original author or an author whose coauthors were included in the graph
     const isIncludedAuthor = useMemo(() => allIncludedAuthorIds.some((id) => id === selectedAuthor.person.id), [allIncludedAuthorIds, selectedAuthor]);
-    const { displayedCommonCoauthors, displayedUncommonCoauthors } = useDisplayedCoauthors(
+    const {
+        displayedCommonCoauthors,
+        displayedUncommonCoauthors,
+        commonCoauthorsCount,
+        uncommonCoauthorsCount
+    } = useDisplayedCoauthors(
         targerObserver,
         listRef,
         authorsMap,
@@ -174,6 +180,11 @@ function SelectedAuthorContent({
                             `${selectedAuthor.person.name}'s coauthors that are common with an original author` :
                             `${selectedAuthor.person.name}'s coauthors that are in the graph`}>
                         Common coauthors
+                        <Badge
+                            className='ml-2'
+                            title={`${commonCoauthorsCount} coauthors`}>
+                            {commonCoauthorsCount}
+                        </Badge>
                     </SectionHeading>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
@@ -196,6 +207,11 @@ function SelectedAuthorContent({
                         allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
                             <SectionHeading>
                                 Coauthors
+                                <Badge
+                                    className='ml-2'
+                                    title={`${uncommonCoauthorsCount} coauthors`}>
+                                    {uncommonCoauthorsCount}
+                                </Badge>
                             </SectionHeading> :
                             <SectionHeading
                                 popoverContainerRef={popoverContainerRef}
@@ -203,6 +219,11 @@ function SelectedAuthorContent({
                                     `${selectedAuthor.person.name}'s coauthors that are not common with any original author` :
                                     `${selectedAuthor.person.name}'s coauthors that are not in the graph`}>
                                 Uncommon coauthors
+                                <Badge
+                                    className='ml-2'
+                                    title={`${uncommonCoauthorsCount} coauthors`}>
+                                    {uncommonCoauthorsCount}
+                                </Badge>
                             </SectionHeading>
                     }
                     <ul
@@ -282,6 +303,7 @@ function SamePublicationTag({ popoverContainerRef }: SamePublicationTagParams) {
         onPointerMove
     } = usePopoverAnchorHover(popoverContainerRef);
     const isPopoverVisible = useDebounce(isPopoverHovered, 100);
+    const text = 'Author of the same publication, all authors of which are included in the graph';
 
     return (
         <>
@@ -289,7 +311,7 @@ function SamePublicationTag({ popoverContainerRef }: SamePublicationTagParams) {
                 onPointerLeave={onPointerLeave}
                 onPointerMove={onPointerMove}
                 className='inline'
-                aria-label='Coauthor of the same publication' />
+                aria-label={text} />
             {
                 isPopoverHovered &&
                 <Popover
@@ -300,7 +322,7 @@ function SamePublicationTag({ popoverContainerRef }: SamePublicationTagParams) {
                     className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
                     <div
                         className='px-2 py-1 text-xs'>
-                        Coauthor of the same publication
+                        {text}
                     </div>
                 </Popover>
             }
@@ -337,6 +359,8 @@ function useDisplayedCoauthors(
 
     return {
         displayedCommonCoauthors,
-        displayedUncommonCoauthors
+        displayedUncommonCoauthors,
+        commonCoauthorsCount: commonCoauthors.length,
+        uncommonCoauthorsCount: uncommonCoauthors.length,
     };
 }

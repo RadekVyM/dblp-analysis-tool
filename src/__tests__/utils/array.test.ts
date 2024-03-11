@@ -1,4 +1,4 @@
-import { group, repeat, anyItems } from '@/utils/array'
+import { group, repeat, anyItems, isGreater, isSmaller } from '@/utils/array'
 import { describe, expect, test } from '@jest/globals'
 
 describe('group function', () => {
@@ -97,4 +97,40 @@ describe('anyItems function', () => {
         const result = anyItems(...array);
         expect(result).toBeTruthy();
     });
+});
+
+describe('isGreater function', () => {
+    const values: Array<[[any, any], number]> = [
+        [['0', '456'], -1],
+        [['0', '0'], 0],
+        [['', ''], 0],
+        [['abc', 'abc'], 0],
+        [['abc', 'cba'], -1],
+        [['cba', 'abc'], 1],
+        [['1000', '0001'], 1],
+    ];
+
+    for (const [value, expectedValue] of values) {
+        test(`returns whether "${value[0]}" is greater than "${value[1]}" => "${expectedValue}"`, () => {
+            expect(isGreater(value[0], value[1])).toEqual(expectedValue);
+        });
+    }
+});
+
+describe('isSmaller function', () => {
+    const values: Array<[[any, any], number]> = [
+        [['0', '456'], 1],
+        [['0', '0'], 0],
+        [['', ''], 0],
+        [['abc', 'abc'], 0],
+        [['abc', 'cba'], 1],
+        [['cba', 'abc'], -1],
+        [['1000', '0001'], -1],
+    ];
+
+    for (const [value, expectedValue] of values) {
+        test(`returns whether "${value[0]}" is greater than "${value[1]}" => "${expectedValue}"`, () => {
+            expect(isSmaller(value[0], value[1])).toEqual(expectedValue);
+        });
+    }
 });

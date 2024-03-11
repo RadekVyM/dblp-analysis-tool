@@ -79,7 +79,9 @@ export default function PublicationsStatsSection({ id, publications, publication
                     id: publ.id,
                     type: publ.type,
                     venueId: publ.venueId || null,
-                    venueTitle: getVenueTitle(publ)
+                    venueTitle: getVenueTitle(publ),
+                    serieId: publ.seriesVenueId,
+                    serieTitle: publ.series
                 }))}
                 publicationsUrl={publicationsUrl} />
 

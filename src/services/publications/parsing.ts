@@ -44,6 +44,7 @@ export function extractPublicationsFromXml(
         const number = elem.find('number').first().text();
         const url = elem.find('url').first().text();
         const publisher = elem.find('publisher').first().text();
+        const version = elem.find('rel[type="versionOf"]').first().attr('label');
         const date = elem.attr('mdate');
         const editors = getPeople($, elem.children('editor'));
         const authors = getPeople($, elem.children('author'));
@@ -83,6 +84,7 @@ export function extractPublicationsFromXml(
             venueId[0] ? venueId[0] : undefined,
             venueId[1] ? venueId[1] : undefined,
             publisher,
+            version,
             authors,
             editors,
         ));

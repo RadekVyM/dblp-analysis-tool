@@ -22,6 +22,7 @@ export type DblpPublication = {
     readonly venueId?: string,
     readonly volumeId?: string,
     readonly publisher?: string,
+    readonly version?: string,
     readonly groupTitle: string | null,
     readonly groupIndex: number | null,
     readonly authors: Array<DblpPublicationPerson>,
@@ -57,6 +58,7 @@ export function createDblpPublication(
     venueId?: string,
     volumeId?: string,
     publisher?: string,
+    version?: string,
     authors?: Array<DblpPublicationPerson>,
     editors?: Array<DblpPublicationPerson>
 ): DblpPublication {
@@ -78,6 +80,7 @@ export function createDblpPublication(
         venueId,
         volumeId,
         publisher,
+        version,
         groupTitle,
         groupIndex,
         authors: authors || [],

@@ -115,6 +115,11 @@ export default function useCoauthorsGraph(
 
         updatedGraph.selectedCoauthorIdsStack = newStack;
         updatedGraph.selectedAuthorId = newStack.length > 0 ? newStack[newStack.length - 1] : null;
+
+        // If an author is selected, reset the search query
+        if (updatedGraph.selectedAuthorId) {
+            updatedGraph.searchQuery = '';
+        }
     }
 
     return [coauthorsGraph, publicUpdateCoauthorsGraph];

@@ -29,6 +29,8 @@ type VenuePublication = {
     type: PublicationType,
     venueId: string | null,
     venueTitle: string,
+    seriesId?: string | null,
+    seriesTitle?: string | null,
 }
 
 type PublicationVenuesStatsParams = {
@@ -61,6 +63,10 @@ export default function PublicationVenuesStats({ className, publications, scaffo
         for (const publication of publications) {
             if (!map.has(publication.venueId)) {
                 map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
+            }
+
+            if (publication.seriesId && publication.seriesTitle && !map.has(publication.seriesId)) {
+                map.set(publication.seriesId, { venueId: publication.seriesId, title: publication.seriesTitle });
             }
         }
 

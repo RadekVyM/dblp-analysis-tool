@@ -6,6 +6,7 @@ type BadgeParams = {
     className?: string
 }
 
+/** Badge that can be, for example, used in headings. */
 export default function Badge({ title, children, className }: BadgeParams) {
     return (
         <span

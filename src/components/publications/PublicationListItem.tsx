@@ -17,6 +17,12 @@ type PeopleItemsParams = {
     people: Array<DblpPublicationPerson>
 }
 
+type ChipParams = {
+    term: string,
+    children: React.ReactNode,
+    className?: string
+}
+
 /** Displays a publication as an item in a list of publications. */
 export default function PublicationListItem({ publication }: PublicationListItemParams) {
     return (
@@ -73,16 +79,17 @@ export default function PublicationListItem({ publication }: PublicationListItem
                             {publication.publisher}
                         </Chip>
                     }
+                    {
+                        publication.version &&
+                        <Chip
+                            term='Version'>
+                            {publication.version}
+                        </Chip>
+                    }
                 </dl>
             </article>
         </li>
     )
-}
-
-type ChipParams = {
-    term: string,
-    children: React.ReactNode,
-    className?: string
 }
 
 function Chip({ term, children, className }: ChipParams) {

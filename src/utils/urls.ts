@@ -20,7 +20,7 @@ export function dblpUrlContainsItemId(dblpUrl: string): boolean {
 }
 
 /**
- * Finds out a venue type from a string. This string is typically a URL. If the type cannot be found out, null is returned.
+ * Finds out a venue type from a string. This string is typically a URL or ID. If the type cannot be found out, null is returned.
  * @param str String containing a venue type identifier
  * @returns Venue type or null
  */
