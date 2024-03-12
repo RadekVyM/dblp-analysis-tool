@@ -1,9 +1,9 @@
 'use client'
 
-import { DataVisualisationSvg } from './DataVisualisationSvg'
+import { DataVisualisationSvg } from '../DataVisualisationSvg'
 import { useEffect, useState, useMemo } from 'react'
 import * as d3 from 'd3'
-import OutlinedText from './OutlinedText'
+import OutlinedText from '../OutlinedText'
 import { cn, prependDashedPrefix } from '@/utils/tailwindUtils'
 import removeOverlaps, { Label } from '@/utils/simulatedAnnealing'
 import { distance, intersect, overlapArea } from '@/utils/geometry'

@@ -1,9 +1,9 @@
 'use client'
 
-import { DataVisualisationSvg } from './DataVisualisationSvg'
+import { DataVisualisationSvg } from '../DataVisualisationSvg'
 import { useState, useMemo, useRef, forwardRef, CSSProperties } from 'react'
 import * as d3 from 'd3'
-import OutlinedText from './OutlinedText'
+import OutlinedText from '../OutlinedText'
 import { cn } from '@/utils/tailwindUtils'
 import useDimensions from '@/hooks/useDimensions'
 import { ChartUnit } from '@/enums/ChartUnit'

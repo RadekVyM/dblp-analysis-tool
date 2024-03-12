@@ -4,14 +4,14 @@ import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartOrientation } from '@/enums/ChartOrientation'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { useRolledChartData } from '@/hooks/data-visualisation/useRolledChartData'
-import { DataVisualisationSvg } from './DataVisualisationSvg'
+import { DataVisualisationSvg } from '../DataVisualisationSvg'
 import { Dimensions, EdgeRect } from '@/dtos/Rect'
 import { PointerEvent, useCallback, useMemo, useRef, useState } from 'react'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import * as d3 from 'd3'
 import { cn } from '@/utils/tailwindUtils'
 import { clamp } from '@/utils/numbers'
-import OutlinedText from './OutlinedText'
+import OutlinedText from '../OutlinedText'
 
 export type LineChartData<T> = {
     pointTitle?: (key: any) => string,

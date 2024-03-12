@@ -22,7 +22,7 @@ type StatsScaffoldItem = {
 
 /** Shell for multiple data visualisation components that can be displayed based on the selected tab. */
 export default function StatsScaffold({ className, items, scaffoldId, sideTabsLegend, onKeySelected, selectedKey }: StatsScaffoldParams) {
-    const selectedItem = items.find((item) => item.key == selectedKey)
+    const selectedItem = items.find((item) => item.key == selectedKey);
     const secondaryContent = selectedItem?.secondaryContent;
 
     return (

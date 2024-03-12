@@ -1,6 +1,6 @@
 'use client'
 
-import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
+import BarChart, { BarChartData } from '@/components/data-visualisation/charts/BarChart'
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { ChartUnit } from '@/enums/ChartUnit'
@@ -10,7 +10,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { useState, useMemo, useEffect } from 'react'
 import { MdBarChart, MdSsidChart, MdTableChart } from 'react-icons/md'
 import * as d3 from 'd3'
-import LineChart, { LineChartData } from '@/components/data-visualisation/LineChart'
+import LineChart, { LineChartData } from '@/components/data-visualisation/charts/LineChart'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
@@ -155,6 +155,9 @@ function PublicationsOverTimeBarChart({ publications, selectedUnit, isSimplified
                             publicationTypes={rolled} />
                     )
                 },
+                totalItemsCount: isSimplified ?
+                    publications.reduce((acc, item) => acc + (item as SimplifiedOverTimePublication).count, 0) :
+                    undefined,
                 fillMissingNumberKeys: true,
                 items: publications
             } as BarChartData<OverTimePublication | SimplifiedOverTimePublication>} />

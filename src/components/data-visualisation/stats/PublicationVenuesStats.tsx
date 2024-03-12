@@ -1,6 +1,6 @@
 'use client'
 
-import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
+import BarChart, { BarChartData } from '@/components/data-visualisation/charts/BarChart'
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { ChartUnit } from '@/enums/ChartUnit'

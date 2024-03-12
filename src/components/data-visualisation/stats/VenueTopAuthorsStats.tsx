@@ -1,11 +1,10 @@
 'use client'
 
-import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
+import BarChart, { BarChartData } from '@/components/data-visualisation/charts/BarChart'
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
-import { TableData } from '@/components/data-visualisation/Table'
 import { ChartUnit } from '@/enums/ChartUnit'
-import { isGreater, isSmaller } from '@/utils/array'
+import { isSmaller } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import { useState } from 'react'
 import { MdBarChart, MdTableChart } from 'react-icons/md'

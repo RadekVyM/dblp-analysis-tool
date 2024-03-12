@@ -145,7 +145,7 @@ function GeneralStatsSection({ venue }: GeneralStatsSectionParams) {
                     <PublicationsOverTimeStats
                         isSimplified
                         publications={venue.venuePublicationsInfo.yearlyPublications}
-                        scaffoldId='general-venue-publications-stats'
+                        scaffoldId='general-venue-records-by-year-stats'
                         className={cn(venue.venueAuthorsInfo ? 'mb-10' : '')} />
                 </>
             }
@@ -157,7 +157,7 @@ function GeneralStatsSection({ venue }: GeneralStatsSectionParams) {
                     <VenueTopAuthorsStats
                         authors={venue.venueAuthorsInfo.topAuthors}
                         totalPublicationsCount={venue.venuePublicationsInfo?.totalPublicationsCount || undefined}
-                        scaffoldId='general-venue-publications-stats' />
+                        scaffoldId='general-venue-top-authors-stats' />
                 </>
             }
         </PageSection>

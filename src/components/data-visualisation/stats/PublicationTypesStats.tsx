@@ -1,8 +1,8 @@
 'use client'
 
-import BarChart, { BarChartData } from '@/components/data-visualisation/BarChart'
+import BarChart, { BarChartData } from '@/components/data-visualisation/charts/BarChart'
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
-import PieChart, { PieChartData } from '@/components/data-visualisation/PieChart'
+import PieChart, { PieChartData } from '@/components/data-visualisation/charts/PieChart'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
 import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { ChartUnit } from '@/enums/ChartUnit'
