@@ -8,7 +8,8 @@ export type PublicationPersonNodeDatum = {
     normalizedPersonName: string,
     /** How many times the person occured in the original data */
     personOccurrenceCount: number,
-    coauthorIds: Set<string>,
+    /** ID is the key, number of common publications is the value */
+    coauthorIds: Map<string, number>,
     isOriginalAuthorNode: boolean,
 } & PublicationPersonNodeDatumExtension & NodeDatumCanvasExtension & NodeDatum
 

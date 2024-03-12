@@ -37,6 +37,18 @@ export function removeAccents(str: string): string {
 }
 
 /**
+ * Splits a search query string into individual lower case terms without accents.
+ * @param searchQuery Search query string
+ * @returns Array of individual lower case terms without accents
+ */
+export function splitSearchQuery(searchQuery: string) {
+    return removeAccents(searchQuery.trim())
+        .split(' ')
+        .filter((s) => s)
+        .map((s) => s.toLowerCase());
+}
+
+/**
  * Returns whether a string includes at least one of the specified phrases. Accents and character case are ignored.
  * @param str Input string
  * @param phrases Specified phrases

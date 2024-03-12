@@ -69,7 +69,7 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
                 <thead
                     className='sticky top-0'>
                     <tr
-                        className='border-b border-outline bg-surface-container'>
+                        className='border-b border-outline bg-surface-container text-sm'>
                         {columnHeaders.map((header) =>
                             <TableColumnHeader
                                 key={header.column}
@@ -88,7 +88,7 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
                         return (
                             <tr
                                 key={`row-${rowKey ? rowKey(row) : row.map(d => d.value).join('-')}`}
-                                className={index % 2 === 0 ? ' bg-surface-dim-container' : ''}>
+                                className={cn('min-h-0', index % 2 === 0 ? ' bg-surface-dim-container' : '')}>
                                 {row.map((col, index) => isFirstColumnHeader && index === 0 ?
                                     <th
                                         key={`row-value-${index}`}

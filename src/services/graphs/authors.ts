@@ -58,6 +58,17 @@ export function getUniqueCoauthors(
 }
 
 /**
+ * Returns whether a person node matches a search phrases.
+ * @param node Person node
+ * @param searchPhrases Array of search phrases
+ * @returns true if the person node matches the search phrases, false otherwise
+ */
+export function personNodeMatchesSearchPhrases(node: PublicationPersonNodeDatum, searchPhrases: Array<string>) {
+    return searchPhrases.length === 0 ||
+        searchPhrases.every((p) => node.normalizedPersonName.includes(p));
+}
+
+/**
  * Creates a graph from a list of publications.
  * 
  * Nodes represent all authors of the publications.
@@ -138,7 +149,7 @@ function saveNode(a: DblpPublicationPerson, primaryColoredAuthorIds: string[], a
             normalizedPersonName: removeAccents(a.name).toLowerCase(),
             personOccurrenceCount: 1,
             colorCssProperty: primaryColoredAuthorIds.includes(a.id) ? '--primary' : undefined,
-            coauthorIds: new Set(),
+            coauthorIds: new Map(),
         });
     }
 }
@@ -178,8 +189,8 @@ function setChildren(
     links.forEach((e) => {
         const source = authorsMap.get(e.source as string);
         const target = authorsMap.get(e.target as string);
-        source?.coauthorIds.add(e.target as string);
-        target?.coauthorIds.add(e.source as string);
+        source?.coauthorIds.set(e.target as string, e.weight);
+        target?.coauthorIds.set(e.source as string, e.weight);
 
         const min = Math.min(source?.coauthorIds?.size || 0, target?.coauthorIds?.size || 0);
         const max = Math.max(source?.coauthorIds?.size || 0, target?.coauthorIds?.size || 0);

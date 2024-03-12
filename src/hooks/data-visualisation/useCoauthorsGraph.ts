@@ -3,10 +3,10 @@
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import { CoauthorsGraphState, CoauthorsGraphOptions } from '@/dtos/data-visualisation/graphs/CoauthorsGraph'
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
-import { convertToCoauthorsGraph } from '@/services/graphs/authors'
+import { convertToCoauthorsGraph, personNodeMatchesSearchPhrases } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { removeAccents } from '@/utils/strings'
+import { removeAccents, splitSearchQuery } from '@/utils/strings'
 
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,
@@ -163,14 +163,10 @@ function updateLinksAndNodesVisualState(graph: CoauthorsGraphState, allAuthors: 
 }
 
 function updateNodesVisualState(graph: CoauthorsGraphState, allAuthors: AllAuthors) {
-    const searchQuery = removeAccents(graph.searchQuery.trim())
-        .split(' ')
-        .filter((s) => s)
-        .map((s) => s.toLowerCase());
+    const searchPhrases = splitSearchQuery(graph.searchQuery);
 
     for (const node of graph.nodes) {
-        const matchesSearchQuery = searchQuery.length === 0 ||
-            searchQuery.some((s) => node.normalizedPersonName.includes(s));
+        const matchesSearchQuery = personNodeMatchesSearchPhrases(node, searchPhrases);
         const isDim = !isNodeHighlighted(node, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isSelected = isNodeHoveredOrSelected(node.person, graph.hoveredAuthorId, graph.selectedAuthorId);
         const isOriginalAuthorNode = allAuthors.ids.some((id) => node.person.id === id);

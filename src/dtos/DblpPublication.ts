@@ -96,14 +96,20 @@ export function createDblpPublication(
 export function getVenueTitle(publication: DblpPublication): string {
     if (publication.venueId) {
         const venueType = getVenueTypeFromDblpString(publication.venueId);
-        const venueTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
+
+        // Books do not have a venue that is searchable
+        if (venueType === VenueType.Book) {
+            return 'Books';
+        }
+
+        const venueTypeTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
         const title = publication.journal ||
             publication.booktitle ||
             publication.series ||
             (venueType === VenueType.Reference && publication.groupTitle) || // Some encyclopedias do not have a title, but are grouped by a venue
             'undefined';
 
-        return venueTitle ? `${title} (${venueTitle})` : title;
+        return venueTypeTitle ? `${title} (${venueTypeTitle})` : title;
     }
 
     return 'Unlisted Publications';

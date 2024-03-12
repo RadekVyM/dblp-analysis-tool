@@ -83,12 +83,10 @@ export default function usePublicationFilters(
 
                     for (const publication of publicationsByAuthor) {
                         if (!map.has(publication.venueId)) {
-                            const title = getRightVenueTitle(getVenueTitle(publication), publication.venueId);
-                            map.set(publication.venueId, title);
+                            map.set(publication.venueId, getVenueTitle(publication));
                         }
                         if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
-                            const title = getRightVenueTitle(publication.series, publication.seriesVenueId);
-                            map.set(publication.seriesVenueId, title);
+                            map.set(publication.seriesVenueId, publication.series);
                         }
                     }
 
@@ -206,10 +204,10 @@ function getAllPublicationVenues(publications: Array<DblpPublication>): Map<stri
 
     for (const publication of publications) {
         if (!map.has(publication.venueId)) {
-            map.set(publication.venueId, getRightVenueTitle(getVenueTitle(publication), publication.venueId));
+            map.set(publication.venueId, getVenueTitle(publication));
         }
         if (publication.seriesVenueId && publication.series && !map.has(publication.seriesVenueId)) {
-            map.set(publication.seriesVenueId, getRightVenueTitle(publication.series, publication.seriesVenueId));
+            map.set(publication.seriesVenueId, publication.series);
         }
     }
 
@@ -258,12 +256,6 @@ function getPublicationsByAuthor(publications: Array<DblpPublication>, selectedA
 
 function canReturnAllSelectable(state: FilterStatesMap, key: PublicationFilterKey) {
     return Object.keys(state).every((k) => k === key || state[k].selectedItems.size === 0);
-}
-
-function getRightVenueTitle(title: string, venueId?: string) {
-    return venueId && getVenueTypeFromDblpString(venueId) === VenueType.Book ?
-        'Book contents' :
-        title;
 }
 
 function getSelectedItems(state: FilterStatesMap) {

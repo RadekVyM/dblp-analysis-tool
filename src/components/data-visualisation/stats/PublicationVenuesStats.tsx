@@ -143,8 +143,8 @@ function PublicationVenuesBarChart({ publications, selectedUnit, maxBarsCount, o
             onBarClick={onBarClick}
             data={{
                 examinedProperty: (item) => item.venueId,
-                barTitle: (key, value) => key && getVenueTypeFromDblpString(key) === VenueType.Book ? 'Books' : value?.items[0]?.venueTitle || key,
-                barLink: (key, value) => !key || getVenueTypeFromDblpString(key) === VenueType.Book ? undefined : createLocalPath(key, SearchType.Venue),
+                barTitle: (key, value) => value?.items[0]?.venueTitle || key,
+                barLink: (key, value) => key ? createVenueLinkFromId(key) : undefined,
                 color: (key, value) => {
                     const type = key ? getVenueTypeFromDblpString(key) : null;
 
@@ -192,7 +192,7 @@ function tableToPresentedContent(venue: VenuePair) {
 }
 
 function tableToHref(venue: VenuePair) {
-    return venue.venueId ? createLocalPath(venue.venueId, SearchType.Venue) : undefined;
+    return venue.venueId ? createVenueLinkFromId(venue.venueId) : undefined;
 }
 
 function tableFilter(p: VenuePublication, venue: VenuePair) {
@@ -201,6 +201,10 @@ function tableFilter(p: VenuePublication, venue: VenuePair) {
 
 function venueTableRowKey(venue: VenuePair) {
     return venue.venueId || 'undefined';
+}
+
+function createVenueLinkFromId(id: string) {
+    return getVenueTypeFromDblpString(id) === VenueType.Book ? undefined : createLocalPath(id, SearchType.Venue);
 }
 
 function createFilteredPublicationsUrlByVenueId(publicationsUrl: string, venueId: string | undefined) {

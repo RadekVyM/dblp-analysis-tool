@@ -1,5 +1,3 @@
-'use client'
-
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import DataVisualisationContainer from '@/components/data-visualisation/DataVisualisationContainer'
 import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
@@ -43,12 +41,9 @@ export default function CoauthorsSection({ id, authors, publications, tableCoaut
 
             <PageSubsectionTitle className='mt-10'>General Statistics</PageSubsectionTitle>
 
-            <DataVisualisationContainer
-                className='overflow-clip'>
-                <CoauthorsTable
-                    authors={authors}
-                    publications={publications} />
-            </DataVisualisationContainer>
+            <CoauthorsTable
+                authors={authors}
+                publications={publications} />
 
             <dl
                 className='text-xs mt-4'>

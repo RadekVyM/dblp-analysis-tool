@@ -40,7 +40,7 @@ export default function SearchBox({ className, searchQuery, placeholder, onSearc
                     className='w-4 h-4' />
             </div>
             {
-                !isNullOrWhiteSpace(searchQuery) &&
+                !isNullOrWhiteSpace(localSearchQuery) &&
                 <button
                     type='button'
                     className='absolute top-0 right-0 grid place-items-center w-8 h-full rounded-lg'

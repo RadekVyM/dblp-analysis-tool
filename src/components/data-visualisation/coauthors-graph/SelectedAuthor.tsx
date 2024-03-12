@@ -44,6 +44,14 @@ type SectionHeadingParams = {
     popoverContainerRef?: React.RefObject<HTMLDivElement>,
 }
 
+type CommonPublicationsCountParams = {
+    popoverContainerRef?: React.RefObject<HTMLDivElement>,
+    selectedAuthor: PublicationPersonNodeDatum,
+    coauthorId: string,
+    isIncludedAuthor: boolean,
+    allIncludedAuthorIds: Array<string>
+}
+
 type SamePublicationTagParams = {
     popoverContainerRef?: React.RefObject<HTMLDivElement>
 }
@@ -182,7 +190,7 @@ function SelectedAuthorContent({
                         Common coauthors
                         <Badge
                             className='ml-2'
-                            title={`${commonCoauthorsCount} coauthors`}>
+                            title={`${commonCoauthorsCount} common coauthors`}>
                             {commonCoauthorsCount}
                         </Badge>
                     </SectionHeading>
@@ -196,7 +204,12 @@ function SelectedAuthorContent({
                                 person={a.person}
                                 onHoverChange={onCoauthorHoverChange}
                                 after={selectedAuthor.coauthorIds.has(a.person.id) &&
-                                    <span> <SamePublicationTag popoverContainerRef={popoverContainerRef} /></span>} />)}
+                                    <span> <CommonPublicationsCount
+                                        allIncludedAuthorIds={allIncludedAuthorIds}
+                                        isIncludedAuthor={isIncludedAuthor}
+                                        selectedAuthor={selectedAuthor}
+                                        coauthorId={a.person.id} />
+                                    </span>} />)}
                     </ul>
                 </section>
             }
@@ -221,7 +234,7 @@ function SelectedAuthorContent({
                                 Uncommon coauthors
                                 <Badge
                                     className='ml-2'
-                                    title={`${uncommonCoauthorsCount} coauthors`}>
+                                    title={`${uncommonCoauthorsCount} uncommon coauthors`}>
                                     {uncommonCoauthorsCount}
                                 </Badge>
                             </SectionHeading>
@@ -294,39 +307,18 @@ function SectionHeading({ children, info, popoverContainerRef }: SectionHeadingP
     )
 }
 
-function SamePublicationTag({ popoverContainerRef }: SamePublicationTagParams) {
-    const {
-        isHovered: isPopoverHovered,
-        position,
-        popoverRef,
-        onPointerLeave,
-        onPointerMove
-    } = usePopoverAnchorHover(popoverContainerRef);
-    const isPopoverVisible = useDebounce(isPopoverHovered, 100);
-    const text = 'Author of the same publication, all authors of which are included in the graph';
+function CommonPublicationsCount({ selectedAuthor, coauthorId, isIncludedAuthor, allIncludedAuthorIds, popoverContainerRef }: CommonPublicationsCountParams) {
+    const count = selectedAuthor.coauthorIds.get(coauthorId);
+    const shouldNotIncludeLongText = isIncludedAuthor || allIncludedAuthorIds.some((id) => id === coauthorId);
 
     return (
-        <>
-            <MdLibraryBooks
-                onPointerLeave={onPointerLeave}
-                onPointerMove={onPointerMove}
-                className='inline'
-                aria-label={text} />
-            {
-                isPopoverHovered &&
-                <Popover
-                    ref={popoverRef}
-                    containerRef={popoverContainerRef}
-                    left={position[0]}
-                    top={position[1]}
-                    className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
-                    <div
-                        className='px-2 py-1 text-xs'>
-                        {text}
-                    </div>
-                </Popover>
-            }
-        </>
+        <Badge
+            className='inline-block mb-[0.2rem] ml-1 align-middle'
+            popoverContainerRef={popoverContainerRef}
+            title={`${count} common publications${shouldNotIncludeLongText ? '' : ', all authors of which are included in the graph'}`}
+            isMicro>
+            {count}
+        </Badge>
     )
 }
 
