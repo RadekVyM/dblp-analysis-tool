@@ -1,10 +1,10 @@
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
-import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
+import { VENUE_TYPE_TITLE } from '@/constants/publications'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
 import { VenueType } from '@/enums/VenueType'
 import { DblpVenue, getVenueTitleFromId } from '@/dtos/DblpVenue'
-import LinksList from '@/components/LinksList'
+import ExternalLinksList from '@/components/ExternalLinksList'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import AddToVisitedVenues from './AddToVisitedVenues'
 import SaveVenueButton from './SaveVenueButton'
@@ -49,7 +49,7 @@ export default async function VenuePage({ venueOrVolume, venueType, venueId, vol
                     subtitleHref={createLocalPath(venueId, SearchType.Venue)}
                     className='pb-3' />
 
-                <LinksList
+                <ExternalLinksList
                     className={'mt-4 mb-7'}
                     links={venueOrVolume.links} />
 

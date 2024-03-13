@@ -1,6 +1,6 @@
 import { DblpPublication, DblpPublicationPerson } from '@/dtos/DblpPublication'
 import Link from 'next/link'
-import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/client/publications'
+import { PUBLICATION_TYPE_TEXT_COLOR, PUBLICATION_TYPE_TITLE_SINGULAR } from '@/constants/publications'
 import { cn } from '@/utils/tailwindUtils'
 import { MdLibraryBooks } from 'react-icons/md'
 import LinkArrow from '@/components/LinkArrow'

@@ -20,6 +20,7 @@ type SearchResultLinkParams = {
     item: SimpleSearchResultItem
 }
 
+/** Displays a result of a search. */
 export default function SearchResultList({ result, searchParams, paginationUrl }: SearchResultListParams) {
     return (
         <>

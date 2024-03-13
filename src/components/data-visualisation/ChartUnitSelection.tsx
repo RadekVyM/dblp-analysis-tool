@@ -1,5 +1,5 @@
 import { ChartUnit } from '@/enums/ChartUnit'
-import Tabs from '../Tabs'
+import Tabs from '@/components/Tabs'
 
 type ChartUnitSelectionParams = {
     unitsId: string,

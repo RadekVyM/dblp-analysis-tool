@@ -9,8 +9,11 @@ type AuthorGroupPageParams = {
     searchParams: { id?: Array<string> | string }
 }
 
+/** Page displaying all the information about an author group. */
 export default async function AuthorGroupPage({ params: { id }, searchParams }: AuthorGroupPageParams) {
-    const authorIds: Array<string> = searchParams.id ? (typeof searchParams.id === 'string' ? [searchParams.id] : searchParams.id) : [];
+    const authorIds: Array<string> = searchParams.id ?
+        (typeof searchParams.id === 'string' ? [searchParams.id] : searchParams.id) :
+        [];
     const cachedAuthors = await tryGetCachedRecords<DblpAuthor>(authorIds);
 
     return (

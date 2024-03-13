@@ -1,10 +1,10 @@
 'use client'
 
 import { forwardRef } from 'react'
-import { Dialog, DialogContent } from './Dialog';
-import DialogHeader from './DialogHeader';
-import DialogBody from './DialogBody';
-import Button from '../Button';
+import { Dialog, DialogContent } from './Dialog'
+import DialogHeader from './DialogHeader'
+import DialogBody from './DialogBody'
+import Button from '@/components/inputs/Button'
 
 type ConfirmDialogParams = {
     hide: () => void,
@@ -17,6 +17,7 @@ type ConfirmDialogParams = {
     onDeny?: () => void,
 }
 
+/** Dialog that lets the user to confirm or deny an action. */
 const ConfirmDialog = forwardRef<HTMLDialogElement, ConfirmDialogParams>((
     { hide, animation, isOpen, isDestructive, children, title, onConfirm, onDeny },
     ref

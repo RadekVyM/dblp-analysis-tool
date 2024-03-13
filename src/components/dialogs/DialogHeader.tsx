@@ -1,5 +1,5 @@
 import { MdClose } from 'react-icons/md'
-import Button from '../Button'
+import Button from '@/components/inputs/Button'
 
 type DialogHeaderParams = {
     hide: () => void,

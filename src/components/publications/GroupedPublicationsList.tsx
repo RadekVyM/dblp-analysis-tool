@@ -2,23 +2,22 @@
 
 import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
 import React, { RefObject, useEffect, useMemo, useRef, useState } from 'react'
-import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import { group, isGreater, isSmaller } from '@/utils/array'
 import { cn } from '@/utils/tailwindUtils'
 import useDialog from '@/hooks/useDialog'
-import FiltersDialog from '@/components/dialogs/FiltersDialog'
+import FiltersDialog from '@/components/filters/FiltersDialog'
 import ItemsStats from '@/components/ItemsStats'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
-import FiltersList from '@/components/FiltersList'
+import FiltersList from '@/components/filters/FiltersList'
 import PublicationListItem from './PublicationListItem'
-import Badge from '../Badge'
+import Badge from '@/components/Badge'
 import { DefaultSelectedPublicationsParams } from '@/dtos/DefaultSelectedPublicationsParams'
-import PublicationVenuesStats from '../data-visualisation/stats/PublicationVenuesStats'
-import { PageSubsectionTitle } from '../shell/PageSection'
-import PublicationTypesStats from '../data-visualisation/stats/PublicationTypesStats'
-import PublicationsOverTimeStats from '../data-visualisation/stats/PublicationsOverTimeStats'
+import PublicationVenuesStats from '@/components/data-visualisation/stats/PublicationVenuesStats'
+import { PageSubsectionTitle } from '@/components/shell/PageSection'
+import PublicationTypesStats from '@/components/data-visualisation/stats/PublicationTypesStats'
+import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
 import filterPublications from '@/services/publications/filters'
 
 type GroupedPublicationsListParams = {
@@ -37,18 +36,16 @@ type PublicationGroup = {
     count: number
 }
 
-type GroupedBy = 'year' | 'type' | 'venue' | 'group'
+type GroupedBy = 'year' | 'group'
 
 const GROUPED_BY_FUNC = {
     'year': byYear,
-    'type': byType,
-    'venue': byVenue,
     'group': byGroup,
-} as const
+} as const;
 
 const DISPLAYED_COUNT_INCREASE = 25;
 
-/** Displays a list of publications that can be filtered. */
+/** Displays a grouped list of publications that can be filtered. */
 export default function GroupedPublicationsList({
     publications,
     defaultSelectedYears,
@@ -273,26 +270,14 @@ function byYear(publ: DblpPublication) {
     return publ.year;
 }
 
-function byType(publ: DblpPublication) {
-    return publ.type;
-}
-
-function byVenue(publ: DblpPublication) {
-    return publ.journal || publ.booktitle;
-}
-
 function byGroup(publ: DblpPublication) {
     return publ.groupIndex;
 }
 
 function getGroupTitle(groupedBy: GroupedBy, key: any, publicationGroup: PublicationGroup) {
     switch (groupedBy) {
-        case 'type':
-            return PUBLICATION_TYPE_TITLE[key as PublicationType];
         case 'year':
             return key;
-        case 'venue':
-            return key || 'Unlisted Publications';
         case 'group':
             return publicationGroup.publications[0].groupTitle || 'Ungrouped Publications';
     }

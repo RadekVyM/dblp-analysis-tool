@@ -1,6 +1,6 @@
 'use client'
 
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useDialog from '@/hooks/useDialog'
 import { cn } from '@/utils/tailwindUtils'
@@ -9,7 +9,7 @@ import { MdBookmarks } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa'
 import AddToGroupDialog from './AddToGroupDialog'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import ExportButton from '@/components/ExportButton'
+import ExportButton from '@/components/export/ExportButton'
 
 type SaveAuthorButtonsParams = {
     className?: string,

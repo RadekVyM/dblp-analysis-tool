@@ -1,7 +1,7 @@
 'use client'
 
 import { MdSearch } from 'react-icons/md'
-import Button from '../Button'
+import Button from '../inputs/Button'
 import { cn } from '@/utils/tailwindUtils'
 import { useSearchParams } from 'next/navigation'
 import { isNullOrWhiteSpace } from '@/utils/strings'

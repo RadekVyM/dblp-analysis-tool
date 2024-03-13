@@ -1,26 +1,22 @@
 'use client'
 
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import { SearchParams } from '@/dtos/search/SearchParams'
 import { SearchType } from '@/enums/SearchType'
 import { VenueType, getVenueTypeByKey } from '@/enums/VenueType'
 import { cn } from '@/utils/tailwindUtils'
 import { createLocalSearchPath } from '@/utils/urls'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
 type VenueSelectionParams = {
     className?: string
 }
 
+/** Tabs for selection of displayed veneus. */
 export default function VenueSelection({ className }: VenueSelectionParams) {
     const searchParams = useSearchParams();
-    const [journalsUrl, setJournalsUrl] = useState('');
-    const [conferencesUrl, setConferencesUrl] = useState('');
-    const [seriesUrl, setSeriesUrl] = useState('');
-    const [type, setType] = useState<VenueType>(VenueType.Journal);
-
-    useEffect(() => {
+    const { journalsUrl, conferencesUrl, seriesUrl, type } = useMemo(() => {
         const params: SearchParams = {};
 
         for (const entry of searchParams.entries()) {
@@ -29,10 +25,12 @@ export default function VenueSelection({ className }: VenueSelectionParams) {
 
         params.page = '1';
 
-        setType((params.type ? getVenueTypeByKey(params.type) : undefined) || VenueType.Journal);
-        setJournalsUrl(createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Journal } }));
-        setConferencesUrl(createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Conference } }));
-        setSeriesUrl(createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Series } }));
+        return {
+            type: (params.type ? getVenueTypeByKey(params.type) : undefined) || VenueType.Journal,
+            journalsUrl: createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Journal } }),
+            conferencesUrl: createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Conference } }),
+            seriesUrl: createLocalSearchPath(SearchType.Venue, { ...params, ...{ type: VenueType.Series } })
+        };
     }, [searchParams]);
 
     return (

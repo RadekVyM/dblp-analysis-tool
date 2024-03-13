@@ -1,4 +1,4 @@
-import { VENUE_TYPE_TITLE } from '@/constants/client/publications'
+import { VENUE_TYPE_TITLE } from '@/constants/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import { VenueType } from '@/enums/VenueType'
 import { getVenueTypeFromDblpString } from '@/utils/urls'

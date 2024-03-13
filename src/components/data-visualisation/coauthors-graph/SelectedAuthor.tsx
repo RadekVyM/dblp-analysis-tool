@@ -1,6 +1,6 @@
 'use client'
 
-import CheckListButton from '@/components/CheckListButton'
+import CheckListButton from '@/components/inputs/CheckListButton'
 import AuthorListItem from './AuthorListItem'
 import LoadingWheel from '@/components/LoadingWheel'
 import { RefObject, useEffect, useMemo, useRef } from 'react'
@@ -50,10 +50,6 @@ type CommonPublicationsCountParams = {
     coauthorId: string,
     isIncludedAuthor: boolean,
     allIncludedAuthorIds: Array<string>
-}
-
-type SamePublicationTagParams = {
-    popoverContainerRef?: React.RefObject<HTMLDivElement>
 }
 
 /** Displays basic information about currently selected author in the coauthors graph and their coauthors.  */

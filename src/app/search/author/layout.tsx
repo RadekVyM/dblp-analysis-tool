@@ -5,6 +5,7 @@ type SearchAurhorLayoutParams = {
     children: React.ReactNode
 }
 
+/** Layout of the author search page. */
 export default function SearchAurhorLayout({ children }: SearchAurhorLayoutParams) {
     return (
         <PageContainer>

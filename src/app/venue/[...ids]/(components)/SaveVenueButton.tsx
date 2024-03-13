@@ -1,6 +1,6 @@
 'use client'
 
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import { cn } from '@/utils/tailwindUtils'
 import { useMemo } from 'react'

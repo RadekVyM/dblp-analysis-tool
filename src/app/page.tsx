@@ -1,4 +1,4 @@
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import { SEARCH_AUTHOR, SEARCH_VENUE } from '@/constants/urls'
 import { VenueType } from '@/enums/VenueType'
 

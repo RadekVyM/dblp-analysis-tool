@@ -1,11 +1,11 @@
 'use client'
 
 import { urlWithParams } from '@/utils/urls'
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import { cn } from '@/utils/tailwindUtils'
 import { MdChevronLeft, MdChevronRight, MdSkipNext, MdSkipPrevious } from 'react-icons/md'
 import { useElementSize } from 'usehooks-ts'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import { repeat } from '@/utils/array'
 
@@ -28,34 +28,26 @@ type PaginationLinkParams = {
 
 const COLS_GRID = 'grid-cols-[minmax(0,1fr),auto,minmax(0,1fr)]';
 
+/** Pagination component for search pages. */
 export default function Pagination({ total, currentPage, url, searchParams, className }: PaginationParams) {
-    const pageCount = Math.ceil(total / DEFAULT_ITEMS_COUNT_PER_PAGE);
-    const pages = getAroundCurrentPages(currentPage, pageCount);
-    const left = getLeftSkipPages(currentPage);
-    const right = getRightSkipPages(currentPage, pageCount);
-
-    const [gridCols, setGridCols] = useState(COLS_GRID);
-
-    const [outerContainerRef, outerContainerSize] = useElementSize();
-    const [leftListRef, leftListSize] = useElementSize<HTMLUListElement>();
-    const [centerListRef, centerListSize] = useElementSize<HTMLUListElement>();
-    const [rightListRef, rightListSize] = useElementSize<HTMLUListElement>();
-
-    useEffect(() => {
-        if (Math.max(leftListSize.width, rightListSize.width) * 2 + centerListSize.width > outerContainerSize.width) {
-            setGridCols('');
-        }
-        else {
-            setGridCols(COLS_GRID);
-        }
-    }, [outerContainerSize.width, leftListSize.width, centerListSize.width, rightListSize.width]);
+    const {
+        outerContainerRef,
+        leftListRef,
+        centerListRef,
+        rightListRef,
+        gridColsClassName,
+        left,
+        right,
+        pages,
+        pageCount
+    } = usePagination(total, currentPage);
 
     return (
         <div
             ref={outerContainerRef}
             className='grid place-content-center w-full'>
             <nav
-                className={cn('grid gap-y-5 max-w-full overflow-clip', className, gridCols)}>
+                className={cn('grid gap-y-5 max-w-full overflow-clip', className, gridColsClassName)}>
                 <div
                     className='grid'>
                     <ul
@@ -145,6 +137,35 @@ function PaginationLink({ url, children, isSelected, after, before, title }: Pag
             {after}
         </li>
     )
+}
+
+function usePagination(total: number, currentPage: number) {
+    const pageCount = Math.ceil(total / DEFAULT_ITEMS_COUNT_PER_PAGE);
+    const pages = getAroundCurrentPages(currentPage, pageCount);
+    const left = getLeftSkipPages(currentPage);
+    const right = getRightSkipPages(currentPage, pageCount);
+    const [outerContainerRef, outerContainerSize] = useElementSize();
+    const [leftListRef, leftListSize] = useElementSize<HTMLUListElement>();
+    const [centerListRef, centerListSize] = useElementSize<HTMLUListElement>();
+    const [rightListRef, rightListSize] = useElementSize<HTMLUListElement>();
+
+    const gridColsClassName = useMemo(
+        () => Math.max(leftListSize.width, rightListSize.width) * 2 + centerListSize.width > outerContainerSize.width ?
+            '' :
+            COLS_GRID,
+        [outerContainerSize.width, leftListSize.width, centerListSize.width, rightListSize.width]);
+
+    return {
+        outerContainerRef,
+        leftListRef,
+        centerListRef,
+        rightListRef,
+        gridColsClassName,
+        left,
+        right,
+        pages,
+        pageCount
+    };
 }
 
 function withPage(params: { [key: string]: any }, page: number) {

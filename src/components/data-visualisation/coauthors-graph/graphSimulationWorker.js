@@ -7,7 +7,7 @@ importScripts('https://d3js.org/d3-timer.v1.min.js');
 importScripts('https://d3js.org/d3-force.v1.min.js');
 
 /*
-Web worker that runs a simulation on the passed graph.
+Web worker that runs the simulation on the passed graph.
 Positions of all nodes are found as a result of this simulation.
 */
 

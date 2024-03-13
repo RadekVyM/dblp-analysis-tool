@@ -1,6 +1,6 @@
 'use client'
 
-import ListButton, { ListButtonParams } from '@/components/ListButton'
+import ListButton, { ListButtonParams } from '@/components/inputs/ListButton'
 import { DblpPublicationPerson } from '@/dtos/DblpPublication'
 
 type AuthorListItemParams = {

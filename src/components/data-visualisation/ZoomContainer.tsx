@@ -1,4 +1,4 @@
-import { ZoomTransform } from "@/hooks/useZoom"
+import { ZoomTransform } from '@/hooks/useZoom'
 
 type ZoomContainerParams = {
     children: React.ReactNode,

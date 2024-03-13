@@ -13,6 +13,7 @@ type SearchAuthorPageParams = {
     searchParams: SearchParams
 }
 
+/** Page displaying the author index or searched authors. */
 export default async function SearchAuthorPage({ searchParams }: SearchAuthorPageParams) {
     const params = searchToItemsParams(searchParams, DEFAULT_ITEMS_COUNT_PER_PAGE);
     const result = await getSearchResult(params);

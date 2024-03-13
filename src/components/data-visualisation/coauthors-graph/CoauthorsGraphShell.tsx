@@ -11,11 +11,11 @@ import GraphOptionsSelection from './GraphOptionsSelection'
 import useCoauthorsGraph from '@/hooks/data-visualisation/useCoauthorsGraph'
 import usePublicationFilters from '@/hooks/filters/usePublicationFilters'
 import { DblpPublication } from '@/dtos/DblpPublication'
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import useFullscreen from '@/hooks/useFullscreen'
 import GraphStats from './GrapStats'
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
-import CoauthorsGraphInfoButton from './CoauthorsGraphInfoButton'
+import CoauthorsGraphInfo from './CoauthorsGraphInfo'
 import filterPublications from '@/services/publications/filters'
 
 type CoauthorsGraphShellParams = {
@@ -138,7 +138,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
                         </Button>
                     }
 
-                    <CoauthorsGraphInfoButton />
+                    <CoauthorsGraphInfo />
                 </div>
 
                 <GraphStats

@@ -1,7 +1,6 @@
 import { tryGetCachedRecords } from '@/services/cache/cache'
 import PageContent from './(components)/PageContent'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { parseIntStrings } from '@/utils/strings'
 import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
 import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
 
@@ -15,6 +14,7 @@ type AuthorGroupPublicationsPageParams = {
     } & PublicationsSearchParams
 }
 
+/** Page displaying all publications of an author group. */
 export default async function AuthorGroupPublicationsPage({ params: { id }, searchParams }: AuthorGroupPublicationsPageParams) {
     const authorIds: Array<string> = searchParams.id ?
         (typeof searchParams.id === 'string' ? [searchParams.id] : searchParams.id) :

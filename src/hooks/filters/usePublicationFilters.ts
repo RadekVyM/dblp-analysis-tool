@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import useFilters from './useFilters'
 import { FilterStatesMap, FiltersConfiguration } from '@/dtos/Filters'
-import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import { PUBLICATION_TYPE_TITLE } from '@/constants/publications'
 import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
 import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
 import { PublicationType } from '@/enums/PublicationType'

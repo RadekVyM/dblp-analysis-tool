@@ -7,6 +7,7 @@ type DividedDefinitionListParams = {
     className?: string
 }
 
+/** Definition list that is displayed horizontally on wide screens and individual pairs are divided by a separator. */
 export default function DividedDefinitionList({ items, className }: DividedDefinitionListParams) {
     return (
         <dl

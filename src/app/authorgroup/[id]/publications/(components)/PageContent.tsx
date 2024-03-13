@@ -7,7 +7,7 @@ import GroupedPublicationsList from '@/components/publications/GroupedPublicatio
 import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import { PageSection, PageSectionTitle, PageSubsectionTitle } from '@/components/shell/PageSection'
-import ScrollToTopButton from '@/components/ScrollToTopButton'
+import ScrollToTopButton from '@/components/inputs/ScrollToTopButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { useIsClient } from 'usehooks-ts'
 import LoadingPage from '@/components/shell/LoadingPage'
@@ -23,6 +23,7 @@ type PageContentParams = {
     cachedAuthors: Array<DblpAuthor>,
 } & DefaultSelectedPublicationsParams
 
+/** Content of the author group publications page. */
 export default function PageContent({
     authorGroupId,
     cachedAuthors,

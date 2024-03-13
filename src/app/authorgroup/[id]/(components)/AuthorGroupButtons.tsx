@@ -1,33 +1,20 @@
 'use client'
 
-import Button from '@/components/Button'
-import ExportButton from '@/components/ExportButton'
+import Button from '@/components/inputs/Button'
+import ExportButton from '@/components/export/ExportButton'
 import ConfirmDialog from '@/components/dialogs/ConfirmDialog'
-import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
-import DialogBody from '@/components/dialogs/DialogBody'
-import DialogHeader from '@/components/dialogs/DialogHeader'
-import Form from '@/components/forms/Form'
-import Input from '@/components/forms/Input'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import useDialog from '@/hooks/useDialog'
 import { delay } from '@/utils/promises'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, forwardRef, useState } from 'react'
 import { MdDelete, MdDriveFileRenameOutline } from 'react-icons/md'
+import RenameAuthorGroupDialog from './RenameAuthorGroupDialog'
 
 type AuthorGroupButtonsParams = {
     authorGroupId: string,
     authorGroupTitle: string,
     exportedObject: any,
     isLoadingDone: boolean
-}
-
-type RenameAuthorGroupDialogParams = {
-    hide: () => void,
-    rename: (title: string) => void,
-    currentTitle: string,
-    animation: string,
-    isOpen: boolean
 }
 
 /** Buttons that allow the user to rename, remove and export an author group. */
@@ -92,58 +79,3 @@ export function AuthorGroupButtons({ authorGroupId, authorGroupTitle, exportedOb
         </div>
     )
 }
-
-const RenameAuthorGroupDialog = forwardRef<HTMLDialogElement, RenameAuthorGroupDialogParams>((
-    { hide, animation, isOpen, currentTitle, rename },
-    ref
-) => {
-    const [formValues, setFormValues] = useState<{ title: string }>({
-        title: currentTitle,
-    });
-
-    async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        rename(formValues.title);
-        hide();
-    }
-
-    function handleChange(e: ChangeEvent<HTMLInputElement>) {
-        const { name, value } = e.target;
-        setFormValues((old) => ({ ...old, [name]: value }));
-    }
-
-    return (
-        <Dialog
-            ref={ref}
-            hide={hide}
-            animation={animation}
-            className={'dialog md:max-w-md w-full max-h-[min(15rem,90%)] h-auto'}>
-            <DialogContent
-                className='max-h-full flex flex-col'>
-                <DialogHeader
-                    hide={hide}
-                    heading={'Rename Author Group'} />
-
-                <DialogBody>
-                    <Form
-                        onSubmit={onSubmit}>
-                        <Input
-                            className='mb-2'
-                            name='title'
-                            label='New title'
-                            required
-                            value={formValues.title}
-                            onChange={handleChange} />
-                        <Button
-                            type='submit'
-                            className='self-end'>
-                            Rename
-                        </Button>
-                    </Form>
-                </DialogBody>
-            </DialogContent>
-        </Dialog>
-    )
-});
-
-RenameAuthorGroupDialog.displayName = 'RenameAuthorGroupDialog';

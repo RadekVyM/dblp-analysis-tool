@@ -50,7 +50,7 @@ export type CoauthorsGraphRef = {
     graphRef: RefObject<DataVisualisationCanvasRef | null>
 }
 
-/** Grahp of coauthors. */
+/** Graph of coauthors. */
 const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
     graph,
     ignoredNodeIds,

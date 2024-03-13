@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/utils/tailwindUtils'
-import { SearchDialog } from '../dialogs/SearchDialog'
+import { SearchDialog } from './SearchDialog'
 import SearchBarButton from './SearchBarButton'
 import useDialog from '@/hooks/useDialog'
 import { Suspense } from 'react'

@@ -1,11 +1,12 @@
 import { cn } from '@/utils/tailwindUtils'
 import { VariantProps } from 'class-variance-authority'
 import { tabVariants } from './variants/tabVariants'
-import Button from './Button'
+import Button from './inputs/Button'
 
 type TabsParams = VariantProps<typeof tabVariants> & {
-    tabsId: string,
+    tabsId?: string,
     items: Array<{ content: React.ReactNode, title?: string, badgeContent?: string, id: any }>,
+    /** Describes the action that the selection represents. */
     legend: string,
     selectedId: any,
     className?: string,
@@ -20,10 +21,13 @@ type TabParams = VariantProps<typeof tabVariants> & {
     onChange: (id: any) => void
 }
 
+/** Horizontal tabs component that are used to navigate between groups of content. */
 export default function Tabs({ items, tabsId, legend, selectedId, setSelectedId, className, ...rest }: TabsParams) {
     return (
         <div
+            id={tabsId}
             role='tablist'
+            aria-label={legend}
             className={cn('flex flex-wrap gap-2 rounded-sm flex-row', className)}>
             {items.map((item) =>
                 <Tab

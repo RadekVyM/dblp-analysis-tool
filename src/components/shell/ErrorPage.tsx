@@ -3,10 +3,10 @@
 import { DefaultError, FetchError } from '@/dtos/Errors'
 import PageContainer from './PageContainer'
 import PageTitle from './PageTitle'
-import Button from '../Button'
+import Button from '../inputs/Button'
 import { MdAutorenew } from 'react-icons/md'
 import { unpackDefaultError, unpackFetchError } from '@/utils/errors'
-import Link, { LinkProps } from 'next/link'
+import Link from 'next/link'
 import { cn } from '@/utils/tailwindUtils'
 
 /** Parameters of an error page. */

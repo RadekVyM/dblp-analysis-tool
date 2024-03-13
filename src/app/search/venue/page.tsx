@@ -12,6 +12,7 @@ type SearchVenuePageParams = {
     searchParams: SearchParams
 }
 
+/** Page displaying the venue indexes or searched venues. */
 export default async function SearchVenuePage({ searchParams }: SearchVenuePageParams) {
     const params = searchToItemsParams(searchParams, DEFAULT_ITEMS_COUNT_PER_PAGE);
     const venue = (searchParams.type ? getVenueTypeByKey(searchParams.type) : undefined) || VenueType.Journal;

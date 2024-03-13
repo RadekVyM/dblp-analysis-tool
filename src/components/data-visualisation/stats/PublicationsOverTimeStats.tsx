@@ -16,7 +16,7 @@ import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUni
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
 import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
-import { PUBLICATION_TYPE_COLOR } from '@/constants/client/publications'
+import { PUBLICATION_TYPE_COLOR } from '@/constants/publications'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
 
 /** These items will be grouped by a chart or table. */

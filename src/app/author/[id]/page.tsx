@@ -2,7 +2,7 @@ import PageContainer from '@/components/shell/PageContainer'
 import PageTitle from '@/components/shell/PageTitle'
 import { fetchAuthor } from '@/services/authors/fetch-server'
 import AddToVisitedAuthors from './(components)/AddToVisitedAuthors'
-import LinksList from '@/components/LinksList'
+import ExternalLinksList from '@/components/ExternalLinksList'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import SaveAuthorButtons from './(components)/SaveAuthorButtons'
 import { cn } from '@/utils/tailwindUtils'
@@ -99,7 +99,7 @@ async function AuthorInfo({ className, author }: AuthorInfoParams) {
 
             {
                 author.info && author.info.links.length > 0 &&
-                <LinksList
+                <ExternalLinksList
                     links={author.info.links} />
             }
 

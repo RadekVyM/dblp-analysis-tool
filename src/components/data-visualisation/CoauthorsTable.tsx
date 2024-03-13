@@ -8,9 +8,9 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import { createLocalPath } from '@/utils/urls'
 import { SearchType } from '@/enums/SearchType'
 import DataVisualisationContainer from './DataVisualisationContainer'
-import SearchBox from '../SearchBox'
+import SearchBox from '@/components/inputs/SearchBox'
 import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/PublicationPersonNodeDatum'
-import { removeAccents, splitSearchQuery } from '@/utils/strings'
+import { splitSearchQuery } from '@/utils/strings'
 
 type CoauthorsTableParams = {
     authors: Array<DblpAuthor>,

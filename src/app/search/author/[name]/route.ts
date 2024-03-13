@@ -1,4 +1,4 @@
-import { BaseSearchHit, SearchResult, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
+import { BaseSearchHit, createSearchResultFromRaw } from '@/dtos/search/SearchResult'
 import { SearchType } from '@/enums/SearchType'
 import { createLocalSearchPath } from '@/utils/urls'
 import { redirect } from 'next/navigation'
@@ -10,7 +10,7 @@ import { fetchAuthors } from '@/services/authors/fetch'
  * It redirects the user to the search page if it finds more than just one satisfactory author.
  * Otherwise it redirects the user to the author index page.
  * 
- * This endpoint is needed 
+ * This endpoint is needed because authors do not have assigned their PIDs in indexes.
 */
 export async function GET(request: Request, { params }: { params: { name: string } }) {
     let localUrl = createLocalSearchPath(SearchType.Author, { query: params.name });

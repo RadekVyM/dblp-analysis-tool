@@ -12,6 +12,10 @@ type PopoverParams = {
     containerRef?: React.RefObject<HTMLDivElement>
 }
 
+/**
+ * Popover that is displayed on the specified position.
+ * The popover is displayed in the default container if no container is specified.
+ */
 const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, className, children, containerRef }, ref) => {
     return (
         createPortal(
@@ -29,5 +33,4 @@ const Popover = forwardRef<HTMLDivElement, PopoverParams>(({ top, left, classNam
 });
 
 Popover.displayName = 'Popover';
-
 export default Popover

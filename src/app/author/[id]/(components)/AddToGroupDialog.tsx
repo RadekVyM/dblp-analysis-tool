@@ -2,11 +2,11 @@
 
 import { forwardRef, useEffect, useRef, useState } from 'react'
 import { Dialog, DialogContent } from '@/components/dialogs/Dialog'
-import Button from '@/components/Button'
+import Button from '@/components/inputs/Button'
 import { MdLibraryAdd } from 'react-icons/md'
-import CheckListButton from '@/components/CheckListButton'
+import CheckListButton from '@/components/inputs/CheckListButton'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
-import Input from '@/components/forms/Input'
+import LabeledInput from '@/components/inputs/LabeledInput'
 import { isNullOrWhiteSpace } from '@/utils/strings'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import DialogHeader from '@/components/dialogs/DialogHeader'
@@ -94,7 +94,7 @@ function AuthorGroups({ authorId, authorName, isOpen }: AuthorGroupsParams) {
                     isInputVisible ?
                         <form
                             className='flex-1 flex flex-row gap-2 justify-stretch'>
-                            <Input
+                            <LabeledInput
                                 ref={inputRef}
                                 id='author-group-name'
                                 label='Group name'

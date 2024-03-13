@@ -4,7 +4,7 @@ import { fetchAuthor } from '@/services/authors/fetch-server'
 import AliasesAffiliations from '../(components)/AliasesAffiliations'
 import { PageSection, PageSectionTitle } from '@/components/shell/PageSection'
 import GroupedPublicationsList from '@/components/publications/GroupedPublicationsList'
-import ScrollToTopButton from '@/components/ScrollToTopButton'
+import ScrollToTopButton from '@/components/inputs/ScrollToTopButton'
 import { PublicationsSearchParams } from '@/dtos/PublicationsSearchParams'
 import { parsePublicationsSearchParams } from '@/utils/publicationsSearchParams'
 

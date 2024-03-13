@@ -1,7 +1,7 @@
 'use client'
 
 import { MdBookmarks } from 'react-icons/md'
-import ClientButton from '../ClientButton'
+import ClientButton from '../inputs/ClientButton'
 import SavedItemsMenu from './SavedItemsMenu'
 import { useEffect, useRef, useState } from 'react'
 import useIsNotMobileSize from '@/hooks/useIsNotMobileSize'

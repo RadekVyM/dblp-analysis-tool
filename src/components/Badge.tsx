@@ -1,9 +1,9 @@
 'use client'
 
-import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover';
+import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
 import { cn } from '@/utils/tailwindUtils'
-import Popover from './Popover';
-import { useDebounce } from 'usehooks-ts';
+import Popover from './Popover'
+import { useDebounce } from 'usehooks-ts'
 
 type BadgeParams = {
     children: React.ReactNode,
@@ -13,7 +13,10 @@ type BadgeParams = {
     popoverContainerRef?: React.RefObject<HTMLDivElement>,
 }
 
-/** Badge that can be, for example, used in headings. */
+/**
+ * Badge that can be, for example, used in headings to display numbers.
+ * If the badge is hovered and a title is specified, a popover with the title is displayed.
+ */
 export default function Badge({ title, children, isMicro, className, popoverContainerRef }: BadgeParams) {
     const {
         isHovered: isPopoverHovered,

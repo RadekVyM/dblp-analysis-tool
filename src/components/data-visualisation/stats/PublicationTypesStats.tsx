@@ -4,7 +4,7 @@ import BarChart, { BarChartData } from '@/components/data-visualisation/charts/B
 import ChartUnitSelection from '@/components/data-visualisation/ChartUnitSelection'
 import PieChart, { PieChartData } from '@/components/data-visualisation/charts/PieChart'
 import StatsScaffold from '@/components/data-visualisation/StatsScaffold'
-import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import { PUBLICATION_TYPE_COLOR, PUBLICATION_TYPE_TITLE } from '@/constants/publications'
 import { ChartUnit } from '@/enums/ChartUnit'
 import { PublicationType } from '@/enums/PublicationType'
 import { cn } from '@/utils/tailwindUtils'
@@ -39,7 +39,7 @@ type PublicationTypesPieChartParams = {
     onSliceClick?: (key: any, value?: ChartValue) => void,
 } & PublicationTypesStatsParams
 
-/** Displays publications statistics by type of a publication. */
+/** Displays publications statistics by the type of a publication. */
 export default function PublicationTypesStats({ className, publications, scaffoldId, publicationsUrl }: PublicationTypesStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();

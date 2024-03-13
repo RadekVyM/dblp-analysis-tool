@@ -4,7 +4,7 @@ import { cn } from '@/utils/tailwindUtils'
 import { useHover, useIsClient } from 'usehooks-ts'
 import { useRef, useEffect, forwardRef, useState } from 'react'
 import { MdCancel, MdClose, MdFileUpload, MdGetApp, MdOutlineBookmarks } from 'react-icons/md'
-import Button from '../Button'
+import Button from '../inputs/Button'
 import { SavedItemsMenuState } from '@/enums/SavedItemsMenuState'
 import { SearchType } from '@/enums/SearchType'
 import Tabs from '../Tabs'
@@ -20,8 +20,8 @@ import { DEFAULT_DISPLAYED_ITEMS_COUNT } from '@/constants/visits'
 import { createPortal } from 'react-dom'
 import useShowMore from '@/hooks/useShowMore'
 import useDialog from '@/hooks/useDialog'
-import ExportItemsDialog from '../dialogs/export/ExportItemsDialog'
-import ImportItemsDialog from '../dialogs/export/ImportItemsDialog'
+import ExportItemsDialog from '../export/ExportItemsDialog'
+import ImportItemsDialog from '../export/ImportItemsDialog'
 
 // TODO: Do I want the hover feature?
 
@@ -237,8 +237,7 @@ function Footer() {
             <ExportItemsDialog
                 ref={exportDialogRef}
                 hide={hideExportDialog}
-                animation={exportDialogAnimation}
-                isOpen={isExportDialogOpen} />
+                animation={exportDialogAnimation} />
 
             <ImportItemsDialog
                 ref={importDialogRef}

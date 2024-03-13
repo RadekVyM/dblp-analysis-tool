@@ -1,5 +1,5 @@
 import { cn } from '@/utils/tailwindUtils'
-import Tabs from '../Tabs'
+import Tabs from '@/components/Tabs'
 import DataVisualisationContainer from './DataVisualisationContainer'
 
 type StatsScaffoldParams = {

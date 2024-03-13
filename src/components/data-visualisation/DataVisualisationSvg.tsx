@@ -24,7 +24,10 @@ export type DataVisualisationSvgRef = {
     zoomTo: (zoomTransform: ZoomTransform) => void
 }
 
-/** SVG element that can be zoomable. */
+/**
+ * SVG element that can be zoomable.
+ * width and height attributes of this SVG element are automatically adjusted to the required element dimensions.
+ */
 export const DataVisualisationSvg = forwardRef<DataVisualisationSvgRef, DataVisualisationSvgParams>(({
     children,
     before,

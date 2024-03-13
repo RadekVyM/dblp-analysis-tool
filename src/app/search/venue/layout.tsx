@@ -7,6 +7,7 @@ type SearchVenueLayoutParams = {
     children: React.ReactNode
 }
 
+/** Layout of the venue search page. */
 export default function SearchVenueLayout({ children }: SearchVenueLayoutParams) {
     return (
         <PageContainer>

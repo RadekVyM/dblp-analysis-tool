@@ -4,13 +4,13 @@ import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/Pub
 import AuthorListItem from './AuthorListItem'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import { useEffect, useMemo, useRef } from 'react'
-import FiltersList from '@/components/FiltersList'
-import FiltersDialog from '@/components/dialogs/FiltersDialog'
+import FiltersList from '@/components/filters/FiltersList'
+import FiltersDialog from '@/components/filters/FiltersDialog'
 import useDialog from '@/hooks/useDialog'
 import { FiltersState } from '@/dtos/Filters'
 import { MdInfo } from 'react-icons/md'
-import CheckListButton from '@/components/CheckListButton'
-import SearchBox from '@/components/SearchBox'
+import CheckListButton from '@/components/inputs/CheckListButton'
+import SearchBox from '@/components/inputs/SearchBox'
 
 type AuthorsListParams = {
     nodes: Array<PublicationPersonNodeDatum>

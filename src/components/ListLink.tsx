@@ -1,16 +1,16 @@
 import { cn } from '@/utils/tailwindUtils'
 import { VariantProps } from 'class-variance-authority'
 import Link, { LinkProps } from 'next/link'
-import { listLinkVariants } from './variants/listLinkVariants'
+import { listLinkVariants } from '@/components/variants/listLinkVariants'
 
-interface ListLinkParams extends
-    React.ButtonHTMLAttributes<HTMLAnchorElement>,
-    LinkProps,
-    VariantProps<typeof listLinkVariants> {
+type ListLinkParams = {
     className?: string,
     children?: React.ReactNode
-}
+} & React.ButtonHTMLAttributes<HTMLAnchorElement> &
+    LinkProps &
+    VariantProps<typeof listLinkVariants>
 
+/** Link component that should be used in lists. */
 export default function ListLink({ className, surface, marker, size, ...rest }: ListLinkParams) {
     return (
         <Link

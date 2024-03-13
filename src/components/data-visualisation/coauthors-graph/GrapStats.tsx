@@ -1,4 +1,4 @@
-import { cn } from "@/utils/tailwindUtils"
+import { cn } from '@/utils/tailwindUtils'
 
 type GraphStatsParams = {
     nodesCount: number,
@@ -6,6 +6,7 @@ type GraphStatsParams = {
     className?: string
 }
 
+/** Displays graph node and link counts. */
 export default function GraphStats({ nodesCount, linksCount, className }: GraphStatsParams) {
     return (
         <div

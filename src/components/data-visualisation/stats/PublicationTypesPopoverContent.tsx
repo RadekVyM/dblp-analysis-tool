@@ -1,4 +1,4 @@
-import { PUBLICATION_TYPE_TITLE } from '@/constants/client/publications'
+import { PUBLICATION_TYPE_TITLE } from '@/constants/publications'
 import { PublicationType } from '@/enums/PublicationType'
 import * as d3 from 'd3'
 
@@ -6,6 +6,7 @@ type PublicationTypesPopoverContentParams = {
     publicationTypes: d3.InternMap<PublicationType, number>
 }
 
+/** Content of a popover that is displayed when a publications chart bar is hovered. */
 export default function PublicationTypesPopoverContent({ publicationTypes }: PublicationTypesPopoverContentParams) {
     return (
         <dl
