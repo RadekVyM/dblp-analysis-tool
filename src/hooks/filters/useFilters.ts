@@ -29,6 +29,8 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
                 key: key,
                 title: filter.title,
                 description: filter.description,
+                enableAndSelection: filter.enableAndSelection,
+                useAnd: false,
                 selectedItems: selectedItems,
                 selectableItems: new Map<any, any>(filter.allSelectableItems),
                 allSelectableItems: new Map<any, any>(filter.allSelectableItems),
@@ -79,6 +81,21 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
         });
     }
 
+    function toggleUseAnd(filterKey: string) {
+        setFiltersMap((oldMap) => {
+            const newMap = {
+                ...oldMap
+            };
+            const filter = newMap[filterKey] = {
+                ...newMap[filterKey]
+            };
+
+            filter.useAnd = !filter.useAnd;
+
+            return newMap;
+        });
+    }
+
     function updateSelectableItems(map: FilterStatesMap) {
         Object.keys(filtersConfiguration).forEach((key) => {
             const filter = filtersConfiguration[key];
@@ -91,6 +108,7 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
     return {
         filtersMap,
         switchSelection,
-        clear
+        clear,
+        toggleUseAnd
     };
 }

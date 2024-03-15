@@ -5,12 +5,13 @@ import { PUBLICATION_TYPE_TITLE } from '@/constants/publications'
 import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
 import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
 import { PublicationType } from '@/enums/PublicationType'
-import { getVenueTypeFromDblpString } from '@/utils/urls'
-import { VenueType } from '@/enums/VenueType'
 
 /**
  * Hook that creates and initializes a data structure for managing publication filters.
  * @param publications List of publications
+ * @param description Custom description of filters
+ * @param defaultSelected Arrays of values that are selected by default
+ * @param enableAndSelectionForSelectedAuthors List of publications
  * @returns Data structure for managing publication filters and related operations
  */
 export default function usePublicationFilters(
@@ -28,7 +29,8 @@ export default function usePublicationFilters(
         years?: Array<number>,
         /** Author IDs */
         authors?: Array<string>
-    }
+    },
+    enableAndSelectionForSelectedAuthors?: boolean,
 ) {
     const filters = useMemo<FiltersConfiguration>(
         () => ({
@@ -139,6 +141,7 @@ export default function usePublicationFilters(
                 description: description?.authorFilter || 'Select only publications with specified authors',
                 allSelectableItems: getAllPublicationAuthors(publications),
                 defaultSelectedKeys: defaultSelected?.authors,
+                enableAndSelection: enableAndSelectionForSelectedAuthors,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
                     const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
@@ -168,6 +171,7 @@ export default function usePublicationFilters(
         }),
         [
             publications,
+            enableAndSelectionForSelectedAuthors,
             description?.authorFilter,
             description?.typeFilter,
             description?.venueFilter,

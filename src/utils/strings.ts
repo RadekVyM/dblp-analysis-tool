@@ -1,6 +1,16 @@
 import { repeat } from './array'
 
 /**
+ * Appends 's' to a string if the specified number is not 1.
+ * @param str Input string
+ * @param count Number
+ * @returns The input string or input string with appended 's'
+ */
+export function stify(str: string, count?: number): string {
+    return count !== undefined ? `${str}${count !== 1 ? 's' : ''}` : str;
+}
+
+/**
  * Returns whether a string is null, undefined, contains no characters or only white characters.
  * @param str Input string
  * @returns Boolean value

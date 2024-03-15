@@ -4,6 +4,7 @@ export type Filter = {
     description?: string,
     allSelectableItems: Map<any, any>,
     defaultSelectedKeys?: Array<any>,
+    enableAndSelection?: boolean,
     updateSelectableItems: (filtersState: FilterStatesMap) => Map<any, any>,
     itemTitleSelector: (item: any) => any,
 }
@@ -16,6 +17,8 @@ export type FilterState = {
     key: string,
     title: string,
     description?: string,
+    enableAndSelection?: boolean,
+    useAnd: boolean,
     allSelectableItems: Map<any, any>,
     selectableItems: Map<any, any>,
     selectedItems: Map<any, any>,
@@ -32,4 +35,5 @@ export type FiltersState = {
     filtersMap: FilterStatesMap,
     switchSelection: (filterKey: string, itemKey: any) => void,
     clear: (filterKey: string) => void,
+    toggleUseAnd: (filterKey: string) => void,
 }

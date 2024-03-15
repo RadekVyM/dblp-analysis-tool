@@ -298,13 +298,13 @@ function Bar({ chartKey, left, top, width, height, radius, chartValue, displayed
                 <OutlinedText
                     x={left + (width / 2)} y={top + (height / 2) + 2}
                     dominantBaseline='middle' textAnchor='middle'
-                    className={cn('text-xs font-semibold', onBarClick && 'cursor-pointer')}>
+                    className={cn('text-xs font-semibold', onBarClick ? 'cursor-pointer' : 'cursor-default')}>
                     {displayedValue}
                 </OutlinedText>
             </g>
 
             {
-                isPopoverHovered && popoverChildren &&
+                isPopoverHovered && popoverChildren && chartValue?.value !== 0 &&
                 <Popover
                     ref={popoverRef}
                     left={position[0]}

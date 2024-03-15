@@ -12,6 +12,14 @@ export const SWR_CONFIG = { revalidateIfStale: false, revalidateOnFocus: false }
 
 export type SearchItemsArgs = { searchType: SearchType, params: SearchItemsParams }
 
+/**
+ * Creates arguments for the useSWR() function that performs search.
+ * @param searchType Type of search
+ * @param query Query string
+ * @param hitsCount Max number of items that can be returned
+ * @param completionsCount Max number of items that can be returned
+ * @returns Arguments for the useSWR() function
+ */
 export function createArgs(searchType: SearchType, query: string, hitsCount: number, completionsCount: number): SearchItemsArgs {
     const params: SearchItemsParams = {
         query: query.length > 0 ? query : undefined,
@@ -23,6 +31,11 @@ export function createArgs(searchType: SearchType, query: string, hitsCount: num
     return { searchType: searchType, params: params };
 }
 
+/**
+ * Returns a function that performs search.
+ * @param searchType Type of search
+ * @returns Function that performs search
+ */
 export function createSearchFetcher<HitT extends BaseSearchHit>(searchType: SearchType) {
     let fetchItems: (params: SearchItemsParams) => Promise<any>;
 
@@ -43,5 +56,5 @@ export function createSearchFetcher<HitT extends BaseSearchHit>(searchType: Sear
         // TODO: Handle error codes
         return fetchItems(args.params)
             .then(data => createSearchResultFromRaw<HitT>(data as RawBaseSearchResult, args.searchType));
-    }
+    };
 }

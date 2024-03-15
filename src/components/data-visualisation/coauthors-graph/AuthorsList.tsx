@@ -62,6 +62,7 @@ export default function AuthorsList(
         onSearchQueryChange,
         clear,
         switchSelection,
+        toggleUseAnd,
         onAuthorClick,
         onAuthorHoverChange
     }: AuthorsListParams
@@ -109,6 +110,7 @@ export default function AuthorsList(
                     filtersMap={filtersMap}
                     switchSelection={switchSelection}
                     clear={clear}
+                    toggleUseAnd={toggleUseAnd}
                     maxDisplayedCount={6} />
 
                 {
@@ -141,6 +143,7 @@ export default function AuthorsList(
                 filtersMap={filtersMap}
                 clear={clear}
                 switchSelection={switchSelection}
+                toggleUseAnd={toggleUseAnd}
                 hide={hideFiltersDialog}
                 animation={filtersDialogAnimation}
                 isOpen={isFiltersDialogOpen}

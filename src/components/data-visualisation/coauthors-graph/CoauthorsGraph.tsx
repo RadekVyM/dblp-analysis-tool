@@ -12,7 +12,7 @@ import { ZoomTransform } from '@/hooks/useZoom'
 import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisualisationCanvas'
 import { Inter } from 'next/font/google'
 import { clamp } from '@/utils/numbers'
-import { distance, polygonArea, scaleToLength, triangleArea } from '@/utils/geometry'
+import { polygonArea, scaleToLength, triangleArea } from '@/utils/geometry'
 
 const inter = Inter({ subsets: ['latin'] });
 

@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { MdBarChart, MdTableChart } from 'react-icons/md'
 import CountPercentageTable from '@/components/data-visualisation/CountPercentageTable'
 import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUnit'
-import MaxCountInput from '../MaxCountInput'
+import CountInput from '../CountInput'
 import { sortByPresentedContent } from '@/utils/table'
 import { SEARCH_AUTHOR } from '@/constants/urls'
 
@@ -66,11 +66,12 @@ export default function VenueTopAuthorsStats({ className, authors, scaffoldId, t
                                     selectedUnit={barChartSelectedUnit}
                                     setSelectedUnit={setBarChartSelectedUnit}
                                     unitsId={scaffoldId || ''} />
-                                <MaxCountInput
+                                <CountInput
                                     label={'Authors count:'}
                                     scaffoldId={scaffoldId || ''}
-                                    maxCount={maxBarsCount}
-                                    setMaxCount={setMaxBarsCount} />
+                                    count={maxBarsCount}
+                                    maxCount={1000}
+                                    setCount={setMaxBarsCount} />
                             </div>),
                         title: 'Bar chart',
                         icon: (<MdBarChart />),

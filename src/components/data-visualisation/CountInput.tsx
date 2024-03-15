@@ -1,12 +1,15 @@
-type MaxCountInputParams = {
+import { clamp } from "@/utils/numbers"
+
+type CountInputParams = {
     label?: React.ReactNode,
     scaffoldId: string,
-    maxCount: number,
-    setMaxCount: (value: number) => void
+    count: number,
+    maxCount?: number,
+    setCount: (value: number) => void
 }
 
 /** Input for selecting maximum count of displayed chart items. */
-export default function MaxCountInput({ scaffoldId, maxCount, label, setMaxCount }: MaxCountInputParams) {
+export default function CountInput({ scaffoldId, count, maxCount, label, setCount }: CountInputParams) {
     return (
         <div
             className='self-center pr-3 inline text-right'>
@@ -18,10 +21,11 @@ export default function MaxCountInput({ scaffoldId, maxCount, label, setMaxCount
             <input
                 id={`${scaffoldId}-limit-input`}
                 className='pl-2 ml-3 min-w-0 w-24 h-7 border border-outline rounded-md text-sm bg-surface-container text-on-surface-container'
-                value={maxCount}
+                value={count}
                 min={1}
+                max={maxCount}
                 step={1}
-                onChange={(e) => setMaxCount(parseInt(e.currentTarget.value))}
+                onChange={(e) => setCount(clamp(parseInt(e.currentTarget.value) || 1, 1, maxCount || Number.MAX_SAFE_INTEGER))}
                 type='number' />
         </div>
     )

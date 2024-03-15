@@ -35,7 +35,7 @@ export default function Badge({ title, children, isMicro, className, popoverCont
                 aria-label={title}
                 className={cn(
                     'py-0.5 text-xs bg-secondary text-on-secondary',
-                    isMicro ? 'text-[0.55rem] leading-[0.55rem] px-1 rounded-md' : 'px-2 rounded-lg',
+                    isMicro ? 'text-[0.55rem] leading-[0.55rem] px-1.5 rounded-md' : 'px-2 rounded-lg',
                     className)}>
                 {children}
             </span>

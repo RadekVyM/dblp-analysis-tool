@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import * as d3 from 'd3'
 import { ChartUnit } from '@/enums/ChartUnit'
-import { ChartOrientation } from '@/enums/ChartOrientation'
 import { ChartData } from '@/dtos/data-visualisation/ChartData'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 

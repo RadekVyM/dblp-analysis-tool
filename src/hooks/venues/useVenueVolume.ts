@@ -6,6 +6,7 @@ import waitForNextFetchClient from '@/services/waitForNextFetchClient';
  * Hook that fetches a venue volume with a specified ID.
  * @param venueId Venue ID
  * @param volumeId Volume ID
+ * @param shouldFetch Whether the fetch should be performed
  * @returns Fetched data and state variables
  */
 export default function useVenueVolume(venueId: string, volumeId: string, shouldFetch: boolean) {

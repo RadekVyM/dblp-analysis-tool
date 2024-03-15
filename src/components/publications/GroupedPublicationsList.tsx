@@ -67,7 +67,8 @@ export default function GroupedPublicationsList({
         displayedPublicationsCount,
         filtersMap,
         switchFilterSelection,
-        clearFilters
+        clearFilters,
+        toggleFilterUseAnd,
     } = useDisplayedPublications(
         publications,
         groupedBy,
@@ -84,6 +85,7 @@ export default function GroupedPublicationsList({
             <FiltersDialog
                 filtersMap={filtersMap}
                 clear={clearFilters}
+                toggleUseAnd={toggleFilterUseAnd}
                 switchSelection={switchFilterSelection}
                 hide={hideFiltersDialog}
                 animation={filtersDialogAnimation}
@@ -100,51 +102,57 @@ export default function GroupedPublicationsList({
                 showFiltersDialog={showFiltersDialog}
                 filtersMap={filtersMap}
                 switchSelection={switchFilterSelection}
-                clear={clearFilters} />
+                clear={clearFilters}
+                toggleUseAnd={toggleFilterUseAnd} />
+            {
+                filteredPublications.length > 0 ?
+                    <>
+                        <PageSubsectionTitle>Publication Types</PageSubsectionTitle>
 
-            <PageSubsectionTitle>Publication Types</PageSubsectionTitle>
+                        <PublicationTypesStats
+                            scaffoldId='publication-types-stats'
+                            className='mb-10'
+                            publications={filteredPublications.map((publ) => ({
+                                id: publ.id,
+                                type: publ.type,
+                                date: publ.date
+                            }))} />
 
-            <PublicationTypesStats
-                scaffoldId='publication-types-stats'
-                className='mb-10'
-                publications={filteredPublications.map((publ) => ({
-                    id: publ.id,
-                    type: publ.type,
-                    date: publ.date
-                }))} />
+                        <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
 
-            <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
+                        <PublicationsOverTimeStats
+                            scaffoldId='publications-over-time-stats'
+                            className='mb-10'
+                            publications={filteredPublications.map((publ) => ({
+                                id: publ.id,
+                                type: publ.type,
+                                year: publ.year
+                            }))} />
 
-            <PublicationsOverTimeStats
-                scaffoldId='publications-over-time-stats'
-                className='mb-10'
-                publications={filteredPublications.map((publ) => ({
-                    id: publ.id,
-                    type: publ.type,
-                    year: publ.year
-                }))} />
+                        <PageSubsectionTitle>Publication Venues</PageSubsectionTitle>
 
-            <PageSubsectionTitle>Publication Venues</PageSubsectionTitle>
+                        <PublicationVenuesStats
+                            scaffoldId='publication-venues-stats'
+                            className='mb-10'
+                            publications={filteredPublications.map((publ) => ({
+                                id: publ.id,
+                                type: publ.type,
+                                venueId: publ.venueId || null,
+                                venueTitle: getVenueTitle(publ),
+                                serieId: publ.seriesVenueId,
+                                serieTitle: publ.series
+                            }))} />
 
-            <PublicationVenuesStats
-                scaffoldId='publication-venues-stats'
-                className='mb-10'
-                publications={filteredPublications.map((publ) => ({
-                    id: publ.id,
-                    type: publ.type,
-                    venueId: publ.venueId || null,
-                    venueTitle: getVenueTitle(publ),
-                    serieId: publ.seriesVenueId,
-                    serieTitle: publ.series
-                }))} />
+                        {additionalPublicationsStats && additionalPublicationsStats(filteredPublications)}
 
-            {additionalPublicationsStats && additionalPublicationsStats(filteredPublications)}
+                        <PublicationsList
+                            groupedBy={groupedBy}
+                            publications={displayedPublications} />
 
-            <PublicationsList
-                groupedBy={groupedBy}
-                publications={displayedPublications} />
-
-            <div ref={observerTarget}></div>
+                        <div ref={observerTarget}></div>
+                    </> :
+                    <span className='block w-full text-center pt-12 text-on-surface-muted'>No publications found</span>
+            }
         </>
     )
 }
@@ -203,10 +211,11 @@ function useDisplayedPublications(
     const [groupedPublications, setGroupedPublications] = useState<Array<[any, Array<DblpPublication>]>>([]);
     const [totalCount, setTotalCount] = useState(publications.length);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(totalCount, DISPLAYED_COUNT_INCREASE, observerTarget);
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear, toggleUseAnd } = usePublicationFilters(
         publications,
         undefined,
-        defaultSelected);
+        defaultSelected,
+        true);
     const displayedPublications = useMemo(() => {
         let count = displayedCount;
         const newDisplayedPublications: Array<[any, PublicationGroup]> = [];
@@ -243,8 +252,9 @@ function useDisplayedPublications(
         const selectedVenues = venuesFilter.selectedItems;
         const selectedYears = yearsFilter.selectedItems;
         const selectedAuthors = authorsFilter.selectedItems;
+        const useAndForSelectedAuthors = authorsFilter.useAnd;
 
-        const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears, selectedAuthors);
+        const publs = filterPublications(publications, selectedTypes, selectedVenues, selectedYears, selectedAuthors, useAndForSelectedAuthors);
         publs.sort((p1, p2) => isSmaller(p1.year, p2.year));
         const grouped = [...group<any, DblpPublication>(publs, GROUPED_BY_FUNC[groupedBy])];
         grouped.sort(groupedBy === 'year' ?
@@ -262,7 +272,8 @@ function useDisplayedPublications(
         displayedPublicationsCount,
         filtersMap,
         switchFilterSelection: switchSelection,
-        clearFilters: clear
+        clearFilters: clear,
+        toggleFilterUseAnd: toggleUseAnd
     };
 }
 

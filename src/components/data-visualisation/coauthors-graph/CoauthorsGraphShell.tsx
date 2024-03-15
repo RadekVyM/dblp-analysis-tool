@@ -46,7 +46,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
         () => graph.nodes.filter((a) => a.isVisible),
         // Dependency array contains all properties that modify the isVisible property of nodes
         [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, graph.intersectionOfCoauthors, graph.onlyCommonCoauthors, authors]);
-    const { filtersMap, switchSelection, clear } = useFilters(
+    const { filtersMap, switchSelection, clear, toggleUseAnd } = useFilters(
         allAuthors.publications,
         (authorsIds) => updateGraph({ filteredAuthorsIds: authorsIds }));
     const isGraphHuge = useMemo(
@@ -167,6 +167,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
                             filtersMap={filtersMap}
                             switchSelection={switchSelection}
                             clear={clear}
+                            toggleUseAnd={toggleUseAnd}
                             onAuthorClick={setSelectedAuthorId}
                             title={`All Authors`}
                             onAuthorHoverChange={onCoauthorHoverChange}
@@ -241,7 +242,7 @@ function useAuthors(authors: Array<DblpAuthor>, publications?: Array<DblpPublica
 
 /** Hook that handles filtering of nodes. */
 function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsChange: (ids: Set<string>) => void) {
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear, toggleUseAnd } = usePublicationFilters(
         publications,
         {
             typeFilter: 'Select only authors of publications of certain type',
@@ -272,5 +273,5 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         onFilteredAuthorsIdsChange(authorsIds);
     }, [publications, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
 
-    return { filtersMap, switchSelection, clear };
+    return { filtersMap, switchSelection, clear, toggleUseAnd };
 }

@@ -76,7 +76,7 @@ export default function VolumesSelection({ groups, selectedVolumeIds, title, wid
                         className='flex flex-col gap-y-2'>
                         {groups.slice(0, displayedCount).map((group) =>
                             <VolumeItemGroup
-                                key={group.title || 'undefined'}
+                                key={`${(group.items.length > 0 && group.items[0].volumeId)}${group.title}` || 'undefined'}
                                 wideItems={wideItems}
                                 group={group}
                                 selectedVolumeIds={selectedVolumeIds}

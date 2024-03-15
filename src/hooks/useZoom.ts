@@ -9,11 +9,20 @@ export type ZoomScaleExtent = { min?: number, max?: number }
 
 export type OnZoomChangeCallback = (param: ZoomTransform) => void
 
+/**
+ * Hook that returns an operation for zooming an element content. It is implemented using the D3.js zoom() function.
+ * @param dimensions Dimensions of the zoomable area
+ * @param elementRef Element that contains zoomable content
+ * @param scaleExtent Scale extent of the zoom
+ * @param onZoomChange Function that is called on zoom change
+ * @returns Operation for zooming an element content
+ */
 export default function useZoom(
     dimensions: { width: number, height: number },
     elementRef: RefObject<Element | null>,
     scaleExtent?: ZoomScaleExtent,
-    onZoomChange?: OnZoomChangeCallback) {
+    onZoomChange?: OnZoomChangeCallback
+) {
     const zoomRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
 
     useEffect(() => {
@@ -30,7 +39,7 @@ export default function useZoom(
                 const transform = event.transform as { k: number, x: number, y: number };
 
                 if (onZoomChange) {
-                    onZoomChange({ scale: transform.k, x: transform.x, y: transform.y })
+                    onZoomChange({ scale: transform.k, x: transform.x, y: transform.y });
                 }
             });
 
@@ -41,7 +50,7 @@ export default function useZoom(
 
     function zoomTo(zoomTransform: ZoomTransform) {
         if (!zoomRef.current || !elementRef.current) {
-            return
+            return;
         }
 
         const element = d3.select(elementRef.current);
@@ -59,5 +68,5 @@ export default function useZoom(
 
     return {
         zoomTo
-    }
+    };
 }

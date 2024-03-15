@@ -49,62 +49,69 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
         VenuePageContent.Publications :
         VenuePageContent.Volumes);
     const { hasWideVolumeTitles, volumesTitle } = useVenueVolumes(venue);
+    const noContentFound = !venue.publications || venue.publications.length === 0 || !(venue.venueAuthorsInfo || venue.venuePublicationsInfo);
 
     return (
         <>
-            <GeneralStatsSection
-                venue={venue} />
-
             {
-                venue.publications &&
-                <Tabs
-                    className='mb-8'
-                    legend='Select currently displayed page content'
-                    selectedId={selectedPageContent}
-                    setSelectedId={setSelectedPageContent}
-                    tabsId='venue-page-content'
-                    items={[
+                noContentFound ?
+                    <div className='flex-1 grid place-content-center text-on-surface-muted'>No content found</div> :
+                    <>
+                        <GeneralStatsSection
+                            venue={venue} />
+
                         {
-                            id: VenuePageContent.Publications,
-                            content: 'Venue',
-                        },
-                        {
-                            id: VenuePageContent.Volumes,
-                            content: volumesTitle,
+                            venue.publications &&
+                            <Tabs
+                                className='mb-8'
+                                legend='Select currently displayed page content'
+                                selectedId={selectedPageContent}
+                                setSelectedId={setSelectedPageContent}
+                                tabsId='venue-page-content'
+                                items={[
+                                    {
+                                        id: VenuePageContent.Publications,
+                                        content: 'Venue',
+                                    },
+                                    {
+                                        id: VenuePageContent.Volumes,
+                                        content: volumesTitle,
+                                    }
+                                ]} />
                         }
-                    ]} />
-            }
 
-            {
-                selectedPageContent === VenuePageContent.Publications && venue.publications &&
-                <VenueContent
-                    id='venue'
-                    publications={venue.publications}
-                    venueId={venueId} />
-            }
+                        {
+                            selectedPageContent === VenuePageContent.Publications && venue.publications &&
+                            <VenueContent
+                                id='venue'
+                                publications={venue.publications}
+                                venueId={venueId} />
+                        }
 
-            {
-                selectedPageContent === VenuePageContent.Volumes &&
-                <>
-                    <VolumesSelection
-                        title={volumesTitle}
-                        wideItems={hasWideVolumeTitles}
-                        toggleVolume={toggleVolume}
-                        toggleVolumes={toggleVolumes}
-                        selectedVolumeIds={selectedVolumeIds}
-                        groups={venue.volumeGroups}
-                        onFetchedVolume={onFetchedVolume} />
+                        {
+                            selectedPageContent === VenuePageContent.Volumes &&
+                            <>
+                                <VolumesSelection
+                                    title={volumesTitle}
+                                    wideItems={hasWideVolumeTitles}
+                                    toggleVolume={toggleVolume}
+                                    toggleVolumes={toggleVolumes}
+                                    selectedVolumeIds={selectedVolumeIds}
+                                    groups={venue.volumeGroups}
+                                    onFetchedVolume={onFetchedVolume} />
 
-                    {
-                        selectedVolumes.length > 0 &&
-                        <VolumesStats
-                            id='venue-volumes'
-                            venueVolumeType={venueVolumeType}
-                            volumes={selectedVolumes}
-                            venueId={venueId}
-                            volumeId={volumeId} />
-                    }
-                </>
+                                {
+                                    selectedVolumes.length > 0 &&
+                                    <VolumesStats
+                                        id='venue-volumes'
+                                        venueVolumeType={venueVolumeType}
+                                        volumes={selectedVolumes}
+                                        venueId={venueId}
+                                        volumeId={volumeId} />
+                                }
+                            </>
+                        }
+                    </>
             }
 
             <ExportVenueButton

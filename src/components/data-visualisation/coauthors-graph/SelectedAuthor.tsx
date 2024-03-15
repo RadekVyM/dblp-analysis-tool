@@ -14,11 +14,12 @@ import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/Pub
 import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import useCommonUncommonCoauthors from '@/hooks/data-visualisation/useCommonUncomonCoauthors'
-import { MdInfo, MdLibraryBooks } from 'react-icons/md'
+import { MdInfo } from 'react-icons/md'
 import { useDebounce } from 'usehooks-ts'
 import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
 import Popover from '@/components/Popover'
 import Badge from '@/components/Badge'
+import { stify } from '@/utils/strings'
 
 const COUNT_INCREASE = 60;
 
@@ -41,6 +42,8 @@ type SelectedAuthorContentParams = {
 type SectionHeadingParams = {
     children: React.ReactNode,
     info?: string,
+    count?: number,
+    countTitle?: string,
     popoverContainerRef?: React.RefObject<HTMLDivElement>,
 }
 
@@ -182,13 +185,10 @@ function SelectedAuthorContent({
                         popoverContainerRef={popoverContainerRef}
                         info={allIncludedAuthorIds.length > 0 ?
                             `${selectedAuthor.person.name}'s coauthors that are common with an original author` :
-                            `${selectedAuthor.person.name}'s coauthors that are in the graph`}>
+                            `${selectedAuthor.person.name}'s coauthors that are in the graph`}
+                        count={commonCoauthorsCount}
+                        countTitle={`${commonCoauthorsCount} common ${stify('coauthor', commonCoauthorsCount)}`}>
                         Common coauthors
-                        <Badge
-                            className='ml-2'
-                            title={`${commonCoauthorsCount} common coauthors`}>
-                            {commonCoauthorsCount}
-                        </Badge>
                     </SectionHeading>
                     <ul
                         className='px-3 py-2 flex flex-col gap-1'>
@@ -214,25 +214,19 @@ function SelectedAuthorContent({
                 <section>
                     {
                         allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
-                            <SectionHeading>
+                            <SectionHeading
+                                count={uncommonCoauthorsCount}
+                                countTitle={`${uncommonCoauthorsCount} ${stify('coauthor', uncommonCoauthorsCount)}`}>
                                 Coauthors
-                                <Badge
-                                    className='ml-2'
-                                    title={`${uncommonCoauthorsCount} coauthors`}>
-                                    {uncommonCoauthorsCount}
-                                </Badge>
                             </SectionHeading> :
                             <SectionHeading
                                 popoverContainerRef={popoverContainerRef}
                                 info={allIncludedAuthorIds.length !== 0 ?
                                     `${selectedAuthor.person.name}'s coauthors that are not common with any original author` :
-                                    `${selectedAuthor.person.name}'s coauthors that are not in the graph`}>
+                                    `${selectedAuthor.person.name}'s coauthors that are not in the graph`}
+                                count={uncommonCoauthorsCount}
+                                countTitle={`${uncommonCoauthorsCount} uncommon ${stify('coauthor', uncommonCoauthorsCount)}`}>
                                 Uncommon coauthors
-                                <Badge
-                                    className='ml-2'
-                                    title={`${uncommonCoauthorsCount} uncommon coauthors`}>
-                                    {uncommonCoauthorsCount}
-                                </Badge>
                             </SectionHeading>
                     }
                     <ul
@@ -264,7 +258,7 @@ function SelectedAuthorContent({
         </div>
 }
 
-function SectionHeading({ children, info, popoverContainerRef }: SectionHeadingParams) {
+function SectionHeading({ children, info, count, countTitle, popoverContainerRef }: SectionHeadingParams) {
     const {
         isHovered: isPopoverHovered,
         position,
@@ -282,9 +276,13 @@ function SectionHeading({ children, info, popoverContainerRef }: SectionHeadingP
                         onPointerLeave={onPointerLeave}
                         onPointerMove={onPointerMove}
                         className='inline'
-                        aria-label={info} />}
+                        aria-label={info} />} {count &&
+                            <Badge
+                                className='ml-2'
+                                title={countTitle}>
+                                {count}
+                            </Badge>}
             </h5>
-
             {
                 isPopoverHovered &&
                 <Popover
@@ -311,7 +309,7 @@ function CommonPublicationsCount({ selectedAuthor, coauthorId, isIncludedAuthor,
         <Badge
             className='inline-block mb-[0.2rem] ml-1 align-middle'
             popoverContainerRef={popoverContainerRef}
-            title={`${count} common publications${shouldNotIncludeLongText ? '' : ', all authors of which are included in the graph'}`}
+            title={`${count} common ${stify('publication', count)}${shouldNotIncludeLongText ? '' : ', all authors of which are included in the graph'}`}
             isMicro>
             {count}
         </Badge>

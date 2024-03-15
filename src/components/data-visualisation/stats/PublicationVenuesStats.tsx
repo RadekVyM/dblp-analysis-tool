@@ -14,7 +14,7 @@ import useSelectedChartUnit from '@/hooks/data-visualisation/useSelectedChartUni
 import { createLocalPath, getVenueTypeFromDblpString } from '@/utils/urls'
 import { VENUE_TYPE_COLOR } from '@/constants/publications'
 import ItemsStats from '@/components/ItemsStats'
-import MaxCountInput from '../MaxCountInput'
+import CountInput from '../CountInput'
 import { sortByPresentedContent } from '@/utils/table'
 import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
 import { useRouter } from 'next/navigation'
@@ -105,11 +105,11 @@ export default function PublicationVenuesStats({ className, publications, scaffo
                                     selectedUnit={barChartSelectedUnit}
                                     setSelectedUnit={setBarChartSelectedUnit}
                                     unitsId={scaffoldId || ''} />
-                                <MaxCountInput
+                                <CountInput
                                     label={'Venues count:'}
                                     scaffoldId={scaffoldId || ''}
-                                    maxCount={maxBarsCount}
-                                    setMaxCount={setMaxBarsCount} />
+                                    count={maxBarsCount}
+                                    setCount={setMaxBarsCount} />
                             </div>),
                         title: 'Bar chart',
                         icon: (<MdBarChart />),

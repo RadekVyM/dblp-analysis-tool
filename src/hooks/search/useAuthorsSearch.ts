@@ -21,5 +21,5 @@ export function useAuthorsSearch(query: string, hitsCount: number = 5, completio
         authors: data,
         isLoading,
         error: error
-    }
+    };
 }

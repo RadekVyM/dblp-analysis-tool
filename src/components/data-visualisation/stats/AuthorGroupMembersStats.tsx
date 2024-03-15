@@ -57,7 +57,7 @@ type AuthorGroupMembersTableParams = {
 /** Displays statistics of all members of an author group. */
 export default function AuthorGroupMembersStats({ authors, allPublications, scaffoldId, publicationsUrl, className, disableFilters }: AuthorGroupMembersStatsParams) {
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
-    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear } = usePublicationFilters(allPublications);
+    const { filtersMap, typesFilter, venuesFilter, yearsFilter, authorsFilter, switchSelection, clear, toggleUseAnd } = usePublicationFilters(allPublications);
     const [filtersDialog, isFiltersDialogOpen, filtersDialogAnimation, showFiltersDialog, hideFiltersDialog] = useDialog();
     const filteredPublicationIds = useMemo(() => {
         if (disableFilters) {
@@ -118,7 +118,8 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                                 showFiltersDialog={showFiltersDialog}
                                 filtersMap={filtersMap}
                                 switchSelection={switchSelection}
-                                clear={clear} />),
+                                clear={clear}
+                                toggleUseAnd={toggleUseAnd} />),
                         title: 'Bar chart',
                         icon: (<MdBarChart />),
 
@@ -134,7 +135,8 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
                                 showFiltersDialog={showFiltersDialog}
                                 filtersMap={filtersMap}
                                 switchSelection={switchSelection}
-                                clear={clear} />),
+                                clear={clear}
+                                toggleUseAnd={toggleUseAnd} />),
                     },
                 ]}
                 scaffoldId={scaffoldId || 'publication-types-stats'}
@@ -145,6 +147,7 @@ export default function AuthorGroupMembersStats({ authors, allPublications, scaf
             <FiltersDialog
                 filtersMap={filtersMap}
                 clear={clear}
+                toggleUseAnd={toggleUseAnd}
                 switchSelection={switchSelection}
                 hide={hideFiltersDialog}
                 animation={filtersDialogAnimation}

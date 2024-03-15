@@ -5,6 +5,12 @@ import { DblpPublication } from '@/dtos/DblpPublication'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
 import { useEffect, useMemo, useState } from 'react'
 
+/**
+ * Hook that creates data structures for managing selected author group members and related operations.
+ * @param authors List of available members
+ * @param authorGroup Author group that contains the members
+ * @returns Data structures for managing selected author group members and related operations
+ */
 export default function useSelectedAuthorGroupMembers(authors: Array<DblpAuthor>, authorGroup?: AuthorGroup) {
     const [selectedAuthorIds, setSelectedAuthorIds] = useState<Set<string>>(new Set(authorGroup?.authors.map((a) => a.id)));
     const selectedAuthors = useMemo(() => authors.filter((a) => selectedAuthorIds.has(a.id)), [authors, selectedAuthorIds]);

@@ -1,13 +1,15 @@
 'use client'
 
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
-import { DblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup';
-import { isNullOrWhiteSpace } from '@/utils/strings';
+import { DblpVenueVolumeItemGroup } from '@/dtos/DblpVenueVolumeItemGroup'
+import { isNullOrWhiteSpace } from '@/utils/strings'
 import { useEffect, useMemo, useState } from 'react'
 
 /**
  * Hook that creates a state and operations for selecting and storing fetched volumes of a venue.
  * @param volumeGroups Venue
+ * @param defaultSelectedVolumeIds IDs of volumes that are selected by default
+ * @param disableSearchParamsUpdate Whether saving of selected IDs to the URL search parameters should be disabled
  * @returns State and operations for selecting and storing fetched volumes of the venue
  */
 export default function useSelectableFetchableVenueVolumes(

@@ -46,7 +46,8 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
     if ($(elementsContainingVolumeRefsSelector(id)).length > 0 || $('r').length === 0) {
-        return extractVenue($, title, venueType, id);
+        console.log('hello')
+        return extractVenue($, title, venueType, id, additionalVolumeId);
     }
     else {
         const venueVolume = extractVenueVolume($, title, venueType, id, additionalVolumeId);
@@ -219,7 +220,7 @@ export function extractVenuesIndexLength(html: string, type: VenueType) {
 }
 
 /** Extracts all the venue information from a XML string using Cheerio. */
-function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string): DblpVenue {
+function extractVenue($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string, additionalVolumeId?: string): DblpVenue {
     const volumeGroups: Array<DblpVenueVolumeItemGroup> = [];
 
     // Volumes are represented by an anchor tag (<a>) in some venues
@@ -273,19 +274,10 @@ function extractVenue($: cheerio.Root, title: string, venueType: VenueType | und
         he.decode(title),
         volumeGroups,
         venueType,
-        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id)}`]
+        [`${DBLP_URL}/db${convertNormalizedIdToDblpPath(id, additionalVolumeId)}`]
     );
 
     return venue;
-}
-
-function combinedVenueTitle(firstVolumeTitle: string, lastVolumeTitle: string) {
-    const firstNumber = parseInt(extractOnlyNumbers(firstVolumeTitle));
-    const lastNumber = parseInt(extractOnlyNumbers(lastVolumeTitle));
-
-    return firstNumber <= lastNumber ?
-        `${firstVolumeTitle} - ${lastVolumeTitle}` :
-        `${lastVolumeTitle} - ${firstVolumeTitle}`;
 }
 
 /** Extracts all the venue volume items represented by \<a\> from a XML string using Cheerio. */
@@ -385,6 +377,15 @@ function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType
     );
 
     return volume;
+}
+
+function combinedVenueTitle(firstVolumeTitle: string, lastVolumeTitle: string) {
+    const firstNumber = parseInt(extractOnlyNumbers(firstVolumeTitle));
+    const lastNumber = parseInt(extractOnlyNumbers(lastVolumeTitle));
+
+    return firstNumber <= lastNumber ?
+        `${firstVolumeTitle} - ${lastVolumeTitle}` :
+        `${lastVolumeTitle} - ${firstVolumeTitle}`;
 }
 
 /** Returns a selector of \<ref\> elements. */

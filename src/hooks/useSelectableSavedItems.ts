@@ -3,6 +3,13 @@
 import { SavedItem } from '@/dtos/saves/SavedItem'
 import { useEffect, useState } from 'react'
 
+/**
+ * Hook that creates data structures for managing selected saved items and related operations.
+ * @param defaultSavedAuthors Saved authors that can be selected
+ * @param defaultSavedVenues Saved venues that can be selected
+ * @param defaultAuthorGroups Author groups that can be selected
+ * @returns Data structures for managing selected saved items and related operations
+ */
 export default function useSelectableSavedItems(
     defaultSavedAuthors: Array<SavedItem>,
     defaultSavedVenues: Array<SavedItem>,

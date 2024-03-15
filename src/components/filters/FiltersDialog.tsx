@@ -28,6 +28,7 @@ type FiltersDialogBodyParams = {
     selectedKey: any,
     switchSelection: (filterKey: string, itemKey: any) => void,
     clear: (filterKey: string) => void,
+    toggleUseAnd: (filterKey: string) => void,
 }
 
 type FilterItemParams = {
@@ -42,7 +43,7 @@ type FilterItemParams = {
  * This component should be used in combination with the useFilters() hook or a hook that is based on the useFilters() hook.
  */
 const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
-    { hide, animation, isOpen, filtersMap, clear, switchSelection },
+    { hide, animation, isOpen, filtersMap, clear, switchSelection, toggleUseAnd },
     ref
 ) => {
     const { tabs, selectedKey, setSelectedKey } = useFiltersDialogState(filtersMap, isOpen);
@@ -78,7 +79,8 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
                     selectedFilter={selectedFilter}
                     selectedKey={selectedKey}
                     clear={clear}
-                    switchSelection={switchSelection} />
+                    switchSelection={switchSelection}
+                    toggleUseAnd={toggleUseAnd} />
             </DialogContent>
         </Dialog>
     )
@@ -87,7 +89,7 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
 FiltersDialog.displayName = 'FiltersDialog';
 export default FiltersDialog;
 
-function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection }: FiltersDialogBodyParams) {
+function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection, toggleUseAnd }: FiltersDialogBodyParams) {
     const targerObserver = useRef<HTMLDivElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const selectableItems = useMemo(() => {
@@ -124,6 +126,15 @@ function FiltersDialogBody({ selectedFilter, selectedKey, clear, switchSelection
                     {
                         selectedFilter.description &&
                         <span className='mb-2 mt-2 inline-block text-sm text-on-surface-container-muted'>{selectedFilter.description}</span>
+                    }
+                    {
+                        selectedFilter.enableAndSelection &&
+                        <CheckListButton
+                            className='w-full'
+                            isSelected={selectedFilter.useAnd}
+                            onClick={() => toggleUseAnd(selectedKey)}>
+                            All selected filters have to be fulfilled
+                        </CheckListButton>
                     }
                     <div
                         className='z-20 bg-surface-container sticky top-0 pt-2 pb-4'>

@@ -1,5 +1,20 @@
-import { isNullOrWhiteSpace, isNumber, removeAccents, extractOnlyNumbers, parseIntStrings, searchIncludes, prettifyXml } from '@/utils/strings'
+import { stify, isNullOrWhiteSpace, isNumber, removeAccents, extractOnlyNumbers, parseIntStrings, searchIncludes, prettifyXml } from '@/utils/strings'
 import { describe, expect, test } from '@jest/globals'
+
+describe('stify function', () => {
+    const values: Array<[[string, number | undefined], string]> = [
+        [['author', undefined], 'author'],
+        [['author', 0], 'authors'],
+        [['author', 1], 'author'],
+        [['author', 2], 'authors'],
+    ];
+
+    for (const [value, expectedValue] of values) {
+        test(`appends 's' to "${value[0]}" if ${value[1]} is not 1 => "${expectedValue}"`, () => {
+            expect(stify(value[0], value[1])).toEqual(expectedValue);
+        });
+    }
+});
 
 describe('isNullOrWhiteSpace function', () => {
     const truthyValues = [
@@ -67,7 +82,7 @@ describe('extractOnlyNumbers function', () => {
     ];
 
     for (const [value, expectedValue] of values) {
-        test(`returs only numbers from from "${value}" => "${expectedValue}"`, () => {
+        test(`returs only numbers from "${value}" => "${expectedValue}"`, () => {
             expect(extractOnlyNumbers(value)).toEqual(expectedValue);
         });
     }
@@ -94,6 +109,7 @@ describe('searchIncludes function', () => {
         [['hello', 'world'], false],
         [['Vymětalík', 'vymetalik'], true],
         [['Radek Vymětalík', 'radek', 'vymetalik'], true],
+        [['ěščřžýáíéůúťň', 'escrzyaieuutn', 'yaieu'], true],
     ];
 
     for (const [value, expectedValue] of values) {
