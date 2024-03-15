@@ -245,7 +245,14 @@ function SelectedAuthorContent({
                                     marker={isInGraph ? 'onhover' : 'none'}
                                     onAuthorClick={(id) => id && authorsMap.has(id) && onCoauthorClick(id)}
                                     person={a}
-                                    onHoverChange={onCoauthorHoverChange} />
+                                    onHoverChange={onCoauthorHoverChange}
+                                    after={selectedAuthor.coauthorIds.has(a.id) &&
+                                        <span> <CommonPublicationsCount
+                                            allIncludedAuthorIds={allIncludedAuthorIds}
+                                            isIncludedAuthor={isIncludedAuthor}
+                                            selectedAuthor={selectedAuthor}
+                                            coauthorId={a.id} />
+                                        </span>} />
                             )
                         })}
                     </ul>
