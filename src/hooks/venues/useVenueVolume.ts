@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable'
 import { DblpVenueVolume } from '@/dtos/DblpVenueVolume'
-import waitForNextFetchClient from '@/services/waitForNextFetchClient';
+import waitForNextFetchClient from '@/services/waitForNextFetchClient'
 
 /**
  * Hook that fetches a venue volume with a specified ID.
@@ -11,7 +11,7 @@ import waitForNextFetchClient from '@/services/waitForNextFetchClient';
  */
 export default function useVenueVolume(venueId: string, volumeId: string, shouldFetch: boolean) {
     const { data, error, isLoading } = useSWRImmutable(
-        () => shouldFetch ? `/api/venue/${venueId}/volume/${volumeId}` : false,
+        () => shouldFetch ? `/api/venue/${venueId}/${volumeId}` : false,
         volumeFetcher);
 
     return {
