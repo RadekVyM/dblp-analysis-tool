@@ -49,7 +49,7 @@ export default function MultipleVolumesPageContent({ venue, venueVolumeType, ven
         VenuePageContent.Publications :
         VenuePageContent.Volumes);
     const { hasWideVolumeTitles, volumesTitle } = useVenueVolumes(venue);
-    const noContentFound = !venue.publications || venue.publications.length === 0 || !(venue.venueAuthorsInfo || venue.venuePublicationsInfo);
+    const noContentFound = (!venue.publications || venue.publications.length === 0) && venue.volumeGroups.length === 0 && !(venue.venueAuthorsInfo || venue.venuePublicationsInfo);
 
     return (
         <>

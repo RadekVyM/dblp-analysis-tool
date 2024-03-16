@@ -246,8 +246,8 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         publications,
         {
             typeFilter: 'Select only authors of publications of certain type',
-            venueFilter: 'Select only authors that contribute to certain venues',
-            yearFilter: 'Select only authors that published publications in certain years',
+            venueFilter: 'Select only authors who contribute to certain venues',
+            yearFilter: 'Select only authors who published publications in certain years',
             authorFilter: 'Select only specified authors'
         });
 
