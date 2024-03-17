@@ -115,7 +115,7 @@ export default function GroupedPublicationsList({
                             publications={filteredPublications.map((publ) => ({
                                 id: publ.id,
                                 type: publ.type,
-                                date: publ.date
+                                date: publ.modificationDate
                             }))} />
 
                         <PageSubsectionTitle>Publications Over Time</PageSubsectionTitle>
@@ -148,11 +148,10 @@ export default function GroupedPublicationsList({
                         <PublicationsList
                             groupedBy={groupedBy}
                             publications={displayedPublications} />
-
-                        <div ref={observerTarget}></div>
                     </> :
                     <span className='block w-full text-center pt-12 text-on-surface-muted'>No publications found</span>
             }
+            <div ref={observerTarget}></div>
         </>
     )
 }

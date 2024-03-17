@@ -54,7 +54,7 @@ export default function PublicationsStatsSection({ id, publications, publication
                 publications={publications.map((publ) => ({
                     id: publ.id,
                     type: publ.type,
-                    date: publ.date
+                    date: publ.modificationDate
                 }))}
                 publicationsUrl={publicationsUrl} />
 

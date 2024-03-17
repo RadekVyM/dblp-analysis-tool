@@ -115,7 +115,7 @@ function determinePublicationType(tagName: any, editors: DblpPublicationPerson[]
 
 /** Gets a list of all people found in the passed elements. */
 function getPeople($: cheerio.Root, children: cheerio.Cheerio) {
-    return (children
+    const people = (children
         .map((index, el) => {
             const elem = $(el);
             const pid = elem.attr('pid');
@@ -131,4 +131,16 @@ function getPeople($: cheerio.Root, children: cheerio.Cheerio) {
             }
         })
         .get() as Array<DblpPublicationPerson>) || [];
+
+    const ids = new Set<string>();
+    const duplicates = new Set<DblpPublicationPerson>();
+
+    people.forEach((p) => {
+        if (ids.has(p.id)) {
+            duplicates.add(p);
+        }
+        ids.add(p.id);
+    });
+
+    return people.filter((p) => !duplicates.has(p));
 }

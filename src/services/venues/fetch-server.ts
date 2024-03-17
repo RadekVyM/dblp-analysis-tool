@@ -6,14 +6,13 @@ import { DBLP_BOOKS_INDEX_HTML, DBLP_CONF_INDEX_HTML, DBLP_JOURNALS_INDEX_HTML, 
 import { extractVenueAuthorsInfo, extractVenueOrVolume, extractVenueYearlyPublications, extractVenuesIndex, extractVenuesIndexLength } from './parsing'
 import { fetchSvg, fetchXml, withCache } from '@/services/fetch'
 import { BaseSearchItemsParams, SearchItemsParams } from '@/dtos/search/SearchItemsParams'
-import { delay, getFulfilledValueAt, getRejectedValueAt } from '@/utils/promises'
-import { SimpleSearchResultItem, createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
-import { serverError } from '@/utils/errors'
+import { delay } from '@/utils/promises'
+import { createSimpleSearchResult } from '@/dtos/search/SimpleSearchResult'
 import { DblpVenueBase } from '@/dtos/DblpVenueBase'
 import { cacheVenueOrVolume, tryGetCachedVenueOrVolume } from '@/services/cache/venues'
 import { VenueVolumeType } from '@/enums/VenueVolumeType'
 import { DblpVenue } from '@/dtos/DblpVenue'
-import { createDblpVenueAuthorsInfo } from '@/dtos/DblpVenueInfo'
+import { createDblpVenueAuthorsInfo } from '@/dtos/DblpVenueAuthorsInfo'
 import { createDblpVenuePublicationsInfo } from '@/dtos/DblpVenuePublicationsInfo'
 import waitForNextFetch from '../waitForNextFetch'
 
@@ -24,32 +23,6 @@ const DBLP_HTML_INDEX_PATHS = {
     [VenueType.Book]: DBLP_BOOKS_INDEX_HTML,
     [VenueType.Reference]: DBLP_REFERENCE_INDEX_HTML,
 } as const
-
-/**
- * Requests a part of the venues index.
- * @param params Parameters which affect what part of the index is returned
- * @returns List of all venues in that part of the index
- */
-export async function fetchVenuesIndex(type: VenueType, params: BaseSearchItemsParams) {
-    const path = DBLP_HTML_INDEX_PATHS[type];
-    const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, params);
-
-    return extractVenuesIndex(html, type, params.count);
-}
-
-/**
- * Requests the authors index length.
- * @param type Venue type
- * @returns Authors index length
- */
-export async function fetchVenuesIndexLength(type: VenueType) {
-    const path = DBLP_HTML_INDEX_PATHS[type];
-    // With the 'za' prefix, I get the last page of the index
-    // There is a posibility that this will be a source of problems in the future
-    // It is not a critical feature however
-    const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, { prefix: 'za' });
-    return extractVenuesIndexLength(html, type);
-}
 
 /**
  * Requests all the venue or venue volume information with a specified ID.
@@ -90,30 +63,44 @@ export async function fetchVenueOrVolume(id: string, additionalVolumeId?: string
  * @returns Processed search result containg a list of found venues
  */
 export async function fetchSearchResultWithoutQuery(type: VenueType, params: SearchItemsParams, itemsCount: number) {
-    const promises = [
-        fetchVenuesIndex(type, { first: params.first, count: itemsCount }),
-        fetchVenuesIndexLength(type)
-    ];
+    try {
+        await waitForNextFetch();
+        const venues = await fetchVenuesIndex(type, { first: params.first, count: itemsCount });
+        await delay(500); // Wait at least a bit to not send multiple requests at the same time
+        const count = await fetchVenuesIndexLength(type);
 
-    const results = await Promise.allSettled(promises);
-    const venues = getFulfilledValueAt<Array<SimpleSearchResultItem>>(results, 0);
-    const count = getFulfilledValueAt<number>(results, 1);
-
-    if (!venues) {
-        const error = getRejectedValueAt<Error>(results, 0);
-        console.error(error);
-        throw serverError('Venues could not be fetched.');
+        return createSimpleSearchResult(count, venues);
     }
-
-    if (!count && count != 0) {
-        const error = getRejectedValueAt<Error>(results, 1);
+    catch (error) {
         console.error(error);
-        throw serverError('Venues count could not be fetched.');
+        throw error;
     }
+}
 
-    const result = createSimpleSearchResult(count, venues);
+/**
+ * Requests a part of the venues index.
+ * @param params Parameters which affect what part of the index is returned
+ * @returns List of all venues in that part of the index
+ */
+async function fetchVenuesIndex(type: VenueType, params: BaseSearchItemsParams) {
+    const path = DBLP_HTML_INDEX_PATHS[type];
+    const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, params);
 
-    return result;
+    return extractVenuesIndex(html, type, params.count);
+}
+
+/**
+ * Requests the authors index length.
+ * @param type Venue type
+ * @returns Authors index length
+ */
+async function fetchVenuesIndexLength(type: VenueType) {
+    const path = DBLP_HTML_INDEX_PATHS[type];
+    // With the 'za' prefix, I get the last page of the index
+    // There is a posibility that this will be a source of problems in the future
+    // It is not a critical feature however
+    const html = await fetchItemsIndexHtml(`${DBLP_URL}${path}`, { prefix: 'za' });
+    return extractVenuesIndexLength(html, type);
 }
 
 async function tryFetchAdditionalVenueInfo(venue: DblpVenue, id: string) {

@@ -31,11 +31,11 @@ export default function PublicationListItem({ publication }: PublicationListItem
             <article
                 className='inline-flex flex-col gap-1'>
                 {
-                    publication.ee ?
+                    publication.publicationUrl ?
                         <Link
                             prefetch={false}
                             className='link-heading block w-fit text-on-surface-muted hover:text-on-surface transition-colors'
-                            href={publication.ee}>
+                            href={publication.publicationUrl}>
                             <h5
                                 className='inline font-semibold text-on-surface'>
                                 {publication.title}
@@ -131,7 +131,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                     prefetch={false}
                                     className='hover:underline'
                                     href={createLocalVenuePath(publication)}>
-                                    {publication.volume ? <>Volume {publication.volume} of </> : ''}{addMissingNoun(publication.journal, 'journal')}
+                                    <VolumeNumber publication={publication} />{addMissingNoun(publication.journal, 'journal')}
                                 </Link> :
                                 addMissingNoun(publication.journal, 'journal')
                         }
@@ -144,7 +144,7 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                                         prefetch={false}
                                         className='hover:underline'
                                         href={createLocalVenuePath(publication)}>
-                                        {publication.volume ? <>Volume {publication.volume} of </> : ''}{addMissingNoun(publication.booktitle, 'conference')}
+                                        <VolumeNumber publication={publication} />{addMissingNoun(publication.booktitle, 'conference')}
                                     </Link> :
                                     addMissingNoun(publication.booktitle, 'conference')
                             }
@@ -185,12 +185,26 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                             SearchType.Venue,
                             publication.venueId === publication.seriesVenueId ? publication.volumeId : undefined)}>
                         {!isJournalArticle && !isConferencePaper ?
-                            <>Volume {publication.volume} of </> :
+                            <VolumeNumber publication={publication} /> :
                             ''}{publication.series}
                     </Link>
                 </>
             }
         </p>
+    )
+}
+
+type VolumeNumberParams = {
+    publication: DblpPublication
+}
+
+function VolumeNumber({ publication }: VolumeNumberParams) {
+    if (!publication.volume) {
+        return undefined;
+    }
+
+    return (
+        <>Volume {publication.volume}{publication.number ? ` (${publication.number})` : ''} of </>
     )
 }
 

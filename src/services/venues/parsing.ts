@@ -46,7 +46,6 @@ export function extractVenueOrVolume(xml: string, id: string, additionalVolumeId
     const venueType = key ? getVenueTypeFromDblpString(key) || undefined : undefined;
 
     if ($(elementsContainingVolumeRefsSelector(id)).length > 0 || $('r').length === 0) {
-        console.log('hello')
         return extractVenue($, title, venueType, id, additionalVolumeId);
     }
     else {
@@ -347,17 +346,23 @@ function extractRefVolumeItems($: cheerio.Root, li: cheerio.Element, id: string,
 function extractVenueVolume($: cheerio.Root, title: string, venueType: VenueType | undefined, id: string, additionalVolumeId?: string): DblpVenueVolume {
     const publications: Array<DblpPublication> = [];
     let venueTitle: string | undefined = undefined;
+    let groupTitle: string | undefined = undefined;
+    let groupIndex: number = 0;
 
     $('dblpcites').each((index, ref) => {
         let prev: cheerio.Cheerio = $(ref).prev();
-        let title: string | undefined = undefined;
 
         while ($(prev).length > 0 && $(prev).prop('tagName').toLowerCase() !== 'h2') {
             prev = $(prev).prev();
         }
 
-        title = $(prev).text();
-        const extractedPublications = extractPublicationsFromXml($, ref, title, index);
+        const newGroupTitle = $(prev).text();
+        if (groupTitle !== newGroupTitle) {
+            groupIndex++;
+        }
+        groupTitle = newGroupTitle;
+
+        const extractedPublications = extractPublicationsFromXml($, ref, groupTitle, groupIndex);
 
         publications.push(...extractedPublications);
     });

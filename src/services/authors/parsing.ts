@@ -97,7 +97,7 @@ function extractPersonHomonyms($: cheerio.Root) {
         const homPid = elem.attr('key')?.replace('homepages/', '');
         const [normalizedHomId, _] = convertDblpIdToNormalizedId(`pid/${homPid}`) || ['', null];
         const authorInfo = extractPersonInfo($, elem, normalizedHomId, '');
-        const url = `/author/${normalizedHomId}`
+        const url = `/author/${normalizedHomId}`;
 
         if (!homonyms.some((hom) => hom.url === url)) {
             homonyms.push({
