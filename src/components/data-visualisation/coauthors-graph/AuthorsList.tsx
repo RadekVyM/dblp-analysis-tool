@@ -11,6 +11,7 @@ import { FiltersState } from '@/dtos/Filters'
 import { MdInfo } from 'react-icons/md'
 import CheckListButton from '@/components/inputs/CheckListButton'
 import SearchBox from '@/components/inputs/SearchBox'
+import InfoBadge from './InfoBadge'
 
 type AuthorsListParams = {
     nodes: Array<PublicationPersonNodeDatum>
@@ -22,6 +23,7 @@ type AuthorsListParams = {
     onlyCommonCoauthors: boolean,
     intersectionOfCoauthors: boolean,
     originalAuthorsAlwaysIncluded: boolean,
+    popoverContainerRef?: React.RefObject<HTMLDivElement>,
     toggleOriginalAuthorsAlwaysIncluded: () => void,
     toggleOnlyCommonCoauthors: () => void,
     toggleIntersectionOfCoauthors: () => void,
@@ -36,6 +38,7 @@ type OptionsParams = {
     onlyCommonCoauthors: boolean,
     intersectionOfCoauthors: boolean,
     originalAuthorsAlwaysIncluded: boolean,
+    popoverContainerRef?: React.RefObject<HTMLDivElement>,
     toggleOriginalAuthorsAlwaysIncluded: () => void,
     toggleOnlyCommonCoauthors: () => void,
     toggleIntersectionOfCoauthors: () => void,
@@ -44,29 +47,28 @@ type OptionsParams = {
 const COUNT_INCREASE = 60;
 
 /** Displays a list of authors in the coauthors graph. These authors can be filtered and searched using this component. */
-export default function AuthorsList(
-    {
-        nodes,
-        title,
-        filteredAuthorsIds,
-        filtersMap,
-        searchQuery,
-        isOnlyCommonCoauthorsOptionVisible,
-        isOriginalAuthorsAlwaysIncludedOptionVisible,
-        onlyCommonCoauthors,
-        originalAuthorsAlwaysIncluded,
-        intersectionOfCoauthors,
-        toggleIntersectionOfCoauthors,
-        toggleOriginalAuthorsAlwaysIncluded,
-        toggleOnlyCommonCoauthors,
-        onSearchQueryChange,
-        clear,
-        switchSelection,
-        toggleUseAnd,
-        onAuthorClick,
-        onAuthorHoverChange
-    }: AuthorsListParams
-) {
+export default function AuthorsList({
+    nodes,
+    title,
+    filteredAuthorsIds,
+    filtersMap,
+    searchQuery,
+    isOnlyCommonCoauthorsOptionVisible,
+    isOriginalAuthorsAlwaysIncludedOptionVisible,
+    onlyCommonCoauthors,
+    originalAuthorsAlwaysIncluded,
+    intersectionOfCoauthors,
+    popoverContainerRef,
+    toggleIntersectionOfCoauthors,
+    toggleOriginalAuthorsAlwaysIncluded,
+    toggleOnlyCommonCoauthors,
+    onSearchQueryChange,
+    clear,
+    switchSelection,
+    toggleUseAnd,
+    onAuthorClick,
+    onAuthorHoverChange
+}: AuthorsListParams) {
     const targerObserver = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLUListElement>(null);
     const [displayedCount, resetDisplayedCount] = useLazyListCount(nodes.length, COUNT_INCREASE, targerObserver);
@@ -93,7 +95,8 @@ export default function AuthorsList(
                     intersectionOfCoauthors={intersectionOfCoauthors}
                     toggleOriginalAuthorsAlwaysIncluded={toggleOriginalAuthorsAlwaysIncluded}
                     toggleOnlyCommonCoauthors={toggleOnlyCommonCoauthors}
-                    toggleIntersectionOfCoauthors={toggleIntersectionOfCoauthors} />
+                    toggleIntersectionOfCoauthors={toggleIntersectionOfCoauthors}
+                    popoverContainerRef={popoverContainerRef} />
 
                 <div
                     className='sticky top-0 bg-surface-container z-30'>
@@ -158,6 +161,7 @@ function Options({
     originalAuthorsAlwaysIncluded,
     onlyCommonCoauthors,
     intersectionOfCoauthors,
+    popoverContainerRef,
     toggleOriginalAuthorsAlwaysIncluded,
     toggleOnlyCommonCoauthors,
     toggleIntersectionOfCoauthors
@@ -186,13 +190,17 @@ function Options({
                         className='text-xs'
                         isSelected={onlyCommonCoauthors}
                         onClick={toggleOnlyCommonCoauthors}>
-                        <span>Only common coauthors <MdInfo className='inline' title={`Show only common coauthors of at least two original authors`} /></span>
+                        <span>Only common coauthors <InfoBadge
+                            info={'Show only common coauthors of at least two original authors'}
+                            popoverContainerRef={popoverContainerRef} /></span>
                     </CheckListButton>
                     <CheckListButton
                         className='text-xs'
                         isSelected={intersectionOfCoauthors}
                         onClick={toggleIntersectionOfCoauthors}>
-                        <span>Intersection of coauthors <MdInfo className='inline' title={`Show only common coauthors of all original authors`} /></span>
+                        <span>Intersection of coauthors <InfoBadge
+                            info={'Show only common coauthors of all original authors'}
+                            popoverContainerRef={popoverContainerRef} /></span>
                     </CheckListButton>
                 </>
             }

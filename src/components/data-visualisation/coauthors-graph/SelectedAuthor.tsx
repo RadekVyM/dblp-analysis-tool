@@ -20,6 +20,7 @@ import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
 import Popover from '@/components/Popover'
 import Badge from '@/components/Badge'
 import { stify } from '@/utils/strings'
+import InfoBadge from './InfoBadge'
 
 const COUNT_INCREASE = 60;
 
@@ -266,45 +267,18 @@ function SelectedAuthorContent({
 }
 
 function SectionHeading({ children, info, count, countTitle, popoverContainerRef }: SectionHeadingParams) {
-    const {
-        isHovered: isPopoverHovered,
-        position,
-        popoverRef,
-        onPointerLeave,
-        onPointerMove
-    } = usePopoverAnchorHover(popoverContainerRef);
-    const isPopoverVisible = useDebounce(isPopoverHovered, 100);
-
     return (
-        <>
-            <h5 className='font-bold mx-4 mt-4 text-sm'>
-                {children} {info &&
-                    <MdInfo
-                        onPointerLeave={onPointerLeave}
-                        onPointerMove={onPointerMove}
-                        className='inline'
-                        aria-label={info} />} {count &&
-                            <Badge
-                                className='ml-2'
-                                title={countTitle}>
-                                {count}
-                            </Badge>}
-            </h5>
-            {
-                isPopoverHovered &&
-                <Popover
-                    ref={popoverRef}
-                    containerRef={popoverContainerRef}
-                    left={position[0]}
-                    top={position[1]}
-                    className={isPopoverHovered && isPopoverVisible ? 'visible' : 'invisible'}>
-                    <div
-                        className='px-2 py-1 text-xs'>
-                        {info}
-                    </div>
-                </Popover>
-            }
-        </>
+        <h5 className='font-bold mx-4 mt-4 text-sm'>
+            {children} {info &&
+                <InfoBadge
+                    info={info}
+                    popoverContainerRef={popoverContainerRef} />} {count &&
+                        <Badge
+                            className='ml-2'
+                            title={countTitle}>
+                            {count}
+                        </Badge>}
+        </h5>
     )
 }
 

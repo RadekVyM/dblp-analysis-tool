@@ -162,6 +162,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
                             onBackClick={onBackClick}
                             onCoauthorHoverChange={onCoauthorHoverChange} /> :
                         <AuthorsList
+                            popoverContainerRef={rootRef}
                             nodes={displayedNodes}
                             filteredAuthorsIds={graph.filteredAuthorsIds}
                             filtersMap={filtersMap}
@@ -169,7 +170,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
                             clear={clear}
                             toggleUseAnd={toggleUseAnd}
                             onAuthorClick={setSelectedAuthorId}
-                            title={`All Authors`}
+                            title={'All Authors'}
                             onAuthorHoverChange={onCoauthorHoverChange}
                             isOriginalAuthorsAlwaysIncludedOptionVisible={allAuthors.ids.length > 0}
                             isOnlyCommonCoauthorsOptionVisible={allAuthors.ids.length > 1}

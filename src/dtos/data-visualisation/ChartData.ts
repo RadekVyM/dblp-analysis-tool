@@ -3,9 +3,9 @@ import { ChartValue } from './ChartValue'
 /** Base type for data displayed in a chart. */
 export type ChartData<T> = {
     items: Array<T>,
-    /** Sum of all displayed values. */
+    /** Sum of all displayed items. */
     totalItemsCount?: number,
-    /** If the examined propery is integer and this property is set to true, missing numbers in the range are added. */
+    /** If the examined property is integer and this property is set to true, missing numbers in the [min value, max value] range are added. */
     fillMissingNumberKeys?: boolean,
     examinedProperty: (item: T) => any,
     /** Returns a value that should be assigned to a group of items and displayed in the graph */

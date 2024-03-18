@@ -12,7 +12,7 @@ import { ChartValue } from '@/dtos/data-visualisation/ChartValue'
  * @param unit Unit in which chart values are displayed
  * @param maxKeysCount Maximum number of keys
  * @param defaultSortKeys Default function used to sort keys
- * @returns 
+ * @returns Map that maps all examined property values (keys) to ChartValue objects, keys of the map, and scale that maps all the chart values to the [0, 1] range
  */
 export function useRolledChartData(
     data: ChartData<any>,
@@ -23,7 +23,10 @@ export function useRolledChartData(
     // Chart map maps each examined property value to a count of items with that property value
     const chartMap = useMemo<d3.InternMap<any, ChartValue>>(
         () => {
-            const rolled = d3.rollup(data.items, r => ({ value: data.value ? data.value(r) : r.length, items: r }), data.examinedProperty);
+            const rolled = d3.rollup(
+                data.items,
+                (r) => ({ value: data.value ? data.value(r) : r.length, items: r }),
+                data.examinedProperty);
 
             if (unit === ChartUnit.Percentage) {
                 const total = data.totalItemsCount || data.items.length;

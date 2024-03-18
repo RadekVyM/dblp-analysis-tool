@@ -28,11 +28,11 @@ const onmessage = (event) => {
 
     // The natural number of ticks when the simulation is started
     // See: https://d3js.org/d3-force/simulation#simulation_tick
-    const n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+    const numberOfTicks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
 
-    // Run the simulation manually to be able to watch progress
-    for (let i = 0; i < n; ++i) {
-        postMessage({ type: 'tick', progress: i / n });
+    // Run the simulation manually to be able to watch the progress
+    for (let i = 0; i < numberOfTicks; ++i) {
+        postMessage({ type: 'tick', progress: i / numberOfTicks });
         simulation.tick();
     }
 

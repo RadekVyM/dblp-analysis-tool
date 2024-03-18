@@ -31,7 +31,6 @@ type PieLabel = Label<PieArc> & {
 type PieChartParams = {
     data: PieChartData<any>,
     className?: string,
-    innerClassName?: string,
     arcClassName?: string,
     onSliceClick?: (key: any, value?: ChartValue) => void
 }
@@ -77,12 +76,8 @@ const pie = d3.pie<any, ArcData>()
     .sort((a, b) => d3.ascending(a.keyIndex, b.keyIndex))
     .value((pair) => pair.value);
 
-function sortKeys(pair1: { key: any, value?: ChartValue }, pair2: { key: any, value?: ChartValue }) {
-    return isGreater(pair1.value?.value, pair2.value?.value);
-}
-
 /** Displays data in a pie chart. */
-export default function PieChart({ data, className, innerClassName, arcClassName, onSliceClick }: PieChartParams) {
+export default function PieChart({ data, className, arcClassName, onSliceClick }: PieChartParams) {
     const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
     const [hoveredSlice, setHoveredSlice] = useState<PieArc | null>(null);
     const { chartMap, keys } = useRolledChartData(data, ChartUnit.Count, undefined, sortKeys);
@@ -114,7 +109,7 @@ export default function PieChart({ data, className, innerClassName, arcClassName
                 onSliceHover={(arc) => setHoveredSlice(arc)} />
 
             <DataVisualisationSvg
-                innerClassName={cn('overflow-visible', innerClassName)}
+                innerClassName={'overflow-visible'}
                 onDimensionsChange={(width, height) => setDimensions({ width, height })}>
                 {
                     dimensions && defaultRadius > 0 && arcs.length > 0 &&
@@ -266,6 +261,10 @@ function PieChartLabelPolyline({ label }: PieChartLabelPolylineParams) {
             strokeLinejoin='round' strokeLinecap='round'>
         </polyline>
     );
+}
+
+function sortKeys(pair1: { key: any, value?: ChartValue }, pair2: { key: any, value?: ChartValue }) {
+    return isGreater(pair1.value?.value, pair2.value?.value);
 }
 
 function mapArcsToLabels(defaultRadius: number, arcs: Array<PieArc>): Array<PieLabel> {
