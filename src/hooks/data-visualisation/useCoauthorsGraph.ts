@@ -6,7 +6,7 @@ import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/Pub
 import { convertToCoauthorsGraph, personNodeMatchesSearchPhrases } from '@/services/graphs/authors'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
-import { removeAccents, splitSearchQuery } from '@/utils/strings'
+import { splitSearchQuery } from '@/utils/strings'
 
 const DEFAULT_GRAPH_OPTIONS: CoauthorsGraphOptions = {
     originalLinksDisplayed: true,

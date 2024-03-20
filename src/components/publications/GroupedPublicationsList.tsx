@@ -18,7 +18,7 @@ import PublicationVenuesStats from '@/components/data-visualisation/stats/Public
 import { PageSubsectionTitle } from '@/components/shell/PageSection'
 import PublicationTypesStats from '@/components/data-visualisation/stats/PublicationTypesStats'
 import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
-import filterPublications from '@/services/publications/filters'
+import { filterPublications } from '@/services/publications/filters'
 
 type GroupedPublicationsListParams = {
     publications: Array<DblpPublication>,

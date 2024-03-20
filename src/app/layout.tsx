@@ -32,7 +32,7 @@ export default async function RootLayout({
           <div
             id='main-content-container'
             className={cn(
-              'row-start-2 row-end-3 col-start-1 col-end-2 max-w-screen-xl px-4 mx-auto w-full grid transition-all mt-32 md:mt-16',
+              'row-start-2 row-end-3 col-start-1 col-end-2 max-w-screen-xl px-5 mx-auto w-full grid transition-all mt-32 md:mt-16',
               UNDOCKED_SIDE_MENU_CLASSES.join(' '))}>
             <div
               className='row-start-1 row-end-2 col-start-1 col-end-2'>

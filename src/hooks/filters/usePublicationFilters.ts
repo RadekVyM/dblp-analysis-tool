@@ -5,6 +5,7 @@ import { PUBLICATION_TYPE_TITLE } from '@/constants/publications'
 import { PublicationFilterKey } from '@/enums/PublicationFilterKey'
 import { DblpPublication, getVenueTitle } from '@/dtos/DblpPublication'
 import { PublicationType } from '@/enums/PublicationType'
+import { getPublicationsByAuthor, getPublicationsByType, getPublicationsByVenue, getPublicationsByYear } from '@/services/publications/filters'
 
 /**
  * Hook that creates and initializes a data structure for managing publication filters.
@@ -41,18 +42,13 @@ export default function usePublicationFilters(
                 defaultSelectedKeys: defaultSelected?.types,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
+                    const {
+                        map,
+                        filteredPublications,
+                        selectedTypes
+                    } = getSelectablePublications(publications, PublicationFilterKey.Type, state);
 
-                    if (canReturnAllSelectable(state, PublicationFilterKey.Type)) {
-                        return new Map(state[PublicationFilterKey.Type].allSelectableItems);
-                    }
-
-                    const map = new Map<any, any>();
-                    const publicationsByYear = getPublicationsByYear(publications, selectedYears);
-                    const publicationsByVenue = getPublicationsByVenue(publicationsByYear, selectedVenues);
-                    const publicationsByAuthor = getPublicationsByAuthor(publicationsByVenue, selectedAuthors);
-
-                    for (const publication of publicationsByAuthor) {
+                    for (const publication of filteredPublications) {
                         if (!map.has(publication.type)) {
                             map.set(publication.type, PUBLICATION_TYPE_TITLE[publication.type]);
                         }
@@ -72,18 +68,13 @@ export default function usePublicationFilters(
                 defaultSelectedKeys: defaultSelected?.venues,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
+                    const {
+                        map,
+                        filteredPublications,
+                        selectedVenues
+                    } = getSelectablePublications(publications, PublicationFilterKey.Venue, state);
 
-                    if (canReturnAllSelectable(state, PublicationFilterKey.Venue)) {
-                        return new Map(state[PublicationFilterKey.Venue].allSelectableItems);
-                    }
-
-                    const map = new Map<any, any>();
-                    const publicationsByYear = getPublicationsByYear(publications, selectedYears);
-                    const publicationsByType = getPublicationsByType(publicationsByYear, selectedTypes);
-                    const publicationsByAuthor = getPublicationsByAuthor(publicationsByType, selectedAuthors);
-
-                    for (const publication of publicationsByAuthor) {
+                    for (const publication of filteredPublications) {
                         if (!map.has(publication.venueId)) {
                             map.set(publication.venueId, getVenueTitle(publication));
                         }
@@ -114,18 +105,13 @@ export default function usePublicationFilters(
                 defaultSelectedKeys: defaultSelected?.years,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
+                    const {
+                        map,
+                        filteredPublications,
+                        selectedYears
+                    } = getSelectablePublications(publications, PublicationFilterKey.Year, state);
 
-                    if (canReturnAllSelectable(state, PublicationFilterKey.Year)) {
-                        return new Map(state[PublicationFilterKey.Year].allSelectableItems);
-                    }
-
-                    const map = new Map<any, any>();
-                    const publicationsByType = getPublicationsByType(publications, selectedTypes);
-                    const publicationsByVenue = getPublicationsByVenue(publicationsByType, selectedVenues);
-                    const publicationsByAuthor = getPublicationsByAuthor(publicationsByVenue, selectedAuthors);
-
-                    for (const publication of publicationsByAuthor) {
+                    for (const publication of filteredPublications) {
                         map.set(publication.year, publication.year.toString());
                     }
 
@@ -144,18 +130,13 @@ export default function usePublicationFilters(
                 enableAndSelection: enableAndSelectionForSelectedAuthors,
                 itemTitleSelector: (item) => item,
                 updateSelectableItems: (state) => {
-                    const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
+                    const {
+                        map,
+                        filteredPublications,
+                        selectedAuthors
+                    } = getSelectablePublications(publications, PublicationFilterKey.Author, state);
 
-                    if (canReturnAllSelectable(state, PublicationFilterKey.Author)) {
-                        return new Map(state[PublicationFilterKey.Author].allSelectableItems);
-                    }
-
-                    const map = new Map<any, any>();
-                    const publicationsByYear = getPublicationsByYear(publications, selectedYears);
-                    const publicationsByType = getPublicationsByType(publicationsByYear, selectedTypes);
-                    const publicationsByVenue = getPublicationsByVenue(publicationsByType, selectedVenues);
-
-                    for (const publication of publicationsByVenue) {
+                    for (const publication of filteredPublications) {
                         for (const author of [...publication.authors, ...publication.editors]) {
                             map.set(author.id, author.name);
                         }
@@ -242,24 +223,31 @@ function getAllPublicationAuthors(publications: Array<DblpPublication>): Map<str
     return map;
 }
 
-function getPublicationsByVenue(publications: Array<DblpPublication>, selectedVenues: Map<any, any>) {
-    return selectedVenues.size === 0 ? publications : publications.filter((p) => selectedVenues.has(p.venueId) || (p.seriesVenueId && p.series && selectedVenues.has(p.seriesVenueId)));
-}
+function getSelectablePublications(publications: Array<DblpPublication>, key: PublicationFilterKey, state: FilterStatesMap) {
+    const { selectedVenues, selectedYears, selectedTypes, selectedAuthors } = getSelectedItems(state);
+    const map = new Map<any, any>();
 
-function getPublicationsByYear(publications: Array<DblpPublication>, selectedYears: Map<any, any>) {
-    return selectedYears.size === 0 ? publications : publications.filter((p) => selectedYears.has(p.year));
-}
+    if (key !== PublicationFilterKey.Year) {
+        publications = getPublicationsByYear(publications, selectedYears);
+    }
+    if (key !== PublicationFilterKey.Type) {
+        publications = getPublicationsByType(publications, selectedTypes);
+    }
+    if (key !== PublicationFilterKey.Venue) {
+        publications = getPublicationsByVenue(publications, selectedVenues);
+    }
+    if (key !== PublicationFilterKey.Author) {
+        publications = getPublicationsByAuthor(publications, selectedAuthors);
+    }
 
-function getPublicationsByType(publications: Array<DblpPublication>, selectedTypes: Map<any, any>) {
-    return selectedTypes.size === 0 ? publications : publications.filter((p) => selectedTypes.has(p.type));
-}
-
-function getPublicationsByAuthor(publications: Array<DblpPublication>, selectedAuthors: Map<any, any>) {
-    return selectedAuthors.size === 0 ? publications : publications.filter((p) => [...p.authors, ...p.editors].some((a) => selectedAuthors.has(a.id)));
-}
-
-function canReturnAllSelectable(state: FilterStatesMap, key: PublicationFilterKey) {
-    return Object.keys(state).every((k) => k === key || state[k].selectedItems.size === 0);
+    return {
+        map,
+        filteredPublications: publications,
+        selectedVenues,
+        selectedYears,
+        selectedTypes,
+        selectedAuthors
+    };
 }
 
 function getSelectedItems(state: FilterStatesMap) {

@@ -14,7 +14,7 @@ export default async function SiteHeader({ className }: SiteHeaderParams) {
         <header
             className={cn('fixed top-0 left-0 right-0 z-40 backdrop-blur-lg border-b border-outline-variant', className)}>
             <div
-                className='grid grid-rows-[auto_auto] grid-cols-[1fr] md:grid-cols-[1fr_auto] max-w-screen-xl w-full mx-auto px-4'>
+                className='grid grid-rows-[auto_auto] grid-cols-[1fr] md:grid-cols-[1fr_auto] max-w-screen-xl w-full mx-auto px-5'>
                 <div
                     className='row-start-1 row-end-2 col-start-1 col-end-2 flex place-items-center gap-6 sm:gap-10 h-16'>
                     <SiteLogo />

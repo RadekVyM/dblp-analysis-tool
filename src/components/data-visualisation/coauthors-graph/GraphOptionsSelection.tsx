@@ -11,7 +11,7 @@ import { LinkDatum, LinkDatumExtension } from '@/dtos/data-visualisation/graphs/
 import { NodeDatum, NodeDatumExtension } from '@/dtos/data-visualisation/graphs/NodeDatum'
 import useDialog from '@/hooks/useDialog'
 import { forwardRef } from 'react'
-import { MdGetApp, MdSettings } from 'react-icons/md'
+import { MdFilterCenterFocus, MdGetApp, MdSettings } from 'react-icons/md'
 
 type GraphOptionsSelectionParams = {
     id: string,
@@ -44,7 +44,7 @@ export default function GraphOptionsSelection({ id, options, nodes, links, setOp
                 variant='outline'
                 onClick={() => showOptionsDialog()}>
                 <MdSettings />
-                <span className='hidden @sm:inline'>Display options</span>
+                <span className='hidden @lg:inline'>Display options</span>
             </Button>
             <Button
                 className='items-center gap-x-2'
@@ -52,8 +52,17 @@ export default function GraphOptionsSelection({ id, options, nodes, links, setOp
                 variant='outline'
                 onClick={() => showExportDialog()}>
                 <MdGetApp />
-                <span className='hidden @sm:inline'>Export graph</span>
+                <span className='hidden @lg:inline'>Export graph</span>
             </Button>
+            <Button
+                variant='icon-outline'
+                size='sm'
+                onClick={zoomToCenter}
+                className='p-0'
+                title='Center the graph'>
+                <MdFilterCenterFocus className='w-4 h-4' />
+            </Button>
+
             <GraphOptionsDialog
                 ref={optionsDialogRef}
                 animation={optionsDialogAnimationClass}
@@ -89,12 +98,6 @@ const GraphOptionsDialog = forwardRef<HTMLDialogElement, GraphOptionsDialogParam
 
                 <DialogBody
                     className='flex-1 flex flex-col gap-3 items-start'>
-                    <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={zoomToCenter}>
-                        Center the graph
-                    </Button>
                     <CheckListButton
                         className='w-full'
                         isSelected={options.originalLinksDisplayed}

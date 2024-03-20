@@ -101,7 +101,9 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
             const filter = filtersConfiguration[key];
             const state = map[key];
 
-            state.selectableItems = filter.updateSelectableItems(map);
+            state.selectableItems = canReturnAllSelectable(map, key) ?
+                new Map(state.allSelectableItems) :
+                filter.updateSelectableItems(map);
         });
     }
 
@@ -111,4 +113,8 @@ export default function useFilters(filtersConfiguration: FiltersConfiguration): 
         clear,
         toggleUseAnd
     };
+}
+
+function canReturnAllSelectable(state: FilterStatesMap, key: string) {
+    return Object.keys(state).every((k) => k === key || state[k].selectedItems.size === 0);
 }

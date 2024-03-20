@@ -12,7 +12,7 @@ export default function GraphStats({ nodesCount, linksCount, className }: GraphS
         <div
             className={cn(className)}>
             <dl
-                className='grid text-xs grid-cols-[1fr_auto] gap-x-2'>
+                className='grid text-xs grid-cols-[1fr_auto] gap-x-2 ml-auto w-max'>
                 <dt className='font-semibold'>Nodes count: </dt>
                 <dd className='justify-self-end'>{nodesCount}</dd>
                 <dt className='font-semibold'>Links count: </dt>

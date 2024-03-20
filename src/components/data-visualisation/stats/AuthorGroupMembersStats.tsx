@@ -23,7 +23,7 @@ import { SearchType } from '@/enums/SearchType'
 import * as d3 from 'd3'
 import { PublicationType } from '@/enums/PublicationType'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
-import filterPublications from '@/services/publications/filters'
+import { filterPublications } from '@/services/publications/filters'
 
 type AuthorStats = {
     id: string,

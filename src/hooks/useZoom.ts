@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useRef, useCallback } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 export type ZoomTransform = { scale: number, x: number, y: number }
