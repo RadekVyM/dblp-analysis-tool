@@ -13,16 +13,19 @@ import ExportButton from '@/components/export/ExportButton'
 
 type SaveAuthorButtonsParams = {
     className?: string,
+    buttonSize?: 'xs' | 'sm',
+    exportButtonDisabled?: boolean,
     author: DblpAuthor
 }
 
 type GroupButtonParams = {
     authorId: string,
-    authorName: string
+    authorName: string,
+    buttonSize?: 'xs' | 'sm',
 }
 
 /** Buttons that allow the user to save an author for easier access to a list or an author group. */
-export default function SaveAuthorButtons({ className, author }: SaveAuthorButtonsParams) {
+export default function SaveAuthorButtons({ className, author, exportButtonDisabled, buttonSize }: SaveAuthorButtonsParams) {
     const { removeSavedAuthor, saveAuthor, savedAuthors, canUseSavedAuthors } = useSavedAuthors();
     const isSaved = useMemo(() => savedAuthors.some((v) => v.id === author.id), [savedAuthors, author.id]);
 
@@ -40,30 +43,36 @@ export default function SaveAuthorButtons({ className, author }: SaveAuthorButto
             <Button
                 disabled={!canUseSavedAuthors}
                 variant={canUseSavedAuthors && isSaved ? 'default' : 'outline'}
-                size='sm'
+                size={buttonSize || 'sm'}
                 className='items-center gap-x-2'
                 onClick={() => updateSaved()}>
                 <MdBookmarks />
                 <span className='hidden xs:block'>{canUseSavedAuthors && isSaved ? 'Saved' : 'Save'}</span>
             </Button>
             <GroupButton
+                buttonSize={buttonSize}
                 authorId={author.id}
                 authorName={author.name} />
-            <ExportButton
-                exportedObject={author}
-                fileName={`${author.name}.json`} />
+            {
+                !exportButtonDisabled &&
+                <ExportButton
+                    size={buttonSize}
+                    exportedObject={author}
+                    fileName={`${author.name}.json`} />
+            }
         </div>
     )
 }
 
 /** Button that allows the user to save an author to an author group. */
-function GroupButton({ authorId, authorName }: GroupButtonParams) {
+function GroupButton({ authorId, authorName, buttonSize }: GroupButtonParams) {
     const [dialogRef, isDialogOpen, dialogAnimationClass, showDialog, hideDialog] = useDialog();
 
     return (
         <>
             <Button
-                variant='outline' size='sm'
+                variant='outline'
+                size={buttonSize || 'sm'}
                 className='items-center gap-x-2'
                 onClick={showDialog}>
                 <FaUsers />

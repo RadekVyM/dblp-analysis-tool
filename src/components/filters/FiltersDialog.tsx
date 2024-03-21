@@ -14,6 +14,7 @@ import SearchBox from '@/components/inputs/SearchBox'
 import { cn } from '@/utils/tailwindUtils'
 import { isNullOrWhiteSpace, removeAccents, searchIncludes } from '@/utils/strings'
 import useLazyListCount from '@/hooks/useLazyListCount'
+import { anyKeys } from '@/utils/objects'
 
 const DISPLAYED_FILTERS_COUNT_INCREASE = 80;
 
@@ -48,7 +49,7 @@ const FiltersDialog = forwardRef<HTMLDialogElement, FiltersDialogParams>((
 ) => {
     const { tabs, selectedKey, setSelectedKey } = useFiltersDialogState(filtersMap, isOpen);
 
-    if (Object.keys(filtersMap).length === 0) {
+    if (!anyKeys(filtersMap)) {
         return;
     }
 

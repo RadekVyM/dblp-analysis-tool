@@ -21,6 +21,7 @@ import Popover from '@/components/Popover'
 import Badge from '@/components/Badge'
 import { stify } from '@/utils/strings'
 import InfoBadge from './InfoBadge'
+import SaveAuthorButtons from '@/components/authors/SaveAuthorButtons'
 
 const COUNT_INCREASE = 60;
 
@@ -166,6 +167,14 @@ function SelectedAuthorContent({
                             {affiliation}
                         </li>)}
                 </ul>
+            }
+            {
+                fetchedAuthor &&
+                <SaveAuthorButtons
+                    className='mx-4 mb-3'
+                    buttonSize='xs'
+                    exportButtonDisabled
+                    author={fetchedAuthor} />
             }
             {
                 fetchedAuthor && !originalAuthorIds.some((id) => fetchedAuthor.id === id) &&
