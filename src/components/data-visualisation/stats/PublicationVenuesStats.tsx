@@ -57,28 +57,15 @@ export default function PublicationVenuesStats({ className, publications, scaffo
     const [selectedPublTypesStatsVisual, setSelectedPublTypesStatsVisual] = useState('Bars');
     const [barChartSelectedUnit, setBarChartSelectedUnit] = useSelectedChartUnit();
     const [maxBarsCount, setMaxBarsCount] = useState(100);
-    const venues = useMemo(() => {
-        const map = new Map<string | null, VenuePair>();
-
-        for (const publication of publications) {
-            if (!map.has(publication.venueId)) {
-                map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
-            }
-
-            if (publication.seriesId && publication.seriesTitle && !map.has(publication.seriesId)) {
-                map.set(publication.seriesId, { venueId: publication.seriesId, title: publication.seriesTitle });
-            }
-        }
-
-        return [...map.values()]
-    }, [publications]);
+    const { venues, additionalStatsItems } = useVenuesStats(publications);
     const router = useRouter();
 
     return (
         <>
             <ItemsStats
                 className='mb-6'
-                totalCount={venues.length} />
+                totalCount={venues.filter((v) => v.venueId).length}
+                additionalItems={additionalStatsItems} />
 
             <StatsScaffold
                 className={cn(
@@ -185,6 +172,40 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
             sortExaminedValue={sortByPresentedContent}
             rowKey={venueTableRowKey} />
     )
+}
+
+function useVenuesStats(publications: VenuePublication[]) {
+    const venues = useMemo(() => {
+        const map = new Map<string | null, VenuePair>();
+
+        for (const publication of publications) {
+            if (!map.has(publication.venueId)) {
+                map.set(publication.venueId, { venueId: publication.venueId, title: publication.venueTitle });
+            }
+
+            if (publication.seriesId && publication.seriesTitle && !map.has(publication.seriesId)) {
+                map.set(publication.seriesId, { venueId: publication.seriesId, title: publication.seriesTitle });
+            }
+        }
+
+        return [...map.values()];
+    }, [publications])
+    const additionalStatsItems = useMemo(() => {
+        const items: Array<{ term: string; definition: string }> = [];
+        const journalsCount = venues.filter((v) => v.venueId && getVenueTypeFromDblpString(v.venueId) === VenueType.Journal).length;
+        const conferencesCount = venues.filter((v) => v.venueId && getVenueTypeFromDblpString(v.venueId) === VenueType.Conference).length;
+
+        if (journalsCount) {
+            items.push({ term: 'Journals count:', definition: journalsCount.toLocaleString(undefined, { useGrouping: true }) });
+        }
+        if (conferencesCount) {
+            items.push({ term: 'Conferences count:', definition: conferencesCount.toLocaleString(undefined, { useGrouping: true }) });
+        }
+
+        return items;
+    }, [venues])
+
+    return { venues, additionalStatsItems };
 }
 
 function tableToPresentedContent(venue: VenuePair) {

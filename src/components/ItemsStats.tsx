@@ -3,17 +3,22 @@ import DividedDefinitionList from './DividedDefinitionList'
 type ItemsStatsParams = {
     totalCount: number,
     displayedCount?: number,
-    className?: string
+    className?: string,
+    additionalItems?: Array<{ term: string, definition: string }>
 }
 
 /** Component that displays information about total and currently displayed items counts. */
-export default function ItemsStats({ totalCount, displayedCount, className }: ItemsStatsParams) {
+export default function ItemsStats({ totalCount, displayedCount, additionalItems, className }: ItemsStatsParams) {
     const items = [
         { term: 'Total count:', definition: totalCount.toLocaleString(undefined, { useGrouping: true }) }
     ];
 
     if (displayedCount === 0 || displayedCount) {
         items.push({ term: 'Displayed count:', definition: displayedCount.toLocaleString(undefined, { useGrouping: true }) });
+    }
+
+    if (additionalItems && additionalItems.length > 0) {
+        additionalItems.forEach((item) => items.push(item));
     }
 
     return (

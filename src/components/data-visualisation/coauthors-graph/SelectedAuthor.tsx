@@ -211,6 +211,7 @@ function SelectedAuthorContent({
                                 onHoverChange={onCoauthorHoverChange}
                                 after={selectedAuthor.coauthorIds.has(a.person.id) &&
                                     <span> <CommonPublicationsCount
+                                        popoverContainerRef={popoverContainerRef}
                                         allIncludedAuthorIds={allIncludedAuthorIds}
                                         isIncludedAuthor={isIncludedAuthor}
                                         selectedAuthor={selectedAuthor}
@@ -225,6 +226,7 @@ function SelectedAuthorContent({
                     {
                         allIncludedAuthorIds.length === 1 && allIncludedAuthorIds[0] === selectedAuthor.person.id ?
                             <SectionHeading
+                                popoverContainerRef={popoverContainerRef}
                                 count={uncommonCoauthorsCount}
                                 countTitle={`${uncommonCoauthorsCount} ${stify('coauthor', uncommonCoauthorsCount)}`}>
                                 Coauthors
@@ -258,6 +260,7 @@ function SelectedAuthorContent({
                                     onHoverChange={onCoauthorHoverChange}
                                     after={selectedAuthor.coauthorIds.has(a.id) &&
                                         <span> <CommonPublicationsCount
+                                            popoverContainerRef={popoverContainerRef}
                                             allIncludedAuthorIds={allIncludedAuthorIds}
                                             isIncludedAuthor={isIncludedAuthor}
                                             selectedAuthor={selectedAuthor}
@@ -284,6 +287,7 @@ function SectionHeading({ children, info, count, countTitle, popoverContainerRef
                     popoverContainerRef={popoverContainerRef} />} {count &&
                         <Badge
                             className='ml-2'
+                            popoverContainerRef={popoverContainerRef}
                             title={countTitle}>
                             {count}
                         </Badge>}

@@ -16,7 +16,7 @@ export default function PublicationTypesPopoverContent({ publicationTypes }: Pub
                     key={type}
                     className='col-span-2 grid grid-cols-subgrid'>
                     <dt className='font-semibold'>{PUBLICATION_TYPE_TITLE[type]}:</dt>
-                    <dd className='justify-self-end'>{publicationTypes.get(type)}</dd>
+                    <dd className='justify-self-end'>{publicationTypes.get(type)?.toLocaleString(undefined, { useGrouping: true })}</dd>
                 </div>)}
         </dl>
     )

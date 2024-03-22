@@ -102,15 +102,14 @@ export function getVenueTitle(publication: DblpPublication): string {
             return 'Books';
         }
 
-        const venueTypeTitle = venueType ? VENUE_TYPE_TITLE[venueType] : undefined;
         const title = publication.journal ||
             publication.booktitle ||
             publication.series ||
             (venueType === VenueType.Reference && publication.groupTitle) || // Some encyclopedias do not have a title, but are grouped by a venue
             'undefined';
 
-        return venueTypeTitle ? `${title} (${venueTypeTitle})` : title;
+        return title;
     }
 
-    return 'Unlisted Publications';
+    return 'Unlisted publications';
 }

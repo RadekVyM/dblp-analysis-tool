@@ -456,7 +456,7 @@ const PrimaryAxisLabels = forwardRef<HTMLDivElement, PrimaryAxisLabelsParams>(({
                                             'text-end' :
                                             'text-center')}>
                                     {label.link ?
-                                        <Link prefetch={false} href={label.link} className='hover:underline'>{label.label}</Link> :
+                                        <Link prefetch={false} href={label.link} className='hover:underline line-clamp-3 text-ellipsis'>{label.label}</Link> :
                                         <>{label.label}</>}
                                 </span>
                             </div>

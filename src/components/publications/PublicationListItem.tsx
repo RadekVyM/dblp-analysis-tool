@@ -171,23 +171,31 @@ function PublicationInfo({ publication }: PublicationListItemParams) {
                             </Link>
             }
             {
-                publication.seriesVenueId && publication.series &&
+                (publication.series || publication.seriesVenueId) &&
                 <>
                     {
                         (publication.journal || publication.booktitle) &&
                         <span>, </span>
                     }
-                    <Link
-                        prefetch={false}
-                        className='hover:underline'
-                        href={createLocalPath(
-                            publication.seriesVenueId,
-                            SearchType.Venue,
-                            publication.venueId === publication.seriesVenueId ? publication.volumeId : undefined)}>
-                        {!isJournalArticle && !isConferencePaper ?
-                            <VolumeNumber publication={publication} /> :
-                            ''}{publication.series}
-                    </Link>
+                    {
+                        publication.seriesVenueId ?
+                            <Link
+                                prefetch={false}
+                                className='hover:underline'
+                                href={createLocalPath(
+                                    publication.seriesVenueId,
+                                    SearchType.Venue,
+                                    publication.venueId === publication.seriesVenueId ? publication.volumeId : undefined)}>
+                                {!isJournalArticle && !isConferencePaper ?
+                                    <VolumeNumber publication={publication} /> :
+                                    ''}{publication.series}
+                            </Link> :
+                            <>
+                                {!isJournalArticle && !isConferencePaper ?
+                                    <VolumeNumber publication={publication} /> :
+                                    ''}{publication.series}
+                            </>
+                    }
                 </>
             }
         </p>

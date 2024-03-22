@@ -5,6 +5,7 @@ import { getPageFromSearchParams } from '@/utils/searchParams'
 import { DEFAULT_ITEMS_COUNT_PER_PAGE } from '@/constants/search'
 import ListLink from '@/components/ListLink'
 import ItemsStats from '@/components/ItemsStats'
+import he from 'he'
 
 type SearchResultListParams = {
     result: SimpleSearchResult,
@@ -67,7 +68,7 @@ function SearchResultLink({ item }: SearchResultLinkParams) {
             className='my-2'
             prefetch={false}>
             <span>
-                {item.title}
+                {he.decode(item.title)}
             </span>
             {
                 item.additionalInfo &&

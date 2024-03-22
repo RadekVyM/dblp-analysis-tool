@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
 import { PUBLICATION_TYPE_COLOR } from '@/constants/publications'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
+import DividedDefinitionList from '@/components/DividedDefinitionList'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -77,7 +78,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
                     isSimplified={isSimplified}
                     selectedUnit={barChartSelectedUnit}
                     onBarClick={publicationsUrl ?
-                        (key, value) => router.push(createFilteredPublicationsUrlByYear(publicationsUrl, key)) :
+                        (key, value) => value && value.items.length > 0 && router.push(createFilteredPublicationsUrlByYear(publicationsUrl, key)) :
                         undefined} />),
             secondaryContent: (
                 <ChartUnitSelection
@@ -99,6 +100,23 @@ export default function PublicationsOverTimeStats({ className, publications, sca
 
         },
     ], [publications, scaffoldId, isSimplified, publicationsUrl, barChartSelectedUnit, isLineChartHidden, router]);
+    const statsItem = useMemo(() => {
+        const [min, max] = d3.extent(publications, (item) => item.year);
+
+        if (!min || !max) {
+            return undefined;
+        }
+
+        const count = isSimplified ?
+            publications.reduce((acc, current) => acc + (current as SimplifiedOverTimePublication).count, 0) :
+            publications.length;
+        const average = count / (Math.abs(max - min) + 1);
+
+        return [
+            { term: 'Publication years:', definition: min === max ? min.toString() : `${min}-${max}` },
+            { term: 'Average per year:', definition: Math.round(average).toLocaleString(undefined, { useGrouping: true }) },
+        ];
+    }, [publications, isSimplified]);
 
     useEffect(() => {
         if (isLineChartHidden && selectedPublTypesStatsVisual === 'Line') {
@@ -107,16 +125,23 @@ export default function PublicationsOverTimeStats({ className, publications, sca
     }, [isLineChartHidden, selectedPublTypesStatsVisual]);
 
     return (
-        <StatsScaffold
-            className={cn(
-                className,
-                'max-h-[min(80vh,40rem)]',
-                selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
-            items={items}
-            scaffoldId={scaffoldId || 'publications-over-time-stats'}
-            sideTabsLegend='Choose data visualisation'
-            selectedKey={selectedPublTypesStatsVisual}
-            onKeySelected={setSelectedPublTypesStatsVisual} />
+        <>
+            {statsItem &&
+                <DividedDefinitionList
+                    className='mb-6'
+                    items={statsItem} />}
+
+            <StatsScaffold
+                className={cn(
+                    className,
+                    'max-h-[min(80vh,40rem)]',
+                    selectedPublTypesStatsVisual !== 'Table' ? 'h-[100vh] min-h-[30rem]' : '')}
+                items={items}
+                scaffoldId={scaffoldId || 'publications-over-time-stats'}
+                sideTabsLegend='Choose data visualisation'
+                selectedKey={selectedPublTypesStatsVisual}
+                onKeySelected={setSelectedPublTypesStatsVisual} />
+        </>
     )
 }
 
@@ -220,7 +245,7 @@ function createFilteredPublicationsUrlByYear(publicationsUrl: string, year: numb
     return publicationsUrl.includes('?') ? `${publicationsUrl}&${params}` : `${publicationsUrl}?${params}`;
 }
 
-/** Gradient displaying distribution of publication types in a year. */
+/** Gradient displaying a distribution of publication types in a year. */
 function barGradient(key: any, value?: ChartValue | undefined) {
     if (!value) {
         return {
