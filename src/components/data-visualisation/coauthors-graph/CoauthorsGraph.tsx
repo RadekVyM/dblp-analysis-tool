@@ -195,6 +195,7 @@ function useCanvas(
 
     useEffect(() => {
         const context = canvas?.getContext('2d');
+        const ratio = Math.ceil(window?.devicePixelRatio || 1);
 
         if (!context || nodes.length === 0) {
             return;
@@ -204,8 +205,8 @@ function useCanvas(
 
         context.clearRect(0, 0, canvas?.width || 0, canvas?.height || 0);
 
-        context.translate(zoomTransform.x, zoomTransform.y);
-        context.scale(zoomTransform.scale, zoomTransform.scale);
+        context.translate(zoomTransform.x * ratio, zoomTransform.y * ratio);
+        context.scale(zoomTransform.scale * ratio, zoomTransform.scale * ratio);
 
         drawLinks(
             links,

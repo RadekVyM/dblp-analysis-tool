@@ -31,7 +31,7 @@ export default function ExportButton({ exportedObject, children, className, file
                 children ||
                 <>
                     <MdGetApp />
-                    Export
+                    <span className='hidden xs:block'>Export</span>
                 </>
             }
         </Button>

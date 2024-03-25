@@ -83,7 +83,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
+            className='dialog md:max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
             <DialogContent
                 className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader
@@ -113,7 +113,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                 </DialogBody>
 
                 <footer
-                    className='px-6 pb-6 pt-2 self-stretch flex'>
+                    className='px-6 pb-6 pt-2 self-stretch flex items-center @container'>
                     <span className='flex-1'>{textFileSize}</span>
 
                     <div
@@ -126,7 +126,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                             target='_blank'
                             className='items-center gap-x-2'>
                             <MdGetApp />
-                            Download
+                            <span className='hidden @sm:inline'>Download</span>
                         </Button>
                     </div>
                 </footer>
@@ -157,7 +157,7 @@ function CopyToClipboardButton({ exportedGraph }: CopyToClipboardButtonParams) {
             }}
             className='items-center gap-x-2'>
             {success ? <MdCheckCircle /> : <MdFileCopy />}
-            Copy to clipboard
+            <span className='hidden @sm:inline'>Copy to clipboard</span>
         </Button>
     )
 }

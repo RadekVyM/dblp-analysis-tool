@@ -91,8 +91,8 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
             ref={rootRef}
             className={cn(
                 'relative grid gap-3',
-                'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[100vh] max-h-[max(100vh,40rem)]',
-                '@2xl:grid-rows-[1fr_auto] @2xl:grid-cols-[1fr_minmax(auto,18rem)] @2xl:h-[100vh] @2xl:min-h-[30rem] @2xl:max-h-[min(80vh,40rem)]',
+                'grid-rows-[0.75fr_auto_1fr] grid-cols-[1fr] h-[40rem]',
+                '@2xl:grid-rows-[1fr_auto] @2xl:grid-cols-[1fr_minmax(auto,18rem)] @2xl:h-full @2xl:min-h-[25rem] @2xl:max-h-[min(80vh,40rem)]',
                 isFullscreen ? 'p-2 bg-surface @5xl:grid-cols-[1fr_minmax(auto,20rem)]' : '',
                 className)}>
             <DataVisualisationContainer

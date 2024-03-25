@@ -35,6 +35,7 @@ export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, Da
     const innerRef = useRef<HTMLCanvasElement | null>(null);
     const outerRef = useRef<HTMLDivElement>(null);
     const dimensions = useDimensions(outerRef);
+    const ratio = Math.ceil(window?.devicePixelRatio || 1);
     const { zoomTo } = useZoom(dimensions, innerRef, zoomScaleExtent, onZoomChange);
 
     useImperativeHandle(ref, () => ({
@@ -56,7 +57,7 @@ export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, Da
             <canvas
                 {...rest}
                 ref={innerRef}
-                width={dimensions.width} height={dimensions.height}
+                width={dimensions.width * ratio} height={dimensions.height * ratio}
                 className={cn('w-full h-full', innerClassName)}
                 role='img'>
             </canvas>
