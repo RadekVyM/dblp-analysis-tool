@@ -12,7 +12,7 @@ import { FilterState, FilterStatesMap, FiltersState } from '@/dtos/Filters'
 import { isGreater } from '@/utils/array'
 import SearchBox from '@/components/inputs/SearchBox'
 import { cn } from '@/utils/tailwindUtils'
-import { isNullOrWhiteSpace, removeAccents, searchIncludes } from '@/utils/strings'
+import { isNullOrWhiteSpace, searchIncludes, splitSearchQuery } from '@/utils/strings'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import { anyKeys } from '@/utils/objects'
 
@@ -199,16 +199,12 @@ function useFiltersDialogBodyState(selectedFilter: FilterState, selectedKey: any
     const targerObserver = useRef<HTMLDivElement>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const selectableItems = useMemo(() => {
-        const searchQueries = removeAccents(searchQuery.trim())
-            .split(' ')
-            .filter((s) => s)
-            .map((s) => s.toLowerCase());
-
+        const searchPhrases = splitSearchQuery(searchQuery);
         const items = selectedFilter?.selectableItems ?
             [...selectedFilter?.selectableItems]
                 .filter(([key, value]) =>
                     isNullOrWhiteSpace(searchQuery) ||
-                    searchIncludes(selectedFilter.itemTitleSelector(value) as string, ...searchQueries)) :
+                    searchIncludes(selectedFilter.itemTitleSelector(value) as string, ...searchPhrases)) :
             [];
 
         items.sort(([key1, value1], [key2, value2]) => isGreater(value1, value2));

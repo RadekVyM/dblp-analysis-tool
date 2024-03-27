@@ -189,10 +189,10 @@ function ShouldRenderGraph({ onRenderItClick }: ShouldRenderGraphParams) {
     return (
         <div
             className='px-4 pb-4 pt-5'>
-            <h2 className='font-bold mb-4'>This graph is huge!</h2>
+            <h2 className='font-bold mb-4'>This graph is large!</h2>
             <p>
                 Are you sure you want this graph to be rendered?<br />
-                It may take a long time, slow your browser and will most likely be pretty useless.
+                It may take a long time, slow your browser and will most likely not be useful.
             </p>
             <Button
                 className='mt-5'

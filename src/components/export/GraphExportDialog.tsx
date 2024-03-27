@@ -47,6 +47,8 @@ const FORMATS_MAP = new Map<GraphExportFormat, GraphExportFormatValues>([
 ]);
 
 const DEFAULT_FORMAT = GraphExportFormat.Json;
+const MAX_NODES_COUNT_FOR_MATRIX_CSV = 4000;
+const MAX_PREVIEW_LENGTH = 250000;
 
 /** Dialog for exporting a coauthors graph to various formats. */
 const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>(({ id, hide, animation, isOpen, nodes, links }, ref) => {
@@ -65,7 +67,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
         return format?.export(exportedNodes, exportedLinks) || '';
     }, [selectedFormat, includeOnlyVisible, nodes, links, isOpen]);
     const { file, textFileSize } = useTextFile(exportedGraph);
-    const printedText = useMemo(() => exportedGraph.substring(0, 250000), [exportedGraph]);
+    const printedText = useMemo(() => exportedGraph.substring(0, MAX_PREVIEW_LENGTH), [exportedGraph]);
     const currentFormat = FORMATS_MAP.get(selectedFormat);
 
     useEffect(() => {
@@ -91,7 +93,9 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                     heading={'Export Graph'}>
                     <ComboBox
                         id={`${id}-graph-format-combobox`}
-                        items={[...FORMATS_MAP].map(([key, format]) => ({ key: key, label: format.label })).filter((v) => v.key !== GraphExportFormat.MatrixCsv || nodes.length < 4000)}
+                        items={[...FORMATS_MAP]
+                            .map(([key, format]) => ({ key: key, label: format.label }))
+                            .filter((v) => v.key !== GraphExportFormat.MatrixCsv || nodes.length <= MAX_NODES_COUNT_FOR_MATRIX_CSV)}
                         selectedKey={selectedFormat}
                         onKeySelectionChange={(key) => setSelectedFormat(key as GraphExportFormat)} />
                     <CheckListButton
@@ -108,7 +112,7 @@ const GraphExportDialog = forwardRef<HTMLDialogElement, GraphExportDialogParams>
                     <pre
                         ref={preRef}
                         className='flex-1 overflow-auto thin-scrollbar bg-surface-container text-on-surface-container border border-outline rounded-lg p-4'>
-                        {printedText}{printedText.length < exportedGraph.length ? '...' : ''}
+                        {printedText}{printedText.length < exportedGraph.length ? '\n...' : ''}
                     </pre>
                 </DialogBody>
 

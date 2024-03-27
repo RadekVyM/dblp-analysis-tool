@@ -3,7 +3,7 @@
 import CheckListButton from '@/components/inputs/CheckListButton'
 import AuthorListItem from './AuthorListItem'
 import LoadingWheel from '@/components/LoadingWheel'
-import { RefObject, useEffect, useMemo, useRef } from 'react'
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { DblpAuthor } from '@/dtos/DblpAuthor'
 import LinkArrow from '@/components/LinkArrow'
 import Link from 'next/link'
@@ -14,14 +14,12 @@ import { PublicationPersonNodeDatum } from '@/dtos/data-visualisation/graphs/Pub
 import useAuthor from '@/hooks/authors/useAuthor'
 import useLazyListCount from '@/hooks/useLazyListCount'
 import useCommonUncommonCoauthors from '@/hooks/data-visualisation/useCommonUncomonCoauthors'
-import { MdInfo } from 'react-icons/md'
-import { useDebounce } from 'usehooks-ts'
-import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
-import Popover from '@/components/Popover'
 import Badge from '@/components/Badge'
-import { stify } from '@/utils/strings'
+import { searchIncludes, splitSearchQuery, stify } from '@/utils/strings'
 import InfoBadge from './InfoBadge'
 import SaveAuthorButtons from '@/components/authors/SaveAuthorButtons'
+import SearchBox from '@/components/inputs/SearchBox'
+import { personNodeMatchesSearchPhrases } from '@/services/graphs/authors'
 
 const COUNT_INCREASE = 60;
 
@@ -125,7 +123,9 @@ function SelectedAuthorContent({
         displayedCommonCoauthors,
         displayedUncommonCoauthors,
         commonCoauthorsCount,
-        uncommonCoauthorsCount
+        uncommonCoauthorsCount,
+        searchQuery,
+        onSearchQueryChange
     } = useDisplayedCoauthors(
         targerObserver,
         listRef,
@@ -186,6 +186,16 @@ function SelectedAuthorContent({
                         className='w-full text-xs'>
                         <span className='leading-4'>Include {selectedAuthor.person.name} as an original author</span>
                     </CheckListButton>
+                </div>
+            }
+            {
+                (commonCoauthorsCount > 0 || uncommonCoauthorsCount > 0) &&
+                <div
+                    className='sticky top-0 bg-surface-container z-30 mx-4 pb-1 mt-4'>
+                    <SearchBox
+                        placeholder='Search coauthors...'
+                        searchQuery={searchQuery}
+                        onSearchQueryChange={onSearchQueryChange} />
                 </div>
             }
             {
@@ -280,7 +290,7 @@ function SelectedAuthorContent({
 
 function SectionHeading({ children, info, count, countTitle, popoverContainerRef }: SectionHeadingParams) {
     return (
-        <h5 className='font-bold mx-4 mt-4 text-sm'>
+        <h5 className='font-bold mx-4 mt-3 text-sm'>
             {children} {info &&
                 <InfoBadge
                     info={info}
@@ -318,29 +328,48 @@ function useDisplayedCoauthors(
     isIncludedAuthor: boolean,
     allIncludedAuthorIds: Array<string>,
 ) {
+    const [searchQuery, setSearchQuery] = useState('');
     const { commonCoauthors, uncommonCoauthors } = useCommonUncommonCoauthors(
         authorsMap,
         fetchedAuthor,
         isIncludedAuthor,
         allIncludedAuthorIds
     );
-    const [displayedCount, resetDisplayedCount] = useLazyListCount(uncommonCoauthors.length + commonCoauthors.length, COUNT_INCREASE, targerObserver);
+    const searchPhrases = useMemo(() => splitSearchQuery(searchQuery), [searchQuery]);
+    const filteredCommonCoauthors = useMemo(
+        () => commonCoauthors
+            .filter((node) => node && personNodeMatchesSearchPhrases(node, searchPhrases)),
+        [commonCoauthors, searchPhrases]);
+    const filteredUncommonCoauthors = useMemo(
+        () => uncommonCoauthors
+            .filter((node) => searchIncludes(node.name, ...searchPhrases)),
+        [uncommonCoauthors, searchPhrases]);
+    const [displayedCount, resetDisplayedCount] = useLazyListCount(filteredUncommonCoauthors.length + filteredCommonCoauthors.length, COUNT_INCREASE, targerObserver);
     const displayedCommonCoauthors = useMemo(
-        () => commonCoauthors.slice(0, displayedCount),
-        [commonCoauthors, displayedCount]);
+        () => filteredCommonCoauthors.slice(0, displayedCount),
+        [filteredCommonCoauthors, displayedCount]);
     const displayedUncommonCoauthors = useMemo(
-        () => displayedCount > commonCoauthors.length ? uncommonCoauthors.slice(0, displayedCount) : [],
-        [uncommonCoauthors, commonCoauthors, displayedCount]);
+        () => displayedCount > filteredCommonCoauthors.length ?
+            filteredUncommonCoauthors.slice(0, displayedCount) :
+            [],
+        [filteredUncommonCoauthors, filteredCommonCoauthors.length, displayedCount]);
 
     useEffect(() => {
+        setSearchQuery('');
         resetDisplayedCount();
         listRef.current?.scrollTo({ top: 0, behavior: 'instant' });
     }, [fetchedAuthor?.id, listRef, resetDisplayedCount]);
 
+    useEffect(() => {
+        resetDisplayedCount();
+    }, [searchQuery]);
+
     return {
         displayedCommonCoauthors,
         displayedUncommonCoauthors,
-        commonCoauthorsCount: commonCoauthors.length,
-        uncommonCoauthorsCount: uncommonCoauthors.length,
+        commonCoauthorsCount: filteredCommonCoauthors.length,
+        uncommonCoauthorsCount: filteredUncommonCoauthors.length,
+        searchQuery,
+        onSearchQueryChange: setSearchQuery,
     };
 }

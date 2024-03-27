@@ -59,14 +59,14 @@ export function splitSearchQuery(searchQuery: string) {
 }
 
 /**
- * Returns whether a string includes at least one of the specified phrases. Accents and character case are ignored.
+ * Returns whether a string includes all the specified phrases. Accents and character case are ignored.
  * @param str Input string
  * @param phrases Specified phrases
  * @returns Whether a string includes specified phrases
  */
 export function searchIncludes(str: string, ...phrases: Array<string>) {
     const searchedString = removeAccents(str).toLowerCase();
-    return phrases.length === 0 || phrases.some((s) => searchedString.includes(s));
+    return phrases.length === 0 || phrases.every((s) => searchedString.includes(s));
 }
 
 /**
