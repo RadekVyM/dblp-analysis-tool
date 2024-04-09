@@ -116,6 +116,8 @@ const MenuContainer = forwardRef<HTMLElement, SavedItemsMenuParams>(({ className
         if (isNotMobile) {
             savedItemsMenuHoverChanged(isContainerHovered);
         }
+        // savedItemsMenuHoverChanged should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isContainerHovered, isNotMobile]);
 
     return (

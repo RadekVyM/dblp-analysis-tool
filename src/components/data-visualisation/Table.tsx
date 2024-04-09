@@ -188,6 +188,8 @@ function useDisplayedSortedRows(rows: Array<Array<TableData>>, columnHeaders: Ar
         setSortedRows(newRows);
         resetDisplayedCount();
         scrollableElement.current?.scrollTo({ top: 0, behavior: 'instant' });
+        // resetDisplayedCount should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rows, columnHeaders, sorting]);
 
     const updateSorting = useCallback((column: TableColumn) => {

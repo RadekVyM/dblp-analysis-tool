@@ -217,6 +217,8 @@ function useFiltersDialogBodyState(selectedFilter: FilterState, selectedKey: any
     useEffect(() => {
         setSearchQuery('');
         resetDisplayedCount();
+        // resetDisplayedCount should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedKey]);
 
     return {

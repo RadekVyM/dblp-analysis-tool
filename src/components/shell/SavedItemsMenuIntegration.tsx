@@ -49,6 +49,8 @@ export function SavedItemsMenuIntegration() {
         }
 
         changeState(isHovered);
+        // changeState should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isHovered, isNotMobile]);
 
     function changeState(isHovering: boolean) {

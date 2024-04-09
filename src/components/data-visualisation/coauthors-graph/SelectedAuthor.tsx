@@ -362,6 +362,8 @@ function useDisplayedCoauthors(
 
     useEffect(() => {
         resetDisplayedCount();
+        // resetDisplayedCount should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery]);
 
     return {

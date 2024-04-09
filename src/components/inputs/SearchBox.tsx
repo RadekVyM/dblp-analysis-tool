@@ -24,6 +24,8 @@ export default function SearchBox({ className, searchQuery, placeholder, onSearc
 
     useEffect(() => {
         onSearchQueryChange(debouncedSearchQuery);
+        // onSearchQueryChange should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearchQuery]);
 
     return (

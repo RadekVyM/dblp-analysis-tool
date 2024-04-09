@@ -45,6 +45,7 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
     const displayedNodes = useMemo(
         () => graph.nodes.filter((a) => a.isVisible),
         // Dependency array contains all properties that modify the isVisible property of nodes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [graph.nodes, graph.filteredAuthorsIds, graph.searchQuery, graph.originalAuthorsAlwaysIncluded, graph.intersectionOfCoauthors, graph.onlyCommonCoauthors, authors]);
     const { filtersMap, switchSelection, clear, toggleUseAnd } = useFilters(
         allAuthors.publications,
@@ -269,6 +270,8 @@ function useFilters(publications: Array<DblpPublication>, onFilteredAuthorsIdsCh
         }));
 
         onFilteredAuthorsIdsChange(authorsIds);
+        // onFilteredAuthorsIdsChange should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [publications, typesFilter, venuesFilter, yearsFilter, authorsFilter]);
 
     return { filtersMap, switchSelection, clear, toggleUseAnd };

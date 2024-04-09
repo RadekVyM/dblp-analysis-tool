@@ -223,6 +223,8 @@ function ResultsList({ query, selectedUrl, selectedSearchType, setUrls, hide }: 
             .concat(...(authorsResult.authors?.hits.items.map(i => i.info.localUrl) || []), ...(venuesResult.venues?.hits.items.map(i => i.info.localUrl) || []));
 
         setUrls(urls);
+        // setUrls should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authorsResult.authors, venuesResult.venues, completions]);
 
     return (

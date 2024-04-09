@@ -195,6 +195,8 @@ function PieChartSlice({ arc, defaultRadius, className, hoveredSlice, color, onS
                 const percentInterpolate = d3.interpolate(from, to);
                 return t => setRadiusAddition(percentInterpolate(t));
             });
+        // radiusAddition should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hoveredSlice, arc]);
 
     return (

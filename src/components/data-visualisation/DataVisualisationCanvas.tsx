@@ -47,6 +47,8 @@ export const DataVisualisationCanvas = forwardRef<DataVisualisationCanvasRef, Da
         if (dimensions && onDimensionsChange) {
             onDimensionsChange(dimensions.width, dimensions.height);
         }
+        // onDimensionsChange should not trigger this effect
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dimensions]);
 
     return (

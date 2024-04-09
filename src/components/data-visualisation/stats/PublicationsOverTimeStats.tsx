@@ -99,6 +99,8 @@ export default function PublicationsOverTimeStats({ className, publications, sca
             icon: (<MdTableChart />),
 
         },
+        // setBarChartSelectedUnit should not trigger this memo function
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [publications, scaffoldId, isSimplified, publicationsUrl, barChartSelectedUnit, isLineChartHidden, router]);
     const statsItem = useMemo(() => {
         const [min, max] = d3.extent(publications, (item) => item.year);
