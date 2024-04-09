@@ -170,7 +170,8 @@ function PublicationVenuesTable({ publications, venues }: PublicationVenuesTable
             toHref={tableToHref}
             filter={tableFilter}
             sortExaminedValue={sortByPresentedContent}
-            rowKey={venueTableRowKey} />
+            rowKey={venueTableRowKey}
+            hideFooter />
     )
 }
 

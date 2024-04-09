@@ -63,7 +63,7 @@ export default function Table({ rows, columnHeaders, footer, className, isFirstC
     return (
         <div
             ref={scrollableElement}
-            className={cn('grid content-stretch overflow-auto', className)}>
+            className={cn('grid content-stretch overflow-auto thin-scrollbar', className)}>
             <table
                 className='border-collapse table-auto'>
                 <thead

@@ -285,11 +285,12 @@ function Bar({ chartKey, left, top, width, height, radius, chartValue, displayed
     return (
         <>
             <g
+                className='group'
                 onPointerMove={onPointerMove}
                 onPointerLeave={onPointerLeave}
                 onClick={onBarClick && (() => onBarClick(chartKey, chartValue))}>
                 <rect
-                    className={cn(onBarClick && 'cursor-pointer hover:brightness-95')}
+                    className={cn(onBarClick && 'cursor-pointer group-hover:brightness-95')}
                     style={{ fill: color(chartKey, chartValue) }}
                     x={left} y={top}
                     width={width} height={height}

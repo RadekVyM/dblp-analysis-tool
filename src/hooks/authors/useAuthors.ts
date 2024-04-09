@@ -31,7 +31,17 @@ export default function useAuthors(alreadyAvailableAuthors: Array<DblpAuthor>, a
 
         return () => controller.abort();
     });
-    const authors = useMemo(() => [...alreadyAvailableAuthors, ...(data || [])], [alreadyAvailableAuthors, data]);
+    const authors = useMemo(() => {
+        const uniqueAuthors = new Map<string, DblpAuthor>();
+
+        [...alreadyAvailableAuthors, ...(data || [])].forEach((a) => {
+            if (!uniqueAuthors.has(a.id) && authorIds.some((id) => id === a.id)) {
+                uniqueAuthors.set(a.id, a);
+            }
+        });
+
+        return [...uniqueAuthors.values()];
+    }, [alreadyAvailableAuthors, data]);
 
     return {
         authors,

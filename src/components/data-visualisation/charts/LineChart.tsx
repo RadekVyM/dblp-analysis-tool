@@ -125,7 +125,7 @@ function Chart({ chartMap, keys, valuesScale, dimensions, chartPadding, primaryA
                             cx={point.x}
                             cy={point.y}
                             r={hoveredKey === point.key ? 6 : 4}
-                            className='fill-primary pointer-events-none' />
+                            className='fill-primary stroke-surface-container stroke-2 drop-shadow-lg pointer-events-none' />
 
                         {
                             hoveredKey === point.key &&

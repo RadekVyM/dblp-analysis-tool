@@ -39,8 +39,10 @@ export async function tryGetCachedRecord<T>(recordId: string): Promise<T | null>
     await connectDb();
 
     const cachedRecord = await CachedJsonRecord.findOne<CachedJsonRecordSchema>({ recordId: recordId });
+    const time = new Date().getTime() - CACHED_RECORD_MAX_AGE;
+    const updatedAtTime = cachedRecord?.updatedAt?.getTime();
 
-    if (cachedRecord && cachedRecord.updatedAt >= new Date(new Date().getTime() - CACHED_RECORD_MAX_AGE)) {
+    if (cachedRecord && updatedAtTime && updatedAtTime >= time) {
         return JSON.parse(cachedRecord.jsonObject) as T;
     }
 

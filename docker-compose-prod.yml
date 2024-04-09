@@ -1,0 +1,24 @@
+# Docker compose file for testing production builds during development
+version: "3.8"
+services:
+  next-app:
+    build:
+      context: ./src # folder of the app on my machine
+      target: runner
+      dockerfile: Dockerfile
+    container_name: next-app
+    restart: always
+    ports:
+      - "80:3000"
+    depends_on:
+      - mongodb
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: "mongodb://mongodb:27017/dblp-analysis-tool"
+
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
