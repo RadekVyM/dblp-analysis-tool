@@ -89,7 +89,7 @@ async function AuthorInfo({ className, author }: AuthorInfoParams) {
         <div
             className={cn(
                 'flex flex-col gap-7',
-                author.info && (author.info.aliases.length > 0 || author.info.affiliations.length > 0) ? '' : 'mt-4',
+                author.info && (author.info.aliases.length > 0 || author.info.affiliations.length > 0 || author.info.disambiguation) ? '' : 'mt-4',
                 className)}>
             {
                 author.info &&

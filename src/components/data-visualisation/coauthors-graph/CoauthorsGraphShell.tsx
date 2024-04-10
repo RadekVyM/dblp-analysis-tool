@@ -71,6 +71,10 @@ export default function CoauthorsGraphShell({ id, authors, publications, classNa
     }
 
     function onCoauthorHoverChange(id: string | null, isHovered: boolean) {
+        if (!shouldRenderGraph) {
+            return;
+        }
+
         updateGraph((oldGraph) => {
             let newHoveredId: string | null = null;
 
