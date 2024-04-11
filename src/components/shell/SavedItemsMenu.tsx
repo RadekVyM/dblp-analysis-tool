@@ -188,7 +188,7 @@ function MenuContent({ hide }: MenuContentParams) {
                 <Button
                     title='Close'
                     size='sm' variant='icon-outline'
-                    className='md:hidden'
+                    className='md:hidden p-0'
                     onClick={() => hide()}>
                     <MdClose
                         className='w-5 h-5' />

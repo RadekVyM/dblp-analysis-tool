@@ -14,7 +14,6 @@ import useSavedAuthors from '@/hooks/saves/useSavedAuthors'
 import useSavedVenues from '@/hooks/saves/useSavedVenues'
 import useAuthorGroups from '@/hooks/saves/useAuthorGroups'
 import { AuthorGroup } from '@/dtos/saves/AuthorGroup'
-import { SavedAuthor } from '@/dtos/saves/SavedAuthor'
 import { SavedVenue } from '@/dtos/saves/SavedVenue'
 import { retreiveValidSavedItems } from '@/services/export/saves'
 
@@ -60,7 +59,7 @@ const ImportItemsDialog = forwardRef<HTMLDialogElement, ImportItemsDialogParams>
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
+            className='dialog md:max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
             <DialogContent
                 className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader

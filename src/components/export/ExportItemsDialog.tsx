@@ -52,7 +52,7 @@ const ExportItemsDialog = forwardRef<HTMLDialogElement, ExportItemsDialogParams>
             ref={ref}
             animation={animation}
             hide={hide}
-            className='dialog max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
+            className='dialog md:max-w-3xl max-h-[min(40rem,90%)] w-full h-full flex-dialog'>
             <DialogContent
                 className='max-h-full flex-1 flex flex-col'>
                 <DialogHeader
