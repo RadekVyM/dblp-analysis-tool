@@ -3,13 +3,13 @@ version: "3.8"
 services:
   next-app:
     build:
-      context: ./src # folder of the app on my machine
+      context: ./ # folder of the app on my machine
       target: runner
       dockerfile: Dockerfile
     container_name: next-app
     restart: always
     ports:
-      - "80:3000"
+      - "3000:3000"
     depends_on:
       - mongodb
     environment:
