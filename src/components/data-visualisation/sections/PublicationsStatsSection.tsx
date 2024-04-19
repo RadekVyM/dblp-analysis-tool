@@ -5,6 +5,7 @@ import ItemsStats from '@/components/ItemsStats'
 import PublicationsOverTimeStats from '@/components/data-visualisation/stats/PublicationsOverTimeStats'
 import PublicationVenuesStats from '@/components/data-visualisation/stats/PublicationVenuesStats'
 import PublicationListItem from '@/components/publications/PublicationListItem'
+import { isSmaller } from '@/utils/array'
 
 type PublicationsStatsSectionParams = {
     id: string,
@@ -38,7 +39,7 @@ export default function PublicationsStatsSection({ id, publications, publication
                     <PageSubsectionTitle>Last Added</PageSubsectionTitle>
                     <ul
                         className='flex flex-col gap-5 pl-4 mb-10'>
-                        {publications.slice(0, maxDisplayedCount).map((publ) =>
+                        {toSortedPublications(publications).slice(0, maxDisplayedCount).map((publ) =>
                             <PublicationListItem
                                 key={publ.id}
                                 publication={publ} />)}
@@ -88,4 +89,10 @@ export default function PublicationsStatsSection({ id, publications, publication
             {children}
         </PageSection>
     )
+}
+
+function toSortedPublications(publications: Array<DblpPublication>) {
+    const sortedPublications = [...publications];
+    sortedPublications.sort((a, b) => isSmaller(a.year, b.year));
+    return sortedPublications;
 }
