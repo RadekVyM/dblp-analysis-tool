@@ -1,5 +1,6 @@
 'use client'
 
+import { getCurrentLocale } from '@/utils/locales';
 import { useMemo } from 'react'
 
 /**
@@ -25,7 +26,7 @@ function fileSizeToText(bytes: number) {
     const kilo = bytes / 1024;
 
     if (kilo < 1024) {
-        return kilo.toLocaleString(undefined, { style: 'unit', unit: 'kilobyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return kilo.toLocaleString(getCurrentLocale(), { style: 'unit', unit: 'kilobyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    return (kilo / 1024).toLocaleString(undefined, { style: 'unit', unit: 'megabyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (kilo / 1024).toLocaleString(getCurrentLocale(), { style: 'unit', unit: 'megabyte', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

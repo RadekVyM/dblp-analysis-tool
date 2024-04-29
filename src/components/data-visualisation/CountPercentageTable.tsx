@@ -1,6 +1,7 @@
 'use client'
 
 import Table, { TableData } from '@/components/data-visualisation/Table'
+import { getCurrentLocale } from '@/utils/locales'
 import { useMemo } from 'react'
 
 type CountPercentageTableParams = {
@@ -43,14 +44,14 @@ export default function CountPercentageTable({
             return [
                 { value: examinedValue, presentedContent: toPresentedContent(examinedValue), href: toHref && toHref(examinedValue) },
                 { value: count, presentedContent: count },
-                { value: percentage, presentedContent: percentage.toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
+                { value: percentage, presentedContent: percentage.toLocaleString(getCurrentLocale(), { maximumFractionDigits: 2, style: 'percent' }) }
             ];
         }),
         [examinedValues, items, totalCount, itemsCount, toPresentedContent, toHref, filter]);
     const footer = [
         { value: 'Totals', presentedContent: 'Totals' },
         { value: totalCount || items.length, presentedContent: totalCount || items.length },
-        { value: 1, presentedContent: (1).toLocaleString(undefined, { maximumFractionDigits: 2, style: 'percent' }) }
+        { value: 1, presentedContent: (1).toLocaleString(getCurrentLocale(), { maximumFractionDigits: 2, style: 'percent' }) }
     ];
 
     return (

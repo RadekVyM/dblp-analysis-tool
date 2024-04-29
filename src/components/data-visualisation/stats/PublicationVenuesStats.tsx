@@ -23,6 +23,7 @@ import { SearchType } from '@/enums/SearchType'
 import { VenueType } from '@/enums/VenueType'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
 import * as d3 from 'd3'
+import { getCurrentLocale } from '@/utils/locales'
 
 type VenuePublication = {
     id: string,
@@ -197,10 +198,10 @@ function useVenuesStats(publications: VenuePublication[]) {
         const conferencesCount = venues.filter((v) => v.venueId && getVenueTypeFromDblpString(v.venueId) === VenueType.Conference).length;
 
         if (journalsCount) {
-            items.push({ term: 'Journals count:', definition: journalsCount.toLocaleString(undefined, { useGrouping: true }) });
+            items.push({ term: 'Journals count:', definition: journalsCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) });
         }
         if (conferencesCount) {
-            items.push({ term: 'Conferences count:', definition: conferencesCount.toLocaleString(undefined, { useGrouping: true }) });
+            items.push({ term: 'Conferences count:', definition: conferencesCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) });
         }
 
         return items;

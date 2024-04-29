@@ -13,6 +13,7 @@ import { DataVisualisationCanvas, DataVisualisationCanvasRef } from '../DataVisu
 import { Inter } from 'next/font/google'
 import { clamp } from '@/utils/numbers'
 import { polygonArea, scaleToLength, triangleArea } from '@/utils/geometry'
+import { getCurrentLocale } from '@/utils/locales'
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -125,7 +126,7 @@ const CoauthorsGraph = forwardRef<CoauthorsGraphRef, CoauthorsGraphParams>(({
                     className='place-self-center row-start-1 row-end-2 col-start-1 col-end-2 text-on-surface-container-muted flex flex-col items-center gap-2'>
                     <LoadingWheel
                         className='w-10 h-10' />
-                    <span className='text-sm'>{progress.toLocaleString(undefined, { maximumFractionDigits: 0, style: 'percent' })}</span>
+                    <span className='text-sm'>{progress.toLocaleString(getCurrentLocale(), { maximumFractionDigits: 0, style: 'percent' })}</span>
                 </div>
             }
         </div>

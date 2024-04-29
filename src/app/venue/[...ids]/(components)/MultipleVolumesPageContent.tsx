@@ -16,6 +16,7 @@ import VenueContent from './VenueContent'
 import Tabs from '@/components/Tabs'
 import { VenuePageContent } from '@/enums/VenuePageContent'
 import useVenueVolumes from '@/hooks/venues/useVenueVolumesTitle'
+import { getCurrentLocale } from '@/utils/locales'
 
 type MultipleVolumesPageContentParams = {
     venue: DblpVenue,
@@ -130,11 +131,11 @@ function GeneralStatsSection({ venue }: GeneralStatsSectionParams) {
     const generalStatsItems: Array<DefinitionListItem> = [];
 
     if (venue.venueAuthorsInfo) {
-        generalStatsItems.push({ term: 'Total authors count:', definition: venue.venueAuthorsInfo.totalAuthorsCount.toLocaleString(undefined, { useGrouping: true }) });
+        generalStatsItems.push({ term: 'Total authors count:', definition: venue.venueAuthorsInfo.totalAuthorsCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) });
     }
 
     if (venue.venuePublicationsInfo) {
-        generalStatsItems.push({ term: 'Total publications count:', definition: venue.venuePublicationsInfo.totalPublicationsCount.toLocaleString(undefined, { useGrouping: true }) });
+        generalStatsItems.push({ term: 'Total publications count:', definition: venue.venuePublicationsInfo.totalPublicationsCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) });
     }
 
     return (

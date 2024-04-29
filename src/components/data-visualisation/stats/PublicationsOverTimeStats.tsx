@@ -19,6 +19,7 @@ import { toYearsSearchParamsString } from '@/utils/publicationsSearchParams'
 import { PUBLICATION_TYPE_COLOR } from '@/constants/publications'
 import PublicationTypesPopoverContent from './PublicationTypesPopoverContent'
 import DividedDefinitionList from '@/components/DividedDefinitionList'
+import { getCurrentLocale } from '@/utils/locales'
 
 /** These items will be grouped by a chart or table. */
 type OverTimePublication = {
@@ -116,7 +117,7 @@ export default function PublicationsOverTimeStats({ className, publications, sca
 
         return [
             { term: 'Publication years:', definition: min === max ? min.toString() : `${min}-${max}` },
-            { term: 'Average per year:', definition: Math.round(average).toLocaleString(undefined, { useGrouping: true }) },
+            { term: 'Average per year:', definition: Math.round(average).toLocaleString(getCurrentLocale(), { useGrouping: true }) },
         ];
     }, [publications, isSimplified]);
 

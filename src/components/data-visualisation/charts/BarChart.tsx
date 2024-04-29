@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { useDebounce } from 'usehooks-ts'
 import Popover from '@/components/Popover'
 import usePopoverAnchorHover from '@/hooks/usePopoverAnchorHover'
+import { getCurrentLocale } from '@/utils/locales'
 
 export type BarChartData<T> = {
     color: (key: any, value?: ChartValue) => string,
@@ -236,8 +237,8 @@ function Chart({ chartMap, keys, valuesScale, dimensions, selectedUnit, orientat
                 const chartValue = chartMap.get(key);
                 const value = chartValue?.value || 0;
                 const displayedValue = selectedUnit === ChartUnit.Percentage ?
-                    value.toLocaleString(undefined, { style: 'percent', maximumFractionDigits: 2 }) :
-                    value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                    value.toLocaleString(getCurrentLocale(), { style: 'percent', maximumFractionDigits: 2 }) :
+                    value.toLocaleString(getCurrentLocale(), { maximumFractionDigits: 2 });
                 const bandWidth = barsScale.bandwidth();
                 const barHeight = Math.min(bandWidth, 28);
                 const offset = (barsScale(key) || 0) + (bandWidth - barHeight) / 2;
@@ -521,7 +522,7 @@ function useValuesTicks(
             .filter(value => selectedUnit === ChartUnit.Percentage ? true : value % 1 === 0)
             .map(value => ({
                 value,
-                displayedValue: selectedUnit === ChartUnit.Percentage ? value.toLocaleString(undefined, { style: 'percent' }) : value,
+                displayedValue: selectedUnit === ChartUnit.Percentage ? value.toLocaleString(getCurrentLocale(), { style: 'percent' }) : value,
                 offset: (orientation === ChartOrientation.Horizontal ? valuesScale(value) : 1 - valuesScale(value)) * length
             }));
     }, [valuesScale, dimensions, selectedUnit, orientation, padding]);

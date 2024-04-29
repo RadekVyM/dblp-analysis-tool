@@ -1,3 +1,4 @@
+import { getCurrentLocale } from '@/utils/locales';
 import DividedDefinitionList from './DividedDefinitionList'
 
 type ItemsStatsParams = {
@@ -10,11 +11,11 @@ type ItemsStatsParams = {
 /** Component that displays information about total and currently displayed items counts. */
 export default function ItemsStats({ totalCount, displayedCount, additionalItems, className }: ItemsStatsParams) {
     const items = [
-        { term: 'Total count:', definition: totalCount.toLocaleString(undefined, { useGrouping: true }) }
+        { term: 'Total count:', definition: totalCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) }
     ];
 
     if (displayedCount === 0 || displayedCount) {
-        items.push({ term: 'Displayed count:', definition: displayedCount.toLocaleString(undefined, { useGrouping: true }) });
+        items.push({ term: 'Displayed count:', definition: displayedCount.toLocaleString(getCurrentLocale(), { useGrouping: true }) });
     }
 
     if (additionalItems && additionalItems.length > 0) {
