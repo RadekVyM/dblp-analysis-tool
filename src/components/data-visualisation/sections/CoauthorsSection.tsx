@@ -21,8 +21,7 @@ type CoauthorsSectionParams = {
 /** Page section that displays the coauthors graph and table. */
 export default function CoauthorsSection({ id, authors, publications, tableCoauthorsExplanation, tablePublicationsExplanation, title, totalAuthorsCountDecrease }: CoauthorsSectionParams) {
     return (
-        <PageSection
-            className='@container'>
+        <PageSection>
             <PageSectionTitle
                 className='text-xl'>
                 {title || 'Coauthors'}
@@ -35,10 +34,13 @@ export default function CoauthorsSection({ id, authors, publications, tableCoaut
 
             <PageSubsectionTitle>Coauthorship Graph</PageSubsectionTitle>
 
-            <CoauthorsGraphShell
-                id={id}
-                authors={authors}
-                publications={publications} />
+            <div
+                className='@container'>
+                <CoauthorsGraphShell
+                    id={id}
+                    authors={authors}
+                    publications={publications} />
+            </div>
 
             <PageSubsectionTitle className='mt-10'>General Statistics</PageSubsectionTitle>
 
@@ -57,6 +59,6 @@ export default function CoauthorsSection({ id, authors, publications, tableCoaut
                     <dd>{tablePublicationsExplanation}</dd>
                 </div>
             </dl>
-        </PageSection>
+        </PageSection >
     )
 }
