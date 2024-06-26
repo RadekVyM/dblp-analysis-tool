@@ -238,7 +238,7 @@ function useCanvas(
         const point = getGraphPoint(event);
         const node = findNode(point);
 
-        if (node) {
+        if (node && (node.isVisible || graph.justDimInvisibleNodes)) {
             onNodeClick(node.person.id);
         }
     }
@@ -247,7 +247,7 @@ function useCanvas(
         const point = getGraphPoint(event);
         const node = findNode(point);
 
-        if (!node) {
+        if (!node || (!node.isVisible && !graph.justDimInvisibleNodes)) {
             const link = findLink(point);
 
             setLinkLabel(link && link.index !== undefined ?
