@@ -4,7 +4,11 @@
 
 ## dblp computer science bibliography
 
-*dblp computer science bibliography*, also known as *dblp*, is a leading publicly accessible database and web service providing metadata of publications from various fields of computer science. It includes not only publications from many significant journals and conference proceedings but also scientific monographs and encyclopedias. As of 2024, the database contains more than 7 million publications by over 3 million authors worldwide. New data are continuously added to the database through a semi-automatic process under the supervision of the [Schloss Dagstuhl](https://www.dagstuhl.de/) research center, which strives to ensure the highest quality of these data. 
+*dblp computer science bibliography*, also known as *dblp*, is a leading publicly accessible database and web service providing metadata of publications from various fields of computer science. It includes not only publications from many significant journals and conference proceedings but also scientific monographs and encyclopedias.
+
+[![dblp.org](/images/dblp.png)](https://dblp.org/)
+
+As of 2024, the database contains more than 7 million publications by over 3 million authors worldwide. New data are continuously added to the database through a semi-automatic process under the supervision of the [Schloss Dagstuhl](https://www.dagstuhl.de/) research center, which strives to ensure the highest quality of these data. 
 
 ## Provided value
 *dblp* provides valuable data for many researchers and institutions. However, for easier understanding, comparison, tracking trends, and overall analysis, it is beneficial to have the ability to clearly present this data and the relationships in them.
