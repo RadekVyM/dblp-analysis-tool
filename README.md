@@ -1,9 +1,9 @@
 # dblp-analysis-tool
 
-_dblp-analysis-tool_ is a web application for analyzing the [*dblp computer science bibliography*](https://dblp.org/), built as part of a Bachelor's thesis at [Palacký University Olomouc](https://www.inf.upol.cz/), supervised by [RNDr. Martin Trnečka, Ph.D.](http://trnecka.inf.upol.cz/) The project enables researchers and institutions to visualize, explore, and analyze bibliographic metadata from dblp with a user-friendly interface.
+_dblp-analysis-tool_ is a web application for analyzing the [*dblp computer science bibliography*](https://dblp.org/), built as part of my bachelor's thesis at [Palacký University Olomouc](https://www.inf.upol.cz/), supervised by [RNDr. Martin Trnečka, Ph.D.](http://trnecka.inf.upol.cz/) The project enables researchers and institutions to visualize, explore, and analyze bibliographic metadata from dblp with a user-friendly interface.
 
 > [!NOTE] 
-> This repository contains both [the source code of the tool](/src/) and [the text of the Bachelor's thesis](/text/BP_Vymětalík.pdf).
+> This repository contains both [the source code of the tool](/src/) and [the text of the bachelor's thesis](/text/BP_Vymětalík.pdf).
 
 ## About dblp
 
